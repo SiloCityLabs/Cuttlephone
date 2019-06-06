@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name "Button Contacts")(type KiCad)(uri C:/Users/Maave/avr/avr-gamepad/button-contacts.pretty)(options "")(descr ""))
+)
