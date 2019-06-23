@@ -26,6 +26,8 @@ fp-info-cache
 
 # Rendered Gerber files (exported from Pcbnew)
 gerbers/
+# Intermediate files like 3d models
+intermediates/
 
 # IDE files
 .idea/
