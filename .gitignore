@@ -24,10 +24,18 @@ fp-info-cache
 *.xml
 *.csv
 
+
+# Project specific
+
 # Rendered Gerber files (exported from Pcbnew)
 gerbers/
+
 # Intermediate files like 3d models
 intermediates/
 
 # IDE files
 .idea/
+
+# local file server stuff
+Gemfile
+Gemfile.lock
