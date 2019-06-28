@@ -8,7 +8,7 @@ USB-C gamepad is a portable gamepad for smartphones. The shell of the gamepad is
  - Brainstorm v2 with the community
 
 # Status
-A prototype (v1) is currently in development. You can follow progress from any of these:
+A prototype (v1) is currently in development. You can follow progress here:
  - [HackADay.io project log](https://hackaday.io/project/165606-usb-c-gamepad-phone-case)
  - [SiloCityLabs project blog / newsletter](https://silocitylabs.com/categories/projects/)
  - [SiloCityLabs Twitter](https://twitter.com/silocitylabs)
@@ -25,6 +25,7 @@ v2's fate will be decided by v1's performance and community discussion. I plan o
 Stick around until the prototype is finished! Follow the project with the links above. I'm open to suggestions but major changes will wait until v2.
 
 # Roadmap
+
 ####  Prototype, v1
  - Be a functional gamepad that works with Android
  - Cases for the team's personal phones (Pixel 3, Pixel 2 XL, OnePlus 5)
