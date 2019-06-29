@@ -19,7 +19,7 @@ A prototype (v1) is currently in development. You can follow progress here:
 # How it works
 v1 will use a flexible PCB manufactured by OSHpark and will be assembled by hand. The heart is an ATmega32u4 which has built in USB support. The firmware will use the [LUFA library](https://github.com/abcminiuser/lufa) to implement USB HID. The case will be 3d printed to fit my personal phone and it will use buttons from an SNES controller. The two halves will connect using magnet wire. I've designed v1 to take advantage of OSHpark's 3x copies - the left and right halves use the same PCB flipped over.
 
-v2's fate will be decided by v1's performance and community discussion. I plan on using a smaller button set (like a DS or PSP) and using a ribbon cable to connect the two halves.
+v2's fate will be decided by v1's performance and community discussion. I plan on using a smaller button set (like a DS or PSP), using a ribbon cable to connect the two halves, and replacing or 3d printing the shoulder buttons.
 
 # How can I help?
 Stick around until the prototype is finished! Follow the project with the links above. I'm open to suggestions but major changes will wait until v2.
