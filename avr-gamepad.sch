@@ -454,38 +454,12 @@ Wire Wire Line
 Wire Wire Line
 	8050 3300 8050 2050
 Wire Wire Line
-	8050 2050 8550 2050
-$Comp
-L Device:LED D2
-U 1 1 5CF1A9A2
-P 8400 4100
-F 0 "D2" H 8393 4316 50  0000 C CNN
-F 1 "LED" H 8393 4225 50  0000 C CNN
-F 2 "LED_SMD:LED_0805_2012Metric" H 8400 4100 50  0001 C CNN
-F 3 "~" H 8400 4100 50  0001 C CNN
-	1    8400 4100
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:R R6
-U 1 1 5CF1BD3F
-P 7950 4100
-F 0 "R6" V 7743 4100 50  0000 C CNN
-F 1 "1K" V 7834 4100 50  0000 C CNN
-F 2 "Resistor_SMD:R_0805_2012Metric" V 7880 4100 50  0001 C CNN
-F 3 "~" H 7950 4100 50  0001 C CNN
-	1    7950 4100
-	0    1    1    0   
-$EndComp
-Wire Wire Line
 	8950 3800 8950 4100
 Wire Wire Line
 	8550 4100 8950 4100
 Connection ~ 8950 4100
 Wire Wire Line
 	8950 4100 8950 4150
-Wire Wire Line
-	8100 4100 8250 4100
 Wire Wire Line
 	7800 4100 7800 3900
 $Comp
@@ -708,7 +682,7 @@ Wire Wire Line
 	5100 2700 5300 2700
 Wire Wire Line
 	5100 2800 5300 2800
-Text Label 5900 2100 0    50   ~ 0
+Text Label 6250 3800 0    50   ~ 0
 pb1
 Text Label 5900 2200 0    50   ~ 0
 pb2
@@ -820,17 +794,6 @@ F 3 "~" H 8750 2950 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Switch:SW_Push SW9
-U 1 1 5CF13385
-P 8750 2050
-F 0 "SW9" H 8750 2335 50  0000 C CNN
-F 1 "L" H 8750 2244 50  0000 C CNN
-F 2 "Button Contacts:Contact1" H 8750 2250 50  0001 C CNN
-F 3 "~" H 8750 2250 50  0001 C CNN
-	1    8750 2050
-	1    0    0    -1  
-$EndComp
-$Comp
 L Switch:SW_Push SW3
 U 1 1 5CE36F95
 P 7300 1200
@@ -872,17 +835,6 @@ F 1 "B" H 7300 2094 50  0000 C CNN
 F 2 "Button Contacts:Contact1" H 7300 2100 50  0001 C CNN
 F 3 "~" H 7300 2100 50  0001 C CNN
 	1    7300 1900
-	1    0    0    -1  
-$EndComp
-$Comp
-L Switch:SW_Push SW13
-U 1 1 5CF1336D
-P 8750 3800
-F 0 "SW13" H 8750 4085 50  0000 C CNN
-F 1 "Select" H 8750 3994 50  0000 C CNN
-F 2 "Button Contacts:Contact2" H 8750 4000 50  0001 C CNN
-F 3 "~" H 8750 4000 50  0001 C CNN
-	1    8750 3800
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -946,8 +898,56 @@ F 3 "~" H 7200 3600 50  0001 C CNN
 $EndComp
 Text Label 5650 4000 0    50   ~ 0
 pc7
-Text Label 6250 3800 0    50   ~ 0
+Text Label 5900 2100 0    50   ~ 0
 pb3
 Text Label 5900 2500 0    50   ~ 0
 pb0
+Wire Wire Line
+	8050 2050 8550 2050
+$Comp
+L Switch:SW_Push SW9
+U 1 1 5CF13385
+P 8750 3800
+F 0 "SW9" H 8750 4085 50  0000 C CNN
+F 1 "L" H 8750 3994 50  0000 C CNN
+F 2 "Button Contacts:Contact1" H 8750 4000 50  0001 C CNN
+F 3 "~" H 8750 4000 50  0001 C CNN
+	1    8750 3800
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8100 4100 8250 4100
+$Comp
+L Device:R R6
+U 1 1 5CF1BD3F
+P 7950 4100
+F 0 "R6" V 7743 4100 50  0000 C CNN
+F 1 "1K" V 7834 4100 50  0000 C CNN
+F 2 "Resistor_SMD:R_0805_2012Metric" V 7880 4100 50  0001 C CNN
+F 3 "~" H 7950 4100 50  0001 C CNN
+	1    7950 4100
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:LED D2
+U 1 1 5CF1A9A2
+P 8400 4100
+F 0 "D2" H 8393 4316 50  0000 C CNN
+F 1 "LED" H 8393 4225 50  0000 C CNN
+F 2 "LED_SMD:LED_0805_2012Metric" H 8400 4100 50  0001 C CNN
+F 3 "~" H 8400 4100 50  0001 C CNN
+	1    8400 4100
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW13
+U 1 1 5CF1336D
+P 8750 2050
+F 0 "SW13" H 8750 2335 50  0000 C CNN
+F 1 "Select" H 8750 2244 50  0000 C CNN
+F 2 "Button Contacts:Contact2" H 8750 2250 50  0001 C CNN
+F 3 "~" H 8750 2250 50  0001 C CNN
+	1    8750 2050
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
