@@ -690,11 +690,9 @@ Text Label 5900 2400 0    50   ~ 0
 pb4
 Text Label 5900 2600 0    50   ~ 0
 pb5
-Text Label 5900 2300 0    50   ~ 0
-pd0
 Text Label 6250 3400 0    50   ~ 0
 pd1
-Text Label 6250 3500 0    50   ~ 0
+Text Label 5700 3450 0    50   ~ 0
 pd2
 Text Label 6250 3600 0    50   ~ 0
 pd3
@@ -733,7 +731,7 @@ Wire Wire Line
 Wire Wire Line
 	5100 3900 5300 3900
 NoConn ~ 5700 3450
-Text Label 5700 3450 0    50   ~ 0
+Text Label 6250 3500 0    50   ~ 0
 pb7
 NoConn ~ 5100 4300
 Text Label 5300 4000 0    50   ~ 0
@@ -748,7 +746,7 @@ Text Label 5300 3000 0    50   ~ 0
 pc6
 Wire Wire Line
 	5300 3000 5100 3000
-Text Label 5650 3000 0    50   ~ 0
+Text Label 5900 2300 0    50   ~ 0
 pc6
 Text Label 5650 3100 0    50   ~ 0
 pb6
@@ -898,8 +896,6 @@ F 3 "~" H 7200 3600 50  0001 C CNN
 $EndComp
 Text Label 5650 4000 0    50   ~ 0
 pc7
-Text Label 5900 2100 0    50   ~ 0
-pb3
 Text Label 5900 2500 0    50   ~ 0
 pb0
 Wire Wire Line
@@ -950,4 +946,8 @@ F 3 "~" H 8750 2250 50  0001 C CNN
 	1    8750 2050
 	1    0    0    -1  
 $EndComp
+Text Label 5900 2100 0    50   ~ 0
+pb3
+Text Label 5650 3000 0    50   ~ 0
+pd0
 $EndSCHEMATC
