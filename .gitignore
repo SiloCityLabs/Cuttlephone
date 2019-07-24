@@ -23,7 +23,8 @@ fp-info-cache
 
 # Exported BOM files
 *.xml
-*.csv
+# I'll remove the BOM CSV after I have a wiki / build guide that includes the BOM
+#*.csv
 
 
 # Project specific

@@ -11,7 +11,7 @@ A prototype (v1) is currently in development. You can follow progress here:
 [![](https://i.imgur.com/jmLhCeil.png)](https://hackaday.io/project/165606-usb-c-gamepad-phone-case)
 
 # To-do
- - Finish prototype (finish case, finalize v1 PCB, write firmware, manufacture)
+ - Finish prototype (write firmware, assemble PCB, 3D print case)
  - Demo and test prototype with friends
  - Post on a community like SudoMod or BitBuilt
  - Brainstorm v2 with the community
@@ -44,6 +44,8 @@ Stick around until the prototype is finished! Follow the project with the links 
  - Analog face buttons for MGS1-3 compatibility
  - Rotatable case for playing DS/3DS games vertically
  - PCB art
+
+
 
 
 Licensed under Creative Commons CC-BY-SA 4.0
