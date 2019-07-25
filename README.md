@@ -28,12 +28,12 @@ Stick around until the prototype is finished! Follow the project with the links 
 
 ####  Prototype, v1
  - Be a functional gamepad that works with Android
- - Cases for the team's personal phones (Pixel 3, Pixel 2 XL, OnePlus 5)
+ - Cases for the team's personal phones (Pixel 3, Pixel 3 XL, Pixel 2 XL)
  - Controls for 2D-era emulation: D-Pad, 4 face buttons, 2 shoulder buttons, Start/Select
 #### Public project, v2
  - Give the project a cool name
- - Make it easy to assemble
- - Make it easy to carry on a daily basis
+ - Ensure it's pocket-portable, make it easy to carry on a daily basis
+ - Improve the button hardware, case design, etc based on testing with v1
  - Cases for other phones (community contribution pls)
  - Maybe some of the future goals ↓↓↓
 #### Future goals
