@@ -143,7 +143,7 @@ Wire Wire Line
 Wire Wire Line
 	3150 2550 3150 2400
 Connection ~ 3150 2400
-Text Notes 3500 2200 0    50   ~ 0
+Text Notes 3400 2200 0    50   ~ 0
 Freq crystal
 Wire Wire Line
 	2000 2900 2150 2900
@@ -211,7 +211,7 @@ Wire Wire Line
 Wire Wire Line
 	4500 1650 4600 1650
 $Comp
-L Device:CP1 C1
+L Device:C C1
 U 1 1 5CE336BE
 P 1150 1700
 F 0 "C1" H 1265 1746 50  0000 L CNN
@@ -224,7 +224,7 @@ $EndComp
 Connection ~ 1150 1550
 Connection ~ 1150 1850
 $Comp
-L Device:CP1 C4
+L Device:C C4
 U 1 1 5CE34260
 P 2350 1700
 F 0 "C4" H 2465 1746 50  0000 L CNN
@@ -235,35 +235,8 @@ F 3 "~" H 2350 1700 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Connection ~ 2350 1550
-Wire Wire Line
-	1150 1550 1600 1550
-Wire Wire Line
-	1150 1850 1600 1850
 $Comp
-L Device:CP1 C2
-U 1 1 5CE35BE6
-P 1600 1700
-F 0 "C2" H 1715 1746 50  0000 L CNN
-F 1 "0.1uF" H 1715 1655 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0805_2012Metric" H 1600 1700 50  0001 C CNN
-F 3 "~" H 1600 1700 50  0001 C CNN
-	1    1600 1700
-	1    0    0    -1  
-$EndComp
-Connection ~ 1600 1550
-Connection ~ 1600 1850
-Wire Wire Line
-	1600 1550 2000 1550
-Wire Wire Line
-	1600 1850 2000 1850
-Connection ~ 2000 1550
-Wire Wire Line
-	2000 1550 2350 1550
-Connection ~ 2000 1850
-Wire Wire Line
-	2000 1850 2350 1850
-$Comp
-L Device:CP1 C5
+L Device:C C5
 U 1 1 5CE36ECF
 P 3300 2250
 F 0 "C5" V 3048 2250 50  0000 C CNN
@@ -274,7 +247,7 @@ F 3 "~" H 3300 2250 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L Device:CP1 C6
+L Device:C C6
 U 1 1 5CE373C9
 P 3300 2550
 F 0 "C6" V 3048 2550 50  0000 C CNN
@@ -302,7 +275,7 @@ Wire Wire Line
 Wire Wire Line
 	3850 3400 3900 3400
 $Comp
-L Device:CP1 C8
+L Device:C C8
 U 1 1 5CE37ACD
 P 3700 4100
 F 0 "C8" H 3815 4146 50  0000 L CNN
@@ -310,17 +283,6 @@ F 1 "1uF" H 3815 4055 50  0000 L CNN
 F 2 "Capacitor_SMD:C_0805_2012Metric" H 3700 4100 50  0001 C CNN
 F 3 "~" H 3700 4100 50  0001 C CNN
 	1    3700 4100
-	1    0    0    -1  
-$EndComp
-$Comp
-L Device:CP1 C3
-U 1 1 5CE36419
-P 2000 1700
-F 0 "C3" H 2115 1746 50  0000 L CNN
-F 1 "0.1uF" H 2115 1655 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0805_2012Metric" H 2000 1700 50  0001 C CNN
-F 3 "~" H 2000 1700 50  0001 C CNN
-	1    2000 1700
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
@@ -343,7 +305,7 @@ Wire Wire Line
 Wire Wire Line
 	3650 3650 3300 3650
 $Comp
-L Device:CP1 C7
+L Device:C C7
 U 1 1 5CE3DF92
 P 3300 4100
 F 0 "C7" H 3415 4146 50  0000 L CNN
@@ -599,21 +561,6 @@ Connection ~ 2200 4250
 Wire Wire Line
 	2200 4250 2350 4250
 Wire Wire Line
-	3850 2100 3850 2000
-Wire Wire Line
-	3850 2000 3800 2000
-$Comp
-L Connector_Generic:Conn_01x01 J2
-U 1 1 5CF75073
-P 3600 2000
-F 0 "J2" H 3518 1775 50  0000 C CNN
-F 1 "Conn_01x01" H 3518 1866 50  0000 C CNN
-F 2 "Connector_PinHeader_1.27mm:PinHeader_1x01_P1.27mm_Vertical" H 3600 2000 50  0001 C CNN
-F 3 "~" H 3600 2000 50  0001 C CNN
-	1    3600 2000
-	-1   0    0    1   
-$EndComp
-Wire Wire Line
 	1400 4400 1400 4550
 Wire Wire Line
 	6250 3900 7000 3900
@@ -764,7 +711,7 @@ U 1 1 5CF1338B
 P 8750 2400
 F 0 "SW8" H 8750 2685 50  0000 C CNN
 F 1 "Right" H 8750 2594 50  0000 C CNN
-F 2 "Button Contacts:Contact1" H 8750 2600 50  0001 C CNN
+F 2 "Button Contacts:Large_tapered" H 8750 2600 50  0001 C CNN
 F 3 "~" H 8750 2600 50  0001 C CNN
 	1    8750 2400
 	1    0    0    -1  
@@ -775,7 +722,7 @@ U 1 1 5CF13373
 P 8750 3450
 F 0 "SW12" H 8750 3735 50  0000 C CNN
 F 1 "Left" H 8750 3644 50  0000 C CNN
-F 2 "Button Contacts:Contact1" H 8750 3650 50  0001 C CNN
+F 2 "Button Contacts:Large_tapered" H 8750 3650 50  0001 C CNN
 F 3 "~" H 8750 3650 50  0001 C CNN
 	1    8750 3450
 	1    0    0    -1  
@@ -786,7 +733,7 @@ U 1 1 5CF1337F
 P 8750 2750
 F 0 "SW10" H 8750 3035 50  0000 C CNN
 F 1 "Up" H 8750 2944 50  0000 C CNN
-F 2 "Button Contacts:Contact1" H 8750 2950 50  0001 C CNN
+F 2 "Button Contacts:Large_tapered" H 8750 2950 50  0001 C CNN
 F 3 "~" H 8750 2950 50  0001 C CNN
 	1    8750 2750
 	1    0    0    -1  
@@ -797,7 +744,7 @@ U 1 1 5CE36F95
 P 7300 1200
 F 0 "SW3" H 7300 1485 50  0000 C CNN
 F 1 "X" H 7300 1394 50  0000 C CNN
-F 2 "Button Contacts:Contact1" H 7300 1400 50  0001 C CNN
+F 2 "Button Contacts:Large_tapered" H 7300 1400 50  0001 C CNN
 F 3 "~" H 7300 1400 50  0001 C CNN
 	1    7300 1200
 	1    0    0    -1  
@@ -808,7 +755,7 @@ U 1 1 5CE3CA1D
 P 7300 2600
 F 0 "SW7" H 7300 2885 50  0000 C CNN
 F 1 "Y" H 7300 2794 50  0000 C CNN
-F 2 "Button Contacts:Contact1" H 7300 2800 50  0001 C CNN
+F 2 "Button Contacts:Large_tapered" H 7300 2800 50  0001 C CNN
 F 3 "~" H 7300 2800 50  0001 C CNN
 	1    7300 2600
 	1    0    0    -1  
@@ -819,7 +766,7 @@ U 1 1 5CE3B249
 P 7300 1550
 F 0 "SW4" H 7300 1835 50  0000 C CNN
 F 1 "A" H 7300 1744 50  0000 C CNN
-F 2 "Button Contacts:Contact1" H 7300 1750 50  0001 C CNN
+F 2 "Button Contacts:Large_tapered" H 7300 1750 50  0001 C CNN
 F 3 "~" H 7300 1750 50  0001 C CNN
 	1    7300 1550
 	1    0    0    -1  
@@ -830,7 +777,7 @@ U 1 1 5CE3BF2C
 P 7300 1900
 F 0 "SW5" H 7300 2185 50  0000 C CNN
 F 1 "B" H 7300 2094 50  0000 C CNN
-F 2 "Button Contacts:Contact1" H 7300 2100 50  0001 C CNN
+F 2 "Button Contacts:Large_tapered" H 7300 2100 50  0001 C CNN
 F 3 "~" H 7300 2100 50  0001 C CNN
 	1    7300 1900
 	1    0    0    -1  
@@ -841,7 +788,7 @@ U 1 1 5CE355F4
 P 7300 850
 F 0 "SW2" H 7300 1135 50  0000 C CNN
 F 1 "R" H 7300 1044 50  0000 C CNN
-F 2 "Button Contacts:Contact1" H 7300 1050 50  0001 C CNN
+F 2 "Button Contacts:Large_tapered" H 7300 1050 50  0001 C CNN
 F 3 "~" H 7300 1050 50  0001 C CNN
 	1    7300 850 
 	1    0    0    -1  
@@ -852,7 +799,7 @@ U 1 1 5CE3C552
 P 7300 2250
 F 0 "SW6" H 7300 2535 50  0000 C CNN
 F 1 "Start" H 7300 2444 50  0000 C CNN
-F 2 "Button Contacts:Contact2" H 7300 2450 50  0001 C CNN
+F 2 "Button Contacts:Small" H 7300 2450 50  0001 C CNN
 F 3 "~" H 7300 2450 50  0001 C CNN
 	1    7300 2250
 	1    0    0    -1  
@@ -863,7 +810,7 @@ U 1 1 5CF13379
 P 8750 3100
 F 0 "SW11" H 8750 3385 50  0000 C CNN
 F 1 "Down" H 8750 3294 50  0000 C CNN
-F 2 "Button Contacts:Contact1" H 8750 3300 50  0001 C CNN
+F 2 "Button Contacts:Large_tapered" H 8750 3300 50  0001 C CNN
 F 3 "~" H 8750 3300 50  0001 C CNN
 	1    8750 3100
 	1    0    0    -1  
@@ -906,7 +853,7 @@ U 1 1 5CF13385
 P 8750 3800
 F 0 "SW9" H 8750 4085 50  0000 C CNN
 F 1 "L" H 8750 3994 50  0000 C CNN
-F 2 "Button Contacts:Contact1" H 8750 4000 50  0001 C CNN
+F 2 "Button Contacts:Large_tapered" H 8750 4000 50  0001 C CNN
 F 3 "~" H 8750 4000 50  0001 C CNN
 	1    8750 3800
 	1    0    0    -1  
@@ -941,7 +888,7 @@ U 1 1 5CF1336D
 P 8750 2050
 F 0 "SW13" H 8750 2335 50  0000 C CNN
 F 1 "Select" H 8750 2244 50  0000 C CNN
-F 2 "Button Contacts:Contact2" H 8750 2250 50  0001 C CNN
+F 2 "Button Contacts:Small" H 8750 2250 50  0001 C CNN
 F 3 "~" H 8750 2250 50  0001 C CNN
 	1    8750 2050
 	1    0    0    -1  
@@ -950,4 +897,36 @@ Text Label 5900 2100 0    50   ~ 0
 pb3
 Text Label 5650 3000 0    50   ~ 0
 pd0
+$Comp
+L Switch:SW_Push SW1
+U 1 1 5D8F3544
+P 3600 1800
+F 0 "SW1" H 3600 2085 50  0000 C CNN
+F 1 "RESET" H 3600 1994 50  0000 C CNN
+F 2 "Button Contacts:Small" H 3600 2000 50  0001 C CNN
+F 3 "~" H 3600 2000 50  0001 C CNN
+	1    3600 1800
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3850 2100 3850 1800
+Wire Wire Line
+	3850 1800 3800 1800
+$Comp
+L power:GND #PWR02
+U 1 1 5D8FA225
+P 3100 1800
+F 0 "#PWR02" H 3100 1550 50  0001 C CNN
+F 1 "GND" H 3105 1627 50  0000 C CNN
+F 2 "" H 3100 1800 50  0001 C CNN
+F 3 "" H 3100 1800 50  0001 C CNN
+	1    3100 1800
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3100 1800 3400 1800
+Wire Wire Line
+	1150 1550 2350 1550
+Wire Wire Line
+	1150 1850 2350 1850
 $EndSCHEMATC
