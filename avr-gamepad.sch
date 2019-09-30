@@ -629,7 +629,7 @@ Wire Wire Line
 	5100 2700 5300 2700
 Wire Wire Line
 	5100 2800 5300 2800
-Text Label 6250 3800 0    50   ~ 0
+Text Label 5900 2700 0    50   ~ 0
 pb1
 Text Label 5900 2200 0    50   ~ 0
 pb2
@@ -647,7 +647,7 @@ Text Label 6250 3700 0    50   ~ 0
 pd4
 Text Label 6250 3300 0    50   ~ 0
 pd5
-Text Label 5900 2700 0    50   ~ 0
+Text Label 5650 3000 0    50   ~ 0
 pd7
 Text Label 5300 3300 0    50   ~ 0
 pd0
@@ -895,7 +895,7 @@ F 3 "~" H 8750 2250 50  0001 C CNN
 $EndComp
 Text Label 5900 2100 0    50   ~ 0
 pb3
-Text Label 5650 3000 0    50   ~ 0
+Text Label 6250 3800 0    50   ~ 0
 pd0
 $Comp
 L Switch:SW_Push SW1
