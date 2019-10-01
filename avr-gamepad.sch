@@ -711,7 +711,7 @@ U 1 1 5CF1338B
 P 8750 2400
 F 0 "SW8" H 8750 2685 50  0000 C CNN
 F 1 "Right" H 8750 2594 50  0000 C CNN
-F 2 "Button Contacts:Large_tapered" H 8750 2600 50  0001 C CNN
+F 2 "button-contacts:Large_tapered" H 8750 2600 50  0001 C CNN
 F 3 "~" H 8750 2600 50  0001 C CNN
 	1    8750 2400
 	1    0    0    -1  
@@ -722,7 +722,7 @@ U 1 1 5CF13373
 P 8750 3450
 F 0 "SW12" H 8750 3735 50  0000 C CNN
 F 1 "Left" H 8750 3644 50  0000 C CNN
-F 2 "Button Contacts:Large_tapered" H 8750 3650 50  0001 C CNN
+F 2 "button-contacts:Large_tapered" H 8750 3650 50  0001 C CNN
 F 3 "~" H 8750 3650 50  0001 C CNN
 	1    8750 3450
 	1    0    0    -1  
@@ -733,7 +733,7 @@ U 1 1 5CF1337F
 P 8750 2750
 F 0 "SW10" H 8750 3035 50  0000 C CNN
 F 1 "Up" H 8750 2944 50  0000 C CNN
-F 2 "Button Contacts:Large_tapered" H 8750 2950 50  0001 C CNN
+F 2 "button-contacts:Large_tapered" H 8750 2950 50  0001 C CNN
 F 3 "~" H 8750 2950 50  0001 C CNN
 	1    8750 2750
 	1    0    0    -1  
@@ -744,7 +744,7 @@ U 1 1 5CE36F95
 P 7300 1200
 F 0 "SW3" H 7300 1485 50  0000 C CNN
 F 1 "X" H 7300 1394 50  0000 C CNN
-F 2 "Button Contacts:Large_tapered" H 7300 1400 50  0001 C CNN
+F 2 "button-contacts:Large_tapered" H 7300 1400 50  0001 C CNN
 F 3 "~" H 7300 1400 50  0001 C CNN
 	1    7300 1200
 	1    0    0    -1  
@@ -755,7 +755,7 @@ U 1 1 5CE3CA1D
 P 7300 2600
 F 0 "SW7" H 7300 2885 50  0000 C CNN
 F 1 "Y" H 7300 2794 50  0000 C CNN
-F 2 "Button Contacts:Large_tapered" H 7300 2800 50  0001 C CNN
+F 2 "button-contacts:Large_tapered" H 7300 2800 50  0001 C CNN
 F 3 "~" H 7300 2800 50  0001 C CNN
 	1    7300 2600
 	1    0    0    -1  
@@ -766,7 +766,7 @@ U 1 1 5CE3B249
 P 7300 1550
 F 0 "SW4" H 7300 1835 50  0000 C CNN
 F 1 "A" H 7300 1744 50  0000 C CNN
-F 2 "Button Contacts:Large_tapered" H 7300 1750 50  0001 C CNN
+F 2 "button-contacts:Large_tapered" H 7300 1750 50  0001 C CNN
 F 3 "~" H 7300 1750 50  0001 C CNN
 	1    7300 1550
 	1    0    0    -1  
@@ -777,7 +777,7 @@ U 1 1 5CE3BF2C
 P 7300 1900
 F 0 "SW5" H 7300 2185 50  0000 C CNN
 F 1 "B" H 7300 2094 50  0000 C CNN
-F 2 "Button Contacts:Large_tapered" H 7300 2100 50  0001 C CNN
+F 2 "button-contacts:Large_tapered" H 7300 2100 50  0001 C CNN
 F 3 "~" H 7300 2100 50  0001 C CNN
 	1    7300 1900
 	1    0    0    -1  
@@ -788,7 +788,7 @@ U 1 1 5CE355F4
 P 7300 850
 F 0 "SW2" H 7300 1135 50  0000 C CNN
 F 1 "R" H 7300 1044 50  0000 C CNN
-F 2 "Button Contacts:Large_tapered" H 7300 1050 50  0001 C CNN
+F 2 "button-contacts:Large_tapered" H 7300 1050 50  0001 C CNN
 F 3 "~" H 7300 1050 50  0001 C CNN
 	1    7300 850 
 	1    0    0    -1  
@@ -799,7 +799,7 @@ U 1 1 5CE3C552
 P 7300 2250
 F 0 "SW6" H 7300 2535 50  0000 C CNN
 F 1 "Start" H 7300 2444 50  0000 C CNN
-F 2 "Button Contacts:Small" H 7300 2450 50  0001 C CNN
+F 2 "button-contacts:Small" H 7300 2450 50  0001 C CNN
 F 3 "~" H 7300 2450 50  0001 C CNN
 	1    7300 2250
 	1    0    0    -1  
@@ -810,7 +810,7 @@ U 1 1 5CF13379
 P 8750 3100
 F 0 "SW11" H 8750 3385 50  0000 C CNN
 F 1 "Down" H 8750 3294 50  0000 C CNN
-F 2 "Button Contacts:Large_tapered" H 8750 3300 50  0001 C CNN
+F 2 "button-contacts:Large_tapered" H 8750 3300 50  0001 C CNN
 F 3 "~" H 8750 3300 50  0001 C CNN
 	1    8750 3100
 	1    0    0    -1  
@@ -853,7 +853,7 @@ U 1 1 5CF13385
 P 8750 3800
 F 0 "SW9" H 8750 4085 50  0000 C CNN
 F 1 "L" H 8750 3994 50  0000 C CNN
-F 2 "Button Contacts:Large_tapered" H 8750 4000 50  0001 C CNN
+F 2 "button-contacts:Large_tapered" H 8750 4000 50  0001 C CNN
 F 3 "~" H 8750 4000 50  0001 C CNN
 	1    8750 3800
 	1    0    0    -1  
@@ -888,7 +888,7 @@ U 1 1 5CF1336D
 P 8750 2050
 F 0 "SW13" H 8750 2335 50  0000 C CNN
 F 1 "Select" H 8750 2244 50  0000 C CNN
-F 2 "Button Contacts:Small" H 8750 2250 50  0001 C CNN
+F 2 "button-contacts:Small" H 8750 2250 50  0001 C CNN
 F 3 "~" H 8750 2250 50  0001 C CNN
 	1    8750 2050
 	1    0    0    -1  
@@ -903,7 +903,7 @@ U 1 1 5D8F3544
 P 3600 1800
 F 0 "SW1" H 3600 2085 50  0000 C CNN
 F 1 "RESET" H 3600 1994 50  0000 C CNN
-F 2 "Button Contacts:Small" H 3600 2000 50  0001 C CNN
+F 2 "button-contacts:Small" H 3600 2000 50  0001 C CNN
 F 3 "~" H 3600 2000 50  0001 C CNN
 	1    3600 1800
 	1    0    0    -1  
