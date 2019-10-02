@@ -372,17 +372,6 @@ Wire Wire Line
 Wire Wire Line
 	6600 850  7100 850 
 Connection ~ 8950 3800
-$Comp
-L power:GND #PWR0115
-U 1 1 5CF1335E
-P 8950 4150
-F 0 "#PWR0115" H 8950 3900 50  0001 C CNN
-F 1 "GND" H 8955 3977 50  0000 C CNN
-F 2 "" H 8950 4150 50  0001 C CNN
-F 3 "" H 8950 4150 50  0001 C CNN
-	1    8950 4150
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	8950 3450 8950 3800
 Connection ~ 8950 3450
@@ -420,8 +409,6 @@ Wire Wire Line
 Wire Wire Line
 	8550 4100 8950 4100
 Connection ~ 8950 4100
-Wire Wire Line
-	8950 4100 8950 4150
 Wire Wire Line
 	7800 4100 7800 3900
 $Comp
@@ -563,40 +550,19 @@ Wire Wire Line
 Wire Wire Line
 	1400 4400 1400 4550
 Wire Wire Line
-	6250 3900 7000 3900
+	5900 4150 6100 4150
 Wire Wire Line
-	6250 3800 7000 3800
+	5900 4050 6100 4050
 Wire Wire Line
-	6250 3700 7000 3700
+	5900 3950 6100 3950
 Wire Wire Line
-	6250 3600 7000 3600
+	5900 3850 6100 3850
 Wire Wire Line
-	6250 3500 7000 3500
+	5900 3750 6100 3750
 Wire Wire Line
-	6250 3400 7000 3400
+	5900 3650 6100 3650
 Wire Wire Line
-	6250 3300 7000 3300
-Connection ~ 7000 3300
-Wire Wire Line
-	7000 3300 8050 3300
-Connection ~ 7000 3400
-Wire Wire Line
-	7000 3400 8150 3400
-Connection ~ 7000 3500
-Wire Wire Line
-	7000 3500 8250 3500
-Connection ~ 7000 3600
-Wire Wire Line
-	7000 3600 8350 3600
-Connection ~ 7000 3700
-Wire Wire Line
-	7000 3700 8450 3700
-Connection ~ 7000 3800
-Wire Wire Line
-	7000 3800 8550 3800
-Connection ~ 7000 3900
-Wire Wire Line
-	7000 3900 7800 3900
+	5900 3550 6100 3550
 Text Label 5300 2800 0    50   ~ 0
 pb7
 Text Label 5300 2700 0    50   ~ 0
@@ -637,15 +603,15 @@ Text Label 5900 2400 0    50   ~ 0
 pb4
 Text Label 5900 2600 0    50   ~ 0
 pb5
-Text Label 6250 3400 0    50   ~ 0
+Text Label 5900 3650 0    50   ~ 0
 pd1
 Text Label 5700 3450 0    50   ~ 0
 pd2
-Text Label 6250 3600 0    50   ~ 0
+Text Label 5900 3850 0    50   ~ 0
 pd3
-Text Label 6250 3700 0    50   ~ 0
+Text Label 5900 3950 0    50   ~ 0
 pd4
-Text Label 6250 3300 0    50   ~ 0
+Text Label 5900 3550 0    50   ~ 0
 pd5
 Text Label 5650 3000 0    50   ~ 0
 pd7
@@ -678,7 +644,7 @@ Wire Wire Line
 Wire Wire Line
 	5100 3900 5300 3900
 NoConn ~ 5700 3450
-Text Label 6250 3500 0    50   ~ 0
+Text Label 5900 3750 0    50   ~ 0
 pb7
 NoConn ~ 5100 4300
 Text Label 5300 4000 0    50   ~ 0
@@ -815,32 +781,10 @@ F 3 "~" H 8750 3300 50  0001 C CNN
 	1    8750 3100
 	1    0    0    -1  
 $EndComp
-Text Label 6250 3900 0    50   ~ 0
+Text Label 5900 4150 0    50   ~ 0
 pd6
 NoConn ~ 5650 3000
 NoConn ~ 5650 4000
-$Comp
-L power:GND #PWR0113
-U 1 1 5D261ED2
-P 7000 4000
-F 0 "#PWR0113" H 7000 3750 50  0001 C CNN
-F 1 "GND" H 7005 3827 50  0000 C CNN
-F 2 "" H 7000 4000 50  0001 C CNN
-F 3 "" H 7000 4000 50  0001 C CNN
-	1    7000 4000
-	1    0    0    -1  
-$EndComp
-$Comp
-L Connector_Generic:Conn_01x08 J1
-U 1 1 5CF089CD
-P 7200 3600
-F 0 "J1" H 7280 3592 50  0000 L CNN
-F 1 "Conn_01x08" H 7280 3501 50  0000 L CNN
-F 2 "Connector_FFC-FPC:Hirose_FH12-8S-0.5SH_1x08-1MP_P0.50mm_Horizontal" H 7200 3600 50  0001 C CNN
-F 3 "~" H 7200 3600 50  0001 C CNN
-	1    7200 3600
-	1    0    0    -1  
-$EndComp
 Text Label 5650 4000 0    50   ~ 0
 pc7
 Text Label 5900 2500 0    50   ~ 0
@@ -895,7 +839,7 @@ F 3 "~" H 8750 2250 50  0001 C CNN
 $EndComp
 Text Label 5900 2100 0    50   ~ 0
 pb3
-Text Label 6250 3800 0    50   ~ 0
+Text Label 5900 4050 0    50   ~ 0
 pd0
 $Comp
 L Switch:SW_Push SW1
@@ -929,4 +873,78 @@ Wire Wire Line
 	1150 1550 2350 1550
 Wire Wire Line
 	1150 1850 2350 1850
+$Comp
+L Connector_Generic:Conn_01x08 J2
+U 1 1 5D94373B
+P 6300 3850
+F 0 "J2" H 6380 3842 50  0000 L CNN
+F 1 "Conn_01x08" H 6380 3751 50  0000 L CNN
+F 2 "Connector_FFC-FPC:Hirose_FH12-8S-0.5SH_1x08-1MP_P0.50mm_Horizontal" H 6300 3850 50  0001 C CNN
+F 3 "~" H 6300 3850 50  0001 C CNN
+	1    6300 3850
+	1    0    0    -1  
+$EndComp
+Connection ~ 6100 3550
+Wire Wire Line
+	6100 3550 6200 3550
+Connection ~ 6100 3650
+Wire Wire Line
+	6100 3650 6200 3650
+Connection ~ 6100 3750
+Wire Wire Line
+	6100 3750 6200 3750
+Connection ~ 6100 3850
+Wire Wire Line
+	6100 3850 6200 3850
+Connection ~ 6100 3950
+Wire Wire Line
+	6100 3950 6200 3950
+Connection ~ 6100 4050
+Wire Wire Line
+	6100 4050 6200 4050
+Connection ~ 6100 4150
+Wire Wire Line
+	6100 4150 6200 4150
+Wire Wire Line
+	7200 3900 7800 3900
+Wire Wire Line
+	7200 3800 8550 3800
+Wire Wire Line
+	7200 3700 8450 3700
+Wire Wire Line
+	7200 3600 8350 3600
+Wire Wire Line
+	7200 3500 8250 3500
+Wire Wire Line
+	7200 3400 8150 3400
+Wire Wire Line
+	7200 3300 8050 3300
+$Comp
+L Connector_Generic:Conn_01x08 J1
+U 1 1 5CF089CD
+P 7000 3600
+F 0 "J1" H 7080 3592 50  0000 L CNN
+F 1 "Conn_01x08" H 7080 3501 50  0000 L CNN
+F 2 "Connector_FFC-FPC:Hirose_FH12-8S-0.5SH_1x08-1MP_P0.50mm_Horizontal" H 7000 3600 50  0001 C CNN
+F 3 "~" H 7000 3600 50  0001 C CNN
+	1    7000 3600
+	-1   0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR0113
+U 1 1 5D9668CC
+P 6100 4250
+F 0 "#PWR0113" H 6100 4000 50  0001 C CNN
+F 1 "GND" H 6105 4077 50  0000 C CNN
+F 2 "" H 6100 4250 50  0001 C CNN
+F 3 "" H 6100 4250 50  0001 C CNN
+	1    6100 4250
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8950 4300 7200 4300
+Wire Wire Line
+	7200 4300 7200 4000
+Wire Wire Line
+	8950 4100 8950 4300
 $EndSCHEMATC

@@ -1,5 +1,6 @@
 (fp_lib_table
-  (lib (name button-contacts)(type KiCad)(uri C:/Users/Maave/avr/avr-gamepad/footprints/button-contacts.pretty)(options "")(descr "Pads for silicone style gamepads"))
-  (lib (name squidward)(type KiCad)(uri "C:/Users/Maave/avr/avr-gamepad/footprints/squidward loser.pretty")(options "")(descr Loser))
+  (lib (name button-contacts)(type KiCad)(uri ${KIPRJMOD}/footprints/button-contacts.pretty)(options "")(descr "Pads for silicone style gamepads"))
+  (lib (name squidward)(type KiCad)(uri "${KIPRJMOD}/footprints/squidward loser.pretty")(options "")(descr Loser))
+  (lib (name Panelization)(type KiCad)(uri ${KIPRJMOD}/footprints/Panelization.pretty)(options "")(descr "Mouse bites"))
   (lib (name "Button Contacts")(type KiCad)(uri C:/Users/Maave/avr/avr-gamepad/button-contacts.pretty)(options "")(descr "")(disabled))
 )
