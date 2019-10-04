@@ -440,12 +440,6 @@ Wire Wire Line
 	7500 2600 7500 2900
 Connection ~ 7500 2600
 Connection ~ 7500 2900
-NoConn ~ 5100 4500
-NoConn ~ 5100 4600
-NoConn ~ 5100 4700
-NoConn ~ 5100 4800
-NoConn ~ 5100 4900
-NoConn ~ 5100 5000
 $Comp
 L power:GND #PWR01
 U 1 1 5CE68646
@@ -522,36 +516,22 @@ Wire Wire Line
 	2200 4250 2350 4250
 Wire Wire Line
 	1400 4400 1400 4550
-Wire Wire Line
-	5900 4150 6100 4150
-Wire Wire Line
-	5900 4050 6100 4050
-Wire Wire Line
-	5900 3950 6100 3950
-Wire Wire Line
-	5900 3850 6100 3850
-Wire Wire Line
-	5900 3750 6100 3750
-Wire Wire Line
-	5900 3650 6100 3650
-Wire Wire Line
-	5900 3550 6100 3550
 Text Label 5300 2800 0    50   ~ 0
-pb7
+pb7-12
 Text Label 5300 2700 0    50   ~ 0
-pb6
+pb6-30
 Text Label 5300 2600 0    50   ~ 0
-pb5
+pb5-29
 Text Label 5300 2500 0    50   ~ 0
-pb4
+pb4-28
 Text Label 5300 2400 0    50   ~ 0
-pb3
+pb3-11
 Text Label 5300 2300 0    50   ~ 0
-pb2
+pb2-10
 Text Label 5300 2200 0    50   ~ 0
-pb1
+pb1-9
 Text Label 5300 2100 0    50   ~ 0
-pb0
+pb0-8
 Wire Wire Line
 	5100 2100 5300 2100
 Wire Wire Line
@@ -568,40 +548,22 @@ Wire Wire Line
 	5100 2700 5300 2700
 Wire Wire Line
 	5100 2800 5300 2800
-Text Label 5900 2700 0    50   ~ 0
-pb1
-Text Label 5900 2200 0    50   ~ 0
-pb2
-Text Label 5900 2400 0    50   ~ 0
-pb4
-Text Label 5900 2600 0    50   ~ 0
-pb5
-Text Label 5900 3650 0    50   ~ 0
-pd1
-Text Label 5700 3450 0    50   ~ 0
-pd2
-Text Label 5900 3850 0    50   ~ 0
-pd3
-Text Label 5900 3950 0    50   ~ 0
-pd4
-Text Label 5900 3550 0    50   ~ 0
-pd5
-Text Label 5650 3000 0    50   ~ 0
-pd7
+Text Label 6800 4500 0    50   ~ 0
+pb4-28
 Text Label 5300 3300 0    50   ~ 0
-pd0
+pd0-18
 Text Label 5300 3400 0    50   ~ 0
-pd1
+pd1-19
 Text Label 5300 3500 0    50   ~ 0
-pd2
+pd2-20
 Text Label 5300 3600 0    50   ~ 0
-pd3
+pd3-21
 Text Label 5300 3700 0    50   ~ 0
-pd4
+pd4-25
 Text Label 5300 3800 0    50   ~ 0
-pd5
+pd5-22
 Text Label 5300 3900 0    50   ~ 0
-pd6
+pd6-26
 Wire Wire Line
 	5100 3300 5300 3300
 Wire Wire Line
@@ -616,27 +578,18 @@ Wire Wire Line
 	5100 3800 5300 3800
 Wire Wire Line
 	5100 3900 5300 3900
-NoConn ~ 5700 3450
-Text Label 5900 3750 0    50   ~ 0
-pb7
-NoConn ~ 5100 4300
 Text Label 5300 4000 0    50   ~ 0
-pd7
+pd7-27
 Wire Wire Line
 	5300 4000 5100 4000
 Text Label 5300 3100 0    50   ~ 0
-pc7
+pc7-32
 Wire Wire Line
 	5300 3100 5100 3100
 Text Label 5300 3000 0    50   ~ 0
-pc6
+pc6-31
 Wire Wire Line
 	5300 3000 5100 3000
-Text Label 5900 2300 0    50   ~ 0
-pc6
-Text Label 5650 3100 0    50   ~ 0
-pb6
-NoConn ~ 5650 3100
 Wire Wire Line
 	1100 4400 1100 4550
 Wire Wire Line
@@ -754,14 +707,8 @@ F 3 "~" H 8750 3300 50  0001 C CNN
 	1    8750 3100
 	1    0    0    -1  
 $EndComp
-Text Label 5900 4150 0    50   ~ 0
-pd6
-NoConn ~ 5650 3000
-NoConn ~ 5650 4000
-Text Label 5650 4000 0    50   ~ 0
-pc7
-Text Label 5900 2500 0    50   ~ 0
-pb0
+Text Label 6800 4300 0    50   ~ 0
+pd6-26
 Wire Wire Line
 	8050 2050 8550 2050
 $Comp
@@ -810,10 +757,6 @@ F 3 "~" H 8750 2250 50  0001 C CNN
 	1    8750 2050
 	1    0    0    -1  
 $EndComp
-Text Label 5900 2100 0    50   ~ 0
-pb3
-Text Label 5900 4050 0    50   ~ 0
-pd0
 $Comp
 L Switch:SW_Push SW1
 U 1 1 5D8F3544
@@ -845,35 +788,14 @@ Wire Wire Line
 $Comp
 L Connector_Generic:Conn_01x08 J2
 U 1 1 5D94373B
-P 6300 3850
-F 0 "J2" H 6380 3842 50  0000 L CNN
-F 1 "Conn_01x08" H 6380 3751 50  0000 L CNN
-F 2 "Connector_FFC-FPC:Hirose_FH12-8S-0.5SH_1x08-1MP_P0.50mm_Horizontal" H 6300 3850 50  0001 C CNN
-F 3 "~" H 6300 3850 50  0001 C CNN
-	1    6300 3850
-	1    0    0    -1  
+P 6600 4600
+F 0 "J2" H 6680 4592 50  0000 L CNN
+F 1 "Conn_01x08" H 6680 4501 50  0000 L CNN
+F 2 "Connector_FFC-FPC:Hirose_FH12-8S-0.5SH_1x08-1MP_P0.50mm_Horizontal" H 6600 4600 50  0001 C CNN
+F 3 "~" H 6600 4600 50  0001 C CNN
+	1    6600 4600
+	-1   0    0    -1  
 $EndComp
-Connection ~ 6100 3550
-Wire Wire Line
-	6100 3550 6200 3550
-Connection ~ 6100 3650
-Wire Wire Line
-	6100 3650 6200 3650
-Connection ~ 6100 3750
-Wire Wire Line
-	6100 3750 6200 3750
-Connection ~ 6100 3850
-Wire Wire Line
-	6100 3850 6200 3850
-Connection ~ 6100 3950
-Wire Wire Line
-	6100 3950 6200 3950
-Connection ~ 6100 4050
-Wire Wire Line
-	6100 4050 6200 4050
-Connection ~ 6100 4150
-Wire Wire Line
-	6100 4150 6200 4150
 Wire Wire Line
 	7200 3900 7800 3900
 Wire Wire Line
@@ -902,12 +824,12 @@ $EndComp
 $Comp
 L power:GND #PWR0113
 U 1 1 5D9668CC
-P 6100 4250
-F 0 "#PWR0113" H 6100 4000 50  0001 C CNN
-F 1 "GND" H 6105 4077 50  0000 C CNN
-F 2 "" H 6100 4250 50  0001 C CNN
-F 3 "" H 6100 4250 50  0001 C CNN
-	1    6100 4250
+P 6800 5000
+F 0 "#PWR0113" H 6800 4750 50  0001 C CNN
+F 1 "GND" H 6805 4827 50  0000 C CNN
+F 2 "" H 6800 5000 50  0001 C CNN
+F 3 "" H 6800 5000 50  0001 C CNN
+	1    6800 5000
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
@@ -995,4 +917,72 @@ F 3 "" H 5750 4550 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	5750 4550 5750 4400
+Text Label 5100 4500 0    50   ~ 0
+pf0-41
+Text Label 5100 4600 0    50   ~ 0
+pf1-40
+Text Label 5100 4700 0    50   ~ 0
+pf4-39
+Text Label 5100 4800 0    50   ~ 0
+pf5-38
+Text Label 5100 4900 0    50   ~ 0
+pf6-37
+Text Label 5100 5000 0    50   ~ 0
+pf7-36
+Text Label 5100 4300 0    50   ~ 0
+pe6-1
+$Comp
+L Connector:Conn_01x08_Female J3
+U 1 1 5DA62D9E
+P 5750 3550
+F 0 "J3" H 5642 4035 50  0000 C CNN
+F 1 "Conn_01x08_Female" H 5642 3944 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Vertical" H 5750 3550 50  0001 C CNN
+F 3 "~" H 5750 3550 50  0001 C CNN
+	1    5750 3550
+	-1   0    0    -1  
+$EndComp
+Text Label 6800 4900 0    50   ~ 0
+pc7-32
+Text Label 6800 4800 0    50   ~ 0
+pc6-31
+Text Label 6800 4700 0    50   ~ 0
+pb6-30
+Text Label 6800 4600 0    50   ~ 0
+pb5-29
+Text Label 6800 4400 0    50   ~ 0
+pd7-27
+Text Label 5950 3550 0    50   ~ 0
+pd4-25
+Text Label 5950 3350 0    50   ~ 0
+pd3-21
+Text Label 5950 3250 0    50   ~ 0
+pd2-20
+Text Label 5950 3450 0    50   ~ 0
+pd5-22
+Text Label 5900 2700 0    50   ~ 0
+pd1-19
+Text Label 5900 2600 0    50   ~ 0
+pd0-18
+Text Label 5900 2500 0    50   ~ 0
+pb7-12
+Text Label 5900 2400 0    50   ~ 0
+pb3-11
+Text Label 5950 3650 0    50   ~ 0
+pf7-36
+Text Label 5950 3850 0    50   ~ 0
+pf5-38
+Text Label 5950 3950 0    50   ~ 0
+pf4-39
+NoConn ~ 5100 4500
+NoConn ~ 5100 4600
+Text Label 5900 2300 0    50   ~ 0
+pb2-10
+Text Label 5900 2200 0    50   ~ 0
+pb1-9
+Text Label 5900 2100 0    50   ~ 0
+pb0-8
+NoConn ~ 5100 4300
+Text Label 5950 3750 0    50   ~ 0
+pf6-37
 $EndSCHEMATC
