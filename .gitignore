@@ -33,7 +33,7 @@ fp-info-cache
 gerbers/
 
 # Intermediate files like 3d models
-intermediates/
+pcb/intermediates/
 
 # IDE files
 .idea/
