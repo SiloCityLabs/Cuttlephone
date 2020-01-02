@@ -1204,7 +1204,7 @@
       ))
   )
 
-  (module button-contacts:Large_tapered (layer B.Cu) (tedit 5D901DEB) (tstamp 5D933537)
+  (module button-contacts:Large_tapered (layer B.Cu) (tedit 5D901DEB) (tstamp 5DA0B638)
     (at 146.431 84.455 180)
     (path /5CE355F4)
     (attr smd)
