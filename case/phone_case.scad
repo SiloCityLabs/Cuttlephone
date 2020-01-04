@@ -5,24 +5,30 @@ $fn=50;
 
 //Default values for Pixel 3
 
-body_radius = 5.25;
-body_length = 145.5;
-body_width = 68.7;
+
+face_radius = 5.25;
+face_length = 145.5;
+face_width = 68.7;
+body_thickness = 8.1;
+body_radius = 3;
 
 //a combination of the edge profile radius and the devices thickness
 side_radius_thickness = 4.03;
 screen_length = 143.5; //should I change these to "screen lip=2"?
 screen_width = 66.5;
 
-//make this a multiple of nozzle size
+//make this a multiple of nozzle diameter (0.4mm is flimsy)
 shell_thickness = 0.8;
 
 button_right_offset = 31;
 button_right_length = 42;
-camera_height = 12;
-camera_width = 22;
-camera_from_edge = 9.7; //correct measurement, position is wrong
-camera_from_top = 8.7;  //correct measurement, position is wrong
+//camera diameter / height
+camera_diam = 9;
+//horizontal camera setups only for now
+camera_width = 20.5;
+camera_from_side = 8.5;
+camera_from_top = 8.7;
+camera_clearance = 2.0;
 mic_from_edge = 14.0;
 
 fingerprint_center_from_top = 36.5;
@@ -32,7 +38,7 @@ case_type = "gamepad"; // [phone case, gamepad, joycon rails, junglecat rails]
 
 module end_customizer_variables(){} //jank to get variables out of the customizer
 wing_length = 30; //max that will fit on my printer
-gamepad_body_radius = 10;
+gamepad_face_radius = 10;
 buttons_fillet = 3;
 
 
@@ -86,21 +92,35 @@ module joycon_rails(){
 module junglecat_rails(){
 }
 
+
 //body();
 module body(){
+    color("orange", 0.25)
     minkowski() {
         linear_extrude(height = 0.05, center = true) {
             //face profile
             minkowski() {
-                square( [body_width - 2*body_radius - 2*side_radius_thickness, 
-                body_length - 2*body_radius - 2*side_radius_thickness], true );
-                circle(body_radius);
+                square( [face_width - 2*face_radius - 2*body_radius, 
+                face_length - 2*face_radius - 2*body_radius], true );
+                circle(face_radius);
             }
         }
         // side profile
         // TODO: separate thickness and radius
-        sphere(side_radius_thickness);
+        //sphere(side_radius_thickness);
+        body_profile();
     }
+}
+//body_profile();
+module body_profile(){
+    //body_thickness
+    //body_radius
+    hull(){
+        translate ([0, 0, body_thickness/2-body_radius]) 
+            sphere(body_radius);
+        translate ([0, 0, -body_thickness/2+body_radius]) 
+            sphere(body_radius);
+    }   
 }
 
 module cuts(){
@@ -110,7 +130,7 @@ module cuts(){
     fingerprint_cut();
     mic_cut();
     screen_cut();
-    top_cut();
+    //top_cut();
 }
 
 module phone_shell(){
@@ -119,15 +139,24 @@ module phone_shell(){
         linear_extrude(height = 0.05, center = true) {
             minkowski() {
                 square(
-                    [ body_width + shell_thickness - 2*body_radius - 2*side_radius_thickness,
-                    body_length + shell_thickness - 2*body_radius - 2*side_radius_thickness ], 
+                    [ face_width + shell_thickness - 2*face_radius - 2*body_radius,
+                    face_length + shell_thickness - 2*face_radius - 2*body_radius ], 
                     true);
-                circle(body_radius-0.25); //can't intersect with phone body
+                circle(face_radius-0.25); //can't intersect with phone body
             }
         }
         //edge shape and thickness
-        sphere(side_radius_thickness+shell_thickness);
+        shell_profile();
     }
+}
+module shell_profile(){
+        shell_radius = body_radius + shell_thickness;
+        hull(){
+        translate ([0, 0, body_thickness/2-body_radius]) 
+            sphere(shell_radius);
+        translate ([0, 0, -body_thickness/2+body_radius]) 
+            sphere(shell_radius);
+    }   
 }
 
 module gamepad_shell(){
@@ -136,48 +165,74 @@ module gamepad_shell(){
         linear_extrude(height = 0.05, center = true) {
             minkowski() {
                 square(
-                    [ body_width + shell_thickness - 2*gamepad_body_radius - 2*side_radius_thickness,
-                    body_length + wing_length*2 + shell_thickness - 2*gamepad_body_radius - 2*side_radius_thickness ], 
+                    [ face_width + shell_thickness - 2*gamepad_face_radius - 2*body_radius,
+                    face_length + wing_length*2 + shell_thickness - 2*gamepad_face_radius - 2*body_radius ], 
                     true);
-                circle(gamepad_body_radius-0.25); //can't intersect with phone body
+                circle(gamepad_face_radius-0.25); //can't intersect with phone body
             }
         }
         //edge shape and thickness
-        sphere(side_radius_thickness+shell_thickness);
+        shell_profile();
     }
 }
 
+joycon_inner_width = 9.8;
+joycon_lip_width = 7.7;
+joycon_lip_thickness = 1;
+joycon_depth = 2.2;
+//sharper corner for rail support
+joycon_shell_radius = 1;
+// shell must be thick enough for joycon rail
+joycon_min_thickness = joycon_inner_width + 2*shell_thickness;
+//this must be ternary, not if-else, due to how openscad handles (not)variables and scope
+//https://www.thingiverse.com/groups/openscad/forums/general/topic:25540
+joycon_thickness = (body_thickness < joycon_min_thickness) ? joycon_min_thickness:body_thickness;
+joycon_z_shift = body_thickness-joycon_thickness+2*shell_thickness;
 module joycon_shell(){
-    joycon_body_radius = 2; //sharper corner for joycon rail
-    joycon_depth = 10;
-    joycon_width = 10;
+    //sharper corners for joycon rail
+    joycon_face_radius = 2;
     
-    if (body_radius < joycon_body_radius) {
-        joycon_body_radius = body_radius-0.25;
-    }
-    
+    translate([0,0,joycon_z_shift])
     minkowski() {
         //face shape
         linear_extrude(height = 0.05, center = true) {
             minkowski() {
                 square(
-                    [ body_width + shell_thickness - 2*joycon_body_radius - 2*side_radius_thickness,
-                    body_length + joycon_depth*2 + shell_thickness - 2*joycon_body_radius - 2*side_radius_thickness ], 
+                    [ face_width + shell_thickness - 2*joycon_face_radius - 2*joycon_shell_radius,
+                    face_length + 2*joycon_depth + 2*shell_thickness + 2*joycon_lip_thickness - 2*joycon_face_radius - 2*joycon_shell_radius ], 
                     true);
-                circle(joycon_body_radius); //can't intersect with phone body
+                circle(joycon_face_radius); //can't intersect with phone body
             }
         }
         //edge shape and thickness
-        sphere(side_radius_thickness+shell_thickness);
+        joycon_shell_profile();
+    }
+}
+module joycon_shell_profile(){
+    hull(){
+        translate ([0, 0, joycon_thickness/2-joycon_shell_radius]) 
+            sphere(joycon_shell_radius);
+        translate ([0, 0, -joycon_thickness/2+joycon_shell_radius]) 
+            sphere(joycon_shell_radius);
     }
 }
 
+joycon_cuts();
 module joycon_cuts(){
+    //TODO: manual supports on the rail like https://www.thingiverse.com/thing:2337833
+    //all the other joycon rails print vertically
+    //maybe a vertical-printed rail could be attached to the sides/bottom
     
+    color("red", 0.25)
+    translate([0, -face_length/2-shell_thickness-joycon_depth/2, joycon_z_shift]) {
+        cube([face_width,joycon_depth,joycon_inner_width],center=true);
+        translate([0,-joycon_depth,0])
+        cube([face_width,5,joycon_lip_width],center=true);
+    }
 }
 
-gamepad_cutout_radius = gamepad_body_radius;
-gamepad_cutout_translate = body_length/2+wing_length/2-1;
+gamepad_cut_radius = gamepad_face_radius;
+gamepad_cutout_translate = face_length/2+wing_length/2-1;
 //gamepad_cuts();
 //gamepad_hole();
 module gamepad_hole(){
@@ -185,14 +240,14 @@ module gamepad_hole(){
     translate([0,-gamepad_cutout_translate,-side_radius_thickness+shell_thickness +2])
     minkowski() {
         cube( 
-            [body_width - 2*gamepad_cutout_radius - 2*side_radius_thickness + side_radius_thickness,
-            wing_length - 2*gamepad_cutout_radius - shell_thickness -2,
+            [face_width - 2*gamepad_cut_radius - 2*side_radius_thickness + side_radius_thickness,
+            wing_length - 2*gamepad_cut_radius - shell_thickness -2,
             side_radius_thickness],
             center=true
         );
         cylinder(
             h=side_radius_thickness+shell_thickness, 
-            r=gamepad_cutout_radius,
+            r=gamepad_cut_radius,
             center=false
         );
     }
@@ -203,7 +258,7 @@ module gamepad_trigger_cut() {
 module gamepad_ffc_cut(){
     ffc_height = 4;
     ffc_width = 5;
-    translate( [-12, -body_length/2 - 2, -side_radius_thickness+ffc_height/2] )
+    translate( [-12, -face_length/2 - 2, -side_radius_thickness+ffc_height/2] )
     rotate( [90, 0, 0] )
     hull(){
         translate ([ffc_width/2, 0]) 
@@ -220,17 +275,17 @@ module gamepad_cuts(){
     }
 }
 module gamepad_faceplates(){
-    //color("red") peg_cuts();
+    //color("red", 0.25) peg_cuts();
     module peg_cuts() {
         translate([0,-gamepad_cutout_translate,-side_radius_thickness+shell_thickness +2]) {
             cube( 
-                [body_width +10,
-                wing_length - 2*gamepad_cutout_radius - shell_thickness +2,
+                [face_width +10,
+                wing_length - 2*gamepad_cut_radius - shell_thickness +2,
                 side_radius_thickness+8],
                 center=true
             );
             cube( 
-                [body_width - 2*side_radius_thickness -3,
+                [face_width - 2*side_radius_thickness -3,
                 wing_length+0,
                 side_radius_thickness+8],
                 center=true
@@ -295,7 +350,7 @@ module gamepad_faceplates(){
 //gamepad_trigger();
 // awful
 module gamepad_trigger(){
-    translate( [ body_width/2-10.5,
+    translate( [ face_width/2-10.5,
     -gamepad_cutout_translate-10,
     -side_radius_thickness+shell_thickness +1 ] ) {
         rotate([0,180,-90])
@@ -315,13 +370,13 @@ module gamepad_trigger(){
 
 //screen_cut();
 module screen_cut(){
-    clearanced_body_radius = body_radius+2; //give the screen radius a little more lip
+    clearanced_face_radius = face_radius+2; //give the screen radius a little more lip
     translate([0,0,5]) 
     minkowski() {
         linear_extrude(height = 10, center = true) {
             minkowski() {
-                square([screen_width-2*clearanced_body_radius, screen_length-2*clearanced_body_radius], true);
-                circle(clearanced_body_radius);
+                square([screen_width-2*clearanced_face_radius, screen_length-2*clearanced_face_radius], true);
+                circle(clearanced_face_radius);
             }
         }
     }
@@ -331,7 +386,7 @@ module screen_cut(){
 module usb_cut(){
     charge_port_height = 7;
     charge_port_width = 7;
-    translate( [0, -body_length/2 - 2, 0] )
+    translate( [0, -face_length/2 - 2, 0] )
     rotate( [90, 0, 0] )
     hull(){
         translate ([charge_port_width/2, 0]) 
@@ -343,9 +398,9 @@ module usb_cut(){
 
 //right_button_cut();
 module right_button_cut(){
-    color("red")
-    translate( [ body_width/2, 
-    body_length/2 - button_right_offset - button_right_length + buttons_fillet, buttons_fillet-side_radius_thickness/1.5 ] )
+    color("red", 0.25)
+    translate( [ face_width/2, 
+    face_length/2 - button_right_offset - button_right_length + buttons_fillet, buttons_fillet-side_radius_thickness/1.5 ] )
     rotate([0,-90,0])
     minkowski() {
         linear_extrude(height = 20, center = true) {
@@ -357,30 +412,31 @@ module right_button_cut(){
     }
 }
 
-//camera_cut();
+camera_cut();
 module camera_cut(){
-    camera_radius = camera_height/2;
-    translate( [ body_width/2-camera_radius-camera_from_edge,
-    body_length/2-camera_radius-camera_from_top,
+    camera_radius = camera_diam/2;
+    camera_radius_clearanced = camera_radius+camera_clearance;
+    translate( [ face_width/2-camera_radius-camera_from_side,
+    face_length/2-camera_radius-camera_from_top,
     -side_radius_thickness ] )
     hull(){
-        cylinder( 5, camera_radius, camera_radius, true);
-        translate ([camera_height-camera_width,0,0]) 
-            cylinder( 5, camera_radius, camera_radius, true);
+        cylinder( 10, camera_radius_clearanced, camera_radius_clearanced, true);
+        translate ([camera_diam-camera_width,0,0]) 
+            cylinder( 10, camera_radius_clearanced, camera_radius_clearanced, true);
     }
 }
 
 //fingerprint_cut();
 module fingerprint_cut(){
     fingerprint_radius = fingerprint_diam/2;
-    translate( [ 0, body_length/2-fingerprint_center_from_top, -side_radius_thickness-2 ] )
+    translate( [ 0, face_length/2-fingerprint_center_from_top, -side_radius_thickness-2 ] )
     cylinder( 4, fingerprint_radius*3, fingerprint_radius, true);     
 }
 
 //mic_cut();
 module mic_cut(){
     //I feel like this could be improved
-    translate( [ body_width/2-mic_from_edge, body_length/2, 0 ] )
+    translate( [ face_width/2-mic_from_edge, face_length/2, 0 ] )
     hull(){
         cylinder( 20, 2, 2, true);
         translate ([0,2,0]) 
@@ -390,6 +446,7 @@ module mic_cut(){
 
 //top_cut();
 module top_cut(){
+    color("red", 0.25)
     translate([0,0,7]) 
     cube( [ 100, screen_length+200, 5 ], center=true );
 }
