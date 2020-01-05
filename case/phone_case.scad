@@ -35,6 +35,8 @@ fingerprint_center_from_top = 36.5;
 fingerprint_diam = 13;
 
 case_type = "gamepad"; // [phone case, gamepad, joycon rails, junglecat rails]
+//the joycon rail requires support to print horizontally. "Cutout" support is designed to remove easily with a razor. "None" means you'll handle it yourself in your slicer.
+joycon_rail_support = "cutout"; // [cutout, none]
 
 module end_customizer_variables(){} //jank to get variables out of the customizer
 wing_length = 30; //max that will fit on my printer
@@ -95,7 +97,7 @@ module junglecat_rails(){
 
 //body();
 module body(){
-    color("orange", 0.25)
+    color("orange", 0.2)
     minkowski() {
         linear_extrude(height = 0.05, center = true) {
             //face profile
@@ -182,10 +184,8 @@ joycon_lip_thickness = 1;
 joycon_depth = 2.2;
 //sharper corner for rail support
 joycon_shell_radius = 1;
-// shell must be thick enough for joycon rail
+// shell is thickened to fit the joycon
 joycon_min_thickness = joycon_inner_width + 2*shell_thickness;
-//this must be ternary, not if-else, due to how openscad handles (not)variables and scope
-//https://www.thingiverse.com/groups/openscad/forums/general/topic:25540
 joycon_thickness = (body_thickness < joycon_min_thickness) ? joycon_min_thickness:body_thickness;
 joycon_z_shift = body_thickness-joycon_thickness+2*shell_thickness;
 module joycon_shell(){
@@ -201,7 +201,7 @@ module joycon_shell(){
                     [ face_width + shell_thickness - 2*joycon_face_radius - 2*joycon_shell_radius,
                     face_length + 2*joycon_depth + 2*shell_thickness + 2*joycon_lip_thickness - 2*joycon_face_radius - 2*joycon_shell_radius ], 
                     true);
-                circle(joycon_face_radius); //can't intersect with phone body
+                circle(joycon_face_radius);
             }
         }
         //edge shape and thickness
@@ -219,15 +219,31 @@ module joycon_shell_profile(){
 
 joycon_cuts();
 module joycon_cuts(){
-    //TODO: manual supports on the rail like https://www.thingiverse.com/thing:2337833
-    //all the other joycon rails print vertically
-    //maybe a vertical-printed rail could be attached to the sides/bottom
-    
-    color("red", 0.25)
-    translate([0, -face_length/2-shell_thickness-joycon_depth/2, joycon_z_shift]) {
-        cube([face_width,joycon_depth,joycon_inner_width],center=true);
-        translate([0,-joycon_depth,0])
-        cube([face_width,5,joycon_lip_width],center=true);
+    airgap = 0.4; //TODO: test and tweak. This may depend on layer height.
+    lock_notch_width = 4.5;
+    lock_notch_depth = (joycon_inner_width-joycon_lip_width)/2;
+    lock_notch_offset = 9.75;
+    copy_mirror() {
+        color("red", 0.2)
+        translate([0, -face_length/2-shell_thickness-joycon_depth/2, joycon_z_shift]) {
+            //inner cutout
+            cube([face_width+shell_thickness+1,joycon_depth,joycon_inner_width],center=true);
+            //lip cutout
+            translate([0,-joycon_depth/2-joycon_lip_thickness/2,0]) {
+                if(joycon_rail_support=="cutout"){
+                    //manual support inspired by Tokytome https://www.thingiverse.com/thing:2337833
+                    difference(){
+                        cube([face_width+shell_thickness+1, joycon_lip_thickness+1, joycon_lip_width], center=true);
+                        cube([face_width+shell_thickness-airgap, joycon_lip_thickness+1.5, joycon_lip_width-airgap], center=true);
+                    }
+                } else { //bring your own support
+                    cube([face_width+shell_thickness+1, joycon_lip_thickness+1, joycon_lip_width], center=true);
+                }
+            }
+            //lock notch
+            translate([face_width/2-lock_notch_depth/2-lock_notch_offset, -joycon_depth/2-joycon_lip_thickness/2, -joycon_lip_width/2-lock_notch_depth/2])
+            cube([lock_notch_width, joycon_lip_thickness+0.5, lock_notch_depth], center=true);
+        }
     }
 }
 
@@ -275,7 +291,7 @@ module gamepad_cuts(){
     }
 }
 module gamepad_faceplates(){
-    //color("red", 0.25) peg_cuts();
+    //color("red", 0.2) peg_cuts();
     module peg_cuts() {
         translate([0,-gamepad_cutout_translate,-side_radius_thickness+shell_thickness +2]) {
             cube( 
@@ -398,7 +414,7 @@ module usb_cut(){
 
 //right_button_cut();
 module right_button_cut(){
-    color("red", 0.25)
+    color("red", 0.2)
     translate( [ face_width/2, 
     face_length/2 - button_right_offset - button_right_length + buttons_fillet, buttons_fillet-side_radius_thickness/1.5 ] )
     rotate([0,-90,0])
@@ -412,10 +428,11 @@ module right_button_cut(){
     }
 }
 
-camera_cut();
+//camera_cut();
 module camera_cut(){
     camera_radius = camera_diam/2;
     camera_radius_clearanced = camera_radius+camera_clearance;
+    color("red", 0.2)
     translate( [ face_width/2-camera_radius-camera_from_side,
     face_length/2-camera_radius-camera_from_top,
     -side_radius_thickness ] )
@@ -429,8 +446,9 @@ module camera_cut(){
 //fingerprint_cut();
 module fingerprint_cut(){
     fingerprint_radius = fingerprint_diam/2;
+    color("red", 0.2)
     translate( [ 0, face_length/2-fingerprint_center_from_top, -side_radius_thickness-2 ] )
-    cylinder( 4, fingerprint_radius*3, fingerprint_radius, true);     
+    cylinder( 4, fingerprint_radius*2, fingerprint_radius, true);
 }
 
 //mic_cut();
@@ -446,7 +464,7 @@ module mic_cut(){
 
 //top_cut();
 module top_cut(){
-    color("red", 0.25)
+    color("red", 0.2)
     translate([0,0,7]) 
     cube( [ 100, screen_length+200, 5 ], center=true );
 }
