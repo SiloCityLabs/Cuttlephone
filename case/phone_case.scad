@@ -64,7 +64,7 @@ joycon_thickness = (body_thickness < joycon_min_thickness) ? joycon_min_thicknes
 joycon_z_shift = body_thickness-joycon_thickness+2*shell_thickness;
 
 //junglecat variables
-junglecat_inner_width = body_thickness;
+junglecat_inner_width = 6;
 junglecat_lip_width = 2;
 junglecat_lip_thickness = 1;
 junglecat_depth = 2;
@@ -127,7 +127,7 @@ module junglecat_rails(){
     }
 }
 
-body_test();
+//body_test();
 /*
     sanity-checking radius math. 
     body() should be the same size as this but with radiused corners
@@ -137,7 +137,7 @@ module body_test(){
     cube([face_width,face_length,body_thickness],center=true);
 }
 
-body();
+//body();
 module body(){
     color("orange", 0.2)
     minkowski() {
