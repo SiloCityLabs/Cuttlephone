@@ -123,7 +123,7 @@ module junglecat_rails(){
         junglecat_shell();
         body();
         shell_cuts();
-        //junglecat_cuts();
+        junglecat_cuts();
     }
 }
 
@@ -231,7 +231,7 @@ module joycon_shell(){
             minkowski() {
                 square(
                     [ face_width + shell_thickness - 2*rail_face_radius - 2*rail_shell_radius,
-                    face_length + 2*joycon_depth + 2*shell_thickness + 2*joycon_lip_thickness - 2*rail_face_radius - 2*rail_shell_radius ],
+                    face_length + shell_thickness + 2*joycon_depth + 2*joycon_lip_thickness - 2*rail_face_radius - 2*rail_shell_radius ],
                     true);
                 circle(rail_face_radius);
             }
@@ -276,20 +276,20 @@ module junglecat_shell_profile(){
     }   
 }
 
-junglecat_cuts();
+//junglecat_cuts();
 module junglecat_cuts(){
     copy_mirror() {
         color("red", 0.2)
         translate([0, -face_length/2-shell_thickness-junglecat_depth/2, 0]) {
             //inner cutout
-            cube([face_width+shell_thickness+1,junglecat_depth,junglecat_inner_width],center=true);
+            cube([face_width+shell_thickness+2,junglecat_depth,junglecat_inner_width],center=true);
             //lip cutout
             translate([0,-junglecat_depth/2-junglecat_lip_thickness/2,0]) {
                 if(rail_support=="cutout"){
                     //manual support inspired by Tokytome https://www.thingiverse.com/thing:2337833
                     difference(){
                         cube([face_width+shell_thickness+1, junglecat_lip_thickness+1, junglecat_lip_width], center=true);
-                        cube([face_width+shell_thickness-rail_support_airgap, junglecat_lip_thickness+1.5, joycon_lip_width-rail_support_airgap], center=true);
+                        cube([face_width+shell_thickness-rail_support_airgap, junglecat_lip_thickness+1.5, junglecat_lip_width-rail_support_airgap], center=true);
                     }
                 } else { //bring your own support
                     cube([face_width+shell_thickness+1, junglecat_lip_thickness+1, junglecat_lip_width], center=true);
@@ -298,7 +298,6 @@ module junglecat_cuts(){
         }
     }
 }
-
 
 //joycon_cuts();
 module joycon_cuts(){
@@ -309,7 +308,7 @@ module joycon_cuts(){
         color("red", 0.2)
         translate([0, -face_length/2-shell_thickness-joycon_depth/2, joycon_z_shift]) {
             //inner cutout
-            cube([face_width+shell_thickness+1,joycon_depth,joycon_inner_width],center=true);
+            cube([face_width+shell_thickness+2,joycon_depth,joycon_inner_width],center=true);
             //lip cutout
             translate([0,-joycon_depth/2-joycon_lip_thickness/2,0]) {
                 if(rail_support=="cutout"){
