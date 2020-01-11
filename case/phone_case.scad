@@ -38,7 +38,7 @@ case_type = "gamepad"; // [phone case, gamepad, joycon rails, junglecat rails]
 //joycon and junglecat rail requires support to print horizontally. "Cutout" support is designed to remove easily with a razor blade. "None" means you'll handle it yourself in your slicer.
 rail_support = "cutout"; // [cutout, none]
 //set this to your layer height
-rail_support_airgap = 0.40; //TODO: test and tweak. This may depend on layer height.
+rail_support_airgap = 0.20; //TODO: test and tweak. This may depend on layer height.
 
 module end_customizer_variables(){}
 
@@ -391,13 +391,14 @@ module gamepad_faceplates(){
     }
     //button_holes();
     module button_holes(){
-        hole_diam = 10.5;
-        hole_offset_crap = 8.85; //todo: make this edge-to-edge for hand measuring
+        hole_diam = 7; //snes=10.5
+        //center of the top button to the center of the bottom button
+        hole_offset = 13; //should I make this edge-to-edge for easier caliper measuring?
         translate([10, -gamepad_cutout_translate, -side_radius_thickness+shell_thickness +2])
         rotate([0,0,45])
         copy_mirror([0,1,0]) {
             copy_mirror([1,0,0]) {
-                translate([hole_offset_crap,hole_offset_crap,0])
+                translate([hole_offset/2,hole_offset/2,0])
                 cylinder(h=20,r=hole_diam/2,center=true);
             }
         }
