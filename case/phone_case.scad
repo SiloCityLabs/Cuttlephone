@@ -46,8 +46,9 @@ module end_customizer_variables(){}
 buttons_fillet = 3;
 
 // gamepad variables
-wing_length = 30; //max that will fit on my printer
+gamepad_wing_length = 30; //max that will fit on my printer
 gamepad_face_radius = 10;
+gamepad_peg_y_distance = 14;
 
 // joycon and junglecat shared variables
 rail_shell_radius = 1; //sharper corner for looks
@@ -210,7 +211,7 @@ module gamepad_shell(){
             minkowski() {
                 square(
                     [ face_width + shell_thickness - 2*gamepad_face_radius - 2*body_radius,
-                    face_length + wing_length*2 + shell_thickness - 2*gamepad_face_radius - 2*body_radius ], 
+                    face_length + gamepad_wing_length*2 + shell_thickness - 2*gamepad_face_radius - 2*body_radius ], 
                     true);
                 circle(gamepad_face_radius-0.25); //can't intersect with phone body
             }
@@ -329,7 +330,7 @@ module joycon_cuts(){
 }
 
 gamepad_cut_radius = gamepad_face_radius;
-gamepad_cutout_translate = face_length/2+wing_length/2-1;
+gamepad_cutout_translate = face_length/2+gamepad_wing_length/2-1;
 //gamepad_cuts();
 //gamepad_hole();
 module gamepad_hole(){
@@ -338,7 +339,7 @@ module gamepad_hole(){
     minkowski() {
         cube( 
             [face_width - 2*gamepad_cut_radius - 2*side_radius_thickness + side_radius_thickness,
-            wing_length - 2*gamepad_cut_radius - shell_thickness -2,
+            gamepad_wing_length - 2*gamepad_cut_radius - shell_thickness -2,
             side_radius_thickness],
             center=true
         );
@@ -377,13 +378,13 @@ module gamepad_faceplates(){
         translate([0,-gamepad_cutout_translate,-side_radius_thickness+shell_thickness +2]) {
             cube( 
                 [face_width +10,
-                wing_length - 2*gamepad_cut_radius - shell_thickness +2,
+                gamepad_peg_y_distance,
                 side_radius_thickness+8],
                 center=true
             );
             cube( 
                 [face_width - 2*side_radius_thickness -3,
-                wing_length+0,
+                gamepad_wing_length+0,
                 side_radius_thickness+8],
                 center=true
             );
@@ -391,15 +392,15 @@ module gamepad_faceplates(){
     }
     //button_holes();
     module button_holes(){
-        hole_diam = 7; //snes=10.5
-        //center of the top button to the center of the bottom button
-        hole_offset = 13; //should I make this edge-to-edge for easier caliper measuring?
+        gamepad_button_diam = 7; //snes=10.5
+        //center of A to center of B
+        gamepad_button_offset = 13; //should I make this edge-to-edge for easier caliper measuring?
         translate([10, -gamepad_cutout_translate, -side_radius_thickness+shell_thickness +2])
         rotate([0,0,45])
         copy_mirror([0,1,0]) {
             copy_mirror([1,0,0]) {
-                translate([hole_offset/2,hole_offset/2,0])
-                cylinder(h=20,r=hole_diam/2,center=true);
+                translate([gamepad_button_offset/2,gamepad_button_offset/2,0])
+                cylinder(h=20,r=gamepad_button_diam/2,center=true);
             }
         }
     }
@@ -446,23 +447,28 @@ module gamepad_faceplates(){
 }
 
 //gamepad_trigger();
-// awful
+// awful. Too many hardcoded numbers. I don't have a good vision of how this should work
 module gamepad_trigger(){
-    translate( [ face_width/2-10.5,
-    -gamepad_cutout_translate-10,
+    pin_length = 2 + gamepad_peg_y_distance;
+    //translate([5,0,-10])
+    translate( [ face_width/2-11,
+    -gamepad_cutout_translate,
     -side_radius_thickness+shell_thickness +1 ] ) {
-        rotate([0,180,-90])
-        prism(20,10,5);
-        //extend button pusher
-        translate([-8,4.5,-2])
-        cube(size=[10,10,2], center=false);
-        //extend trigger face up to pin
-        translate([8,0,-5])
-        cube(size=[3,20,10], center=false);
-        //pin
+        //pivot pin
         rotate([-90,0,0])
-        translate([9,-4,-1])
-        cylinder(h=22,r=1, center=false);
+        translate([9,-4,0])
+        cylinder(h=pin_length,r=1, center=true);
+        //trigger face
+        translate([8.5,0,0])
+        cube(size=[3,gamepad_peg_y_distance,10], center=true);
+        //the part that presses the silicone
+        translate([2,0,-2])
+        cube(size=[12,gamepad_peg_y_distance/2,2], center=true);
+        //angle keep the trigger in
+        rotate([-180,0,90])
+        translate([-3.5,-9,1])
+        prism(gamepad_peg_y_distance/2, 5, 2);
+
     }
 }
 

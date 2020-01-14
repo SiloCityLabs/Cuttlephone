@@ -931,17 +931,6 @@ Text Label 5100 5000 0    50   ~ 0
 pf7-36
 Text Label 5100 4300 0    50   ~ 0
 pe6-1
-$Comp
-L Connector:Conn_01x08_Female J3
-U 1 1 5DA62D9E
-P 5750 3550
-F 0 "J3" H 5642 4035 50  0000 C CNN
-F 1 "Conn_01x08_Female" H 5642 3944 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Vertical" H 5750 3550 50  0001 C CNN
-F 3 "~" H 5750 3550 50  0001 C CNN
-	1    5750 3550
-	-1   0    0    -1  
-$EndComp
 Text Label 6800 4900 0    50   ~ 0
 pc7-32
 Text Label 6800 4800 0    50   ~ 0
@@ -952,14 +941,6 @@ Text Label 6800 4600 0    50   ~ 0
 pb5-29
 Text Label 6800 4400 0    50   ~ 0
 pd7-27
-Text Label 5950 3550 0    50   ~ 0
-pd4-25
-Text Label 5950 3350 0    50   ~ 0
-pd3-21
-Text Label 5950 3250 0    50   ~ 0
-pd2-20
-Text Label 5950 3450 0    50   ~ 0
-pd5-22
 Text Label 5900 2700 0    50   ~ 0
 pd1-19
 Text Label 5900 2600 0    50   ~ 0
@@ -968,12 +949,6 @@ Text Label 5900 2500 0    50   ~ 0
 pb7-12
 Text Label 5900 2400 0    50   ~ 0
 pb3-11
-Text Label 5950 3650 0    50   ~ 0
-pf7-36
-Text Label 5950 3850 0    50   ~ 0
-pf5-38
-Text Label 5950 3950 0    50   ~ 0
-pf4-39
 NoConn ~ 5100 4500
 NoConn ~ 5100 4600
 Text Label 5900 2300 0    50   ~ 0
@@ -983,7 +958,61 @@ pb1-9
 Text Label 5900 2100 0    50   ~ 0
 pb0-8
 NoConn ~ 5100 4300
-Text Label 5950 3750 0    50   ~ 0
-pf6-37
 NoConn ~ 8050 3400
+Text Label 6100 3050 0    50   ~ 0
+pf6-37
+Text Label 6100 4550 0    50   ~ 0
+pf4-39
+Text Label 6100 4450 0    50   ~ 0
+pf5-38
+Text Label 6100 3350 0    50   ~ 0
+pf7-36
+Text Label 6100 4050 0    50   ~ 0
+pd5-22
+Text Label 6100 3250 0    50   ~ 0
+pd2-20
+Text Label 6100 3950 0    50   ~ 0
+pd3-21
+Text Label 6100 4150 0    50   ~ 0
+pd4-25
+$Comp
+L power:GND #PWR?
+U 1 1 5E1C2864
+P 6550 3150
+F 0 "#PWR?" H 6550 2900 50  0001 C CNN
+F 1 "GND" H 6555 2977 50  0000 C CNN
+F 2 "" H 6550 3150 50  0001 C CNN
+F 3 "" H 6550 3150 50  0001 C CNN
+	1    6550 3150
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:VCC #PWR?
+U 1 1 5E1D50BD
+P 6400 3450
+F 0 "#PWR?" H 6400 3300 50  0001 C CNN
+F 1 "VCC" H 6417 3623 50  0000 C CNN
+F 2 "" H 6400 3450 50  0001 C CNN
+F 3 "" H 6400 3450 50  0001 C CNN
+	1    6400 3450
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector_Generic:Conn_01x05 J3
+U 1 1 5DA62D9E
+P 5900 3250
+F 0 "J3" H 5792 3735 50  0000 C CNN
+F 1 "Conn_01x05" H 5792 3644 50  0000 C CNN
+F 2 "Connector_FFC-FPC:Hirose_FH12-6S-0.5SH_1x06-1MP_P0.50mm_Horizontal" H 5900 3250 50  0001 C CNN
+F 3 "~" H 5900 3250 50  0001 C CNN
+	1    5900 3250
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	6100 3150 6550 3150
+Wire Wire Line
+	6100 3450 6400 3450
+NoConn ~ 6100 3950
+NoConn ~ 6100 4050
+NoConn ~ 6100 4150
 $EndSCHEMATC

@@ -1,4 +1,4 @@
-update=7/15/2019 10:43:10 PM
+update=1/12/2020 3:50:16 PM
 version=1
 last_client=kicad
 [general]
@@ -15,7 +15,7 @@ LibDir=
 [pcbnew]
 version=1
 PageLayoutDescrFile=
-LastNetListRead=avr-gamepad.net
+LastNetListRead=intermediates/avr-gamepad.net
 CopperLayerCount=2
 BoardThickness=0.1016
 AllowMicroVias=0
@@ -59,7 +59,7 @@ OthersTextUpright=1
 SolderMaskClearance=0.0508
 SolderMaskMinWidth=0.0508
 SolderPasteClearance=0
-SolderPasteRatio=-0
+SolderPasteRatio=0
 [pcbnew/Layer.F.Cu]
 Name=F.Cu
 Type=0
