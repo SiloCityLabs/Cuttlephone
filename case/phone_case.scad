@@ -14,8 +14,8 @@ body_radius = 3;
 
 //a combination of the edge profile radius and the devices thickness
 side_radius_thickness = 4.03;
-screen_length = 143.5; //should I change these to "screen lip=2"? It would vary with radius tho
-screen_width = 66.5;
+screen_length = 145.0; //should I change these to "screen lip=2"? It would vary with radius tho
+screen_width = 67.0;
 
 //make this a multiple of nozzle diameter (0.4mm is flimsy)
 shell_thickness = 0.8;
@@ -55,9 +55,9 @@ rail_shell_radius = 1; //sharper corner for looks
 rail_face_radius = 2; //sharper corner for looks
 
 // joycon variables
-joycon_inner_width = 9.8;
+joycon_inner_width = 10.0;
 joycon_lip_width = 7.7;
-joycon_lip_thickness = 1;
+joycon_lip_thickness = 0.3; //should be a multiple of nozzle width
 joycon_depth = 2.2;
 // shell is thickened to fit the joycon
 joycon_min_thickness = joycon_inner_width + 2*shell_thickness;
@@ -540,9 +540,10 @@ module camera_cut(){
 //fingerprint_cut();
 module fingerprint_cut(){
     fingerprint_radius = fingerprint_diam/2;
+    fingerprint_cut_height = 6; //TODO: calculate this
     color("red", 0.2)
-    translate( [ 0, face_length/2-fingerprint_center_from_top, -side_radius_thickness-2 ] )
-    cylinder( 4, fingerprint_radius*2, fingerprint_radius, true);
+    translate( [ 0, face_length/2-fingerprint_center_from_top, -side_radius_thickness-fingerprint_cut_height/2 ] )
+    cylinder( fingerprint_cut_height, fingerprint_radius*2, fingerprint_radius, true);
 }
 
 //mic_cut();
