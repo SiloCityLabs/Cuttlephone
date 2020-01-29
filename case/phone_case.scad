@@ -8,20 +8,22 @@ $fn=50;
 
 face_radius = 5.25;
 face_length = 145.5;
-face_width = 68.7;
+face_width = 70.0;
 body_thickness = 8.1;
 body_radius = 3;
 
-//a combination of the edge profile radius and the devices thickness
-side_radius_thickness = 4.03;
 screen_length = 145.0; //should I change these to "screen lip=2"? It would vary with radius tho
 screen_width = 67.0;
 
 //make this a multiple of nozzle diameter (0.4mm is flimsy)
 shell_thickness = 0.8;
 
-button_right_offset = 31;
-button_right_length = 42;
+right_button_cut = true;
+right_button_offset = 31;
+right_button_length = 42;
+left_button_cut = true;
+left_button_offset = 90;
+left_button_length = 42;
 //camera diameter / height
 camera_diam = 9;
 //horizontal camera setups only for now
@@ -55,10 +57,10 @@ rail_shell_radius = 1; //sharper corner for looks
 rail_face_radius = 2; //sharper corner for looks
 
 // joycon variables
-joycon_inner_width = 10.0;
+joycon_inner_width = 10.4;
 joycon_lip_width = 7.7;
 joycon_lip_thickness = 0.3; //should be a multiple of nozzle width
-joycon_depth = 2.2;
+joycon_depth = 3.0;
 // shell is thickened to fit the joycon
 joycon_min_thickness = joycon_inner_width + 2*shell_thickness;
 joycon_thickness = (body_thickness < joycon_min_thickness) ? joycon_min_thickness:body_thickness;
@@ -151,8 +153,6 @@ module body(){
             }
         }
         // side profile
-        // TODO: separate thickness and radius
-        //sphere(side_radius_thickness);
         body_profile();
     }
 }
@@ -171,6 +171,7 @@ module body_profile(){
 module shell_cuts(){
     usb_cut();
     right_button_cut();
+    left_button_cut();
     camera_cut();
     fingerprint_cut();
     mic_cut();
@@ -334,17 +335,18 @@ gamepad_cutout_translate = face_length/2+gamepad_wing_length/2-1;
 //gamepad_cuts();
 //gamepad_hole();
 module gamepad_hole(){
-    //TOOD: cylinder-minkowski clips through sphere-minkowski, hence "+1"
-    translate([0,-gamepad_cutout_translate,-side_radius_thickness+shell_thickness +2])
+    //TOOD: cylinder-minkowski clips through sphere-minkowski
+    radius_buffer = 2;
+    translate([0,-gamepad_cutout_translate,-body_thickness/2+shell_thickness +2])
     minkowski() {
         cube( 
-            [face_width - 2*gamepad_cut_radius - 2*side_radius_thickness + side_radius_thickness,
-            gamepad_wing_length - 2*gamepad_cut_radius - shell_thickness -2,
-            side_radius_thickness],
+            [face_width - 2*gamepad_cut_radius - radius_buffer,
+            gamepad_wing_length - 2*gamepad_cut_radius - shell_thickness - radius_buffer,
+            body_thickness/2],
             center=true
         );
         cylinder(
-            h=side_radius_thickness+shell_thickness, 
+            h=body_thickness/2+shell_thickness, 
             r=gamepad_cut_radius,
             center=false
         );
@@ -356,7 +358,7 @@ module gamepad_trigger_cut() {
 module gamepad_ffc_cut(){
     ffc_height = 4;
     ffc_width = 5;
-    translate( [-12, -face_length/2 - 2, -side_radius_thickness+ffc_height/2] )
+    translate( [-12, -face_length/2 - 2, -body_thickness/2+ffc_height/2] )
     rotate( [90, 0, 0] )
     hull(){
         translate ([ffc_width/2, 0]) 
@@ -375,17 +377,17 @@ module gamepad_cuts(){
 module gamepad_faceplates(){
     //color("red", 0.2) peg_cuts();
     module peg_cuts() {
-        translate([0,-gamepad_cutout_translate,-side_radius_thickness+shell_thickness +2]) {
+        translate([0,-gamepad_cutout_translate,-body_thickness/2+shell_thickness +2]) {
             cube( 
                 [face_width +10,
                 gamepad_peg_y_distance,
-                side_radius_thickness+8],
+                body_thickness/2+8],
                 center=true
             );
             cube( 
-                [face_width - 2*side_radius_thickness -3,
+                [face_width - body_thickness -3,
                 gamepad_wing_length+0,
-                side_radius_thickness+8],
+                body_thickness/2+8],
                 center=true
             );
         }
@@ -395,7 +397,7 @@ module gamepad_faceplates(){
         gamepad_button_diam = 7; //snes=10.5
         //center of A to center of B
         gamepad_button_offset = 13; //should I make this edge-to-edge for easier caliper measuring?
-        translate([10, -gamepad_cutout_translate, -side_radius_thickness+shell_thickness +2])
+        translate([10, -gamepad_cutout_translate, -body_thickness/2+shell_thickness +2])
         rotate([0,0,45])
         copy_mirror([0,1,0]) {
             copy_mirror([1,0,0]) {
@@ -408,7 +410,7 @@ module gamepad_faceplates(){
     module dpad_hole(){
         dpad_width = 25.4;
         dpad_thickness = 9.6;
-        translate([10, -gamepad_cutout_translate, -side_radius_thickness+shell_thickness +10]) {
+        translate([10, -gamepad_cutout_translate, -body_thickness/2+shell_thickness +10]) {
             cube([dpad_width,dpad_thickness,20],center=true);
             rotate([0,0,90])
             cube([dpad_width,dpad_thickness,20],center=true);
@@ -418,7 +420,7 @@ module gamepad_faceplates(){
     module start_select_hole(){
         start_select_length = 7; //not actually length, arbitrary number
         start_select_radius = 1.5;
-        translate([-20, -gamepad_cutout_translate+5, -side_radius_thickness+shell_thickness +5])
+        translate([-20, -gamepad_cutout_translate+5, -body_thickness/2+shell_thickness +5])
         rotate([0,0,90])
         hull(){
             cylinder( 20, start_select_radius, start_select_radius, true);
@@ -453,7 +455,7 @@ module gamepad_trigger(){
     //translate([5,0,-10])
     translate( [ face_width/2-11,
     -gamepad_cutout_translate,
-    -side_radius_thickness+shell_thickness +1 ] ) {
+    -body_thickness/2+shell_thickness +1 ] ) {
         //pivot pin
         rotate([-90,0,0])
         translate([9,-4,0])
@@ -508,15 +510,35 @@ module usb_cut(){
 
 //right_button_cut();
 module right_button_cut(){
-    color("red", 0.2)
-    translate( [ face_width/2, 
-    face_length/2 - button_right_offset - button_right_length + buttons_fillet, buttons_fillet-side_radius_thickness/1.5 ] )
-    rotate([0,-90,0])
-    minkowski() {
-        linear_extrude(height = 20, center = true) {
-            minkowski() {
-                square([10, button_right_length - 2*buttons_fillet],false);
-                circle(buttons_fillet);
+    if(right_button_cut) {
+        color("red", 0.2)
+        translate( [ face_width/2, 
+        face_length/2 - right_button_offset - right_button_length + buttons_fillet, buttons_fillet-body_thickness/2/1.5 ] )
+        rotate([0,-90,0])
+        minkowski() {
+            linear_extrude(height = 20, center = true) {
+                minkowski() {
+                    square([10, right_button_length - 2*buttons_fillet],false);
+                    circle(buttons_fillet);
+                }
+            }
+        }
+    }
+}
+
+//left_button_cut();
+module left_button_cut(){
+    if(left_button_cut){
+        color("red", 0.2)
+        translate( [ -face_width/2, 
+        face_length/2 - left_button_offset - left_button_length + buttons_fillet, buttons_fillet-body_thickness/2/1.5 ] )
+        rotate([0,-90,0])
+        minkowski() {
+            linear_extrude(height = 20, center = true) {
+                minkowski() {
+                    square([10, left_button_length - 2*buttons_fillet],false);
+                    circle(buttons_fillet);
+                }
             }
         }
     }
@@ -529,11 +551,11 @@ module camera_cut(){
     color("red", 0.2)
     translate( [ face_width/2-camera_radius-camera_from_side,
     face_length/2-camera_radius-camera_from_top,
-    -side_radius_thickness ] )
+    -body_thickness-shell_thickness ] )
     hull(){
-        cylinder( 10, camera_radius_clearanced, camera_radius_clearanced, true);
+        cylinder( 10, camera_radius_clearanced*2, camera_radius_clearanced, true);
         translate ([camera_diam-camera_width,0,0]) 
-            cylinder( 10, camera_radius_clearanced, camera_radius_clearanced, true);
+            cylinder( 10, camera_radius_clearanced*2, camera_radius_clearanced, true);
     }
 }
 
@@ -542,7 +564,7 @@ module fingerprint_cut(){
     fingerprint_radius = fingerprint_diam/2;
     fingerprint_cut_height = 6; //TODO: calculate this
     color("red", 0.2)
-    translate( [ 0, face_length/2-fingerprint_center_from_top, -side_radius_thickness-fingerprint_cut_height/2 ] )
+    translate( [ 0, face_length/2-fingerprint_center_from_top, -body_thickness/2-fingerprint_cut_height/2 ] )
     cylinder( fingerprint_cut_height, fingerprint_radius*2, fingerprint_radius, true);
 }
 
