@@ -8,7 +8,7 @@ A prototype (0.x) is currently in development. You can follow progress here:
  - [SiloCityLabs Twitter](https://twitter.com/silocitylabs)
  - Coming soon: "usb-c-gamepad" blog category so you can subscribe to only gamepad updates without the side projects
 
-[![](https://i.imgur.com/jmLhCeil.png)](https://hackaday.io/project/165606-usb-c-gamepad-phone-case)
+[![](https://user-images.githubusercontent.com/1850819/73496293-3f021080-4386-11ea-9fc7-d2fafe343bc1.png)](https://hackaday.io/project/165606-usb-c-gamepad-phone-case)
 
 # To-do
  - Finish prototype (write firmware, assemble PCB, 3D print case)

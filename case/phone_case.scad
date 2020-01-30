@@ -5,15 +5,16 @@ $fn=50;
 
 //Default values for Pixel 3
 
-
 face_radius = 5.25;
 face_length = 145.5;
 face_width = 70.0;
 body_thickness = 8.1;
 body_radius = 3;
 
-screen_length = 145.0; //should I change these to "screen lip=2"? It would vary with radius tho
-screen_width = 67.0;
+screen_lip_length = 0.5;
+screen_length = face_length - screen_lip_length;
+screen_lip_width = 3.0;
+screen_width = face_width - screen_lip_width;
 
 //make this a multiple of nozzle diameter (0.4mm is flimsy)
 shell_thickness = 0.8;
@@ -21,7 +22,7 @@ shell_thickness = 0.8;
 right_button_cut = true;
 right_button_offset = 31;
 right_button_length = 42;
-left_button_cut = true;
+left_button_cut = false;
 left_button_offset = 90;
 left_button_length = 42;
 //camera diameter / height
@@ -58,9 +59,9 @@ rail_face_radius = 2; //sharper corner for looks
 
 // joycon variables
 joycon_inner_width = 10.4;
-joycon_lip_width = 7.7;
+joycon_lip_width = 8.0;
 joycon_lip_thickness = 0.3; //should be a multiple of nozzle width
-joycon_depth = 3.0;
+joycon_depth = 2.8;
 // shell is thickened to fit the joycon
 joycon_min_thickness = joycon_inner_width + 2*shell_thickness;
 joycon_thickness = (body_thickness < joycon_min_thickness) ? joycon_min_thickness:body_thickness;
