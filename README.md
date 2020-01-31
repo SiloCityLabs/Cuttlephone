@@ -17,30 +17,28 @@ A prototype (0.x) is currently in development. You can follow progress here:
  - Brainstorm v2 with the community
 
 # How it works
-v0.2 PCB is in progress. The heart is an ATmega32u4 which has built in USB support. The firmware will use the [LUFA library](https://github.com/abcminiuser/lufa) to implement USB HID. The case will be 3d printed to fit my personal phone and it will use buttons from an SNES controller. The two halves will connect with an 0.5mm pitch FFC.
+The heart is an ATmega32u4 which has built in USB support. The firmware will use the [LUFA library](https://github.com/abcminiuser/lufa) to implement a USB HID gamepad. The case is 3d printed to fit my phone and will use buttons from a donor controller / replacement parts. The two halves of the controller connect with a 0.5mm pitch FFC.
 
 # How can I help?
 Stick around until the prototype is finished! Follow the project with the links above. I'm open to suggestions.
 
 # Roadmap
 
-####  Prototype, v1.0
+####  Prototype
  - Be a functional gamepad that works with Android
  - Cases for the team's personal phones (Pixel 3, Pixel 3 XL, Pixel 2 XL)
  - Controls for 2D-era emulation: D-Pad, 4 face buttons, 2 shoulder buttons, Start/Select
-#### Public project, v2.0
- - Give the project a cool name
+#### Public project
+ - Give the project a name
  - Ensure it's pocket-portable, make it easy to carry on a daily basis
- - Improve the button hardware, case design, etc based on testing with v1
- - Cases for other phones (community contribution pls)
- - Maybe some of the future goals ↓↓↓
-#### Future goals
+ - Improve the button hardware, case design, etc based on testing
+ - Cases for other phones (community help need)
  - Controls for 3D-era emulation: add 2 joysticks, 2 analog triggers, some kind of L3/R3
+#### Future goals
  - Charging with the case attached
  - 3.5mm headphone jack
 #### Stretch goals
  - Analog face buttons for MGS1-3 compatibility
- - Rotatable case for playing DS/3DS games vertically
  - PCB art
 
 
