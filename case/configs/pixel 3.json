@@ -1,0 +1,34 @@
+{
+    "parameterSets": {
+        "design default values": {
+            "$fn": "50",
+            "body_radius": "3",
+            "body_thickness": "8.1",
+            "camera_clearance": "2",
+            "camera_diam": "9",
+            "camera_from_side": "8.5",
+            "camera_from_top": "8.7",
+            "camera_width": "20.5",
+            "case_type": "gamepad",
+            "face_length": "145.5",
+            "face_radius": "5.25",
+            "face_width": "70",
+            "fingerprint_center_from_top": "36.5",
+            "fingerprint_diam": "13",
+            "left_button_cut": "false",
+            "left_button_length": "42",
+            "left_button_offset": "90",
+            "mic_from_edge": "14",
+            "rail_support": "cutout",
+            "rail_support_airgap": "0.2",
+            "right_button_cut": "true",
+            "right_button_length": "42",
+            "right_button_offset": "31",
+            "screen_lip_length": "0.5",
+            "screen_lip_width": "3",
+            "shell_thickness": "0.8",
+            "version_text": "true"
+        }
+    },
+    "fileFormatVersion": "1"
+}

@@ -41,3 +41,6 @@ pcb/intermediates/
 # local file server stuff
 Gemfile
 Gemfile.lock
+
+# build dir
+case/build/

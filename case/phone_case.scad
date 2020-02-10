@@ -43,6 +43,8 @@ rail_support = "cutout"; // [cutout, none]
 //set this to your layer height
 rail_support_airgap = 0.20; //TODO: test and tweak. This may depend on layer height.
 
+version_text = true;
+
 module end_customizer_variables(){}
 
 // phone case / general variables
@@ -72,6 +74,13 @@ junglecat_inner_width = 6;
 junglecat_lip_width = 2;
 junglecat_lip_thickness = 1;
 junglecat_depth = 2;
+
+//embossment. These variables come in via command line arguments
+name = "Cuttlephone";
+author = "Maave";
+major_version = "v0.1";
+git_commit = "";
+phone_model = "Pixel 3";
 
 
 if(case_type=="phone case") {
@@ -178,6 +187,7 @@ module shell_cuts(){
     mic_cut();
     screen_cut();
     //top_cut();
+    version_info_emboss();
 }
 
 module phone_shell(){
@@ -314,11 +324,13 @@ module joycon_cuts(){
             cube([face_width+shell_thickness+2,joycon_depth,joycon_inner_width],center=true);
             //lip cutout
             translate([0,-joycon_depth/2-joycon_lip_thickness/2,0]) {
+                //manual support inspired by Tokytome https://www.thingiverse.com/thing:2337833
                 if(rail_support=="cutout"){
-                    //manual support inspired by Tokytome https://www.thingiverse.com/thing:2337833
+                    //this adds a visible lip so you rip off the support and not the rail
+                    removal_aid = 3;
                     difference(){
                         cube([face_width+shell_thickness+1, joycon_lip_thickness+1, joycon_lip_width], center=true);
-                        cube([face_width+shell_thickness-rail_support_airgap, joycon_lip_thickness+1.5, joycon_lip_width-rail_support_airgap], center=true);
+                        cube([face_width-removal_aid, joycon_lip_thickness+1.5, joycon_lip_width-rail_support_airgap], center=true);
                     }
                 } else { //bring your own support
                     cube([face_width+shell_thickness+1, joycon_lip_thickness+1, joycon_lip_width], center=true);
@@ -597,6 +609,30 @@ module top_cut(){
     color("red", 0.2)
     translate([0,0,7]) 
     cube( [ 100, screen_length+200, 5 ], center=true );
+}
+
+version_info_emboss();
+module version_info_emboss(){
+    if(version_text) {
+        //emboss_font = "Liberation Sans";
+        emboss_font = "Project Paintball"; //non-commercial
+        font_size = 8;
+        line_translate = 12;
+        minor_version = "git commit "+git_commit;
+        color("red")
+        rotate([0,0,-90])
+        translate([0,10,-body_thickness/2]) {
+            linear_extrude(height = shell_thickness/2, center = true) {
+                text(name, font=emboss_font, size=font_size);
+                translate([0,-line_translate,0])
+                text(major_version, font=emboss_font, size=font_size);
+                translate([0,-line_translate*2,0])
+                text(minor_version, font=emboss_font, size=font_size);
+                translate([0,-line_translate*3,0])
+                text(phone_model, font=emboss_font, size=font_size);
+            }
+        }
+    }
 }
 
 /////////////////////
