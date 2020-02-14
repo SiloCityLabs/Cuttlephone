@@ -1,7 +1,7 @@
 // Gamepad phone case
 // Author: Maave
 
-$fn=50;
+$fn=30;
 
 //Default values for Pixel 3
 
@@ -37,13 +37,15 @@ mic_from_edge = 14.0;
 fingerprint_center_from_top = 36.5;
 fingerprint_diam = 13;
 
-case_type = "gamepad"; // [phone case, gamepad, joycon rails, junglecat rails]
+case_type = "joycon rails"; // [phone case, gamepad, joycon rails]
 //joycon and junglecat rail requires support to print horizontally. "Cutout" support is designed to remove easily with a razor blade. "None" means you'll handle it yourself in your slicer.
 rail_support = "cutout"; // [cutout, none]
 //set this to your layer height
 rail_support_airgap = 0.20; //TODO: test and tweak. This may depend on layer height.
 
 version_text = true;
+phone_model = "Pixel 3";
+minor_version = "";
 
 module end_customizer_variables(){}
 
@@ -78,10 +80,8 @@ junglecat_depth = 2;
 //embossment. These variables come in via command line arguments
 name = "Cuttlephone";
 author = "Maave";
-major_version = "v0.1";
-git_commit = "";
-phone_model = "Pixel 3";
-
+major_version = "v0.1 ";
+version = str(major_version, minor_version);
 
 if(case_type=="phone case") {
     phone_case();
@@ -611,24 +611,21 @@ module top_cut(){
     cube( [ 100, screen_length+200, 5 ], center=true );
 }
 
-version_info_emboss();
+//version_info_emboss();
 module version_info_emboss(){
     if(version_text) {
         //emboss_font = "Liberation Sans";
         emboss_font = "Project Paintball"; //non-commercial
         font_size = 8;
         line_translate = 12;
-        minor_version = "git commit "+git_commit;
         color("red")
         rotate([0,0,-90])
         translate([0,10,-body_thickness/2]) {
             linear_extrude(height = shell_thickness/2, center = true) {
                 text(name, font=emboss_font, size=font_size);
                 translate([0,-line_translate,0])
-                text(major_version, font=emboss_font, size=font_size);
+                text(version, font=emboss_font, size=font_size);
                 translate([0,-line_translate*2,0])
-                text(minor_version, font=emboss_font, size=font_size);
-                translate([0,-line_translate*3,0])
                 text(phone_model, font=emboss_font, size=font_size);
             }
         }
