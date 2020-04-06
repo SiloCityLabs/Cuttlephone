@@ -3,21 +3,20 @@
 
 $fn=30;
 
-//Default values for Pixel 3
-
 face_radius = 5.25;
 face_length = 145.5;
 face_width = 70.0;
 body_thickness = 8.1;
 body_radius = 3;
 
+screen_radius = 5.25;
 screen_lip_length = 0.5;
 screen_length = face_length - screen_lip_length;
-screen_lip_width = 3.0;
+screen_lip_width = 4.0;
 screen_width = face_width - screen_lip_width;
 
-//make this a multiple of nozzle diameter (0.4mm is flimsy)
-shell_thickness = 0.8;
+//this should be a multiple of nozzle diameter (0.4 is flimsy, 0.8 is ok, 1.2 is solid)
+shell_thickness = 1.2;
 
 right_button_cut = true;
 right_button_offset = 31;
@@ -32,12 +31,16 @@ camera_width = 20.5;
 camera_from_side = 8.5;
 camera_from_top = 8.7;
 camera_clearance = 2.0;
-mic_from_edge = 14.0;
+mic_from_right_edge = 14.0;
+headphone_from_left_edge = 14.0;
+headphone_jack_cut = false;
+
+bottom_speakers = false;
 
 fingerprint_center_from_top = 36.5;
 fingerprint_diam = 13;
 
-case_type = "joycon rails"; // [phone case, gamepad, joycon rails]
+case_type = "phone case"; // [phone case, gamepad, joycon]
 //joycon and junglecat rail requires support to print horizontally. "Cutout" support is designed to remove easily with a razor blade. "None" means you'll handle it yourself in your slicer.
 rail_support = "cutout"; // [cutout, none]
 //set this to your layer height
@@ -50,7 +53,9 @@ minor_version = "";
 module end_customizer_variables(){}
 
 // phone case / general variables
-buttons_fillet = 3;
+buttons_fillet = 2;
+buttons_clearance = 10;
+shell_radius = body_radius + shell_thickness;
 
 // gamepad variables
 gamepad_wing_length = 30; //max that will fit on my printer
@@ -58,7 +63,7 @@ gamepad_face_radius = 10;
 gamepad_peg_y_distance = 14;
 
 // joycon and junglecat shared variables
-rail_shell_radius = 1; //sharper corner for looks
+rail_shell_radius = 2; //sharper corner for looks
 rail_face_radius = 2; //sharper corner for looks
 
 // joycon variables
@@ -89,7 +94,7 @@ if(case_type=="phone case") {
 else if(case_type=="gamepad") {
     gamepad();
 }
-else if(case_type=="joycon rails") {
+else if(case_type=="joycon") {
     joycon_rails();
 }
 else if(case_type=="junglecat rails") {
@@ -185,6 +190,7 @@ module shell_cuts(){
     camera_cut();
     fingerprint_cut();
     mic_cut();
+    top_headphone_cut();
     screen_cut();
     //top_cut();
     version_info_emboss();
@@ -206,8 +212,8 @@ module phone_shell(){
         shell_profile();
     }
 }
+//shell_profile();
 module shell_profile(){
-        shell_radius = body_radius + shell_thickness;
         hull(){
         translate ([0, 0, body_thickness/2-body_radius]) 
             sphere(shell_radius);
@@ -327,7 +333,7 @@ module joycon_cuts(){
                 //manual support inspired by Tokytome https://www.thingiverse.com/thing:2337833
                 if(rail_support=="cutout"){
                     //this adds a visible lip so you rip off the support and not the rail
-                    removal_aid = 3;
+                    removal_aid = 8;
                     difference(){
                         cube([face_width+shell_thickness+1, joycon_lip_thickness+1, joycon_lip_width], center=true);
                         cube([face_width-removal_aid, joycon_lip_thickness+1.5, joycon_lip_width-rail_support_airgap], center=true);
@@ -489,13 +495,12 @@ module gamepad_trigger(){
 
 //screen_cut();
 module screen_cut(){
-    clearanced_face_radius = face_radius+2; //give the screen radius a little more lip
     translate([0,0,5]) 
     minkowski() {
         linear_extrude(height = 10, center = true) {
             minkowski() {
-                square([screen_width-2*clearanced_face_radius, screen_length-2*clearanced_face_radius], true);
-                circle(clearanced_face_radius);
+                square([screen_width-2*screen_radius, screen_length-2*screen_radius], true);
+                circle(screen_radius);
             }
         }
     }
@@ -504,7 +509,7 @@ module screen_cut(){
 //usb_cut();
 module usb_cut(){
     charge_port_height = 7;
-    charge_port_width = 7;
+    charge_port_width = bottom_speakers ? face_width*0.6 : 7;
     color("red", 0.2)
     translate( [0, -face_length/2 - 2, 0] )
     rotate( [90, 0, 0] )
@@ -523,18 +528,15 @@ module usb_cut(){
 
 //right_button_cut();
 module right_button_cut(){
+    //other_fillet = buttons_fillet*0.6;
     if(right_button_cut) {
         color("red", 0.2)
         translate( [ face_width/2, 
-        face_length/2 - right_button_offset - right_button_length + buttons_fillet, buttons_fillet-body_thickness/2/1.5 ] )
+        face_length/2 - right_button_offset - right_button_length + buttons_fillet - buttons_clearance/2, -body_thickness/2 ] )
         rotate([0,-90,0])
         minkowski() {
-            linear_extrude(height = 20, center = true) {
-                minkowski() {
-                    square([10, right_button_length - 2*buttons_fillet],false);
-                    circle(buttons_fillet);
-                }
-            }
+            cube([10, right_button_length - 2*buttons_fillet + buttons_clearance, 2],false);
+            sphere(r=buttons_fillet);
         }
     }
 }
@@ -544,12 +546,12 @@ module left_button_cut(){
     if(left_button_cut){
         color("red", 0.2)
         translate( [ -face_width/2, 
-        face_length/2 - left_button_offset - left_button_length + buttons_fillet, buttons_fillet-body_thickness/2/1.5 ] )
+        face_length/2 - left_button_offset - left_button_length + buttons_fillet - buttons_clearance/2, buttons_fillet - body_thickness/2 -3 ] )
         rotate([0,-90,0])
         minkowski() {
             linear_extrude(height = 20, center = true) {
                 minkowski() {
-                    square([10, left_button_length - 2*buttons_fillet],false);
+                    square([10, left_button_length - 2*buttons_fillet + buttons_clearance],false);
                     circle(buttons_fillet);
                 }
             }
@@ -564,11 +566,11 @@ module camera_cut(){
     color("red", 0.2)
     translate( [ face_width/2-camera_radius-camera_from_side,
     face_length/2-camera_radius-camera_from_top,
-    -body_thickness-shell_thickness ] )
+    -body_thickness-shell_thickness+0.2] )
     hull(){
-        cylinder( 10, camera_radius_clearanced*2, camera_radius_clearanced, true);
+        cylinder( 10.1, camera_radius_clearanced*2, camera_radius_clearanced, true);
         translate ([camera_diam-camera_width,0,0]) 
-            cylinder( 10, camera_radius_clearanced*2, camera_radius_clearanced, true);
+            cylinder( 10.1, camera_radius_clearanced*2, camera_radius_clearanced, true);
     }
 }
 
@@ -583,23 +585,50 @@ module fingerprint_cut(){
 
 //mic_cut();
 module mic_cut(){
-    //this could be improved
-    if (case_type=="joycon rails") {
+    //can this be improved?
+    hole_size = 2;
+    if (case_type=="joycon") {
         color("red", 0.2)
-        translate( [ face_width/2-mic_from_edge, face_length/2, -2 ] )
+        translate( [ face_width/2-mic_from_right_edge, face_length/2, -2 ] )
         rotate([90,0,0])
         hull(){
-            cylinder( 20, 2, 2, true);
+            cylinder( 20, hole_size, hole_size, true);
             translate ([0,6,0]) 
-                cylinder( 20, 2, 2, true);
+                cylinder( 20, hole_size, hole_size, true);
         }
     } else {
         color("red", 0.2)
-        translate( [ face_width/2-mic_from_edge, face_length/2, 0 ] )
+        translate( [ face_width/2-mic_from_right_edge, face_length/2, 0 ] )
         hull(){
-            cylinder( 20, 2, 2, true);
+            cylinder( 20, hole_size, hole_size, true);
             translate ([0,3.5,0]) 
-                cylinder( 20, 2, 2, true);
+                cylinder( 20, hole_size, hole_size, true);
+        }
+    }
+}
+
+//top_headphone_cut();
+module top_headphone_cut(){
+    //can this be improved?
+    hole_size = 4;
+    if (headphone_jack_cut) {
+        if (case_type=="joycon") {
+            color("red", 0.2)
+            translate( [ -face_width/2+headphone_from_left_edge+1.7, face_length/2, -2 ] )
+            rotate([90,0,0])
+            hull(){
+                cylinder( 20, hole_size, hole_size, true);
+                translate ([0,6,0]) 
+                    cylinder( 20, hole_size, hole_size, true);
+            }
+        } else {
+            color("red", 0.2)
+            translate( [ -face_width/2+headphone_from_left_edge+1.7, face_length/2, 0 ] )
+            hull(){
+                cylinder( 20, hole_size, hole_size, true);
+                translate ([0,3.5,0]) 
+                    cylinder( 20, hole_size, hole_size, true);
+            }
         }
     }
 }
