@@ -192,14 +192,30 @@ X ~ 2 0 -150 50 U 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# MCU_Microchip_ATmega_ATmega32U4-AU
+# Switch_SW_Push
 #
-DEF MCU_Microchip_ATmega_ATmega32U4-AU U 0 20 Y Y 1 F N
+DEF Switch_SW_Push SW 0 40 N N 1 F N
+F0 "SW" 50 100 50 H V L CNN
+F1 "Switch_SW_Push" 0 -60 50 H V C CNN
+F2 "" 0 200 50 H I C CNN
+F3 "" 0 200 50 H I C CNN
+DRAW
+C -80 0 20 0 1 0 N
+C 80 0 20 0 1 0 N
+P 2 0 1 0 0 50 0 120 N
+P 2 0 1 0 100 50 -100 50 N
+X 1 1 -200 0 100 R 50 50 0 1 P
+X 2 2 200 0 100 L 50 50 0 1 P
+ENDDRAW
+ENDDEF
+#
+# avr-gamepad-rescue_ATmega32U4-AU-MCU_Microchip_ATmega
+#
+DEF avr-gamepad-rescue_ATmega32U4-AU-MCU_Microchip_ATmega U 0 20 Y Y 1 F N
 F0 "U" -500 1750 50 H V L BNN
-F1 "MCU_Microchip_ATmega_ATmega32U4-AU" 100 -1750 50 H V L TNN
+F1 "avr-gamepad-rescue_ATmega32U4-AU-MCU_Microchip_ATmega" 100 -1750 50 H V L TNN
 F2 "Package_QFP:TQFP-44_10x10mm_P0.8mm" 0 0 50 H I C CIN
 F3 "" 0 0 50 H I C CNN
-ALIAS ATmega16U4RC-AU ATmega32U4-AU ATmega32U4RC-AU
 $FPLIST
  TQFP*10x10mm*P0.8mm*
 $ENDFPLIST
@@ -249,23 +265,6 @@ X UCAP 6 -600 200 100 R 50 50 1 1 P
 X VBUS 7 -600 700 100 R 50 50 1 1 I
 X PB0 8 600 1500 100 L 50 50 1 1 T
 X PB1 9 600 1400 100 L 50 50 1 1 T
-ENDDRAW
-ENDDEF
-#
-# Switch_SW_Push
-#
-DEF Switch_SW_Push SW 0 40 N N 1 F N
-F0 "SW" 50 100 50 H V L CNN
-F1 "Switch_SW_Push" 0 -60 50 H V C CNN
-F2 "" 0 200 50 H I C CNN
-F3 "" 0 200 50 H I C CNN
-DRAW
-C -80 0 20 0 1 0 N
-C 80 0 20 0 1 0 N
-P 2 0 1 0 0 50 0 120 N
-P 2 0 1 0 100 50 -100 50 N
-X 1 1 -200 0 100 R 50 50 0 1 P
-X 2 2 200 0 100 L 50 50 0 1 P
 ENDDRAW
 ENDDEF
 #

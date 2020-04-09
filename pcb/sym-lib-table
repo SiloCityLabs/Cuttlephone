@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name avr-gamepad-rescue)(type Legacy)(uri ${KIPRJMOD}/avr-gamepad-rescue.lib)(options "")(descr ""))
+)
