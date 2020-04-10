@@ -1,4 +1,4 @@
-update=1/12/2020 3:50:16 PM
+update=Fri 10 Apr 2020 03:12:56 PM EDT
 version=1
 last_client=kicad
 [general]
@@ -12,10 +12,20 @@ NetIExt=net
 version=1
 LibDir=
 [eeschema/libraries]
+[schematic_editor]
+version=1
+PageLayoutDescrFile=
+PlotDirectoryName=
+SubpartIdSeparator=0
+SubpartFirstId=65
+NetFmtName=Pcbnew
+SpiceAjustPassiveValues=0
+LabSize=50
+ERC_TestSimilarLabels=1
 [pcbnew]
 version=1
 PageLayoutDescrFile=
-LastNetListRead=intermediates/avr-gamepad.net
+LastNetListRead=avr-gamepad.net
 CopperLayerCount=2
 BoardThickness=0.1016
 AllowMicroVias=0
