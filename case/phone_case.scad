@@ -669,13 +669,12 @@ module fingerprint_cut(){
     }
 }
 
-//mic_cut();
+//color("red", 0.2) mic_cut();
 module mic_cut(){
     //can this be improved?
     hole_size = 2;
     if (mic_notch_top) {
         if (case_type=="joycon") {
-            color("red", 0.2)
             translate( [ face_width/2-mic_from_right_edge, face_length/2, -2 ] )
             rotate([90,0,0])
             hull(){
@@ -684,12 +683,15 @@ module mic_cut(){
                     cylinder( 20, hole_size, hole_size, true);
             }
         } else {
-            color("red", 0.2)
-            translate( [ face_width/2-mic_from_right_edge, face_length/2, 0 ] )
-            hull(){
-                cylinder( 20, hole_size, hole_size, true);
-                translate ([0,3.5,0]) 
+            translate( [ face_width/2-mic_from_right_edge, face_length/2, 0 ] ) {
+                hull(){
                     cylinder( 20, hole_size, hole_size, true);
+                    translate ([0,3.5,0]) 
+                        cylinder( 20, hole_size, hole_size, true);
+                }
+                translate([0,0,6])
+                rotate([0,45,0])
+                cube([6,6,6], center=true);
             }
         }
     }
