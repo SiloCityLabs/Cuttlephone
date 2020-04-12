@@ -3,4 +3,5 @@
   (lib (name squidward)(type KiCad)(uri "${KIPRJMOD}/footprints/squidward loser.pretty")(options "")(descr Loser))
   (lib (name Panelization)(type KiCad)(uri ${KIPRJMOD}/footprints/Panelization.pretty)(options "")(descr "Mouse bites"))
   (lib (name "Button Contacts")(type KiCad)(uri C:/Users/Maave/avr/avr-gamepad/button-contacts.pretty)(options "")(descr "")(disabled))
+  (lib (name uxcell-ffc)(type KiCad)(uri ${KIPRJMOD}/footprints/uxcell-ffc.pretty)(options "")(descr "excell brand 5-pin ffc connector"))
 )

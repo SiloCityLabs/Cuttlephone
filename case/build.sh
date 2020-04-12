@@ -12,8 +12,8 @@ echo "Building all configs"
 export IFS='
 '
 for model in $presets; do
-    echo "Building ${model}.stl"
-    openscad -o build/"$model".stl -D "minor_version=\"$git_commit\"" -p phone_case.json -P "parameterSets" phone_case.scad
+    echo "Building ${model}.3mf"
+    openscad -o build/"$model".3mf -D "minor_version=\"$git_commit\"" -p phone_case.json -P "parameterSets" phone_case.scad
 done
 
 exit;

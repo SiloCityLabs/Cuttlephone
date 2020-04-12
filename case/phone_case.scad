@@ -3,40 +3,57 @@
 
 $fn=30;
 
+/*  measurements from the phone
+    all values in mm
+    clearances and fudge-factors should be in separate variables
+    Customizer's precision (0.1, 0.01, etc) depends on the precision of the variable
+*/
+
 face_radius = 5.25;
 face_length = 145.5;
-face_width = 70.0;
+face_width = 70.1;
 body_thickness = 8.1;
-body_radius = 3;
+body_radius = 3.1;
 
 screen_radius = 5.25;
-screen_lip_length = 0.5;
+screen_lip_length = 2.0;
 screen_length = face_length - screen_lip_length;
 screen_lip_width = 4.0;
 screen_width = face_width - screen_lip_width;
+extra_lip = true;
 
-//this should be a multiple of nozzle diameter (0.4 is flimsy, 0.8 is ok, 1.2 is solid)
+//this should be a multiple of nozzle diameter
 shell_thickness = 1.2;
 
 right_button_cut = true;
 right_button_offset = 31;
 right_button_length = 42;
 left_button_cut = false;
-left_button_offset = 90;
+left_button_offset = 35;
 left_button_length = 42;
-//camera diameter / height
-camera_diam = 9;
-//horizontal camera setups only for now
+
 camera_width = 20.5;
+camera_height = 9.0;
+camera_radius = 4.5;
 camera_from_side = 8.5;
 camera_from_top = 8.7;
 camera_clearance = 2.0;
+
+//for irregular shapes like Galaxy S9+
+camera_cut_2 = false;
+camera_width_2 = 20.5;
+camera_height_2 = 9.0;
+camera_from_side_2 = 8.5;
+camera_from_top_2 = 8.7;
+
+mic_notch_top = true;
 mic_from_right_edge = 14.0;
 headphone_from_left_edge = 14.0;
 headphone_jack_cut = false;
 
 bottom_speakers = false;
 
+fingerprint = true;
 fingerprint_center_from_top = 36.5;
 fingerprint_diam = 13;
 
@@ -53,7 +70,8 @@ minor_version = "";
 module end_customizer_variables(){}
 
 // phone case / general variables
-buttons_fillet = 2;
+buttons_fillet = 3;
+buttons_flat = 3;
 buttons_clearance = 10;
 shell_radius = body_radius + shell_thickness;
 
@@ -188,6 +206,7 @@ module shell_cuts(){
     right_button_cut();
     left_button_cut();
     camera_cut();
+    extra_camera_cut();
     fingerprint_cut();
     mic_cut();
     top_headphone_cut();
@@ -214,11 +233,17 @@ module phone_shell(){
 }
 //shell_profile();
 module shell_profile(){
+        lip_length = 0.5;
         hull(){
         translate ([0, 0, body_thickness/2-body_radius]) 
+        union(){
             sphere(shell_radius);
-        translate ([0, 0, -body_thickness/2+body_radius]) 
-            sphere(shell_radius);
+            if (extra_lip) {
+                cylinder(h=shell_radius+lip_length, r1=shell_radius, r2=shell_radius/2, center=false);
+            }
+        }
+        translate ([0, 0, -body_thickness/2+body_radius])
+        sphere(shell_radius);
     }   
 }
 
@@ -493,7 +518,7 @@ module gamepad_trigger(){
     }
 }
 
-//screen_cut();
+//color("red", 0.2) screen_cut();
 module screen_cut(){
     translate([0,0,5]) 
     minkowski() {
@@ -508,101 +533,164 @@ module screen_cut(){
 
 //usb_cut();
 module usb_cut(){
-    charge_port_height = 7;
-    charge_port_width = bottom_speakers ? face_width*0.6 : 7;
+    charge_port_height = 10;
+    charge_port_width = bottom_speakers ? face_width*0.6 : 9;
     color("red", 0.2)
-    translate( [0, -face_length/2 - 2, 0] )
+    translate( [0, -face_length/2 - 2, 2] )
     rotate( [90, 0, 0] )
-    hull(){
-        translate ([charge_port_width/2, 0, 0]) 
-            cylinder( 10, charge_port_height/2, charge_port_height/2, true);
-        translate ([-charge_port_width/2, 0, 0]) 
-            cylinder( 10, charge_port_height/2, charge_port_height/2, true);
-        //bridges weren't printing nicely. Trying a full cutout
-        translate ([charge_port_width/2, 5, 0]) 
-            cylinder( 10, charge_port_height/2, charge_port_height/2, true);
-        translate ([-charge_port_width/2, 5, 0]) 
-            cylinder( 10, charge_port_height/2, charge_port_height/2, true);
+    union(){
+        hull(){
+            translate ([charge_port_width/2, 0, 0]) 
+                cylinder( 10, charge_port_height/2, charge_port_height/2, true);
+            translate ([-charge_port_width/2, 0, 0]) 
+                cylinder( 10, charge_port_height/2, charge_port_height/2, true);
+            //bridges weren't printing nicely. Trying a full cutout
+            translate ([charge_port_width/2, 5, 0]) 
+                cylinder( 10, charge_port_height/2, charge_port_height/2, true);
+            translate ([-charge_port_width/2, 5, 0]) 
+                cylinder( 10, charge_port_height/2, charge_port_height/2, true);
+        }
+        
+        //corner of the cutout was snagging clothing
+        translate ([charge_port_width/2+5, 5, 0]) 
+        rotate([0,0,45])
+        cube([10,5,10], center=true);
+        
+        translate ([-charge_port_width/2-5, 5, 0]) 
+        rotate([0,0,-45])
+        cube([10,5,10], center=true);
     }
 }
 
-//right_button_cut();
+//right_button_cut=true; right_button_cut();
 module right_button_cut(){
-    //other_fillet = buttons_fillet*0.6;
     if(right_button_cut) {
         color("red", 0.2)
-        translate( [ face_width/2, 
+        translate( [ face_width/2+buttons_flat, 
         face_length/2 - right_button_offset - right_button_length + buttons_fillet - buttons_clearance/2, -body_thickness/2 ] )
-        rotate([0,-90,0])
-        minkowski() {
-            cube([10, right_button_length - 2*buttons_fillet + buttons_clearance, 2],false);
-            sphere(r=buttons_fillet);
+        rotate([0,-90,0]) {
+            minkowski() {
+                cube([10, right_button_length - 2*buttons_fillet + buttons_clearance, buttons_flat],false);
+                sphere(r=buttons_fillet);
+            }
+            
+            //corner of the cutout was snagging clothing
+            translate ([body_thickness+1, right_button_length - buttons_fillet + buttons_clearance, 1]) 
+            rotate([0,0,45])
+            cube([10,5,10], center=true);
+            
+            translate ([body_thickness+1, -buttons_fillet, 1]) 
+            rotate([0,0,-45])
+            cube([10,5,10], center=true);
         }
     }
 }
 
-//left_button_cut();
+//left_button_cut=true; left_button_cut();
 module left_button_cut(){
     if(left_button_cut){
         color("red", 0.2)
-        translate( [ -face_width/2, 
-        face_length/2 - left_button_offset - left_button_length + buttons_fillet - buttons_clearance/2, buttons_fillet - body_thickness/2 -3 ] )
-        rotate([0,-90,0])
-        minkowski() {
-            linear_extrude(height = 20, center = true) {
-                minkowski() {
-                    square([10, left_button_length - 2*buttons_fillet + buttons_clearance],false);
-                    circle(buttons_fillet);
-                }
+        translate( [ -face_width/2+buttons_flat,
+        face_length/2 - left_button_offset - left_button_length + buttons_fillet - buttons_clearance/2, -body_thickness/2 ] )
+        rotate([0,-90,0]) {
+            minkowski() {
+                cube([10, left_button_length - 2*buttons_fillet + buttons_clearance, buttons_flat],false);
+                sphere(r=buttons_fillet);
             }
+            
+            //corner of the cutout was snagging clothing
+            translate ([body_thickness+1, right_button_length - buttons_fillet + buttons_clearance, 1]) 
+            rotate([0,0,45])
+            cube([10,5,10], center=true);
+            
+            translate ([body_thickness+1, -buttons_fillet, 1]) 
+            rotate([0,0,-45])
+            cube([10,5,10], center=true);
         }
     }
 }
 
-//camera_cut();
+//color("red", 0.2) camera_cut();
 module camera_cut(){
-    camera_radius = camera_diam/2;
     camera_radius_clearanced = camera_radius+camera_clearance;
     color("red", 0.2)
     translate( [ face_width/2-camera_radius-camera_from_side,
     face_length/2-camera_radius-camera_from_top,
-    -body_thickness-shell_thickness+0.2] )
+    -body_thickness-shell_thickness+0.5] )
     hull(){
+        //top left
         cylinder( 10.1, camera_radius_clearanced*2, camera_radius_clearanced, true);
-        translate ([camera_diam-camera_width,0,0]) 
+        //top right
+        translate ([-camera_width+camera_radius,0,0]) 
+            cylinder( 10.1, camera_radius_clearanced*2, camera_radius_clearanced, true);
+        //bottom left
+        translate ([0,-camera_height+2*camera_radius,0]) 
+            cylinder( 10.1, camera_radius_clearanced*2, camera_radius_clearanced, true);
+        //bottom right
+        translate ([-camera_width+camera_radius,-camera_height+2*camera_radius,0]) 
             cylinder( 10.1, camera_radius_clearanced*2, camera_radius_clearanced, true);
     }
 }
 
+//color("blue", 0.2) camera_cut();
+module extra_camera_cut(){
+    if (camera_cut_2) {
+        camera_radius_clearanced = camera_radius+camera_clearance;
+        color("red", 0.2)
+        translate( [ face_width/2-camera_radius-camera_from_side_2,
+        face_length/2-camera_radius-camera_from_top_2,
+        -body_thickness-shell_thickness+0.5] )
+        hull(){
+            //top left
+            cylinder( 10.1, camera_radius_clearanced*2, camera_radius_clearanced, true);
+            //top right
+            translate ([-camera_width_2+camera_radius,0,0]) 
+                cylinder( 10.1, camera_radius_clearanced*2, camera_radius_clearanced, true);
+            //bottom left
+            translate ([0,-camera_height_2+2*camera_radius,0]) 
+                cylinder( 10.1, camera_radius_clearanced*2, camera_radius_clearanced, true);
+            //bottom right
+            translate ([-camera_width_2+camera_radius,-camera_height_2+2*camera_radius,0]) 
+                cylinder( 10.1, camera_radius_clearanced*2, camera_radius_clearanced, true);
+        }
+    }
+}
+
+
+
 //fingerprint_cut();
 module fingerprint_cut(){
-    fingerprint_radius = fingerprint_diam/2;
-    fingerprint_cut_height = 6; //TODO: calculate this
-    color("red", 0.2)
-    translate( [ 0, face_length/2-fingerprint_center_from_top, -body_thickness/2-fingerprint_cut_height/2 ] )
-    cylinder( fingerprint_cut_height, fingerprint_radius*2, fingerprint_radius, true);
+    if (fingerprint){
+        fingerprint_radius = fingerprint_diam/2;
+        fingerprint_cut_height = 6; //TODO: calculate this
+        color("red", 0.2)
+        translate( [ 0, face_length/2-fingerprint_center_from_top, -body_thickness/2-fingerprint_cut_height/2 ] )
+        cylinder( fingerprint_cut_height, fingerprint_radius*2, fingerprint_radius, true);
+    }
 }
 
 //mic_cut();
 module mic_cut(){
     //can this be improved?
     hole_size = 2;
-    if (case_type=="joycon") {
-        color("red", 0.2)
-        translate( [ face_width/2-mic_from_right_edge, face_length/2, -2 ] )
-        rotate([90,0,0])
-        hull(){
-            cylinder( 20, hole_size, hole_size, true);
-            translate ([0,6,0]) 
+    if (mic_notch_top) {
+        if (case_type=="joycon") {
+            color("red", 0.2)
+            translate( [ face_width/2-mic_from_right_edge, face_length/2, -2 ] )
+            rotate([90,0,0])
+            hull(){
                 cylinder( 20, hole_size, hole_size, true);
-        }
-    } else {
-        color("red", 0.2)
-        translate( [ face_width/2-mic_from_right_edge, face_length/2, 0 ] )
-        hull(){
-            cylinder( 20, hole_size, hole_size, true);
-            translate ([0,3.5,0]) 
+                translate ([0,6,0]) 
+                    cylinder( 20, hole_size, hole_size, true);
+            }
+        } else {
+            color("red", 0.2)
+            translate( [ face_width/2-mic_from_right_edge, face_length/2, 0 ] )
+            hull(){
                 cylinder( 20, hole_size, hole_size, true);
+                translate ([0,3.5,0]) 
+                    cylinder( 20, hole_size, hole_size, true);
+            }
         }
     }
 }
@@ -649,7 +737,7 @@ module version_info_emboss(){
         line_translate = 12;
         color("red")
         rotate([0,0,-90])
-        translate([0,10,-body_thickness/2]) {
+        translate([-10,10,-body_thickness/2]) {
             linear_extrude(height = shell_thickness/2, center = true) {
                 text(name, font=emboss_font, size=font_size);
                 translate([0,-line_translate,0])
