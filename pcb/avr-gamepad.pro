@@ -1,4 +1,4 @@
-update=Fri 10 Apr 2020 03:12:56 PM EDT
+update=4/12/2020 7:34:51 PM
 version=1
 last_client=kicad
 [general]
@@ -25,7 +25,7 @@ ERC_TestSimilarLabels=1
 [pcbnew]
 version=1
 PageLayoutDescrFile=
-LastNetListRead=avr-gamepad.net
+LastNetListRead=intermediates/avr-gamepad.net
 CopperLayerCount=2
 BoardThickness=0.1016
 AllowMicroVias=0

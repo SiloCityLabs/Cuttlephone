@@ -1,5 +1,6 @@
 EESchema Schematic File Version 4
-EELAYER 30 0
+LIBS:avr-gamepad-cache
+EELAYER 29 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
@@ -19,7 +20,7 @@ U 1 1 5CDE5E2E
 P 2000 6700
 F 0 "R1" V 1793 6700 50  0000 C CNN
 F 1 "22" V 1884 6700 50  0000 C CNN
-F 2 "Resistor_SMD:R_0805_2012Metric" V 1930 6700 50  0001 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 1930 6700 50  0001 C CNN
 F 3 "~" H 2000 6700 50  0001 C CNN
 	1    2000 6700
 	0    1    1    0   
@@ -78,7 +79,7 @@ U 1 1 5CE336BE
 P 2900 6950
 F 0 "C1" H 3015 6996 50  0000 L CNN
 F 1 "0.1uF" H 3015 6905 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0805_2012Metric" H 2900 6950 50  0001 C CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 2900 6950 50  0001 C CNN
 F 3 "~" H 2900 6950 50  0001 C CNN
 	1    2900 6950
 	1    0    0    -1  
@@ -90,7 +91,7 @@ U 1 1 5CE34260
 P 3550 6950
 F 0 "C2" H 3665 6996 50  0000 L CNN
 F 1 "1uF" H 3665 6905 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0805_2012Metric" H 3550 6950 50  0001 C CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 3550 6950 50  0001 C CNN
 F 3 "~" H 3550 6950 50  0001 C CNN
 	1    3550 6950
 	1    0    0    -1  
@@ -127,7 +128,7 @@ U 1 1 5CE8517A
 P 1950 7100
 F 0 "R4" H 2020 7146 50  0000 L CNN
 F 1 "5.1k" H 2020 7055 50  0000 L CNN
-F 2 "Resistor_SMD:R_0805_2012Metric" V 1880 7100 50  0001 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 1880 7100 50  0001 C CNN
 F 3 "~" H 1950 7100 50  0001 C CNN
 	1    1950 7100
 	1    0    0    -1  
@@ -138,7 +139,7 @@ U 1 1 5CE91027
 P 1650 7100
 F 0 "R3" H 1720 7146 50  0000 L CNN
 F 1 "5.1k" H 1720 7055 50  0000 L CNN
-F 2 "Resistor_SMD:R_0805_2012Metric" V 1580 7100 50  0001 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 1580 7100 50  0001 C CNN
 F 3 "~" H 1650 7100 50  0001 C CNN
 	1    1650 7100
 	1    0    0    -1  
@@ -165,7 +166,7 @@ U 1 1 5CF1BD3F
 P 10550 4200
 F 0 "R6" V 10343 4200 50  0000 C CNN
 F 1 "1K" V 10434 4200 50  0000 C CNN
-F 2 "Resistor_SMD:R_0805_2012Metric" V 10480 4200 50  0001 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 10480 4200 50  0001 C CNN
 F 3 "~" H 10550 4200 50  0001 C CNN
 	1    10550 4200
 	0    1    1    0   
@@ -176,7 +177,7 @@ U 1 1 5CF1A9A2
 P 10550 4400
 F 0 "D2" H 10543 4616 50  0000 C CNN
 F 1 "LED" H 10543 4525 50  0000 C CNN
-F 2 "LED_SMD:LED_0805_2012Metric" H 10550 4400 50  0001 C CNN
+F 2 "LED_SMD:LED_0603_1608Metric" H 10550 4400 50  0001 C CNN
 F 3 "~" H 10550 4400 50  0001 C CNN
 	1    10550 4400
 	-1   0    0    1   
@@ -186,7 +187,7 @@ Wire Wire Line
 Wire Wire Line
 	2900 6800 3550 6800
 Text Label 5600 2650 0    50   ~ 0
-JoyLeftY
+JoyRightY
 $Comp
 L power:GND #PWR0115
 U 1 1 5E1C2864
@@ -215,7 +216,7 @@ U 1 1 5DA62D9E
 P 5400 2750
 F 0 "J3" H 5292 3235 50  0000 C CNN
 F 1 "Conn_01x05" H 5292 3144 50  0000 C CNN
-F 2 "Connector_FFC-FPC:Hirose_FH12-6S-0.5SH_1x06-1MP_P0.50mm_Horizontal" H 5400 2750 50  0001 C CNN
+F 2 "uxcell-ffc:uxcell_ffc_0.5pitch_1x05" H 5400 2750 50  0001 C CNN
 F 3 "~" H 5400 2750 50  0001 C CNN
 	1    5400 2750
 	-1   0    0    -1  
@@ -245,10 +246,6 @@ Text Label 3050 4150 0    50   ~ 0
 JoyRightY
 Text Label 3050 4050 0    50   ~ 0
 JoyRightX
-Text Label 3050 3950 0    50   ~ 0
-JoyLeftY
-Text Label 3050 3850 0    50   ~ 0
-JoyLeftX
 Wire Wire Line
 	1200 1400 1850 1400
 Wire Wire Line
@@ -326,7 +323,7 @@ U 1 1 5CE3DF92
 P 1250 3250
 F 0 "C5" H 1365 3296 50  0000 L CNN
 F 1 "0.1uF" H 1365 3205 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0805_2012Metric" H 1250 3250 50  0001 C CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 1250 3250 50  0001 C CNN
 F 3 "~" H 1250 3250 50  0001 C CNN
 	1    1250 3250
 	1    0    0    -1  
@@ -356,7 +353,7 @@ U 1 1 5CE37ACD
 P 1650 3250
 F 0 "C6" H 1765 3296 50  0000 L CNN
 F 1 "1uF" H 1765 3205 50  0000 L CNN
-F 2 "Capacitor_SMD:C_0805_2012Metric" H 1650 3250 50  0001 C CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 1650 3250 50  0001 C CNN
 F 3 "~" H 1650 3250 50  0001 C CNN
 	1    1650 3250
 	1    0    0    -1  
@@ -384,7 +381,7 @@ U 1 1 5CE373C9
 P 900 1700
 F 0 "C4" V 1150 1700 50  0000 C CNN
 F 1 "22pF" V 1050 1700 50  0000 C CNN
-F 2 "Capacitor_SMD:C_0805_2012Metric" H 900 1700 50  0001 C CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 900 1700 50  0001 C CNN
 F 3 "~" H 900 1700 50  0001 C CNN
 	1    900  1700
 	0    1    1    0   
@@ -395,7 +392,7 @@ U 1 1 5CE36ECF
 P 900 1400
 F 0 "C3" V 648 1400 50  0000 C CNN
 F 1 "22pF" V 739 1400 50  0000 C CNN
-F 2 "Capacitor_SMD:C_0805_2012Metric" H 900 1400 50  0001 C CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 900 1400 50  0001 C CNN
 F 3 "~" H 900 1400 50  0001 C CNN
 	1    900  1400
 	0    1    1    0   
@@ -469,7 +466,7 @@ U 1 1 5CDE68D4
 P 2000 6400
 F 0 "R2" V 1793 6400 50  0000 C CNN
 F 1 "22" V 1884 6400 50  0000 C CNN
-F 2 "Resistor_SMD:R_0805_2012Metric" V 1930 6400 50  0001 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 1930 6400 50  0001 C CNN
 F 3 "~" H 2000 6400 50  0001 C CNN
 	1    2000 6400
 	0    1    1    0   
@@ -508,17 +505,17 @@ Wire Wire Line
 	1750 6000 1600 6000
 Connection ~ 1000 7650
 Text Label 10000 3500 0    50   ~ 0
-RowR1
+RowL1
 Text Label 10000 3600 0    50   ~ 0
-RowR2
+RowL2
 Text Label 10000 3700 0    50   ~ 0
-RowR3
+RowL3
 Text Label 10000 3800 0    50   ~ 0
-ColR1
+ColL1
 Text Label 10000 3900 0    50   ~ 0
-ColR2
+ColL2
 Text Label 10000 4000 0    50   ~ 0
-ColR3
+ColL3
 $Comp
 L Connector_Generic:Conn_01x06 J1
 U 1 1 5CF089CD
@@ -536,37 +533,25 @@ Wire Wire Line
 	5600 2850 6200 2850
 Wire Wire Line
 	5600 2550 6000 2550
-Text Label 7400 2550 2    50   ~ 0
-JoyRightX
-Text Label 7400 2650 2    50   ~ 0
-JoyRightY
 Text Label 10000 4100 0    50   ~ 0
-R3
+L3
 $Comp
 L Connector_Generic:Conn_01x05 J4
 U 1 1 5F28DB4F
 P 10700 2800
 F 0 "J4" H 10592 3285 50  0000 C CNN
 F 1 "Conn_01x05" H 10592 3194 50  0000 C CNN
-F 2 "Connector_FFC-FPC:Hirose_FH12-6S-0.5SH_1x06-1MP_P0.50mm_Horizontal" H 10700 2800 50  0001 C CNN
+F 2 "uxcell-ffc:uxcell_ffc_0.5pitch_1x05" H 10700 2800 50  0001 C CNN
 F 3 "~" H 10700 2800 50  0001 C CNN
 	1    10700 2800
 	1    0    0    -1  
 $EndComp
-Text Label 8950 2750 0    50   ~ 0
-VCC_R
-Text Label 8950 2850 0    50   ~ 0
-GND_R
 Text Label 10400 4400 2    50   ~ 0
-GND_R
-Text Label 10500 2600 2    50   ~ 0
-VCC_R
+GND_L
 Text Label 10500 2900 2    50   ~ 0
 GND_R
 Text Label 5600 2950 0    50   ~ 0
-JoyLeftX
-Text Label 5600 2750 0    50   ~ 0
-L3
+JoyRightX
 $Comp
 L avr-gamepad-rescue:ATmega32U4-AU-MCU_Microchip_ATmega U1
 U 1 1 5CDCD708
@@ -617,8 +602,6 @@ NoConn ~ 3050 1250
 NoConn ~ 3050 1350
 NoConn ~ 3050 1450
 NoConn ~ 3050 1550
-NoConn ~ 3050 2650
-NoConn ~ 3050 2750
 NoConn ~ 3050 3650
 NoConn ~ 3050 3750
 NoConn ~ 3050 3050
@@ -630,7 +613,7 @@ U 1 1 5E9291BD
 P 9500 3900
 F 0 "U2" H 9500 4781 50  0000 C CNN
 F 1 "PCF8574" H 9500 4690 50  0000 C CNN
-F 2 "" H 9500 3900 50  0001 C CNN
+F 2 "pcf8574:SO16W" H 9500 3900 50  0001 C CNN
 F 3 "http://www.nxp.com/documents/data_sheet/PCF8574_PCF8574A.pdf" H 9500 3900 50  0001 C CNN
 	1    9500 3900
 	1    0    0    -1  
@@ -641,7 +624,7 @@ U 1 1 5E985F9A
 P 6650 4000
 F 0 "U3" H 6650 4881 50  0000 C CNN
 F 1 "PCF8574" H 6650 4790 50  0000 C CNN
-F 2 "" H 6650 4000 50  0001 C CNN
+F 2 "pcf8574:SO16W" H 6650 4000 50  0001 C CNN
 F 3 "http://www.nxp.com/documents/data_sheet/PCF8574_PCF8574A.pdf" H 6650 4000 50  0001 C CNN
 	1    6650 4000
 	1    0    0    -1  
@@ -678,29 +661,21 @@ Wire Wire Line
 	10750 4200 10750 4400
 Wire Wire Line
 	10750 4400 10700 4400
-Text Label 10500 2800 2    50   ~ 0
-R3
 Text Label 10500 3000 2    50   ~ 0
-JoyRightX_R
-Text Label 10500 2700 2    50   ~ 0
-JoyRightY_R
+JoyLeftX_L
 Wire Wire Line
 	10400 4200 10000 4200
-Text Label 8950 2350 0    50   ~ 0
-SDA_R
-Text Label 8950 2450 0    50   ~ 0
-SCL_R
 Text Label 8600 3700 3    50   ~ 0
-SDA_R
+SDA_L
 Text Label 8500 3700 3    50   ~ 0
-SCL_R
+SCL_L
 $Comp
 L Device:R R5
 U 1 1 5F000D96
 P 7700 4300
 F 0 "R5" V 7493 4300 50  0000 C CNN
 F 1 "1K" V 7584 4300 50  0000 C CNN
-F 2 "Resistor_SMD:R_0805_2012Metric" V 7630 4300 50  0001 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 7630 4300 50  0001 C CNN
 F 3 "~" H 7700 4300 50  0001 C CNN
 	1    7700 4300
 	0    1    1    0   
@@ -711,7 +686,7 @@ U 1 1 5F000D9C
 P 7700 4500
 F 0 "D1" H 7693 4716 50  0000 C CNN
 F 1 "LED" H 7693 4625 50  0000 C CNN
-F 2 "LED_SMD:LED_0805_2012Metric" H 7700 4500 50  0001 C CNN
+F 2 "LED_SMD:LED_0603_1608Metric" H 7700 4500 50  0001 C CNN
 F 3 "~" H 7700 4500 50  0001 C CNN
 	1    7700 4500
 	-1   0    0    1   
@@ -727,578 +702,556 @@ Wire Wire Line
 Wire Wire Line
 	7550 4500 7400 4500
 Wire Wire Line
-	5250 1400 5250 1900
-Connection ~ 5250 1400
+	8250 1400 8250 1900
+Connection ~ 8250 1400
 Wire Wire Line
-	5250 900  5250 1400
+	8250 900  8250 1400
 Wire Wire Line
-	6100 1400 6100 1900
-Connection ~ 6100 1400
+	9100 1400 9100 1900
+Connection ~ 9100 1400
 Wire Wire Line
-	6100 900  6100 1400
+	9100 900  9100 1400
 Wire Wire Line
-	6950 1400 6950 1900
-Connection ~ 6950 1400
+	9950 1400 9950 1900
+Connection ~ 9950 1400
 Wire Wire Line
-	6950 900  6950 1400
+	9950 900  9950 1400
 $Comp
 L Switch:SW_Push SW20
 U 1 1 5F102509
-P 7150 1900
-F 0 "SW20" H 7150 2185 50  0000 C CNN
-F 1 "Custom2" H 7150 2094 50  0000 C CNN
-F 2 "button-contacts:Large_tapered" H 7150 2100 50  0001 C CNN
-F 3 "~" H 7150 2100 50  0001 C CNN
-	1    7150 1900
+P 10150 1900
+F 0 "SW20" H 10150 2185 50  0000 C CNN
+F 1 "Custom2" H 10150 2094 50  0000 C CNN
+F 2 "button-contacts:Small" H 10150 2100 50  0001 C CNN
+F 3 "~" H 10150 2100 50  0001 C CNN
+	1    10150 1900
 	1    0    0    -1  
 $EndComp
 $Comp
 L Diode:1N4148 D20
 U 1 1 5F1024F7
-P 7550 1900
-F 0 "D20" H 7550 1684 50  0000 C CNN
-F 1 "1N4148" H 7550 1775 50  0000 C CNN
-F 2 "Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal" H 7550 1725 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 7550 1900 50  0001 C CNN
-	1    7550 1900
+P 10550 1900
+F 0 "D20" H 10550 1684 50  0000 C CNN
+F 1 "1N4148" H 10550 1775 50  0000 C CNN
+F 2 "Diode_SMD:D_0603_1608Metric" H 10550 1725 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 10550 1900 50  0001 C CNN
+	1    10550 1900
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	7400 1900 7350 1900
+	10400 1900 10350 1900
 $Comp
 L Switch:SW_Push SW3
 U 1 1 5CE36F95
-P 6300 900
-F 0 "SW3" H 6300 1185 50  0000 C CNN
-F 1 "Up" H 6300 1094 50  0000 C CNN
-F 2 "button-contacts:Large_tapered" H 6300 1100 50  0001 C CNN
-F 3 "~" H 6300 1100 50  0001 C CNN
-	1    6300 900 
+P 9300 900
+F 0 "SW3" H 9300 1185 50  0000 C CNN
+F 1 "Up" H 9300 1094 50  0000 C CNN
+F 2 "button-contacts:Large_tapered" H 9300 1100 50  0001 C CNN
+F 3 "~" H 9300 1100 50  0001 C CNN
+	1    9300 900 
 	1    0    0    -1  
 $EndComp
 $Comp
 L Switch:SW_Push SW4
 U 1 1 5CE3B249
-P 6300 1400
-F 0 "SW4" H 6300 1685 50  0000 C CNN
-F 1 "Down" H 6300 1594 50  0000 C CNN
-F 2 "button-contacts:Large_tapered" H 6300 1600 50  0001 C CNN
-F 3 "~" H 6300 1600 50  0001 C CNN
-	1    6300 1400
-	1    0    0    -1  
-$EndComp
-$Comp
-L Switch:SW_Push SW5
-U 1 1 5CE3BF2C
-P 6300 1900
-F 0 "SW5" H 6300 2185 50  0000 C CNN
-F 1 "Custom1" H 6300 2094 50  0000 C CNN
-F 2 "button-contacts:Large_tapered" H 6300 2100 50  0001 C CNN
-F 3 "~" H 6300 2100 50  0001 C CNN
-	1    6300 1900
+P 9300 1400
+F 0 "SW4" H 9300 1685 50  0000 C CNN
+F 1 "Down" H 9300 1594 50  0000 C CNN
+F 2 "button-contacts:Large_tapered" H 9300 1600 50  0001 C CNN
+F 3 "~" H 9300 1600 50  0001 C CNN
+	1    9300 1400
 	1    0    0    -1  
 $EndComp
 $Comp
 L Switch:SW_Push SW2
 U 1 1 5CE355F4
-P 7150 1400
-F 0 "SW2" H 7150 1685 50  0000 C CNN
-F 1 "Right" H 7150 1594 50  0000 C CNN
-F 2 "button-contacts:Large_tapered" H 7150 1600 50  0001 C CNN
-F 3 "~" H 7150 1600 50  0001 C CNN
-	1    7150 1400
+P 10150 1400
+F 0 "SW2" H 10150 1685 50  0000 C CNN
+F 1 "Right" H 10150 1594 50  0000 C CNN
+F 2 "button-contacts:Large_tapered" H 10150 1600 50  0001 C CNN
+F 3 "~" H 10150 1600 50  0001 C CNN
+	1    10150 1400
 	1    0    0    -1  
 $EndComp
 $Comp
 L Diode:1N4148 D7
 U 1 1 5EA4B7C7
-P 7550 1400
-F 0 "D7" H 7550 1184 50  0000 C CNN
-F 1 "1N4148" H 7550 1275 50  0000 C CNN
-F 2 "Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal" H 7550 1225 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 7550 1400 50  0001 C CNN
-	1    7550 1400
+P 10550 1400
+F 0 "D7" H 10550 1184 50  0000 C CNN
+F 1 "1N4148" H 10550 1275 50  0000 C CNN
+F 2 "Diode_SMD:D_0603_1608Metric" H 10550 1225 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 10550 1400 50  0001 C CNN
+	1    10550 1400
 	-1   0    0    1   
 $EndComp
 $Comp
 L Diode:1N4148 D8
 U 1 1 5EA4B7CD
-P 6700 900
-F 0 "D8" H 6700 684 50  0000 C CNN
-F 1 "1N4148" H 6700 775 50  0000 C CNN
-F 2 "Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal" H 6700 725 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 6700 900 50  0001 C CNN
-	1    6700 900 
+P 9700 900
+F 0 "D8" H 9700 684 50  0000 C CNN
+F 1 "1N4148" H 9700 775 50  0000 C CNN
+F 2 "Diode_SMD:D_0603_1608Metric" H 9700 725 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 9700 900 50  0001 C CNN
+	1    9700 900 
 	-1   0    0    1   
 $EndComp
 $Comp
 L Diode:1N4148 D9
 U 1 1 5EA4B7D3
-P 6700 1400
-F 0 "D9" H 6700 1184 50  0000 C CNN
-F 1 "1N4148" H 6700 1275 50  0000 C CNN
-F 2 "Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal" H 6700 1225 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 6700 1400 50  0001 C CNN
-	1    6700 1400
+P 9700 1400
+F 0 "D9" H 9700 1184 50  0000 C CNN
+F 1 "1N4148" H 9700 1275 50  0000 C CNN
+F 2 "Diode_SMD:D_0603_1608Metric" H 9700 1225 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 9700 1400 50  0001 C CNN
+	1    9700 1400
 	-1   0    0    1   
 $EndComp
 $Comp
 L Diode:1N4148 D10
 U 1 1 5EA4B7D9
-P 6700 1900
-F 0 "D10" H 6700 1684 50  0000 C CNN
-F 1 "1N4148" H 6700 1775 50  0000 C CNN
-F 2 "Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal" H 6700 1725 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 6700 1900 50  0001 C CNN
-	1    6700 1900
+P 9700 1900
+F 0 "D10" H 9700 1684 50  0000 C CNN
+F 1 "1N4148" H 9700 1775 50  0000 C CNN
+F 2 "Diode_SMD:D_0603_1608Metric" H 9700 1725 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 9700 1900 50  0001 C CNN
+	1    9700 1900
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	7400 1400 7350 1400
+	10400 1400 10350 1400
 Wire Wire Line
-	6550 900  6500 900 
+	9550 900  9500 900 
 Wire Wire Line
-	6550 1400 6500 1400
+	9550 1400 9500 1400
 Wire Wire Line
-	6550 1900 6500 1900
-Text Label 7800 2050 0    50   ~ 0
-Row3
-Text Label 7800 1550 0    50   ~ 0
-Row2
-Text Label 7800 1050 0    50   ~ 0
-Row1
+	9550 1900 9500 1900
+Text Label 10800 2050 0    50   ~ 0
+RowL3
+Text Label 10800 1550 0    50   ~ 0
+RowL2
+Text Label 10800 1050 0    50   ~ 0
+RowL1
 $Comp
 L Switch:SW_Push SW13
 U 1 1 5E9D17DF
-P 5450 1400
-F 0 "SW13" H 5450 1685 50  0000 C CNN
-F 1 "Left" H 5450 1594 50  0000 C CNN
-F 2 "button-contacts:Small" H 5450 1600 50  0001 C CNN
-F 3 "~" H 5450 1600 50  0001 C CNN
-	1    5450 1400
+P 8450 1400
+F 0 "SW13" H 8450 1685 50  0000 C CNN
+F 1 "Left" H 8450 1594 50  0000 C CNN
+F 2 "button-contacts:Large_tapered" H 8450 1600 50  0001 C CNN
+F 3 "~" H 8450 1600 50  0001 C CNN
+	1    8450 1400
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	5700 1900 5650 1900
+	8700 1900 8650 1900
 Wire Wire Line
-	5700 1400 5650 1400
+	8700 1400 8650 1400
 Wire Wire Line
-	5700 900  5650 900 
+	8700 900  8650 900 
 Wire Wire Line
-	7400 900  7350 900 
+	10400 900  10350 900 
 $Comp
 L Diode:1N4148 D6
 U 1 1 5EA52B8D
-P 5850 1900
-F 0 "D6" H 5850 1684 50  0000 C CNN
-F 1 "1N4148" H 5850 1775 50  0000 C CNN
-F 2 "Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal" H 5850 1725 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 5850 1900 50  0001 C CNN
-	1    5850 1900
+P 8850 1900
+F 0 "D6" H 8850 1684 50  0000 C CNN
+F 1 "1N4148" H 8850 1775 50  0000 C CNN
+F 2 "Diode_SMD:D_0603_1608Metric" H 8850 1725 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 8850 1900 50  0001 C CNN
+	1    8850 1900
 	-1   0    0    1   
 $EndComp
 $Comp
 L Diode:1N4148 D5
 U 1 1 5EA52B87
-P 5850 1400
-F 0 "D5" H 5850 1184 50  0000 C CNN
-F 1 "1N4148" H 5850 1275 50  0000 C CNN
-F 2 "Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal" H 5850 1225 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 5850 1400 50  0001 C CNN
-	1    5850 1400
+P 8850 1400
+F 0 "D5" H 8850 1184 50  0000 C CNN
+F 1 "1N4148" H 8850 1275 50  0000 C CNN
+F 2 "Diode_SMD:D_0603_1608Metric" H 8850 1225 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 8850 1400 50  0001 C CNN
+	1    8850 1400
 	-1   0    0    1   
 $EndComp
 $Comp
 L Diode:1N4148 D4
 U 1 1 5EA52B81
-P 5850 900
-F 0 "D4" H 5850 684 50  0000 C CNN
-F 1 "1N4148" H 5850 775 50  0000 C CNN
-F 2 "Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal" H 5850 725 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 5850 900 50  0001 C CNN
-	1    5850 900 
+P 8850 900
+F 0 "D4" H 8850 684 50  0000 C CNN
+F 1 "1N4148" H 8850 775 50  0000 C CNN
+F 2 "Diode_SMD:D_0603_1608Metric" H 8850 725 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 8850 900 50  0001 C CNN
+	1    8850 900 
 	-1   0    0    1   
 $EndComp
 $Comp
 L Diode:1N4148 D3
 U 1 1 5EA52B7B
-P 7550 900
-F 0 "D3" H 7550 684 50  0000 C CNN
-F 1 "1N4148" H 7550 775 50  0000 C CNN
-F 2 "Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal" H 7550 725 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 7550 900 50  0001 C CNN
-	1    7550 900 
+P 10550 900
+F 0 "D3" H 10550 684 50  0000 C CNN
+F 1 "1N4148" H 10550 775 50  0000 C CNN
+F 2 "Diode_SMD:D_0603_1608Metric" H 10550 725 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 10550 900 50  0001 C CNN
+	1    10550 900 
 	-1   0    0    1   
 $EndComp
 $Comp
 L Switch:SW_Push SW14
 U 1 1 5E9D17D9
-P 5450 1900
-F 0 "SW14" H 5450 2185 50  0000 C CNN
-F 1 "L2" H 5450 2094 50  0000 C CNN
-F 2 "button-contacts:Large_tapered" H 5450 2100 50  0001 C CNN
-F 3 "~" H 5450 2100 50  0001 C CNN
-	1    5450 1900
+P 8450 1900
+F 0 "SW14" H 8450 2185 50  0000 C CNN
+F 1 "L2" H 8450 2094 50  0000 C CNN
+F 2 "button-contacts:Small" H 8450 2100 50  0001 C CNN
+F 3 "~" H 8450 2100 50  0001 C CNN
+	1    8450 1900
 	1    0    0    -1  
 $EndComp
 $Comp
 L Switch:SW_Push SW6
 U 1 1 5CE3C552
-P 7150 900
-F 0 "SW6" H 7150 1185 50  0000 C CNN
-F 1 "Select" H 7150 1094 50  0000 C CNN
-F 2 "button-contacts:Small" H 7150 1100 50  0001 C CNN
-F 3 "~" H 7150 1100 50  0001 C CNN
-	1    7150 900 
+P 10150 900
+F 0 "SW6" H 10150 1185 50  0000 C CNN
+F 1 "Select" H 10150 1094 50  0000 C CNN
+F 2 "button-contacts:Small" H 10150 1100 50  0001 C CNN
+F 3 "~" H 10150 1100 50  0001 C CNN
+	1    10150 900 
 	1    0    0    -1  
 $EndComp
 $Comp
 L Switch:SW_Push SW7
 U 1 1 5CE3CA1D
-P 5450 900
-F 0 "SW7" H 5450 1185 50  0000 C CNN
-F 1 "L1" H 5450 1094 50  0000 C CNN
-F 2 "button-contacts:Large_tapered" H 5450 1100 50  0001 C CNN
-F 3 "~" H 5450 1100 50  0001 C CNN
-	1    5450 900 
+P 8450 900
+F 0 "SW7" H 8450 1185 50  0000 C CNN
+F 1 "L1" H 8450 1094 50  0000 C CNN
+F 2 "button-contacts:Large_tapered" H 8450 1100 50  0001 C CNN
+F 3 "~" H 8450 1100 50  0001 C CNN
+	1    8450 900 
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	7800 1050 7700 1050
+	10800 1050 10700 1050
 Wire Wire Line
-	6000 1050 6000 900 
+	9000 1050 9000 900 
 Wire Wire Line
-	6850 900  6850 1050
-Connection ~ 6850 1050
+	9850 900  9850 1050
+Connection ~ 9850 1050
 Wire Wire Line
-	6850 1050 6000 1050
+	9850 1050 9000 1050
 Wire Wire Line
-	7700 900  7700 1050
-Connection ~ 7700 1050
+	10700 900  10700 1050
+Connection ~ 10700 1050
 Wire Wire Line
-	7700 1050 6850 1050
+	10700 1050 9850 1050
 Wire Wire Line
-	7800 1550 7700 1550
+	10800 1550 10700 1550
 Wire Wire Line
-	6000 1550 6000 1400
+	9000 1550 9000 1400
 Wire Wire Line
-	7800 2050 7700 2050
+	10800 2050 10700 2050
 Wire Wire Line
-	6000 2050 6000 1900
+	9000 2050 9000 1900
 Wire Wire Line
-	6850 1900 6850 2050
-Connection ~ 6850 2050
+	9850 1900 9850 2050
+Connection ~ 9850 2050
 Wire Wire Line
-	6850 2050 6000 2050
+	9850 2050 9000 2050
 Wire Wire Line
-	7700 1900 7700 2050
-Connection ~ 7700 2050
+	10700 1900 10700 2050
+Connection ~ 10700 2050
 Wire Wire Line
-	7700 2050 6850 2050
+	10700 2050 9850 2050
 Wire Wire Line
-	7700 1400 7700 1550
-Connection ~ 7700 1550
+	10700 1400 10700 1550
+Connection ~ 10700 1550
 Wire Wire Line
-	7700 1550 6850 1550
+	10700 1550 9850 1550
 Wire Wire Line
-	6850 1400 6850 1550
-Connection ~ 6850 1550
+	9850 1400 9850 1550
+Connection ~ 9850 1550
 Wire Wire Line
-	6850 1550 6000 1550
+	9850 1550 9000 1550
 Wire Wire Line
-	8350 1400 8350 1900
-Connection ~ 8350 1400
-Connection ~ 8350 1900
+	4900 1400 4900 1900
+Connection ~ 4900 1400
+Connection ~ 4900 1900
 Wire Wire Line
-	8350 900  8350 1400
+	4900 900  4900 1400
 Wire Wire Line
-	9200 1400 9200 1900
-Connection ~ 9200 1400
-Connection ~ 9200 1900
+	5750 1400 5750 1900
+Connection ~ 5750 1400
+Connection ~ 5750 1900
 Wire Wire Line
-	9200 900  9200 1400
+	5750 900  5750 1400
 Wire Wire Line
-	10050 1400 10050 1900
-Connection ~ 10050 1400
+	6600 1400 6600 1900
+Connection ~ 6600 1400
 Wire Wire Line
-	10050 900  10050 1400
+	6600 900  6600 1400
 $Comp
 L Switch:SW_Push SW15
 U 1 1 5F40F877
-P 10250 1900
-F 0 "SW15" H 10250 2185 50  0000 C CNN
-F 1 "Custom4" H 10250 2094 50  0000 C CNN
-F 2 "button-contacts:Large_tapered" H 10250 2100 50  0001 C CNN
-F 3 "~" H 10250 2100 50  0001 C CNN
-	1    10250 1900
+P 6800 1900
+F 0 "SW15" H 6800 2185 50  0000 C CNN
+F 1 "Custom4" H 6800 2094 50  0000 C CNN
+F 2 "button-contacts:Small" H 6800 2100 50  0001 C CNN
+F 3 "~" H 6800 2100 50  0001 C CNN
+	1    6800 1900
 	1    0    0    -1  
 $EndComp
 $Comp
 L Diode:1N4148 D19
 U 1 1 5F40F87D
-P 10650 1900
-F 0 "D19" H 10650 1684 50  0000 C CNN
-F 1 "1N4148" H 10650 1775 50  0000 C CNN
-F 2 "Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal" H 10650 1725 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 10650 1900 50  0001 C CNN
-	1    10650 1900
+P 7200 1900
+F 0 "D19" H 7200 1684 50  0000 C CNN
+F 1 "1N4148" H 7200 1775 50  0000 C CNN
+F 2 "Diode_SMD:D_0603_1608Metric" H 7200 1725 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 7200 1900 50  0001 C CNN
+	1    7200 1900
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	10500 1900 10450 1900
-Text Label 10050 2150 0    50   ~ 0
-ColR3
+	7050 1900 7000 1900
+Text Label 6600 2150 0    50   ~ 0
+Col3
 Wire Wire Line
-	10050 1900 10050 2150
-Connection ~ 10050 1900
+	6600 1900 6600 2150
+Connection ~ 6600 1900
 $Comp
 L Switch:SW_Push SW11
 U 1 1 5F40F887
-P 9400 900
-F 0 "SW11" H 9400 1185 50  0000 C CNN
-F 1 "A" H 9400 1094 50  0000 C CNN
-F 2 "button-contacts:Large_tapered" H 9400 1100 50  0001 C CNN
-F 3 "~" H 9400 1100 50  0001 C CNN
-	1    9400 900 
+P 5950 900
+F 0 "SW11" H 5950 1185 50  0000 C CNN
+F 1 "A" H 5950 1094 50  0000 C CNN
+F 2 "button-contacts:Large_tapered" H 5950 1100 50  0001 C CNN
+F 3 "~" H 5950 1100 50  0001 C CNN
+	1    5950 900 
 	1    0    0    -1  
 $EndComp
 $Comp
 L Switch:SW_Push SW16
 U 1 1 5F40F88D
-P 9400 1400
-F 0 "SW16" H 9400 1685 50  0000 C CNN
-F 1 "B" H 9400 1594 50  0000 C CNN
-F 2 "button-contacts:Large_tapered" H 9400 1600 50  0001 C CNN
-F 3 "~" H 9400 1600 50  0001 C CNN
-	1    9400 1400
-	1    0    0    -1  
-$EndComp
-$Comp
-L Switch:SW_Push SW9
-U 1 1 5F40F893
-P 9400 1900
-F 0 "SW9" H 9400 2185 50  0000 C CNN
-F 1 "Custom3" H 9400 2094 50  0000 C CNN
-F 2 "button-contacts:Large_tapered" H 9400 2100 50  0001 C CNN
-F 3 "~" H 9400 2100 50  0001 C CNN
-	1    9400 1900
+P 5950 1400
+F 0 "SW16" H 5950 1685 50  0000 C CNN
+F 1 "B" H 5950 1594 50  0000 C CNN
+F 2 "button-contacts:Large_tapered" H 5950 1600 50  0001 C CNN
+F 3 "~" H 5950 1600 50  0001 C CNN
+	1    5950 1400
 	1    0    0    -1  
 $EndComp
 $Comp
 L Switch:SW_Push SW18
 U 1 1 5F40F899
-P 10250 1400
-F 0 "SW18" H 10250 1685 50  0000 C CNN
-F 1 "Y" H 10250 1594 50  0000 C CNN
-F 2 "button-contacts:Large_tapered" H 10250 1600 50  0001 C CNN
-F 3 "~" H 10250 1600 50  0001 C CNN
-	1    10250 1400
+P 6800 1400
+F 0 "SW18" H 6800 1685 50  0000 C CNN
+F 1 "Y" H 6800 1594 50  0000 C CNN
+F 2 "button-contacts:Large_tapered" H 6800 1600 50  0001 C CNN
+F 3 "~" H 6800 1600 50  0001 C CNN
+	1    6800 1400
 	1    0    0    -1  
 $EndComp
 $Comp
 L Diode:1N4148 D18
 U 1 1 5F40F89F
-P 10650 1400
-F 0 "D18" H 10650 1184 50  0000 C CNN
-F 1 "1N4148" H 10650 1275 50  0000 C CNN
-F 2 "Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal" H 10650 1225 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 10650 1400 50  0001 C CNN
-	1    10650 1400
+P 7200 1400
+F 0 "D18" H 7200 1184 50  0000 C CNN
+F 1 "1N4148" H 7200 1275 50  0000 C CNN
+F 2 "Diode_SMD:D_0603_1608Metric" H 7200 1225 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 7200 1400 50  0001 C CNN
+	1    7200 1400
 	-1   0    0    1   
 $EndComp
 $Comp
 L Diode:1N4148 D14
 U 1 1 5F40F8A5
-P 9800 900
-F 0 "D14" H 9800 684 50  0000 C CNN
-F 1 "1N4148" H 9800 775 50  0000 C CNN
-F 2 "Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal" H 9800 725 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 9800 900 50  0001 C CNN
-	1    9800 900 
+P 6350 900
+F 0 "D14" H 6350 684 50  0000 C CNN
+F 1 "1N4148" H 6350 775 50  0000 C CNN
+F 2 "Diode_SMD:D_0603_1608Metric" H 6350 725 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 6350 900 50  0001 C CNN
+	1    6350 900 
 	-1   0    0    1   
 $EndComp
 $Comp
 L Diode:1N4148 D15
 U 1 1 5F40F8AB
-P 9800 1400
-F 0 "D15" H 9800 1184 50  0000 C CNN
-F 1 "1N4148" H 9800 1275 50  0000 C CNN
-F 2 "Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal" H 9800 1225 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 9800 1400 50  0001 C CNN
-	1    9800 1400
+P 6350 1400
+F 0 "D15" H 6350 1184 50  0000 C CNN
+F 1 "1N4148" H 6350 1275 50  0000 C CNN
+F 2 "Diode_SMD:D_0603_1608Metric" H 6350 1225 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 6350 1400 50  0001 C CNN
+	1    6350 1400
 	-1   0    0    1   
 $EndComp
 $Comp
 L Diode:1N4148 D16
 U 1 1 5F40F8B1
-P 9800 1900
-F 0 "D16" H 9800 1684 50  0000 C CNN
-F 1 "1N4148" H 9800 1775 50  0000 C CNN
-F 2 "Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal" H 9800 1725 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 9800 1900 50  0001 C CNN
-	1    9800 1900
+P 6350 1900
+F 0 "D16" H 6350 1684 50  0000 C CNN
+F 1 "1N4148" H 6350 1775 50  0000 C CNN
+F 2 "Diode_SMD:D_0603_1608Metric" H 6350 1725 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 6350 1900 50  0001 C CNN
+	1    6350 1900
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	10500 1400 10450 1400
+	7050 1400 7000 1400
 Wire Wire Line
-	9650 900  9600 900 
+	6200 900  6150 900 
 Wire Wire Line
-	9650 1400 9600 1400
+	6200 1400 6150 1400
 Wire Wire Line
-	9650 1900 9600 1900
-Text Label 9200 2150 0    50   ~ 0
-ColR2
+	6200 1900 6150 1900
+Text Label 5750 2150 0    50   ~ 0
+Col2
 Wire Wire Line
-	9200 1900 9200 2150
-Text Label 10900 2050 0    50   ~ 0
-RowR3
-Text Label 10900 1550 0    50   ~ 0
-RowR2
-Text Label 10900 1050 0    50   ~ 0
-RowR1
+	5750 1900 5750 2150
+Text Label 7450 2050 0    50   ~ 0
+Row3
+Text Label 7450 1550 0    50   ~ 0
+Row2
+Text Label 7450 1050 0    50   ~ 0
+Row1
 $Comp
 L Switch:SW_Push SW8
 U 1 1 5F40F8C0
-P 8550 1400
-F 0 "SW8" H 8550 1685 50  0000 C CNN
-F 1 "R1" H 8550 1594 50  0000 C CNN
-F 2 "button-contacts:Small" H 8550 1600 50  0001 C CNN
-F 3 "~" H 8550 1600 50  0001 C CNN
-	1    8550 1400
+P 5100 1400
+F 0 "SW8" H 5100 1685 50  0000 C CNN
+F 1 "R1" H 5100 1594 50  0000 C CNN
+F 2 "button-contacts:Small" H 5100 1600 50  0001 C CNN
+F 3 "~" H 5100 1600 50  0001 C CNN
+	1    5100 1400
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	8350 1900 8350 2150
+	4900 1900 4900 2150
 Wire Wire Line
-	8800 1900 8750 1900
+	5350 1900 5300 1900
 Wire Wire Line
-	8800 1400 8750 1400
+	5350 1400 5300 1400
 Wire Wire Line
-	8800 900  8750 900 
+	5350 900  5300 900 
 Wire Wire Line
-	10500 900  10450 900 
+	7050 900  7000 900 
 $Comp
 L Diode:1N4148 D13
 U 1 1 5F40F8CB
-P 8950 1900
-F 0 "D13" H 8950 1684 50  0000 C CNN
-F 1 "1N4148" H 8950 1775 50  0000 C CNN
-F 2 "Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal" H 8950 1725 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 8950 1900 50  0001 C CNN
-	1    8950 1900
+P 5500 1900
+F 0 "D13" H 5500 1684 50  0000 C CNN
+F 1 "1N4148" H 5500 1775 50  0000 C CNN
+F 2 "Diode_SMD:D_0603_1608Metric" H 5500 1725 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 5500 1900 50  0001 C CNN
+	1    5500 1900
 	-1   0    0    1   
 $EndComp
 $Comp
 L Diode:1N4148 D12
 U 1 1 5F40F8D1
-P 8950 1400
-F 0 "D12" H 8950 1184 50  0000 C CNN
-F 1 "1N4148" H 8950 1275 50  0000 C CNN
-F 2 "Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal" H 8950 1225 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 8950 1400 50  0001 C CNN
-	1    8950 1400
+P 5500 1400
+F 0 "D12" H 5500 1184 50  0000 C CNN
+F 1 "1N4148" H 5500 1275 50  0000 C CNN
+F 2 "Diode_SMD:D_0603_1608Metric" H 5500 1225 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 5500 1400 50  0001 C CNN
+	1    5500 1400
 	-1   0    0    1   
 $EndComp
 $Comp
 L Diode:1N4148 D11
 U 1 1 5F40F8D7
-P 8950 900
-F 0 "D11" H 8950 684 50  0000 C CNN
-F 1 "1N4148" H 8950 775 50  0000 C CNN
-F 2 "Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal" H 8950 725 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 8950 900 50  0001 C CNN
-	1    8950 900 
+P 5500 900
+F 0 "D11" H 5500 684 50  0000 C CNN
+F 1 "1N4148" H 5500 775 50  0000 C CNN
+F 2 "Diode_SMD:D_0603_1608Metric" H 5500 725 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 5500 900 50  0001 C CNN
+	1    5500 900 
 	-1   0    0    1   
 $EndComp
 $Comp
 L Diode:1N4148 D17
 U 1 1 5F40F8DD
-P 10650 900
-F 0 "D17" H 10650 684 50  0000 C CNN
-F 1 "1N4148" H 10650 775 50  0000 C CNN
-F 2 "Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal" H 10650 725 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 10650 900 50  0001 C CNN
-	1    10650 900 
+P 7200 900
+F 0 "D17" H 7200 684 50  0000 C CNN
+F 1 "1N4148" H 7200 775 50  0000 C CNN
+F 2 "Diode_SMD:D_0603_1608Metric" H 7200 725 50  0001 C CNN
+F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 7200 900 50  0001 C CNN
+	1    7200 900 
 	-1   0    0    1   
 $EndComp
 $Comp
 L Switch:SW_Push SW10
 U 1 1 5F40F8E3
-P 8550 1900
-F 0 "SW10" H 8550 2185 50  0000 C CNN
-F 1 "R2" H 8550 2094 50  0000 C CNN
-F 2 "button-contacts:Large_tapered" H 8550 2100 50  0001 C CNN
-F 3 "~" H 8550 2100 50  0001 C CNN
-	1    8550 1900
+P 5100 1900
+F 0 "SW10" H 5100 2185 50  0000 C CNN
+F 1 "R2" H 5100 2094 50  0000 C CNN
+F 2 "button-contacts:Small" H 5100 2100 50  0001 C CNN
+F 3 "~" H 5100 2100 50  0001 C CNN
+	1    5100 1900
 	1    0    0    -1  
 $EndComp
 $Comp
 L Switch:SW_Push SW19
 U 1 1 5F40F8E9
-P 10250 900
-F 0 "SW19" H 10250 1185 50  0000 C CNN
-F 1 "X" H 10250 1094 50  0000 C CNN
-F 2 "button-contacts:Small" H 10250 1100 50  0001 C CNN
-F 3 "~" H 10250 1100 50  0001 C CNN
-	1    10250 900 
+P 6800 900
+F 0 "SW19" H 6800 1185 50  0000 C CNN
+F 1 "X" H 6800 1094 50  0000 C CNN
+F 2 "button-contacts:Large_tapered" H 6800 1100 50  0001 C CNN
+F 3 "~" H 6800 1100 50  0001 C CNN
+	1    6800 900 
 	1    0    0    -1  
 $EndComp
 $Comp
 L Switch:SW_Push SW17
 U 1 1 5F40F8EF
-P 8550 900
-F 0 "SW17" H 8550 1185 50  0000 C CNN
-F 1 "Start" H 8550 1094 50  0000 C CNN
-F 2 "button-contacts:Large_tapered" H 8550 1100 50  0001 C CNN
-F 3 "~" H 8550 1100 50  0001 C CNN
-	1    8550 900 
+P 5100 900
+F 0 "SW17" H 5100 1185 50  0000 C CNN
+F 1 "Start" H 5100 1094 50  0000 C CNN
+F 2 "button-contacts:Small" H 5100 1100 50  0001 C CNN
+F 3 "~" H 5100 1100 50  0001 C CNN
+	1    5100 900 
 	1    0    0    -1  
 $EndComp
-Text Label 8350 2150 0    50   ~ 0
-ColR1
+Text Label 4900 2150 0    50   ~ 0
+Col1
 Wire Wire Line
-	10900 1050 10800 1050
+	7450 1050 7350 1050
 Wire Wire Line
-	9100 1050 9100 900 
+	5650 1050 5650 900 
 Wire Wire Line
-	9950 900  9950 1050
-Connection ~ 9950 1050
+	6500 900  6500 1050
+Connection ~ 6500 1050
 Wire Wire Line
-	9950 1050 9100 1050
+	6500 1050 5650 1050
 Wire Wire Line
-	10800 900  10800 1050
-Connection ~ 10800 1050
+	7350 900  7350 1050
+Connection ~ 7350 1050
 Wire Wire Line
-	10800 1050 9950 1050
+	7350 1050 6500 1050
 Wire Wire Line
-	10900 1550 10800 1550
+	7450 1550 7350 1550
 Wire Wire Line
-	9100 1550 9100 1400
+	5650 1550 5650 1400
 Wire Wire Line
-	10900 2050 10800 2050
+	7450 2050 7350 2050
 Wire Wire Line
-	9100 2050 9100 1900
+	5650 2050 5650 1900
 Wire Wire Line
-	9950 1900 9950 2050
-Connection ~ 9950 2050
+	6500 1900 6500 2050
+Connection ~ 6500 2050
 Wire Wire Line
-	9950 2050 9100 2050
+	6500 2050 5650 2050
 Wire Wire Line
-	10800 1900 10800 2050
-Connection ~ 10800 2050
+	7350 1900 7350 2050
+Connection ~ 7350 2050
 Wire Wire Line
-	10800 2050 9950 2050
+	7350 2050 6500 2050
 Wire Wire Line
-	10800 1400 10800 1550
-Connection ~ 10800 1550
+	7350 1400 7350 1550
+Connection ~ 7350 1550
 Wire Wire Line
-	10800 1550 9950 1550
+	7350 1550 6500 1550
 Wire Wire Line
-	9950 1400 9950 1550
-Connection ~ 9950 1550
+	6500 1400 6500 1550
+Connection ~ 6500 1550
 Wire Wire Line
-	9950 1550 9100 1550
+	6500 1550 5650 1550
 $Comp
 L Connector_Generic:Conn_01x06 J2
 U 1 1 5D94373B
@@ -1323,29 +1276,29 @@ Col2
 Text Label 7150 4100 0    50   ~ 0
 Col3
 Text Label 7150 4200 0    50   ~ 0
-L3
-Text Label 5250 2150 0    50   ~ 0
-Col1
-Text Label 6100 2150 0    50   ~ 0
-Col2
-Text Label 6950 2150 0    50   ~ 0
-Col3
+R3
+Text Label 8250 2150 0    50   ~ 0
+ColL1
+Text Label 9100 2150 0    50   ~ 0
+ColL2
+Text Label 9950 2150 0    50   ~ 0
+ColL3
 Wire Wire Line
-	6950 1900 6950 2150
-Connection ~ 6950 1900
+	9950 1900 9950 2150
+Connection ~ 9950 1900
 Wire Wire Line
-	6100 1900 6100 2150
-Connection ~ 6100 1900
+	9100 1900 9100 2150
+Connection ~ 9100 1900
 Wire Wire Line
-	5250 1900 5250 2150
-Connection ~ 5250 1900
+	8250 1900 8250 2150
+Connection ~ 8250 1900
 $Comp
 L Device:R R7
 U 1 1 5F64E308
 P 5850 3400
 F 0 "R7" V 5643 3400 50  0000 C CNN
 F 1 "1K" V 5734 3400 50  0000 C CNN
-F 2 "Resistor_SMD:R_0805_2012Metric" V 5780 3400 50  0001 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 5780 3400 50  0001 C CNN
 F 3 "~" H 5850 3400 50  0001 C CNN
 	1    5850 3400
 	1    0    0    -1  
@@ -1356,25 +1309,17 @@ U 1 1 5F653BB0
 P 5550 3400
 F 0 "R8" V 5343 3400 50  0000 C CNN
 F 1 "1K" V 5434 3400 50  0000 C CNN
-F 2 "Resistor_SMD:R_0805_2012Metric" V 5480 3400 50  0001 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 5480 3400 50  0001 C CNN
 F 3 "~" H 5550 3400 50  0001 C CNN
 	1    5550 3400
 	1    0    0    -1  
 $EndComp
-Text Label 7400 2350 2    50   ~ 0
-SDA
-Text Label 7400 2450 2    50   ~ 0
-SCL
-Text Label 8950 2550 0    50   ~ 0
-JoyRightX_R
-Text Label 8950 2650 0    50   ~ 0
-JoyRightY_R
 Text Label 5750 3800 3    50   ~ 0
 SDA
 Text Label 5650 3800 3    50   ~ 0
 SCL
 Text Label 9500 4600 3    50   ~ 0
-GND_R
+GND_L
 Text Label 8900 3050 2    50   ~ 0
 VCC_R
 $Comp
@@ -1435,7 +1380,7 @@ U 1 1 5FA04417
 P 8700 3300
 F 0 "R10" V 8493 3300 50  0000 C CNN
 F 1 "1K" V 8584 3300 50  0000 C CNN
-F 2 "Resistor_SMD:R_0805_2012Metric" V 8630 3300 50  0001 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 8630 3300 50  0001 C CNN
 F 3 "~" H 8700 3300 50  0001 C CNN
 	1    8700 3300
 	1    0    0    -1  
@@ -1446,7 +1391,7 @@ U 1 1 5FA0441D
 P 8400 3300
 F 0 "R9" V 8193 3300 50  0000 C CNN
 F 1 "1K" V 8284 3300 50  0000 C CNN
-F 2 "Resistor_SMD:R_0805_2012Metric" V 8330 3300 50  0001 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 8330 3300 50  0001 C CNN
 F 3 "~" H 8400 3300 50  0001 C CNN
 	1    8400 3300
 	1    0    0    -1  
@@ -1513,4 +1458,60 @@ NoConn ~ 9000 3900
 NoConn ~ 9000 4000
 NoConn ~ 9000 4300
 NoConn ~ 6150 4400
+Text Label 3050 3950 0    50   ~ 0
+JoyLeftY
+Text Label 3050 3850 0    50   ~ 0
+JoyLeftX
+Text Label 7400 2350 2    50   ~ 0
+SDA
+Text Label 7400 2450 2    50   ~ 0
+SCL
+Text Label 7400 2550 2    50   ~ 0
+JoyLeftX
+Text Label 8950 2650 0    50   ~ 0
+JoyLeftY_L
+Text Label 8950 2550 0    50   ~ 0
+JoyLeftX_L
+Text Label 8950 2450 0    50   ~ 0
+SCL_L
+Text Label 8950 2350 0    50   ~ 0
+SDA_L
+NoConn ~ 3050 2750
+NoConn ~ 3050 2650
+Text Label 8950 2750 0    50   ~ 0
+VCC_L
+Text Label 8950 2850 0    50   ~ 0
+GND_L
+Text Label 10500 2600 2    50   ~ 0
+VCC_L
+Text Label 10500 2700 2    50   ~ 0
+JoyLeftY_L
+Text Label 10500 2800 2    50   ~ 0
+L3
+Text Label 5600 2750 0    50   ~ 0
+R3
+Text Label 7400 2650 2    50   ~ 0
+JoyLeftY
+$Comp
+L Switch:SW_Push SW5
+U 1 1 5CE3BF2C
+P 9300 1900
+F 0 "SW5" H 9300 2185 50  0000 C CNN
+F 1 "Custom1" H 9300 2094 50  0000 C CNN
+F 2 "button-contacts:Large_tapered" H 9300 2100 50  0001 C CNN
+F 3 "~" H 9300 2100 50  0001 C CNN
+	1    9300 1900
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW9
+U 1 1 5F40F893
+P 5950 1900
+F 0 "SW9" H 5950 2185 50  0000 C CNN
+F 1 "Custom3" H 5950 2094 50  0000 C CNN
+F 2 "button-contacts:Small" H 5950 2100 50  0001 C CNN
+F 3 "~" H 5950 2100 50  0001 C CNN
+	1    5950 1900
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
