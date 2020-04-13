@@ -1,5 +1,6 @@
 EESchema Schematic File Version 4
-EELAYER 30 0
+LIBS:avr-gamepad-cache
+EELAYER 29 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
@@ -904,19 +905,7 @@ Wire Wire Line
 Wire Wire Line
 	9000 1550 9000 1400
 Wire Wire Line
-	10800 2050 10700 2050
-Wire Wire Line
 	9000 2050 9000 1900
-Wire Wire Line
-	9850 1900 9850 2050
-Connection ~ 9850 2050
-Wire Wire Line
-	9850 2050 9000 2050
-Wire Wire Line
-	10700 1900 10700 2050
-Connection ~ 10700 2050
-Wire Wire Line
-	10700 2050 9850 2050
 Wire Wire Line
 	10700 1400 10700 1550
 Connection ~ 10700 1550
@@ -1140,19 +1129,7 @@ Wire Wire Line
 Wire Wire Line
 	5650 1550 5650 1400
 Wire Wire Line
-	7450 2050 7350 2050
-Wire Wire Line
 	5650 2050 5650 1900
-Wire Wire Line
-	6500 1900 6500 2050
-Connection ~ 6500 2050
-Wire Wire Line
-	6500 2050 5650 2050
-Wire Wire Line
-	7350 1900 7350 2050
-Connection ~ 7350 2050
-Wire Wire Line
-	7350 2050 6500 2050
 Wire Wire Line
 	7350 1400 7350 1550
 Connection ~ 7350 1550
@@ -1405,4 +1382,8 @@ Wire Wire Line
 	9950 1400 9950 2150
 Wire Wire Line
 	9100 1400 9100 2150
+Wire Wire Line
+	5650 2050 7450 2050
+Wire Wire Line
+	9000 2050 10800 2050
 $EndSCHEMATC
