@@ -1,20 +1,42 @@
 /*
  * Developed using Sparkfun Pro Micro 5v USB-c
- * https://github.com/MHeironimus/ArduinoJoystickLibrary/
+ * 
  */
-#include "Joystick.h"
+#include "Joystick.h" //https://github.com/MHeironimus/ArduinoJoystickLibrary/
+#include <Keypad_I2C.h> // I2C Keypad library by Joe Young https://github.com/joeyoung/arduino_keypads
 
 Joystick_ Joystick(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_MULTI_AXIS, 16, 0, true, true, true, false, false, true, false, false, true, true, false);
 
-// JP1 is an input
-byte rows[] = {2,3,4,5};
-const int rowCount = sizeof(rows)/sizeof(rows[0]);
- 
-// JP2 and JP3 are outputs
-byte cols[] = {6,7,8,9};
-const int colCount = sizeof(cols)/sizeof(cols[0]);
- 
-//byte keysLast[colCount][rowCount];//Last State
+// Define the keypad pins
+const byte ROWS = 3; 
+const byte COLS = 3;
+
+#define keypadAddrL 0x20  // I2C address of I2C Expander module (A0-A1-A2 dip switch to off position)
+char keysLeft[ROWS][COLS] = {
+  {'1','2','3'},
+  {'4','5','6'},
+  {'7','8','9'},
+};
+
+#define keypadAddrR 0x20  // I2C address of I2C Expander module (A0-A1-A2 dip switch to on position)
+char keysRight[ROWS][COLS] = {
+  {'1','2','3'},
+  {'4','5','6'},
+  {'7','8','9'},
+};
+
+// Keypad pins connected to the I2C-Expander pins P0-P5
+byte rowPinsLeft[ROWS] = {0, 1, 2}; // connect to the row pinouts of the keypad
+byte colPinsLeft[COLS] = {3, 4, 5};    // connect to the column pinouts of the keypad
+
+// Keypad pins connected to the I2C-Expander pins P0-P5
+byte rowPinsRight[ROWS] = {0, 1, 2}; // connect to the row pinouts of the keypad
+byte colPinsRight[COLS] = {3, 4, 5};    // connect to the column pinouts of the keypad
+
+// Create instance of the Keypad name I2C_Keypad and using the PCF8574 chip
+Keypad_I2C I2C_KeypadL( makeKeymap(keysLeft), rowPinsLeft, colPinsLeft, ROWS, COLS, keypadAddrL, PCF8574 );
+Keypad_I2C I2C_KeypadR( makeKeymap(keysRight), rowPinsRight, colPinsRight, ROWS, COLS, keypadAddrR, PCF8574 );
+
 
 void setup() {
   Serial.begin(9600);
@@ -34,20 +56,8 @@ void setup() {
   Joystick.setRzAxisRange(0, 1023);
   Joystick.begin();
 
-  for(int x=0; x<rowCount; x++) {
-      Serial.print(rows[x]); Serial.println(" as input");
-      pinMode(rows[x], INPUT);
-  }
-
-  for (int x=0; x<colCount; x++) {
-      Serial.print(cols[x]); Serial.println(" as input-pullup");
-      pinMode(cols[x], INPUT_PULLUP);
-  }
-  
-  // Init Button Pins
-//  for (int index = 0; index < totalButtons; index++){
-//    pinMode(buttons[index], INPUT_PULLUP);
-//  }
+  I2C_KeypadL.begin();
+  I2C_KeypadR.begin();
 }
 
 void loop() {
@@ -59,9 +69,10 @@ void loop() {
   Joystick.setRzAxis(analogRead(A3));
 
   //Read buttons
-  readMatrix();
+  char keyL = I2C_KeypadL.getKey();
+  char keyR = I2C_KeypadR.getKey();
 
-  delay(50);
+  //delay(50);
 }
 
 void readMatrix() {

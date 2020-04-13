@@ -1,4 +1,4 @@
-(kicad_pcb (version 20171130) (host pcbnew "(5.1.2)-1")
+(kicad_pcb (version 20171130) (host pcbnew 5.1.5-52549c5~86~ubuntu18.04.1)
 
   (general
     (thickness 0.1016)
@@ -744,7 +744,7 @@
   )
 
   (module button-contacts:Large_tapered (layer F.Cu) (tedit 5D901DEB) (tstamp 5D9334E9)
-    (at 78.486 87.376)
+    (at 36.83 113.03)
     (path /5CE36F95)
     (attr smd)
     (fp_text reference SW3 (at -3.8352 0.3304 90) (layer F.SilkS)
@@ -783,7 +783,7 @@
   )
 
   (module button-contacts:Large_tapered (layer F.Cu) (tedit 5D901DEB) (tstamp 5D9334EE)
-    (at 80.264 103.251 270)
+    (at 66.04 72.39 270)
     (path /5CE3B249)
     (attr smd)
     (fp_text reference SW4 (at -0.127 -3.429 90) (layer F.SilkS)
@@ -851,7 +851,7 @@
   )
 
   (module button-contacts:Large_tapered (layer F.Cu) (tedit 5D901DEB) (tstamp 5D9334FD)
-    (at 107.8992 65.2526 90)
+    (at 48.26 72.39 90)
     (path /5CE3CA1D)
     (attr smd)
     (fp_text reference SW7 (at 3.4036 -1.1688 180) (layer F.SilkS)
@@ -1828,7 +1828,7 @@
   )
 
   (module Diode_SMD:D_0603_1608Metric (layer F.Cu) (tedit 5B301BBE) (tstamp 5E93D78F)
-    (at 108.1785 94.9452)
+    (at 86.36 113.03)
     (descr "Diode SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: http://www.tortai-tech.com/upload/download/2011102023233369053.pdf), generated with kicad-footprint-generator")
     (tags diode)
     (path /5F1024F7)
@@ -2058,7 +2058,7 @@
   )
 
   (module button-contacts:Large_tapered (layer F.Cu) (tedit 5D901DEB) (tstamp 5E93D8B3)
-    (at 138.7094 103.53548 180)
+    (at 138.7094 102.87 180)
     (path /5F40F88D)
     (attr smd)
     (fp_text reference SW16 (at -0.127 -3.429) (layer F.SilkS)
@@ -2361,7 +2361,7 @@
   )
 
   (module button-contacts:Small (layer F.Cu) (tedit 5CEDE13F) (tstamp 5E93DC7F)
-    (at 108.1532 97.8916)
+    (at 93.98 113.03)
     (path /5F102509)
     (attr smd)
     (fp_text reference SW20 (at 0 2.54) (layer F.SilkS)
@@ -2390,7 +2390,7 @@
   )
 
   (module button-contacts:Large_tapered (layer F.Cu) (tedit 5D901DEB) (tstamp 5E93E65F)
-    (at 51.8414 91.059 180)
+    (at 57.15 81.28 180)
     (path /5CE3BF2C)
     (attr smd)
     (fp_text reference SW5 (at -0.127 -3.429) (layer F.SilkS)
@@ -2717,7 +2717,7 @@
   )
 
   (module Resistor_SMD:R_0603_1608Metric (layer F.Cu) (tedit 5B301BBD) (tstamp 5E93EECE)
-    (at 120.0913 106.4006)
+    (at 89.6113 134.3406)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: http://www.tortai-tech.com/upload/download/2011102023233369053.pdf), generated with kicad-footprint-generator")
     (tags resistor)
     (path /5FA0441D)
@@ -2753,7 +2753,7 @@
   )
 
   (module Resistor_SMD:R_0603_1608Metric (layer F.Cu) (tedit 5B301BBD) (tstamp 5E93EEDE)
-    (at 113.3095 116.3066)
+    (at 82.8295 144.2466)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: http://www.tortai-tech.com/upload/download/2011102023233369053.pdf), generated with kicad-footprint-generator")
     (tags resistor)
     (path /5FA04417)
@@ -2847,7 +2847,7 @@
   )
 
   (module button-contacts:Large_tapered (layer F.Cu) (tedit 5D901DEB) (tstamp 5E94021C)
-    (at 81.5594 53.9242)
+    (at 57.15 63.5)
     (path /5E9D17DF)
     (attr smd)
     (fp_text reference SW13 (at -0.127 -3.429) (layer F.SilkS)

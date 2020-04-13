@@ -1,6 +1,5 @@
 EESchema Schematic File Version 4
-LIBS:avr-gamepad-cache
-EELAYER 29 0
+EELAYER 30 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
@@ -549,7 +548,7 @@ $EndComp
 Text Label 10400 4400 2    50   ~ 0
 GND_L
 Text Label 10500 2900 2    50   ~ 0
-GND_R
+GND_L
 Text Label 5600 2950 0    50   ~ 0
 JoyRightX
 $Comp
@@ -706,40 +705,12 @@ Wire Wire Line
 Connection ~ 8250 1400
 Wire Wire Line
 	8250 900  8250 1400
-Wire Wire Line
-	9100 1400 9100 1900
 Connection ~ 9100 1400
 Wire Wire Line
 	9100 900  9100 1400
-Wire Wire Line
-	9950 1400 9950 1900
 Connection ~ 9950 1400
 Wire Wire Line
 	9950 900  9950 1400
-$Comp
-L Switch:SW_Push SW20
-U 1 1 5F102509
-P 10150 1900
-F 0 "SW20" H 10150 2185 50  0000 C CNN
-F 1 "Custom2" H 10150 2094 50  0000 C CNN
-F 2 "button-contacts:Small" H 10150 2100 50  0001 C CNN
-F 3 "~" H 10150 2100 50  0001 C CNN
-	1    10150 1900
-	1    0    0    -1  
-$EndComp
-$Comp
-L Diode:1N4148 D20
-U 1 1 5F1024F7
-P 10550 1900
-F 0 "D20" H 10550 1684 50  0000 C CNN
-F 1 "1N4148" H 10550 1775 50  0000 C CNN
-F 2 "Diode_SMD:D_0603_1608Metric" H 10550 1725 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 10550 1900 50  0001 C CNN
-	1    10550 1900
-	-1   0    0    1   
-$EndComp
-Wire Wire Line
-	10400 1900 10350 1900
 $Comp
 L Switch:SW_Push SW3
 U 1 1 5CE36F95
@@ -806,25 +777,12 @@ F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 9700 
 	1    9700 1400
 	-1   0    0    1   
 $EndComp
-$Comp
-L Diode:1N4148 D10
-U 1 1 5EA4B7D9
-P 9700 1900
-F 0 "D10" H 9700 1684 50  0000 C CNN
-F 1 "1N4148" H 9700 1775 50  0000 C CNN
-F 2 "Diode_SMD:D_0603_1608Metric" H 9700 1725 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 9700 1900 50  0001 C CNN
-	1    9700 1900
-	-1   0    0    1   
-$EndComp
 Wire Wire Line
 	10400 1400 10350 1400
 Wire Wire Line
 	9550 900  9500 900 
 Wire Wire Line
 	9550 1400 9500 1400
-Wire Wire Line
-	9550 1900 9500 1900
 Text Label 10800 2050 0    50   ~ 0
 RowL3
 Text Label 10800 1550 0    50   ~ 0
@@ -975,46 +933,14 @@ Connection ~ 4900 1400
 Connection ~ 4900 1900
 Wire Wire Line
 	4900 900  4900 1400
-Wire Wire Line
-	5750 1400 5750 1900
 Connection ~ 5750 1400
-Connection ~ 5750 1900
 Wire Wire Line
 	5750 900  5750 1400
-Wire Wire Line
-	6600 1400 6600 1900
 Connection ~ 6600 1400
 Wire Wire Line
 	6600 900  6600 1400
-$Comp
-L Switch:SW_Push SW15
-U 1 1 5F40F877
-P 6800 1900
-F 0 "SW15" H 6800 2185 50  0000 C CNN
-F 1 "Custom4" H 6800 2094 50  0000 C CNN
-F 2 "button-contacts:Small" H 6800 2100 50  0001 C CNN
-F 3 "~" H 6800 2100 50  0001 C CNN
-	1    6800 1900
-	1    0    0    -1  
-$EndComp
-$Comp
-L Diode:1N4148 D19
-U 1 1 5F40F87D
-P 7200 1900
-F 0 "D19" H 7200 1684 50  0000 C CNN
-F 1 "1N4148" H 7200 1775 50  0000 C CNN
-F 2 "Diode_SMD:D_0603_1608Metric" H 7200 1725 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 7200 1900 50  0001 C CNN
-	1    7200 1900
-	-1   0    0    1   
-$EndComp
-Wire Wire Line
-	7050 1900 7000 1900
 Text Label 6600 2150 0    50   ~ 0
 Col3
-Wire Wire Line
-	6600 1900 6600 2150
-Connection ~ 6600 1900
 $Comp
 L Switch:SW_Push SW11
 U 1 1 5F40F887
@@ -1081,29 +1007,14 @@ F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 6350 
 	1    6350 1400
 	-1   0    0    1   
 $EndComp
-$Comp
-L Diode:1N4148 D16
-U 1 1 5F40F8B1
-P 6350 1900
-F 0 "D16" H 6350 1684 50  0000 C CNN
-F 1 "1N4148" H 6350 1775 50  0000 C CNN
-F 2 "Diode_SMD:D_0603_1608Metric" H 6350 1725 50  0001 C CNN
-F 3 "https://assets.nexperia.com/documents/data-sheet/1N4148_1N4448.pdf" H 6350 1900 50  0001 C CNN
-	1    6350 1900
-	-1   0    0    1   
-$EndComp
 Wire Wire Line
 	7050 1400 7000 1400
 Wire Wire Line
 	6200 900  6150 900 
 Wire Wire Line
 	6200 1400 6150 1400
-Wire Wire Line
-	6200 1900 6150 1900
 Text Label 5750 2150 0    50   ~ 0
 Col2
-Wire Wire Line
-	5750 1900 5750 2150
 Text Label 7450 2050 0    50   ~ 0
 Row3
 Text Label 7450 1550 0    50   ~ 0
@@ -1284,12 +1195,6 @@ ColL2
 Text Label 9950 2150 0    50   ~ 0
 ColL3
 Wire Wire Line
-	9950 1900 9950 2150
-Connection ~ 9950 1900
-Wire Wire Line
-	9100 1900 9100 2150
-Connection ~ 9100 1900
-Wire Wire Line
 	8250 1900 8250 2150
 Connection ~ 8250 1900
 $Comp
@@ -1321,7 +1226,7 @@ SCL
 Text Label 9500 4600 3    50   ~ 0
 GND_L
 Text Label 8900 3050 2    50   ~ 0
-VCC_R
+VCC_L
 $Comp
 L power:GND #PWR0102
 U 1 1 5F7797AA
@@ -1492,26 +1397,12 @@ Text Label 5600 2750 0    50   ~ 0
 R3
 Text Label 7400 2650 2    50   ~ 0
 JoyLeftY
-$Comp
-L Switch:SW_Push SW5
-U 1 1 5CE3BF2C
-P 9300 1900
-F 0 "SW5" H 9300 2185 50  0000 C CNN
-F 1 "Custom1" H 9300 2094 50  0000 C CNN
-F 2 "button-contacts:Large_tapered" H 9300 2100 50  0001 C CNN
-F 3 "~" H 9300 2100 50  0001 C CNN
-	1    9300 1900
-	1    0    0    -1  
-$EndComp
-$Comp
-L Switch:SW_Push SW9
-U 1 1 5F40F893
-P 5950 1900
-F 0 "SW9" H 5950 2185 50  0000 C CNN
-F 1 "Custom3" H 5950 2094 50  0000 C CNN
-F 2 "button-contacts:Small" H 5950 2100 50  0001 C CNN
-F 3 "~" H 5950 2100 50  0001 C CNN
-	1    5950 1900
-	1    0    0    -1  
-$EndComp
+Wire Wire Line
+	6600 1400 6600 2150
+Wire Wire Line
+	5750 1400 5750 2150
+Wire Wire Line
+	9950 1400 9950 2150
+Wire Wire Line
+	9100 1400 9100 2150
 $EndSCHEMATC
