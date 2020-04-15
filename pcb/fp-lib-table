@@ -6,4 +6,5 @@
   (lib (name uxcell-ffc)(type KiCad)(uri ${KIPRJMOD}/footprints/uxcell-ffc.pretty)(options "")(descr "excell brand 5-pin ffc connector"))
   (lib (name pcf8574)(type KiCad)(uri ${KIPRJMOD}/footprints/pcf8574.pretty)(options "")(descr "PCF8574 io expander"))
   (lib (name right-angle-tact)(type KiCad)(uri ${KIPRJMOD}/footprints/right-angle-tact.pretty)(options "")(descr ""))
+  (lib (name digikey-footprints)(type KiCad)(uri ${KIPRJMOD}/digikey-lib/digikey-footprints.pretty)(options "")(descr ""))
 )
