@@ -1,0 +1,175 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L power:GND #PWR0117
+U 1 1 5CF294FD
+P 7400 4500
+F 0 "#PWR0117" H 7400 4250 50  0001 C CNN
+F 1 "GND" H 7405 4327 50  0000 C CNN
+F 2 "" H 7400 4500 50  0001 C CNN
+F 3 "" H 7400 4500 50  0001 C CNN
+	1    7400 4500
+	1    0    0    -1  
+$EndComp
+$Comp
+L Interface_Expansion:PCF8574 U3
+U 1 1 5E985F9A
+P 6650 4000
+F 0 "U3" H 6650 4881 50  0000 C CNN
+F 1 "PCF8574" H 6650 4790 50  0000 C CNN
+F 2 "pcf8574:SO16W" H 6650 4000 50  0001 C CNN
+F 3 "http://www.nxp.com/documents/data_sheet/PCF8574_PCF8574A.pdf" H 6650 4000 50  0001 C CNN
+	1    6650 4000
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R5
+U 1 1 5F000D96
+P 7700 4300
+F 0 "R5" V 7493 4300 50  0000 C CNN
+F 1 "1K" V 7584 4300 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 7630 4300 50  0001 C CNN
+F 3 "~" H 7700 4300 50  0001 C CNN
+	1    7700 4300
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:LED D1
+U 1 1 5F000D9C
+P 7700 4500
+F 0 "D1" H 7693 4716 50  0000 C CNN
+F 1 "LED" H 7693 4625 50  0000 C CNN
+F 2 "LED_SMD:LED_0603_1608Metric" H 7700 4500 50  0001 C CNN
+F 3 "~" H 7700 4500 50  0001 C CNN
+	1    7700 4500
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	7900 4300 7850 4300
+Wire Wire Line
+	7900 4300 7900 4500
+Wire Wire Line
+	7900 4500 7850 4500
+Wire Wire Line
+	7550 4300 7150 4300
+Wire Wire Line
+	7550 4500 7400 4500
+Text Label 7150 3600 0    50   ~ 0
+Row1
+Text Label 7150 3700 0    50   ~ 0
+Row2
+Text Label 7150 3800 0    50   ~ 0
+Row3
+Text Label 7150 3900 0    50   ~ 0
+Col1
+Text Label 7150 4000 0    50   ~ 0
+Col2
+Text Label 7150 4100 0    50   ~ 0
+Col3
+Text Label 7150 4200 0    50   ~ 0
+R3
+$Comp
+L Device:R R7
+U 1 1 5F64E308
+P 5850 3400
+F 0 "R7" V 5643 3400 50  0000 C CNN
+F 1 "1K" V 5734 3400 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 5780 3400 50  0001 C CNN
+F 3 "~" H 5850 3400 50  0001 C CNN
+	1    5850 3400
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R8
+U 1 1 5F653BB0
+P 5550 3400
+F 0 "R8" V 5343 3400 50  0000 C CNN
+F 1 "1K" V 5434 3400 50  0000 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 5480 3400 50  0001 C CNN
+F 3 "~" H 5550 3400 50  0001 C CNN
+	1    5550 3400
+	1    0    0    -1  
+$EndComp
+Text Label 5750 3800 3    50   ~ 0
+SDA
+Text Label 5650 3800 3    50   ~ 0
+SCL
+$Comp
+L power:GND #PWR0102
+U 1 1 5F7797AA
+P 6650 4700
+F 0 "#PWR0102" H 6650 4450 50  0001 C CNN
+F 1 "GND" H 6655 4527 50  0000 C CNN
+F 2 "" H 6650 4700 50  0001 C CNN
+F 3 "" H 6650 4700 50  0001 C CNN
+	1    6650 4700
+	-1   0    0    -1  
+$EndComp
+$Comp
+L power:VCC #PWR0119
+U 1 1 5F7797A4
+P 6050 3200
+F 0 "#PWR0119" H 6050 3050 50  0001 C CNN
+F 1 "VCC" H 6067 3373 50  0000 C CNN
+F 2 "" H 6050 3200 50  0001 C CNN
+F 3 "" H 6050 3200 50  0001 C CNN
+	1    6050 3200
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	6650 3300 6050 3300
+Wire Wire Line
+	6050 3200 6050 3250
+Wire Wire Line
+	5550 3250 5850 3250
+Connection ~ 6050 3250
+Wire Wire Line
+	6050 3250 6050 3300
+Connection ~ 5850 3250
+Wire Wire Line
+	5850 3250 6050 3250
+Wire Wire Line
+	6150 3600 5850 3600
+Wire Wire Line
+	5850 3600 5850 3550
+Wire Wire Line
+	6150 3700 5750 3700
+Wire Wire Line
+	5550 3700 5550 3550
+Wire Wire Line
+	5850 3600 5650 3600
+Wire Wire Line
+	5650 3600 5650 3800
+Connection ~ 5850 3600
+Wire Wire Line
+	5750 3800 5750 3700
+Connection ~ 5750 3700
+Wire Wire Line
+	5750 3700 5550 3700
+Wire Wire Line
+	6150 3900 6150 4000
+Connection ~ 6150 4000
+Wire Wire Line
+	6150 4000 6150 4100
+Wire Wire Line
+	6150 4000 6050 4000
+Wire Wire Line
+	6050 4000 6050 4700
+Wire Wire Line
+	6050 4700 6650 4700
+Connection ~ 6650 4700
+NoConn ~ 6150 4400
+$EndSCHEMATC
