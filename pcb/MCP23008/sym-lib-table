@@ -42,7 +42,7 @@
   (lib (name dk_Interface-Analog-Switches-Special-Purpose)(type Legacy)(uri /home/ldrrp/Documents/development/Cuttlephone/pcb/digikey-lib/digikey-symbols/dk_Interface-Analog-Switches-Special-Purpose.lib)(options "")(descr ""))
   (lib (name dk_Interface-Controllers)(type Legacy)(uri /home/ldrrp/Documents/development/Cuttlephone/pcb/digikey-lib/digikey-symbols/dk_Interface-Controllers.lib)(options "")(descr ""))
   (lib (name dk_Interface-Drivers-Receivers-Transceivers)(type Legacy)(uri /home/ldrrp/Documents/development/Cuttlephone/pcb/digikey-lib/digikey-symbols/dk_Interface-Drivers-Receivers-Transceivers.lib)(options "")(descr ""))
-  (lib (name dk_Interface-I-O-Expanders)(type Legacy)(uri /home/ldrrp/Documents/development/Cuttlephone/pcb/digikey-lib/digikey-symbols/dk_Interface-I-O-Expanders.lib)(options "")(descr ""))
+  (lib (name dk_Interface-I-O-Expanders)(type Legacy)(uri ${KIPRJMOD}/../digikey-lib/digikey-symbols/dk_Interface-I-O-Expanders.lib)(options "")(descr ""))
   (lib (name dk_Interface-Modules)(type Legacy)(uri /home/ldrrp/Documents/development/Cuttlephone/pcb/digikey-lib/digikey-symbols/dk_Interface-Modules.lib)(options "")(descr ""))
   (lib (name dk_Interface-Sensor-and-Detector-Interfaces)(type Legacy)(uri /home/ldrrp/Documents/development/Cuttlephone/pcb/digikey-lib/digikey-symbols/dk_Interface-Sensor-and-Detector-Interfaces.lib)(options "")(descr ""))
   (lib (name dk_Interface-Sensor-Capacitive-Touch)(type Legacy)(uri /home/ldrrp/Documents/development/Cuttlephone/pcb/digikey-lib/digikey-symbols/dk_Interface-Sensor-Capacitive-Touch.lib)(options "")(descr ""))
