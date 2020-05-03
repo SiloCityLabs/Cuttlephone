@@ -7,6 +7,7 @@ $fn=30;
     all values in mm
     clearances and fudge-factors should be in separate variables
     Customizer's precision (0.1, 0.01, etc) depends on the precision of the variable
+    
 */
 
 face_radius = 5.25;
@@ -32,12 +33,14 @@ left_button_cut = false;
 left_button_offset = 35;
 left_button_length = 42;
 
+//camera cutout is a rectangle with rounded corners
 camera_width = 20.5;
 camera_height = 9.0;
 camera_radius = 4.5;
 camera_from_side = 8.5;
 camera_from_top = 8.7;
-camera_clearance = 2.0;
+// extra gap around camera. 0.5 - 2.0 recommended
+camera_clearance = 1.0;
 
 //for irregular shapes like Galaxy S9+
 camera_cut_2 = false;
@@ -566,7 +569,7 @@ module usb_cut(){
 module right_button_cut(){
     if(right_button_cut) {
         color("red", 0.2)
-        translate( [ face_width/2+buttons_flat, 
+        translate( [ face_width/2+buttons_flat+1.4, 
         face_length/2 - right_button_offset - right_button_length + buttons_fillet - buttons_clearance/2, -body_thickness/2 ] )
         rotate([0,-90,0]) {
             minkowski() {
@@ -599,7 +602,7 @@ module left_button_cut(){
             }
             
             //corner of the cutout was snagging clothing
-            translate ([body_thickness+1, right_button_length - buttons_fillet + buttons_clearance, 1]) 
+            translate ([body_thickness+1, left_button_length - buttons_fillet + buttons_clearance, 1]) 
             rotate([0,0,45])
             cube([10,5,10], center=true);
             
@@ -632,7 +635,7 @@ module camera_cut(){
     }
 }
 
-//color("blue", 0.2) camera_cut();
+//color("red", 0.2) extra_camera_cut();
 module extra_camera_cut(){
     if (camera_cut_2) {
         camera_radius_clearanced = camera_radius+camera_clearance;
@@ -713,11 +716,17 @@ module top_headphone_cut(){
             }
         } else {
             color("red", 0.2)
-            translate( [ -face_width/2+headphone_from_left_edge+1.7, face_length/2, 0 ] )
-            hull(){
-                cylinder( 20, hole_size, hole_size, true);
-                translate ([0,3.5,0]) 
+            translate( [ -face_width/2+headphone_from_left_edge+1.7, face_length/2, 0 ] ) {
+                hull(){
                     cylinder( 20, hole_size, hole_size, true);
+                    translate ([0,3.5,0]) 
+                        cylinder( 20, hole_size, hole_size, true);
+                }
+                
+                //anti snag bevel
+                translate([0,0,6])
+                rotate([0,45,0])
+                cube([8,8,8], center=true);
             }
         }
     }
