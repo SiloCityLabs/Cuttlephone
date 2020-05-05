@@ -718,7 +718,7 @@ U 1 1 5CE36F95
 P 9300 900
 F 0 "SW3" H 9300 1185 50  0000 C CNN
 F 1 "Up" H 9300 1094 50  0000 C CNN
-F 2 "button-contacts:Large_tapered" H 9300 1100 50  0001 C CNN
+F 2 "button-contacts:Dpad_Large_tapered" H 9300 1100 50  0001 C CNN
 F 3 "~" H 9300 1100 50  0001 C CNN
 	1    9300 900 
 	1    0    0    -1  
@@ -729,7 +729,7 @@ U 1 1 5CE3B249
 P 9300 1400
 F 0 "SW4" H 9300 1685 50  0000 C CNN
 F 1 "Down" H 9300 1594 50  0000 C CNN
-F 2 "button-contacts:Large_tapered" H 9300 1600 50  0001 C CNN
+F 2 "button-contacts:Dpad_Large_tapered" H 9300 1600 50  0001 C CNN
 F 3 "~" H 9300 1600 50  0001 C CNN
 	1    9300 1400
 	1    0    0    -1  
@@ -740,7 +740,7 @@ U 1 1 5CE355F4
 P 10150 1400
 F 0 "SW2" H 10150 1685 50  0000 C CNN
 F 1 "Right" H 10150 1594 50  0000 C CNN
-F 2 "button-contacts:Large_tapered" H 10150 1600 50  0001 C CNN
+F 2 "button-contacts:Dpad_Large_tapered" H 10150 1600 50  0001 C CNN
 F 3 "~" H 10150 1600 50  0001 C CNN
 	1    10150 1400
 	1    0    0    -1  
@@ -796,7 +796,7 @@ U 1 1 5E9D17DF
 P 8450 1400
 F 0 "SW13" H 8450 1685 50  0000 C CNN
 F 1 "Left" H 8450 1594 50  0000 C CNN
-F 2 "button-contacts:Large_tapered" H 8450 1600 50  0001 C CNN
+F 2 "button-contacts:Dpad_Large_tapered" H 8450 1600 50  0001 C CNN
 F 3 "~" H 8450 1600 50  0001 C CNN
 	1    8450 1400
 	1    0    0    -1  

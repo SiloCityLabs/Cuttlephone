@@ -1,0 +1,25 @@
+(module Dpad_Large_tapered (layer F.Cu) (tedit 5EB0C5C0)
+  (attr smd)
+  (fp_text reference REF** (at -0.127 -3.429) (layer F.SilkS)
+    (effects (font (size 1 1) (thickness 0.15)))
+  )
+  (fp_text value Dpad_Large_tapered (at 0 7.62) (layer F.Fab)
+    (effects (font (size 1 1) (thickness 0.15)))
+  )
+  (pad 1 connect custom (at 2.54 2.54) (size 0.3 0.3) (layers F.Cu F.Mask)
+    (zone_connect 0)
+    (options (clearance outline) (anchor rect))
+    (primitives
+      (gr_poly (pts
+         (xy -0.04 -5.04) (xy -2.29 -5.04) (xy -2.29 3.96) (xy -1.54 3.96) (xy -0.04 -0.04)
+) (width 0.1))
+    ))
+  (pad 2 connect custom (at -2.54 -2.54) (size 0.3 0.3) (layers F.Cu F.Mask)
+    (zone_connect 0)
+    (options (clearance outline) (anchor rect))
+    (primitives
+      (gr_poly (pts
+         (xy 0.04 0.04) (xy 2.29 0.04) (xy 2.29 9.04) (xy 1.54 9.04) (xy 0.04 5.04)
+) (width 0.1))
+    ))
+)
