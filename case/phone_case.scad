@@ -26,10 +26,10 @@ extra_lip = true;
 //this should be a multiple of nozzle diameter
 shell_thickness = 1.2;
 
-right_button_cut = true;
+right_button = true;
 right_button_offset = 31;
 right_button_length = 42;
-left_button_cut = false;
+left_button = true;
 left_button_offset = 35;
 left_button_length = 42;
 
@@ -567,7 +567,7 @@ module usb_cut(){
 
 //right_button_cut=true; right_button_cut();
 module right_button_cut(){
-    if(right_button_cut) {
+    if(right_button) {
         color("red", 0.2)
         translate( [ face_width/2+buttons_flat+1.4, 
         face_length/2 - right_button_offset - right_button_length + buttons_fillet - buttons_clearance/2, -body_thickness/2 ] )
@@ -580,20 +580,24 @@ module right_button_cut(){
             //corner of the cutout was snagging clothing
             translate ([body_thickness+1, right_button_length - buttons_fillet + buttons_clearance, 1]) 
             rotate([0,0,45])
-            cube([10,5,10], center=true);
+            cube([10,5,15], center=true);
             
             translate ([body_thickness+1, -buttons_fillet, 1]) 
             rotate([0,0,-45])
-            cube([10,5,10], center=true);
+            cube([10,5,15], center=true);
+            
+            translate ([body_thickness+1, right_button_length/2 + buttons_fillet/2, 1]) 
+            rotate([0,0,90])
+            cube([right_button_length+buttons_clearance,5,15], center=true);
         }
     }
 }
 
 //left_button_cut=true; left_button_cut();
 module left_button_cut(){
-    if(left_button_cut){
+    if(left_button){
         color("red", 0.2)
-        translate( [ -face_width/2+buttons_flat,
+        translate( [ -face_width/2+buttons_flat-4.5, //match this offset, it's cus the cube isn't centered)
         face_length/2 - left_button_offset - left_button_length + buttons_fillet - buttons_clearance/2, -body_thickness/2 ] )
         rotate([0,-90,0]) {
             minkowski() {
@@ -604,11 +608,15 @@ module left_button_cut(){
             //corner of the cutout was snagging clothing
             translate ([body_thickness+1, left_button_length - buttons_fillet + buttons_clearance, 1]) 
             rotate([0,0,45])
-            cube([10,5,10], center=true);
+            cube([10,5,15], center=true);
             
             translate ([body_thickness+1, -buttons_fillet, 1]) 
             rotate([0,0,-45])
-            cube([10,5,10], center=true);
+            cube([10,5,15], center=true);
+            
+            translate ([body_thickness+1, left_button_length/2 + buttons_fillet/2 , 1]) 
+            rotate([0,0,90])
+            cube([left_button_length+buttons_clearance,5,15], center=true);
         }
     }
 }
