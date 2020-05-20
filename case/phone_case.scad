@@ -166,16 +166,6 @@ module junglecat_rails(){
     }
 }
 
-//body_test();
-/*
-    sanity-checking radius math. 
-    body() should be the same size as this but with radiused corners
-*/
-module body_test(){
-    color("blue", 0.2)
-    cube([face_width,face_length,body_thickness],center=true);
-}
-
 //body();
 module body(){
     color("orange", 0.2)
@@ -242,7 +232,8 @@ module shell_profile(){
         union(){
             sphere(shell_radius);
             if (extra_lip) {
-                cylinder(h=shell_radius+lip_length, r1=shell_radius, r2=shell_radius/2, center=false);
+                //TODO: make this thickness adjustable and consistent thickness between phone models
+                cylinder(h=shell_radius+lip_length, r1=shell_radius, r2=shell_radius/1.7, center=false);
             }
         }
         translate ([0, 0, -body_thickness/2+body_radius])
