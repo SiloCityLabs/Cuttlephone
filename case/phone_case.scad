@@ -584,7 +584,7 @@ module right_button_cut(){
     }
 }
 
-//left_button_cut=true; left_button_cut();
+//left_button=true; left_button_cut();
 module left_button_cut(){
     if(left_button){
         color("red", 0.2)
