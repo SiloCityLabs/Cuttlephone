@@ -541,7 +541,7 @@ module lanyard_cut(){
 //usb_cut();
 module usb_cut(){
     charge_port_height = 10;
-    charge_port_width = bottom_speakers ? face_width*0.6 : 8;
+    charge_port_width = bottom_speakers ? face_width*0.55 : 8;
     color("red", 0.2)
     translate( [0, -face_length/2 - 2, 2] )
     rotate( [90, 0, 0] )
@@ -687,7 +687,7 @@ module fingerprint_cut(){
 //color("red", 0.2) mic_cut();
 module mic_cut(){
     //can this be improved?
-    hole_size = 2;
+    hole_size = 3;
     if (mic_notch_top) {
         if (case_type=="joycon") {
             translate( [ face_width/2-mic_from_right_edge, face_length/2, -2 ] )
@@ -698,16 +698,9 @@ module mic_cut(){
                     cylinder( 20, hole_size, hole_size, true);
             }
         } else {
-            translate( [ face_width/2-mic_from_right_edge, face_length/2, 0 ] ) {
-                hull(){
-                    cylinder( 20, hole_size, hole_size, true);
-                    translate ([0,3.5,0]) 
-                        cylinder( 20, hole_size, hole_size, true);
-                }
-                translate([0,0,6])
-                rotate([0,45,0])
-                cube([6,6,6], center=true);
-            }
+            translate( [ face_width/2-mic_from_right_edge, face_length/2, 0 ] )
+            rotate([90,0,0])
+            cylinder( 20, hole_size, hole_size, true);
         }
     }
 }
@@ -728,15 +721,17 @@ module top_headphone_cut(){
             }
         } else {
             color("red", 0.2)
-            translate( [ -face_width/2+headphone_from_left_edge+1.7, face_length/2, 0 ] ) {
+            //we measure from edge of phone to edge of the 3.5mm jack. Move an extra +1.7 to center
+            translate( [ -face_width/2+headphone_from_left_edge+1.7, face_length/2, 1 ] ) {
+                rotate([90,0,0])
                 hull(){
                     cylinder( 20, hole_size, hole_size, true);
-                    translate ([0,3.5,0]) 
+                    translate ([0,6,0])
                         cylinder( 20, hole_size, hole_size, true);
                 }
                 
                 //anti snag bevel
-                translate([0,0,6])
+                translate([0,0,5])
                 rotate([0,45,0])
                 cube([8,8,8], center=true);
             }
