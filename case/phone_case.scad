@@ -1,7 +1,7 @@
 // Gamepad phone case
 // Author: Maave
 
-$fn=30;
+$fn=25;
 
 /*  measurements from the phone
     all values in mm
@@ -65,6 +65,9 @@ case_type = "phone case"; // [phone case, gamepad, joycon]
 rail_support = "cutout"; // [cutout, none]
 //set this to your layer height
 rail_support_airgap = 0.20; //TODO: test and tweak. This may depend on layer height.
+
+//unsupported
+lanyard_loop = false;
 
 version_text = true;
 phone_model = "Pixel 3";
@@ -184,8 +187,6 @@ module body(){
 }
 //body_profile();
 module body_profile(){
-    //body_thickness
-    //body_radius
     hull(){
         translate ([0, 0, body_thickness/2-body_radius]) 
             sphere(body_radius);
@@ -204,10 +205,11 @@ module shell_cuts(){
     mic_cut();
     top_headphone_cut();
     screen_cut();
-    //top_cut();
+    lanyard_cut();
     version_info_emboss();
 }
 
+//phone_shell();
 module phone_shell(){
     minkowski() {
         //face shape
@@ -224,21 +226,17 @@ module phone_shell(){
         shell_profile();
     }
 }
+
 //shell_profile();
 module shell_profile(){
-        lip_length = 0.5;
-        hull(){
-        translate ([0, 0, body_thickness/2-body_radius]) 
-        union(){
-            sphere(shell_radius);
-            if (extra_lip) {
-                //TODO: make this thickness adjustable and consistent thickness between phone models
-                cylinder(h=shell_radius+lip_length, r1=shell_radius, r2=shell_radius/1.7, center=false);
-            }
-        }
+    lip_length = 0.5;
+    extra_lip_bonus = extra_lip ? 1 : 0;
+    hull(){
+        translate ([0, 0, body_thickness/2-body_radius+extra_lip_bonus])
+        sphere(shell_radius);
         translate ([0, 0, -body_thickness/2+body_radius])
         sphere(shell_radius);
-    }   
+    }
 }
 
 module gamepad_shell(){
@@ -514,21 +512,36 @@ module gamepad_trigger(){
 
 //color("red", 0.2) screen_cut();
 module screen_cut(){
-    translate([0,0,5]) 
-    minkowski() {
-        linear_extrude(height = 10, center = true) {
-            minkowski() {
-                square([screen_width-2*screen_radius, screen_length-2*screen_radius], true);
-                circle(screen_radius);
-            }
+   translate([0,0,body_thickness/2]) 
+   linear_extrude(height = 6, center = true) {
+        minkowski() {
+            //TODO: why is this -2?
+            square([screen_width-2*screen_radius, screen_length-2*screen_radius], true);
+            circle(screen_radius);
         }
+    }
+}
+
+//color("red", 0.2) lanyard_cut();
+module lanyard_cut(){
+    //unsupported
+    if(lanyard_loop) {
+        /*  
+        //thick ring shaped extension
+        rotate([0,90,0])
+        translate([0,-face_length/2-3,face_width/4])
+        ring(8, body_thickness+shell_thickness*2, 7, 0.1 );
+        */
+        //ring cutout makes 2 slots for thin string lanyards
+        translate([face_width/3.5,-face_length/2,-body_thickness/3])
+        ring(body_thickness/2, 9, 6, 0.1 );
     }
 }
 
 //usb_cut();
 module usb_cut(){
     charge_port_height = 10;
-    charge_port_width = bottom_speakers ? face_width*0.6 : 9;
+    charge_port_width = bottom_speakers ? face_width*0.6 : 8;
     color("red", 0.2)
     translate( [0, -face_length/2 - 2, 2] )
     rotate( [90, 0, 0] )
@@ -731,13 +744,6 @@ module top_headphone_cut(){
     }
 }
 
-//top_cut();
-module top_cut(){
-    color("red", 0.2)
-    translate([0,0,7]) 
-    cube( [ 100, screen_length+200, 5 ], center=true );
-}
-
 //version_info_emboss();
 module version_info_emboss(){
     if(version_text) {
@@ -768,7 +774,13 @@ module prism(l, w, h){
            faces=[ [0,1,2,3],[5,4,3,2],[0,4,5,1],[0,3,4],[5,2,1] ]
     );
 }
-
+module ring(h=8, od = body_thickness+shell_thickness*2, id = 7, de = 0.1 ) {
+    difference() {
+        cylinder(h=h, r=od/2);
+        translate([0, 0, -de])
+            cylinder(h=h+2*de, r=id/2);
+    }
+}
 module copy_mirror(vec=[0,1,0]){
     children();
     mirror(vec) children();
