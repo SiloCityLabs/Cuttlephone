@@ -1,14 +1,16 @@
-// Gamepad phone case
-// Author: Maave
+/* Phone case + gamepad generator
+ * Designed to 3d print with PLA or PLA+, 0.4 nozzle, 0.2 layer height
+ * Author: Maave
+ */
 
+use <fonts/orbitron/orbitron-light.otf>
+include <BOSL2/std.scad> //installed to local OpenSCAD/libraries directory. Should I include this in repo?
 $fn=25;
 
 /*  measurements from the phone
-    all values in mm
-    clearances and fudge-factors should be in separate variables
-    Customizer's precision (0.1, 0.01, etc) depends on the precision of the variable
-    
-*/
+ *  all values are in mm
+ *  Customizer's precision (0.1, 0.01, etc) depends on the precision of the variable
+ */
 
 face_radius = 5.25;
 face_length = 145.5;
@@ -27,19 +29,20 @@ extra_lip = true;
 shell_thickness = 1.2;
 
 right_button = true;
-right_button_offset = 31;
+right_button_from_top = 31;
 right_button_length = 42;
 left_button = true;
-left_button_offset = 35;
+left_button_from_top = 35;
 left_button_length = 42;
 
 //camera cutout is a rectangle with rounded corners
+//get a circle by setting camera_radius to half of height and width
 camera_width = 20.5;
 camera_height = 9.0;
 camera_radius = 4.5;
 camera_from_side = 8.5;
 camera_from_top = 8.7;
-// extra gap around camera. 0.5 - 2.0 recommended
+// extra gap around camera. 0.5 - 1.0 recommended. 
 camera_clearance = 1.0;
 
 //for irregular shapes like Galaxy S9+
@@ -69,15 +72,17 @@ rail_support_airgap = 0.20; //TODO: test and tweak. This may depend on layer hei
 //unsupported
 lanyard_loop = false;
 
-version_text = true;
+emboss_version_text = true;
 phone_model = "Pixel 3";
-minor_version = "";
 
 module end_customizer_variables(){}
 
+/* Clearances, fudge factors, and gamepad vars
+ */
+
 // phone case / general variables
 buttons_fillet = 3;
-buttons_flat = 3;
+buttons_cut_thickness = 3;
 buttons_clearance = 10;
 shell_radius = body_radius + shell_thickness;
 
@@ -106,11 +111,10 @@ junglecat_lip_width = 2;
 junglecat_lip_thickness = 1;
 junglecat_depth = 2;
 
-//embossment. These variables come in via command line arguments
+//embossment text
 name = "Cuttlephone";
 author = "Maave";
-major_version = "v0.1 ";
-version = str(major_version, minor_version);
+version = "v0.1";
 
 if(case_type=="phone case") {
     phone_case();
@@ -511,15 +515,18 @@ module gamepad_trigger(){
 }
 
 //color("red", 0.2) screen_cut();
-module screen_cut(){
-   translate([0,0,body_thickness/2]) 
+module screen_cut(){   
+   //straight cut, quick
+   //height must be more than shell_thickness cus of the way corners cut
+   translate([0,0,body_thickness/2+shell_thickness/2])
    linear_extrude(height = 6, center = true) {
         minkowski() {
-            //TODO: why is this -2?
+            //TODO: why is this -2? That greatly affects how much the lip is gripping
             square([screen_width-2*screen_radius, screen_length-2*screen_radius], true);
             circle(screen_radius);
         }
     }
+    //TODO: round the inside. Use a bezier curve on a path. Try BOSL2 library
 }
 
 //color("red", 0.2) lanyard_cut();
@@ -541,7 +548,7 @@ module lanyard_cut(){
 //usb_cut();
 module usb_cut(){
     charge_port_height = 10;
-    charge_port_width = bottom_speakers ? face_width*0.55 : 8;
+    charge_port_width = bottom_speakers ? face_width*0.5 : 8;
     color("red", 0.2)
     translate( [0, -face_length/2 - 2, 2] )
     rotate( [90, 0, 0] )
@@ -572,60 +579,53 @@ module usb_cut(){
 //right_button_cut=true; right_button_cut();
 module right_button_cut(){
     if(right_button) {
-        color("red", 0.2)
-        translate( [ face_width/2+buttons_flat+1.4, 
-        face_length/2 - right_button_offset - right_button_length + buttons_fillet - buttons_clearance/2, -body_thickness/2 ] )
-        rotate([0,-90,0]) {
-            minkowski() {
-                cube([10, right_button_length - 2*buttons_fillet + buttons_clearance, buttons_flat],false);
-                sphere(r=buttons_fillet);
-            }
-            
-            //corner of the cutout was snagging clothing
-            translate ([body_thickness+1, right_button_length - buttons_fillet + buttons_clearance, 1]) 
-            rotate([0,0,45])
-            cube([10,5,15], center=true);
-            
-            translate ([body_thickness+1, -buttons_fillet, 1]) 
-            rotate([0,0,-45])
-            cube([10,5,15], center=true);
-            
-            translate ([body_thickness+1, right_button_length/2 + buttons_fillet/2, 1]) 
-            rotate([0,0,90])
-            cube([right_button_length+buttons_clearance,5,15], center=true);
-        }
+        button_cut(true, right_button_length, right_button_from_top);
     }
 }
 
 //left_button=true; left_button_cut();
 module left_button_cut(){
     if(left_button){
-        color("red", 0.2)
-        translate( [ -face_width/2+buttons_flat-4.5, //match this offset, it's cus the cube isn't centered)
-        face_length/2 - left_button_offset - left_button_length + buttons_fillet - buttons_clearance/2, -body_thickness/2 ] )
-        rotate([0,-90,0]) {
-            minkowski() {
-                cube([10, left_button_length - 2*buttons_fillet + buttons_clearance, buttons_flat],false);
-                sphere(r=buttons_fillet);
-            }
-            
-            //corner of the cutout was snagging clothing
-            translate ([body_thickness+1, left_button_length - buttons_fillet + buttons_clearance, 1]) 
-            rotate([0,0,45])
-            cube([10,5,15], center=true);
-            
-            translate ([body_thickness+1, -buttons_fillet, 1]) 
-            rotate([0,0,-45])
-            cube([10,5,15], center=true);
-            
-            translate ([body_thickness+1, left_button_length/2 + buttons_fillet/2 , 1]) 
-            rotate([0,0,90])
-            cube([left_button_length+buttons_clearance,5,15], center=true);
-        }
+        button_cut(false, left_button_length, right_button_from_top);
     }
 }
 
-//color("red", 0.2) camera_cut();
+module button_cut(left, button_length, button_offset){
+    left_or_right = left ? 1 : -1;
+    color("red", 0.2)
+    translate( [ left_or_right*(face_width/2+buttons_cut_thickness),
+    face_length/2 - button_offset - button_length/2 + buttons_fillet - buttons_clearance/2,
+    0 ] )
+    rotate([0,-90,0])
+    {
+        //cuts the radius part of the buttons
+        minkowski() {
+            cube([10, button_length - 2*buttons_fillet + buttons_clearance, buttons_cut_thickness],true);
+            sphere(r=buttons_fillet);
+        }
+        
+        //cuts the top edge
+        translate ([body_thickness/2, 0, 0]) 
+        rotate([0,0,90])
+        cube([button_length+buttons_clearance/2,5,15], center=true);
+        
+        //45-degree anti snag cut (toward top)
+        translate ([body_thickness/2, button_length/2 + buttons_fillet, 0]) 
+        rotate([0,0,45])
+        cube([15,5,15], center=true);
+        //(toward bottom)
+        translate ([body_thickness/2, -button_length/2-buttons_fillet, 0]) 
+        rotate([0,0,-45])
+        cube([15,5,15], center=true);
+        
+        //experimental corner rounter
+        //translate ([body_thickness+10, button_length/2 - buttons_fillet + buttons_clearance, 0]) 
+        //rotate([0,0,90])
+        //corner_rounder();
+    }
+}
+
+//camera_cut();
 module camera_cut(){
     camera_radius_clearanced = camera_radius+camera_clearance;
     color("red", 0.2)
@@ -647,7 +647,7 @@ module camera_cut(){
     }
 }
 
-//color("red", 0.2) extra_camera_cut();
+//extra_camera_cut();
 module extra_camera_cut(){
     if (camera_cut_2) {
         camera_radius_clearanced = camera_radius+camera_clearance;
@@ -687,7 +687,7 @@ module fingerprint_cut(){
 //color("red", 0.2) mic_cut();
 module mic_cut(){
     //can this be improved?
-    hole_size = 3;
+    hole_size = 2.5;
     if (mic_notch_top) {
         if (case_type=="joycon") {
             translate( [ face_width/2-mic_from_right_edge, face_length/2, -2 ] )
@@ -739,11 +739,28 @@ module top_headphone_cut(){
     }
 }
 
+//corner_rounder();
+module corner_rounder(){
+    round_radius = body_radius/2+shell_thickness;
+    color("red", 0.4)
+    difference(){
+        cube([10,10,round_radius*3], center=true);
+        translate([round_radius,round_radius,0])
+        hull(){
+            sphere(round_radius);
+            translate([round_radius*2,0,0])
+            sphere(round_radius);
+            translate([0,round_radius*2,0])
+            sphere(round_radius);
+        }
+    }
+}
+
 //version_info_emboss();
 module version_info_emboss(){
-    if(version_text) {
+    if(emboss_version_text) {
         //emboss_font = "Liberation Sans";
-        emboss_font = "Project Paintball"; //non-commercial
+        emboss_font = "Orbitron";
         font_size = 8;
         line_translate = 12;
         color("red")
@@ -760,8 +777,7 @@ module version_info_emboss(){
     }
 }
 
-/////////////////////
-// support functions
+/* support functions */
 
 module prism(l, w, h){
    polyhedron(
