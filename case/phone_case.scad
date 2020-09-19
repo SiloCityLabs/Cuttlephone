@@ -3,15 +3,20 @@
  * Author: Maave
  */
 
+$fn=20;
 use <fonts/orbitron/orbitron-light.otf>
-include <BOSL2/std.scad> //installed to local OpenSCAD/libraries directory. Should I include this in repo?
-$fn=25;
+//installed to local OpenSCAD/libraries directory. I should include these in the repo
+include <BOSL2/std.scad> 
+include <BOSL2/hull.scad>
 
 /*  measurements from the phone
  *  all values are in mm
  *  Customizer's precision (0.1, 0.01, etc) depends on the precision of the variable
  */
 
+
+//Is there a good way to measuring this on the phone? Print-out guide template?
+//rounding of the corners when viewed screen-up.
 face_radius = 5.25;
 face_length = 145.5;
 face_width = 70.1;
@@ -63,11 +68,11 @@ fingerprint = true;
 fingerprint_center_from_top = 36.5;
 fingerprint_diam = 13;
 
-case_type = "phone case"; // [phone case, gamepad, joycon]
+case_type = "phone case"; // [phone case, gamepad, joycon, junglecat]
 //joycon and junglecat rail requires support to print horizontally. "Cutout" support is designed to remove easily with a razor blade. "None" means you'll handle it yourself in your slicer.
 rail_support = "cutout"; // [cutout, none]
 //set this to your layer height
-rail_support_airgap = 0.20; //TODO: test and tweak. This may depend on layer height.
+support_airgap = 0.20; //TODO: test and tweak. This may depend on layer height.
 
 //unsupported
 lanyard_loop = false;
@@ -84,11 +89,11 @@ module end_customizer_variables(){}
 buttons_fillet = 3;
 buttons_cut_thickness = 3;
 buttons_clearance = 10;
-shell_radius = body_radius + shell_thickness;
 
 // gamepad variables
-gamepad_wing_length = 30; //max that will fit on my printer
+gamepad_wing_length = 35; //max that will fit on my printer
 gamepad_face_radius = 10;
+gamepad_shell_radius = 2;
 gamepad_peg_y_distance = 14;
 
 // joycon and junglecat shared variables
@@ -116,6 +121,8 @@ name = "Cuttlephone";
 author = "Maave";
 version = "v0.1";
 
+
+color("SeaGreen")
 if(case_type=="phone case") {
     phone_case();
 }
@@ -125,12 +132,11 @@ else if(case_type=="gamepad") {
 else if(case_type=="joycon") {
     joycon_rails();
 }
-else if(case_type=="junglecat rails") {
+else if(case_type=="junglecat") {
     junglecat_rails();
 }
 
 module phone_case(){
-    color("SeaGreen")
     difference(){
         phone_shell();
         body();
@@ -139,7 +145,6 @@ module phone_case(){
 }
 
 module gamepad(){
-    color("SeaGreen")
     difference(){
         gamepad_shell();
         body();
@@ -149,7 +154,21 @@ module gamepad(){
     
     gamepad_trigger();
     copy_mirror() gamepad_trigger();
-    gamepad_faceplates();
+    //gamepad_faceplates();
+}
+
+module shell_cuts(){
+    usb_cut();
+    right_button_cut();
+    left_button_cut();
+    camera_cut();
+    extra_camera_cut();
+    fingerprint_cut();
+    mic_cut();
+    top_headphone_cut();
+    screen_cut();
+    lanyard_cut();
+    version_info_emboss();
 }
 
 
@@ -177,119 +196,89 @@ module junglecat_rails(){
 module body(){
     color("orange", 0.2)
     minkowski() {
-        linear_extrude(height = 0.05, center = true) {
-            //face profile
-            minkowski() {
-                square( [face_width - 2*face_radius - 2*body_radius, 
-                face_length - 2*face_radius - 2*body_radius], true );
-                circle(face_radius);
-            }
-        }
-        // side profile
+        cube([ face_width - 2*face_radius, 
+            face_length - 2*face_radius, 
+            0.05 ], 
+            center=true
+        );
         body_profile();
     }
 }
 //body_profile();
 module body_profile(){
-    hull(){
-        translate ([0, 0, body_thickness/2-body_radius]) 
-            sphere(body_radius);
-        translate ([0, 0, -body_thickness/2+body_radius]) 
-            sphere(body_radius);
-    }   
-}
-
-module shell_cuts(){
-    usb_cut();
-    right_button_cut();
-    left_button_cut();
-    camera_cut();
-    extra_camera_cut();
-    fingerprint_cut();
-    mic_cut();
-    top_headphone_cut();
-    screen_cut();
-    lanyard_cut();
-    version_info_emboss();
+    cyl( 
+        l=body_thickness, 
+        r=face_radius,
+        rounding1=body_radius, 
+        rounding2=body_radius,
+        $fn=15
+    );
 }
 
 //phone_shell();
 module phone_shell(){
     minkowski() {
-        //face shape
-        linear_extrude(height = 0.05, center = true) {
-            minkowski() {
-                square(
-                    [ face_width + shell_thickness - 2*face_radius - 2*body_radius,
-                    face_length + shell_thickness - 2*face_radius - 2*body_radius ], 
-                    true);
-                circle(face_radius-0.25); //can't intersect with phone body
-            }
-        }
-        //edge shape and thickness
+        cube(
+            [ face_width - 2*face_radius,
+            face_length - 2*face_radius ,
+            0.05 ],
+            center=true
+        );
         shell_profile();
     }
 }
 
 //shell_profile();
 module shell_profile(){
-    lip_length = 0.5;
     extra_lip_bonus = extra_lip ? 1 : 0;
-    hull(){
-        translate ([0, 0, body_thickness/2-body_radius+extra_lip_bonus])
-        sphere(shell_radius);
-        translate ([0, 0, -body_thickness/2+body_radius])
-        sphere(shell_radius);
-    }
+    translate([0,0,extra_lip_bonus/2])
+    cyl( 
+        l=body_thickness + 2*shell_thickness + extra_lip_bonus, 
+        r=face_radius+shell_thickness,
+        rounding1=body_radius, 
+        rounding2=body_radius
+    );
 }
 
 module gamepad_shell(){
     minkowski() {
         //face shape
-        linear_extrude(height = 0.05, center = true) {
-            minkowski() {
-                square(
-                    [ face_width + shell_thickness - 2*gamepad_face_radius - 2*body_radius,
-                    face_length + gamepad_wing_length*2 + shell_thickness - 2*gamepad_face_radius - 2*body_radius ], 
-                    true);
-                circle(gamepad_face_radius-0.25); //can't intersect with phone body
-            }
-        }
+        cube(
+            [ face_width - 2*gamepad_face_radius,
+            face_length + gamepad_wing_length*2 - 2*gamepad_face_radius,
+            0.05 ], 
+            center=true);
         //edge shape and thickness
-        shell_profile();
+        cyl( 
+            l=body_thickness + 2*shell_thickness, 
+            r=gamepad_face_radius+shell_thickness,
+            rounding1=gamepad_shell_radius, 
+            rounding2=gamepad_shell_radius
+        );
     }
 }
 
 module joycon_shell(){
-    //sharper corners for joycon rail
-    rail_face_radius = 2;
-    
     translate([0,0,joycon_z_shift])
     minkowski() {
         //face shape
-        linear_extrude(height = 0.05, center = true) {
-            minkowski() {
-                square(
-                    [ face_width + shell_thickness - 2*rail_face_radius - 2*rail_shell_radius,
-                    face_length + shell_thickness + 2*joycon_depth + 2*joycon_lip_thickness - 2*rail_face_radius - 2*rail_shell_radius ],
-                    true);
-                circle(rail_face_radius);
-            }
-        }
+        cube(
+            [ face_width - 2*rail_face_radius,
+            face_length + 2*joycon_depth + 2*joycon_lip_thickness - 2*rail_face_radius,
+            0.05 ],
+            center=true);
         //edge shape and thickness
-        joycon_shell_profile();
-    }
-}
-module joycon_shell_profile(){
-    shell_radius = rail_shell_radius + shell_thickness;
-    hull(){
-        translate ([0, 0, joycon_thickness/2-rail_shell_radius]) 
-            sphere(shell_radius);
-        translate ([0, 0, -joycon_thickness/2+rail_shell_radius]) 
-            sphere(shell_radius);
+        cyl( 
+            l=joycon_thickness + 2*shell_thickness, 
+            r=rail_face_radius+shell_thickness,
+            rounding1=rail_shell_radius, 
+            rounding2=rail_shell_radius
+        );
     }
 }
 
+
+//TODO: tidy this up like the gamepad/joycon
 module junglecat_shell(){
     minkowski() {
         //face shape
@@ -303,17 +292,13 @@ module junglecat_shell(){
             }
         }
         //edge shape and thickness
-        junglecat_shell_profile();
+        cyl( 
+            l=body_thickness + 2*shell_thickness, 
+            r=rail_face_radius+shell_thickness,
+            rounding1=rail_shell_radius, 
+            rounding2=rail_shell_radius
+        );
     }
-}
-module junglecat_shell_profile(){
-        shell_radius = rail_shell_radius + shell_thickness;
-        hull(){
-        translate ([0, 0, body_thickness/2-rail_shell_radius]) 
-            sphere(shell_radius);
-        translate ([0, 0, -body_thickness/2+rail_shell_radius]) 
-            sphere(shell_radius);
-    }   
 }
 
 //junglecat_cuts();
@@ -327,12 +312,13 @@ module junglecat_cuts(){
             translate([0,-junglecat_depth/2-junglecat_lip_thickness/2,0]) {
                 if(rail_support=="cutout"){
                     //manual support inspired by Tokytome https://www.thingiverse.com/thing:2337833
+                    //TODO: replace with BOSL rect_tube()
                     difference(){
-                        cube([face_width+shell_thickness+1, junglecat_lip_thickness+1, junglecat_lip_width], center=true);
-                        cube([face_width+shell_thickness-rail_support_airgap, junglecat_lip_thickness+1.5, junglecat_lip_width-rail_support_airgap], center=true);
+                        cube([face_width+shell_thickness+1, junglecat_lip_thickness+2, junglecat_lip_width], center=true);
+                        cube([face_width+shell_thickness-support_airgap, junglecat_lip_thickness+1.5, junglecat_lip_width-support_airgap], center=true);
                     }
                 } else { //bring your own support
-                    cube([face_width+shell_thickness+1, junglecat_lip_thickness+1, junglecat_lip_width], center=true);
+                    cube([face_width+shell_thickness+1, junglecat_lip_thickness+2, junglecat_lip_width], center=true);
                 }
             }
         }
@@ -354,58 +340,107 @@ module joycon_cuts(){
                 //manual support inspired by Tokytome https://www.thingiverse.com/thing:2337833
                 if(rail_support=="cutout"){
                     //this adds a visible lip so you rip off the support and not the rail
-                    removal_aid = 8;
-                    difference(){
-                        cube([face_width+shell_thickness+1, joycon_lip_thickness+1, joycon_lip_width], center=true);
-                        cube([face_width-removal_aid, joycon_lip_thickness+1.5, joycon_lip_width-rail_support_airgap], center=true);
-                    }
+                    removal_aid = 4;
+                    rotate([90,0,0])
+                    rect_tube(
+                        size=[ face_width+5, joycon_lip_width+support_airgap],
+                        isize=[face_width+shell_thickness-removal_aid, joycon_lip_width], 
+                        h=joycon_depth,
+                        anchor=CENTER);
                 } else { //bring your own support
-                    cube([face_width+shell_thickness+1, joycon_lip_thickness+1, joycon_lip_width], center=true);
+                    cube([face_width+shell_thickness+1, joycon_lip_thickness+2, joycon_lip_width], center=true);
                 }
             }
             //lock notch
-            translate([face_width/2-lock_notch_depth/2-lock_notch_offset, -joycon_depth/2-joycon_lip_thickness/2, -joycon_lip_width/2-lock_notch_depth/2])
-            cube([lock_notch_width, joycon_lip_thickness+0.5, lock_notch_depth], center=true);
+            translate([
+                face_width/2-lock_notch_depth/2-lock_notch_offset, 
+                -joycon_depth/2-joycon_lip_thickness/2, 
+                -joycon_lip_width/2-lock_notch_depth/2
+            ])
+            cube([
+                lock_notch_width, 
+                joycon_lip_thickness+0.5, 
+                lock_notch_depth], 
+                center=true
+            );
         }
     }
 }
 
-gamepad_cut_radius = gamepad_face_radius;
-gamepad_cutout_translate = face_length/2+gamepad_wing_length/2-1;
+gamepad_cutout_translate = -face_length/2-gamepad_wing_length/2;
 //gamepad_cuts();
 //gamepad_hole();
 module gamepad_hole(){
-    //TOOD: cylinder-minkowski clips through sphere-minkowski
-    radius_buffer = 2;
-    translate([0,-gamepad_cutout_translate,-body_thickness/2+shell_thickness +2])
-    minkowski() {
-        cube( 
-            [face_width - 2*gamepad_cut_radius - radius_buffer,
-            gamepad_wing_length - 2*gamepad_cut_radius - shell_thickness - radius_buffer,
-            body_thickness/2],
-            center=true
-        );
-        cylinder(
-            h=body_thickness/2+shell_thickness, 
-            r=gamepad_cut_radius,
-            center=false
-        );
-    }
+    gamepad_cut_radius = gamepad_face_radius/1.3;
+    extra_height = 5;
+    length_buffer = 2;
+    width_buffer = 2;
+    translate([
+        0,
+        gamepad_cutout_translate,
+        extra_height/2
+    ])
+    prismoid(
+        size1=[face_width-width_buffer, gamepad_wing_length-length_buffer], 
+        size2=[face_width-width_buffer, gamepad_wing_length-length_buffer], 
+        h=body_thickness+extra_height,
+        rounding=gamepad_cut_radius,
+        anchor=CENTER,
+        $fn=15
+    );
 }
+
+trigger_rounding = 1;
+//gamepad_trigger();
+module gamepad_trigger(){
+    trigger_width = 20;
+    trigger_stickout = 2.5;
+    translate([
+        face_width/2+shell_thickness,
+        gamepad_cutout_translate+2,
+        0
+    ])
+    rotate([0,90,0])
+    prismoid( 
+        size1=[body_thickness/1.2-support_airgap*2, trigger_width], 
+        size2=[body_thickness/1.2-4, trigger_width-3], 
+        rounding=trigger_rounding, 
+        h=trigger_stickout,
+        anchor=BOTTOM+CENTER,
+        $fn=8
+    );
+}
+//gamepad_trigger_cut();
 module gamepad_trigger_cut() {
-        gamepad_trigger();
+    trigger_width = 40;
+    color("red", 0.2)
+    translate([
+        face_width/2,
+        gamepad_cutout_translate-7,
+        0
+    ])
+    rotate([0,90,0])
+    rect_tube( 
+        size=[ body_thickness/1.2, trigger_width],
+        wall=support_airgap,
+        h=body_thickness*2,
+        rounding=trigger_rounding,
+        irounding=trigger_rounding,
+        anchor=CENTER);
 }
+//gamepad_ffc_cut();
 module gamepad_ffc_cut(){
-    ffc_height = 4;
-    ffc_width = 5;
-    translate( [-12, -face_length/2 - 2, -body_thickness/2+ffc_height/2] )
+    //
+    ffc_radius = 3;
+    ffc_cut_length = 8;
+    ffc_off_center = -12;
+    translate([
+        ffc_off_center, 
+        -face_length/2 , 
+        -body_thickness/2
+    ])
     rotate( [90, 0, 0] )
-    hull(){
-        translate ([ffc_width/2, 0]) 
-            cylinder( 10, ffc_height/2, ffc_height/2, true);
-        translate ([-ffc_width/2, 0]) 
-            cylinder( 10, ffc_height/2, ffc_height/2, true);
-    }
+    pie_slice(ang=180, l=ffc_cut_length, r=ffc_radius, center=true);
 }
 module gamepad_cuts(){
     copy_mirror() {
@@ -417,7 +452,7 @@ module gamepad_cuts(){
 module gamepad_faceplates(){
     //color("red", 0.2) peg_cuts();
     module peg_cuts() {
-        translate([0,-gamepad_cutout_translate,-body_thickness/2+shell_thickness +2]) {
+        translate([0,gamepad_cutout_translate,-body_thickness/2+shell_thickness +2]) {
             cube( 
                 [face_width +10,
                 gamepad_peg_y_distance,
@@ -437,7 +472,7 @@ module gamepad_faceplates(){
         gamepad_button_diam = 7; //snes=10.5
         //center of A to center of B
         gamepad_button_offset = 13; //should I make this edge-to-edge for easier caliper measuring?
-        translate([10, -gamepad_cutout_translate, -body_thickness/2+shell_thickness +2])
+        translate([10, gamepad_cutout_translate, -body_thickness/2+shell_thickness +2])
         rotate([0,0,45])
         copy_mirror([0,1,0]) {
             copy_mirror([1,0,0]) {
@@ -450,7 +485,7 @@ module gamepad_faceplates(){
     module dpad_hole(){
         dpad_width = 25.4;
         dpad_thickness = 9.6;
-        translate([10, -gamepad_cutout_translate, -body_thickness/2+shell_thickness +10]) {
+        translate([10, gamepad_cutout_translate, -body_thickness/2+shell_thickness +10]) {
             cube([dpad_width,dpad_thickness,20],center=true);
             rotate([0,0,90])
             cube([dpad_width,dpad_thickness,20],center=true);
@@ -460,7 +495,7 @@ module gamepad_faceplates(){
     module start_select_hole(){
         start_select_length = 7; //not actually length, arbitrary number
         start_select_radius = 1.5;
-        translate([-20, -gamepad_cutout_translate+5, -body_thickness/2+shell_thickness +5])
+        translate([-20, gamepad_cutout_translate+5, -body_thickness/2+shell_thickness +5])
         rotate([0,0,90])
         hull(){
             cylinder( 20, start_select_radius, start_select_radius, true);
@@ -488,36 +523,11 @@ module gamepad_faceplates(){
     }
 }
 
-//gamepad_trigger();
-// awful. Too many hardcoded numbers. I don't have a good vision of how this should work
-module gamepad_trigger(){
-    pin_length = 2 + gamepad_peg_y_distance;
-    //translate([5,0,-10])
-    translate( [ face_width/2-11,
-    -gamepad_cutout_translate,
-    -body_thickness/2+shell_thickness +1 ] ) {
-        //pivot pin
-        rotate([-90,0,0])
-        translate([9,-4,0])
-        cylinder(h=pin_length,r=1, center=true);
-        //trigger face
-        translate([8.5,0,0])
-        cube(size=[3,gamepad_peg_y_distance,10], center=true);
-        //the part that presses the silicone
-        translate([2,0,-2])
-        cube(size=[12,gamepad_peg_y_distance/2,2], center=true);
-        //angle keep the trigger in
-        rotate([-180,0,90])
-        translate([-3.5,-9,1])
-        prism(gamepad_peg_y_distance/2, 5, 2);
-
-    }
-}
-
-//color("red", 0.2) screen_cut();
+//screen_cut();
 module screen_cut(){   
    //straight cut, quick
    //height must be more than shell_thickness cus of the way corners cut
+   color("red", 0.2)
    translate([0,0,body_thickness/2+shell_thickness/2])
    linear_extrude(height = 6, center = true) {
         minkowski() {
@@ -532,23 +542,25 @@ module screen_cut(){
 //color("red", 0.2) lanyard_cut();
 module lanyard_cut(){
     //unsupported
-    if(lanyard_loop) {
-        /*  
-        //thick ring shaped extension
-        rotate([0,90,0])
-        translate([0,-face_length/2-3,face_width/4])
-        ring(8, body_thickness+shell_thickness*2, 7, 0.1 );
-        */
-        //ring cutout makes 2 slots for thin string lanyards
-        translate([face_width/3.5,-face_length/2,-body_thickness/3])
-        ring(body_thickness/2, 9, 6, 0.1 );
-    }
+    /*  
+    //thick ring shaped extension
+    if(lanyard_loop)
+    color("red", 0.2) 
+    rotate([0,90,0])
+    translate([0,-face_length/2-3,face_width/4])
+    ring(8, body_thickness+shell_thickness*2, 7, 0.1 );
+    */
+    //ring cutout makes 2 slots for thin string lanyards
+    if(lanyard_loop)
+    color("red", 0.2) 
+    translate([face_width/3.5,-face_length/2,-body_thickness/3])
+    ring(body_thickness/2, 9, 6, 0.1 );
 }
 
 //usb_cut();
 module usb_cut(){
     charge_port_height = 10;
-    charge_port_width = bottom_speakers ? face_width*0.5 : 8;
+    charge_port_width = (bottom_speakers || case_type=="gamepad") ? face_width*0.5 : 8;
     color("red", 0.2)
     translate( [0, -face_length/2 - 2, 2] )
     rotate( [90, 0, 0] )
@@ -628,81 +640,81 @@ module button_cut(left, button_length, button_offset){
 //camera_cut();
 module camera_cut(){
     camera_radius_clearanced = camera_radius+camera_clearance;
+    height = 5;
+    angle = 8; //just an offset. TODO: calculate this in degrees
     color("red", 0.2)
-    translate( [ face_width/2-camera_radius-camera_from_side,
-    face_length/2-camera_radius-camera_from_top,
-    -body_thickness-shell_thickness+0.5] )
-    hull(){
-        //top left
-        cylinder( 10.1, camera_radius_clearanced*2, camera_radius_clearanced, true);
-        //top right
-        translate ([-camera_width+camera_radius,0,0]) 
-            cylinder( 10.1, camera_radius_clearanced*2, camera_radius_clearanced, true);
-        //bottom left
-        translate ([0,-camera_height+2*camera_radius,0]) 
-            cylinder( 10.1, camera_radius_clearanced*2, camera_radius_clearanced, true);
-        //bottom right
-        translate ([-camera_width+camera_radius,-camera_height+2*camera_radius,0]) 
-            cylinder( 10.1, camera_radius_clearanced*2, camera_radius_clearanced, true);
-    }
+    down(body_thickness/2)
+    back(face_length/2-camera_from_top+camera_clearance)
+    right(face_width/2-camera_from_side+camera_clearance)
+    prismoid(
+        size1=[camera_width+camera_clearance*2+angle, camera_height+camera_clearance*2+angle], 
+        size2=[camera_width+camera_clearance*2, camera_height+camera_clearance*2], 
+        h=height,
+        rounding=camera_radius_clearanced,
+        anchor=ALLPOS
+    );
 }
 
 //extra_camera_cut();
 module extra_camera_cut(){
-    if (camera_cut_2) {
-        camera_radius_clearanced = camera_radius+camera_clearance;
-        color("red", 0.2)
-        translate( [ face_width/2-camera_radius-camera_from_side_2,
-        face_length/2-camera_radius-camera_from_top_2,
-        -body_thickness-shell_thickness+0.5] )
-        hull(){
-            //top left
-            cylinder( 10.1, camera_radius_clearanced*2, camera_radius_clearanced, true);
-            //top right
-            translate ([-camera_width_2+camera_radius,0,0]) 
-                cylinder( 10.1, camera_radius_clearanced*2, camera_radius_clearanced, true);
-            //bottom left
-            translate ([0,-camera_height_2+2*camera_radius,0]) 
-                cylinder( 10.1, camera_radius_clearanced*2, camera_radius_clearanced, true);
-            //bottom right
-            translate ([-camera_width_2+camera_radius,-camera_height_2+2*camera_radius,0]) 
-                cylinder( 10.1, camera_radius_clearanced*2, camera_radius_clearanced, true);
-        }
-    }
+    camera_radius_clearanced = camera_radius+camera_clearance;
+    height = 5;
+    angle=8;
+    if(camera_cut_2)
+    color("red", 0.2)
+    //viewed from above, this  object is anchored to the top-right and translated to the top-right of the phone
+    translate([
+        face_width/2-camera_from_side_2+camera_clearance,
+        face_length/2-camera_from_top_2+camera_clearance,
+        -body_thickness/2
+    ])
+    prismoid(
+        size1=[camera_width_2+camera_clearance*2+angle, camera_height_2+camera_clearance*2+angle], 
+        size2=[camera_width_2+camera_clearance*2, camera_height_2+camera_clearance*2], 
+        h=height,
+        rounding=camera_radius_clearanced,
+        anchor=ALLPOS
+    );
 }
 
 
 
 //fingerprint_cut();
 module fingerprint_cut(){
-    if (fingerprint){
-        fingerprint_radius = fingerprint_diam/2;
-        fingerprint_cut_height = 6; //TODO: calculate this
-        color("red", 0.2)
-        translate( [ 0, face_length/2-fingerprint_center_from_top, -body_thickness/2-fingerprint_cut_height/2 ] )
-        cylinder( fingerprint_cut_height, fingerprint_radius*2, fingerprint_radius, true);
-    }
+    fingerprint_radius = fingerprint_diam/2;
+    fingerprint_cut_height = 6; //TODO: calculate this
+    if (fingerprint)
+    color("red", 0.2)
+    translate([ 
+        0, 
+        face_length/2-fingerprint_center_from_top, 
+        -body_thickness/2-fingerprint_cut_height/2 
+    ])
+    cylinder( fingerprint_cut_height, fingerprint_radius*2, fingerprint_radius, true);
 }
 
-//color("red", 0.2) mic_cut();
+//mic_cut();
 module mic_cut(){
     //can this be improved?
     hole_size = 2.5;
-    if (mic_notch_top) {
-        if (case_type=="joycon") {
-            translate( [ face_width/2-mic_from_right_edge, face_length/2, -2 ] )
-            rotate([90,0,0])
-            hull(){
-                cylinder( 20, hole_size, hole_size, true);
-                translate ([0,6,0]) 
-                    cylinder( 20, hole_size, hole_size, true);
-            }
-        } else {
-            translate( [ face_width/2-mic_from_right_edge, face_length/2, 0 ] )
-            rotate([90,0,0])
+    if (mic_notch_top) 
+    color("red", 0.2)
+    if (case_type=="joycon") {
+        //this cuts upward
+        translate( [ face_width/2-mic_from_right_edge, face_length/2, -2 ] )
+        rotate([90,0,0])
+        hull(){
             cylinder( 20, hole_size, hole_size, true);
+            translate ([0,6,0]) 
+                cylinder( 20, hole_size, hole_size, true);
         }
+    } else {
+        //simple hole
+        translate( [ face_width/2-mic_from_right_edge, face_length/2, 0 ] )
+        rotate([90,0,0])
+        cylinder( 20, hole_size, hole_size, true);
     }
+    
 }
 
 //top_headphone_cut();
@@ -759,7 +771,6 @@ module corner_rounder(){
 //version_info_emboss();
 module version_info_emboss(){
     if(emboss_version_text) {
-        //emboss_font = "Liberation Sans";
         emboss_font = "Orbitron";
         font_size = 8;
         line_translate = 12;
@@ -779,6 +790,7 @@ module version_info_emboss(){
 
 /* support functions */
 
+//replace with bosl?
 module prism(l, w, h){
    polyhedron(
            points=[ [0,0,0], [l,0,0], [l,w,0], [0,w,0], [0,w,h], [l,w,h] ],

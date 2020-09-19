@@ -395,7 +395,7 @@
   )
 
   (module molex_5051100592:5051100592 (layer B.Cu) (tedit 5EAF6972) (tstamp 5E93D7DE)
-    (at 175.946 101.216 180)
+    (at 176.151 101.2 180)
     (descr 5051100592-3)
     (tags Connector)
     (path /5F28DB4F)
@@ -457,7 +457,7 @@
   )
 
   (module molex_5051100592:5051100592 (layer B.Cu) (tedit 5EAF6972) (tstamp 5E93D790)
-    (at 148.2594 101.5462 180)
+    (at 148.463 101.5462 180)
     (descr 5051100592-3)
     (tags Connector)
     (path /5DA62D9E)
