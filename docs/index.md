@@ -1,37 +1,46 @@
-## Welcome to GitHub Pages
+# Cuttlephone
+Cuttlephone is a USB-C gamepad for smartphones. The shell of the gamepad is 3d printed so that the electronics can be used on multiple phones. 3d print a new shell when you buy a new phone.
 
-You can use the [editor on GitHub](https://github.com/SiloCityLabs/Cuttlephone/edit/master/docs/index.md) to maintain and preview the content for your website in Markdown files.
+# Status
+A prototype (0.x) is currently in development. You can follow progress here:
+ - [HackADay.io project log](https://hackaday.io/project/165606-cuttlephone-gamepad-phone-case)
+ - [SiloCityLabs project blog / newsletter](https://silocitylabs.com/categories/projects/)
+ - [SiloCityLabs Twitter](https://twitter.com/silocitylabs)
+ - Coming soon: "Cuttlephone" blog category so you can subscribe to only gamepad updates without the side projects
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+[![](https://user-images.githubusercontent.com/1850819/73496293-3f021080-4386-11ea-9fc7-d2fafe343bc1.png)](https://hackaday.io/project/165606-cuttlephone-gamepad-phone-case)
 
-### Markdown
+# To-do
+ - Finish prototype (write firmware, assemble PCB, 3D print case)
+ - Demo and test prototype with friends
+ - Post on a community like SudoMod or BitBuilt
+ - Brainstorm v2 with the community
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+# How it works
+The heart is an ATmega32u4 which has built in USB support. The firmware will use the [LUFA library](https://github.com/abcminiuser/lufa) to implement a USB HID gamepad. The case is 3d printed to fit my phone and will use buttons from a donor controller / replacement parts. The two halves of the controller connect with a 0.5mm pitch FFC.
 
-```markdown
-Syntax highlighted code block
+# How can I help?
+Stick around until the prototype is finished! Follow the project with the links above. I'm open to suggestions.
 
-# Header 1
-## Header 2
-### Header 3
+# Roadmap
 
-- Bulleted
-- List
+####  Prototype
+ - Be a functional gamepad that works with Android
+ - Cases for the team's personal phones
+ - Controls for 2D-era emulation: D-Pad, 4 face buttons, 2 shoulder buttons, Start/Select
+#### Public project
+ - Ensure it's pocket-portable, make it easy to carry on a daily basis
+ - Improve the button hardware, case design, etc based on testing
+ - Cases for other phones (community help need)
+ - Controls for 3D-era emulation: add 2 joysticks, 2 analog triggers, some kind of L3/R3
+#### Future goals
+ - Charging with the case attached
+ - 3.5mm headphone jack
+#### Stretch goals
+ - Analog face buttons for MGS1-3 compatibility
+ - PCB art
 
-1. Numbered
-2. List
 
-**Bold** and _Italic_ and `Code` text
 
-[Link](url) and ![Image](src)
-```
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/SiloCityLabs/Cuttlephone/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+Licensed under Creative Commons CC-BY-SA 4.0
