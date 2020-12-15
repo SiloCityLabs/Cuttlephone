@@ -5,15 +5,14 @@
 
 $fn=20;
 use <fonts/orbitron/orbitron-light.otf>
-//installed to local OpenSCAD/libraries directory. I should include these in the repo
+//TODO: include these in the repo
 include <BOSL2/std.scad> 
 include <BOSL2/hull.scad>
 
 /*  measurements from the phone
  *  all values are in mm
- *  Customizer's precision (0.1, 0.01, etc) depends on the precision of the variable
+ *  Customizer's UI precision (0.1, 0.01, etc) depends on the precision of the variable
  */
-
 
 //Is there a good way to measuring this on the phone? Print-out guide template?
 //rounding of the corners when viewed screen-up.
@@ -41,9 +40,9 @@ left_button_from_top = 35;
 left_button_length = 42;
 
 //camera cutout is a rectangle with rounded corners
-//get a circle by setting camera_radius to half of height and width
 camera_width = 20.5;
 camera_height = 9.0;
+//get a circle by setting camera_radius to half of height and width
 camera_radius = 4.5;
 camera_from_side = 8.5;
 camera_from_top = 8.7;
@@ -103,7 +102,7 @@ rail_face_radius = 2; //sharper corner for looks
 // joycon variables
 joycon_inner_width = 10.4;
 joycon_lip_width = 8.0;
-joycon_lip_thickness = 0.3; //should be a multiple of nozzle width
+joycon_lip_thickness = 0.4; //should be a multiple of nozzle width
 joycon_depth = 2.8;
 // shell is thickened to fit the joycon
 joycon_min_thickness = joycon_inner_width + 2*shell_thickness;
@@ -111,10 +110,11 @@ joycon_thickness = (body_thickness < joycon_min_thickness) ? joycon_min_thicknes
 joycon_z_shift = body_thickness-joycon_thickness+2*shell_thickness;
 
 //junglecat variables
-junglecat_inner_width = 6;
+junglecat_inner_width = 3.2;
 junglecat_lip_width = 2;
-junglecat_lip_thickness = 1;
-junglecat_depth = 2;
+junglecat_lip_thickness = 0.4; //should be a multiple of nozzle width
+junglecat_depth = 3.3;
+junglecat_dimple_from_top = 63.5;
 
 //embossment text
 name = "Cuttlephone";
@@ -282,15 +282,12 @@ module joycon_shell(){
 module junglecat_shell(){
     minkowski() {
         //face shape
-        linear_extrude(height = 0.05, center = true) {
-            minkowski() {
-                square(
-                    [ face_width + shell_thickness - 2*rail_face_radius - 2*rail_shell_radius,
-                    face_length + shell_thickness + 2*junglecat_depth + 2*junglecat_lip_thickness - 2*rail_face_radius - 2*rail_shell_radius ],
-                    true);
-                circle(rail_face_radius);
-            }
-        }
+        cube(
+            [ face_width - 2*rail_face_radius,
+            face_length + 2*junglecat_depth + 2*junglecat_lip_thickness - 2*rail_face_radius,
+            0.05 ],
+            center=true
+        );
         //edge shape and thickness
         cyl( 
             l=body_thickness + 2*shell_thickness, 
@@ -302,21 +299,41 @@ module junglecat_shell(){
 }
 
 //junglecat_cuts();
+junglecat_rail_length = 60.0; //there's a bevel that I'm not trying to model
 module junglecat_cuts(){
     copy_mirror() {
         color("red", 0.2)
         translate([0, -face_length/2-shell_thickness-junglecat_depth/2, 0]) {
+            //dimple
+            translate([face_width/2-junglecat_dimple_from_top,
+            -(shell_thickness+junglecat_lip_thickness),
+            0])
+            sphere(d=2.0);
             //inner cutout
-            cube([face_width+shell_thickness+2,junglecat_depth,junglecat_inner_width],center=true);
+            //junglecat_fudge = 0;
+            //junglecat_inner_chamfer = 0;
+            translate([(face_width-junglecat_rail_length)/2+shell_thickness,0,0])
+            rotate([0,90,0])
+            prismoid(
+                size1=[junglecat_inner_width, junglecat_depth], 
+                size2=[junglecat_inner_width, junglecat_depth], 
+                h=junglecat_rail_length,
+                chamfer=[0,0,0,0],
+                rounding=[0,junglecat_depth/2,junglecat_depth/2,0],
+                anchor=CENTER
+            );
             //lip cutout
-            translate([0,-junglecat_depth/2-junglecat_lip_thickness/2,0]) {
+            translate([(face_width-junglecat_rail_length)/2+shell_thickness/2,-junglecat_depth/2-junglecat_lip_thickness/2,0]) {
+                //manual support inspired by Tokytome https://www.thingiverse.com/thing:2337833
                 if(rail_support=="cutout"){
-                    //manual support inspired by Tokytome https://www.thingiverse.com/thing:2337833
-                    //TODO: replace with BOSL rect_tube()
-                    difference(){
-                        cube([face_width+shell_thickness+1, junglecat_lip_thickness+2, junglecat_lip_width], center=true);
-                        cube([face_width+shell_thickness-support_airgap, junglecat_lip_thickness+1.5, junglecat_lip_width-support_airgap], center=true);
-                    }
+                    //this adds a visible lip so you rip off the support and not the rail
+                    removal_aid = 4;
+                    rotate([90,0,0])
+                    rect_tube(
+                        size=[ junglecat_rail_length+shell_thickness, junglecat_lip_width+support_airgap],
+                        isize=[junglecat_rail_length, junglecat_lip_width], 
+                        h=junglecat_depth,
+                        anchor=CENTER);
                 } else { //bring your own support
                     cube([face_width+shell_thickness+1, junglecat_lip_thickness+2, junglecat_lip_width], center=true);
                 }
@@ -368,21 +385,21 @@ module joycon_cuts(){
 }
 
 gamepad_cutout_translate = -face_length/2-gamepad_wing_length/2;
+gamepad_length_buffer = 2;
+gamepad_width_buffer = 2;
 //gamepad_cuts();
 //gamepad_hole();
 module gamepad_hole(){
     gamepad_cut_radius = gamepad_face_radius/1.3;
     extra_height = 5;
-    length_buffer = 2;
-    width_buffer = 2;
     translate([
         0,
         gamepad_cutout_translate,
         extra_height/2
     ])
     prismoid(
-        size1=[face_width-width_buffer, gamepad_wing_length-length_buffer], 
-        size2=[face_width-width_buffer, gamepad_wing_length-length_buffer], 
+        size1=[face_width-gamepad_width_buffer, gamepad_wing_length-gamepad_length_buffer], 
+        size2=[face_width-gamepad_width_buffer, gamepad_wing_length-gamepad_length_buffer], 
         h=body_thickness+extra_height,
         rounding=gamepad_cut_radius,
         anchor=CENTER,
@@ -390,43 +407,80 @@ module gamepad_hole(){
     );
 }
 
+trigger_debug = true;
 trigger_rounding = 1;
-//gamepad_trigger();
+trigger_rounding2 = 4; //this affects the "peg" separating the triggers
+trigger_space = 2.5; //this affects the "peg" separating the triggers
+trigger_width = 10;
+trigger_height = 10;
+trigger_clearance = 0.5;
+trigger_rounding_profile = [trigger_rounding,0,0,trigger_rounding2];
+trigger_inside_lip = 2;
+min_trigger_inside_lip_thickness = 1.6; //should be multiple of layer height
+//translate([0,0,10]) gamepad_trigger();
 module gamepad_trigger(){
-    trigger_width = 20;
     trigger_stickout = 2.5;
+    //TODO: changig the height affects other sizes. Huh?
     translate([
         face_width/2+shell_thickness,
-        gamepad_cutout_translate+2,
-        0
+        gamepad_cutout_translate,
+        shell_thickness/2
     ])
     rotate([0,90,0])
-    prismoid( 
-        size1=[body_thickness/1.2-support_airgap*2, trigger_width], 
-        size2=[body_thickness/1.2-4, trigger_width-3], 
-        rounding=trigger_rounding, 
-        h=trigger_stickout,
-        anchor=BOTTOM+CENTER,
-        $fn=8
-    );
+    copy_mirror() 
+    translate([0,trigger_width/2+trigger_space/2,shell_thickness]) {
+        prismoid( 
+            size1=[body_thickness+shell_thickness, trigger_width], 
+            size2=[body_thickness-3, trigger_width-3], 
+            h=trigger_stickout,
+            rounding=trigger_rounding_profile, 
+            anchor=BOTTOM+CENTER,
+            $fn=10
+        );
+        
+        translate([0,0,-shell_thickness-gamepad_width_buffer]){
+            prismoid( 
+                size1=[body_thickness+shell_thickness, trigger_width],
+                size2=[body_thickness+shell_thickness, trigger_width],
+                h=shell_thickness+gamepad_width_buffer,
+                rounding=trigger_rounding_profile, 
+                anchor=BOTTOM+CENTER,
+                $fn=10
+            );
+            
+            
+            translate([0,0,-min_trigger_inside_lip_thickness])
+            prismoid( 
+                size1=[body_thickness+shell_thickness, trigger_width+trigger_inside_lip],
+                size2=[body_thickness+shell_thickness, trigger_width+trigger_inside_lip],
+                h=min_trigger_inside_lip_thickness,
+                rounding=trigger_rounding_profile, 
+                anchor=BOTTOM+CENTER,
+                $fn=10
+            );
+        }
+    }
 }
 //gamepad_trigger_cut();
 module gamepad_trigger_cut() {
-    trigger_width = 40;
+    gamepad_trigger(); //ensure it fits
+    //refactor this so the translations are easier to keep track of. Prob means changing anchor
     color("red", 0.2)
     translate([
         face_width/2,
-        gamepad_cutout_translate-7,
+        gamepad_cutout_translate,
         0
-    ])
+    ]) 
     rotate([0,90,0])
-    rect_tube( 
-        size=[ body_thickness/1.2, trigger_width],
-        wall=support_airgap,
+    copy_mirror() translate([body_thickness/2,trigger_width/2+trigger_space/2,])
+    prismoid( 
+        size1=[ body_thickness+shell_thickness+1, trigger_width+trigger_clearance],
+        size2=[ body_thickness+shell_thickness+1, trigger_width+trigger_clearance],
         h=body_thickness*2,
-        rounding=trigger_rounding,
-        irounding=trigger_rounding,
-        anchor=CENTER);
+        rounding=trigger_rounding_profile,
+        anchor=RIGHT+CENTER,
+        $fn=10
+    );
 }
 //gamepad_ffc_cut();
 module gamepad_ffc_cut(){
@@ -449,6 +503,7 @@ module gamepad_cuts(){
         gamepad_ffc_cut();
     }
 }
+//gamepad_faceplates();
 module gamepad_faceplates(){
     //color("red", 0.2) peg_cuts();
     module peg_cuts() {
@@ -560,6 +615,7 @@ module lanyard_cut(){
 //usb_cut();
 module usb_cut(){
     charge_port_height = 10;
+    //why'd I do this with the gamepad? It doesn't even cut flush with the bottom surface
     charge_port_width = (bottom_speakers || case_type=="gamepad") ? face_width*0.5 : 8;
     color("red", 0.2)
     translate( [0, -face_length/2 - 2, 2] )
