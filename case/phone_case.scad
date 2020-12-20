@@ -110,7 +110,7 @@ joycon_thickness = (body_thickness < joycon_min_thickness) ? joycon_min_thicknes
 joycon_z_shift = body_thickness-joycon_thickness+2*shell_thickness;
 
 //junglecat variables
-junglecat_inner_width = 3.2;
+junglecat_inner_width = 3.5;
 junglecat_lip_width = 2;
 junglecat_lip_thickness = 0.4; //should be a multiple of nozzle width
 junglecat_depth = 3.3;
@@ -323,8 +323,7 @@ module junglecat_cuts(){
                 anchor=CENTER
             );
             //lip cutout
-            translate([(face_width-junglecat_rail_length)/2+shell_thickness/2,-junglecat_depth/2-junglecat_lip_thickness/2,0]) {
-                //manual support inspired by Tokytome https://www.thingiverse.com/thing:2337833
+            translate([(face_width-junglecat_rail_length)/2+shell_thickness,-junglecat_depth/2-junglecat_lip_thickness/2,0]) {
                 if(rail_support=="cutout"){
                     //this adds a visible lip so you rip off the support and not the rail
                     removal_aid = 4;
@@ -354,7 +353,6 @@ module joycon_cuts(){
             cube([face_width+shell_thickness+2,joycon_depth,joycon_inner_width],center=true);
             //lip cutout
             translate([0,-joycon_depth/2-joycon_lip_thickness/2,0]) {
-                //manual support inspired by Tokytome https://www.thingiverse.com/thing:2337833
                 if(rail_support=="cutout"){
                     //this adds a visible lip so you rip off the support and not the rail
                     removal_aid = 4;
@@ -675,7 +673,7 @@ module button_cut(left, button_length, button_offset){
         //cuts the top edge
         translate ([body_thickness/2, 0, 0]) 
         rotate([0,0,90])
-        cube([button_length+buttons_clearance/2,5,15], center=true);
+        cube([button_length+buttons_clearance/2,body_thickness,15], center=true);
         
         //45-degree anti snag cut (toward top)
         translate ([body_thickness/2, button_length/2 + buttons_fillet, 0]) 
@@ -799,9 +797,9 @@ module top_headphone_cut(){
                 }
                 
                 //anti snag bevel
-                translate([0,0,5])
+                translate([0,0,6])
                 rotate([0,45,0])
-                cube([8,8,8], center=true);
+                cube([10,10,10], center=true);
             }
         }
     }
