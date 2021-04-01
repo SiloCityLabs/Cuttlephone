@@ -1,5 +1,6 @@
-/* Phone case + gamepad generator
- * Designed to 3d print with PLA or PLA+, 0.4 nozzle, 0.2 layer height
+/* Phone case generator
+ * Supports phone case, Joycon rails, Junglecat rails, and Cuttlephone gamepad
+ * Designed to 3d print with PLA+, 0.4 nozzle, 0.2 layer height
  * Author: Maave
  */
 
@@ -73,6 +74,12 @@ rail_support = "cutout"; // [cutout, none]
 //set this to your layer height
 support_airgap = 0.20; //TODO: test and tweak. This may depend on layer height.
 
+case_type_override="stupid hack";
+//build script passes in case_type_override
+case_type2 = (case_type_override!=undef) ? case_type_override : case_type;
+echo(case_type_override);
+echo(case_type2);
+
 //unsupported
 lanyard_loop = false;
 
@@ -123,16 +130,16 @@ version = "v0.1";
 
 
 color("SeaGreen")
-if(case_type=="phone case") {
+if(case_type2=="phone case") {
     phone_case();
 }
-else if(case_type=="gamepad") {
+else if(case_type2=="gamepad") {
     gamepad();
 }
-else if(case_type=="joycon") {
+else if(case_type2=="joycon") {
     joycon_rails();
 }
-else if(case_type=="junglecat") {
+else if(case_type2=="junglecat") {
     junglecat_rails();
 }
 
@@ -750,7 +757,7 @@ module fingerprint_cut(){
 //mic_cut();
 module mic_cut(){
     //can this be improved?
-    hole_size = 2.5;
+    mic_diam = 2.0;
     if (mic_notch_top) 
     color("red", 0.2)
     if (case_type=="joycon") {
@@ -758,15 +765,15 @@ module mic_cut(){
         translate( [ face_width/2-mic_from_right_edge, face_length/2, -2 ] )
         rotate([90,0,0])
         hull(){
-            cylinder( 20, hole_size, hole_size, true);
+            cylinder( 20, mic_diam, mic_diam, true);
             translate ([0,6,0]) 
-                cylinder( 20, hole_size, hole_size, true);
+                cylinder( 20, mic_diam, mic_diam, true);
         }
     } else {
         //simple hole
         translate( [ face_width/2-mic_from_right_edge, face_length/2, 0 ] )
         rotate([90,0,0])
-        cylinder( 20, hole_size, hole_size, true);
+        cylinder( 20, mic_diam, mic_diam, true);
     }
     
 }
@@ -774,26 +781,27 @@ module mic_cut(){
 //top_headphone_cut();
 module top_headphone_cut(){
     //can this be improved?
-    hole_size = 4;
+    headphone_diam = 4.0;
     if (headphone_jack_cut) {
         if (case_type=="joycon") {
             color("red", 0.2)
             translate( [ -face_width/2+headphone_from_left_edge+1.7, face_length/2, -2 ] )
             rotate([90,0,0])
             hull(){
-                cylinder( 20, hole_size, hole_size, true);
+                cylinder( 20, headphone_diam, headphone_diam, true);
                 translate ([0,6,0]) 
-                    cylinder( 20, hole_size, hole_size, true);
+                    cylinder( 20, headphone_diam, headphone_diam, true);
             }
         } else {
+            //case_type=="junglecat"
             color("red", 0.2)
-            //we measure from edge of phone to edge of the 3.5mm jack. Move an extra +1.7 to center
-            translate( [ -face_width/2+headphone_from_left_edge+1.7, face_length/2, 1 ] ) {
+            //we measure from edge of phone to edge of the 3.5mm jack. +1.7 to center it
+            translate( [ -face_width/2+headphone_from_left_edge+1.7, face_length/2, 0 ] ) {
                 rotate([90,0,0])
                 hull(){
-                    cylinder( 20, hole_size, hole_size, true);
+                    cylinder( 20, headphone_diam, headphone_diam, true);
                     translate ([0,6,0])
-                        cylinder( 20, hole_size, hole_size, true);
+                        cylinder( 20, headphone_diam, headphone_diam, true);
                 }
                 
                 //anti snag bevel
