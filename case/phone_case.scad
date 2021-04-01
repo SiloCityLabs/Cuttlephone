@@ -74,11 +74,10 @@ rail_support = "cutout"; // [cutout, none]
 //set this to your layer height
 support_airgap = 0.20; //TODO: test and tweak. This may depend on layer height.
 
-case_type_override="stupid hack";
-//build script passes in case_type_override
+/*I cannot override case_type for some reason, it doesn't take effect. Build script passes in case_type_override, but it must be set FIRST otherwise "WARNING: Ignoring unknown variable". 
+stupid_hack works on CMD only. Uncomment next line to make it work, comment out to use UI*/
+//case_type_override="stupid_hack";
 case_type2 = (case_type_override!=undef) ? case_type_override : case_type;
-echo(case_type_override);
-echo(case_type2);
 
 //unsupported
 lanyard_loop = false;
