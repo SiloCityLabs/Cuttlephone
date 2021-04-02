@@ -17,7 +17,7 @@ for model in $presets; do
     for case_type in "${case_types[@]}"; do
         echo "Building ${model} ${case_type}.3mf"
         #todo: fix -D to predfine variables
-        openscad -o build/"$model".3mf -D "case_type_override=\"$case_type\"" -p phone_case.json -P "$model" phone_case.scad
+        openscad -o build/"${model} ${case_type}".3mf -D "case_type_override=\"$case_type\"" -p phone_case.json -P "${model}" phone_case.scad
     done
 done
 

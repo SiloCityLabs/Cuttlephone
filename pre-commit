@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# copy to .git/hooks/pre-commit
+#
+# OpenSCAD doesn't preserve the order of JSON configs. It mangles the git history.
+# Sort the config file alphabetically to keep the history consistent.
+
+exec 1>&2
+
+# sort attributes, readd to git
+sorted=$(jq -S '.' case/phone_case.json)
+echo "$sorted" > case/phone_case.json
+git add case/phone_case.json;

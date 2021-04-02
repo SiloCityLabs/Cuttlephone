@@ -28,15 +28,15 @@ screen_lip_length = 2.0;
 screen_length = face_length - screen_lip_length;
 screen_lip_width = 4.0;
 screen_width = face_width - screen_lip_width;
-extra_lip = true;
+extra_lip = false;
 
 //this should be a multiple of nozzle diameter
 shell_thickness = 1.2;
 
-right_button = true;
+right_button = false;
 right_button_from_top = 31;
 right_button_length = 42;
-left_button = true;
+left_button = false;
 left_button_from_top = 35;
 left_button_length = 42;
 
@@ -57,14 +57,14 @@ camera_height_2 = 9.0;
 camera_from_side_2 = 8.5;
 camera_from_top_2 = 8.7;
 
-mic_notch_top = true;
+mic_notch_top = false;
 mic_from_right_edge = 14.0;
 headphone_from_left_edge = 14.0;
 headphone_jack_cut = false;
 
 bottom_speakers = false;
 
-fingerprint = true;
+fingerprint = false;
 fingerprint_center_from_top = 36.5;
 fingerprint_diam = 13;
 
@@ -74,21 +74,18 @@ rail_support = "cutout"; // [cutout, none]
 //set this to your layer height
 support_airgap = 0.20; //TODO: test and tweak. This may depend on layer height.
 
-/*I cannot override case_type for some reason, it doesn't take effect. Build script passes in case_type_override, but it must be set FIRST otherwise "WARNING: Ignoring unknown variable". 
-stupid_hack works on CMD only. Uncomment next line to make it work, comment out to use UI*/
-//case_type_override="stupid_hack";
-case_type2 = (case_type_override!=undef) ? case_type_override : case_type;
-
 //unsupported
 lanyard_loop = false;
 
 emboss_version_text = true;
 phone_model = "Pixel 3";
 
+//end customizer variables
 module end_customizer_variables(){}
-
-/* Clearances, fudge factors, and gamepad vars
- */
+ 
+ /* I cannot override case_type for some reason, it doesn't take effect. But this works. */
+case_type_override="stupid_hack";
+case_type2 = (case_type_override!=undef && case_type_override!="stupid_hack") ? case_type_override : case_type;
 
 // phone case / general variables
 buttons_fillet = 3;
