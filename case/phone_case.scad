@@ -7,8 +7,9 @@
 $fn=20;
 use <fonts/orbitron/orbitron-light.otf>
 //TODO: include these in the repo
-include <BOSL2/std.scad> 
+include <BOSL2/std.scad>
 include <BOSL2/hull.scad>
+include <BOSL2/rounding.scad>
 
 /*  measurements from the phone
  *  all values are in mm
@@ -22,6 +23,8 @@ face_length = 145.5;
 face_width = 70.1;
 body_thickness = 8.1;
 body_radius = 3.1;
+body_radius_top = 2.1;
+body_radius_bottom = 3.1;
 
 screen_radius = 5.25;
 screen_lip_length = 2.0;
@@ -29,6 +32,10 @@ screen_length = face_length - screen_lip_length;
 screen_lip_width = 4.0;
 screen_width = face_width - screen_lip_width;
 extra_lip = false;
+screen_extra_top_left = 0;
+screen_extra_top_right = 0;
+screen_extra_bottom_left = 0;
+screen_extra_bottom_right = 0;
 
 //this should be a multiple of nozzle diameter
 shell_thickness = 1.2;
@@ -91,6 +98,7 @@ case_type2 = (case_type_override!=undef && case_type_override!="stupid_hack") ? 
 buttons_fillet = 3;
 buttons_cut_thickness = 3;
 buttons_clearance = 10;
+extra_lip_bonus = extra_lip ? 1 : 0;
 
 // gamepad variables
 gamepad_wing_length = 35; //max that will fit on my printer
@@ -212,8 +220,8 @@ module body_profile(){
     cyl( 
         l=body_thickness, 
         r=face_radius,
-        rounding1=body_radius, 
-        rounding2=body_radius,
+        rounding1=body_radius_bottom, 
+        rounding2=body_radius_top,
         $fn=15
     );
 }
@@ -233,13 +241,12 @@ module phone_shell(){
 
 //shell_profile();
 module shell_profile(){
-    extra_lip_bonus = extra_lip ? 1 : 0;
     translate([0,0,extra_lip_bonus/2])
     cyl( 
         l=body_thickness + 2*shell_thickness + extra_lip_bonus, 
         r=face_radius+shell_thickness,
-        rounding1=body_radius, 
-        rounding2=body_radius
+        rounding1=body_radius_bottom, 
+        rounding2=body_radius_top
     );
 }
 
@@ -581,18 +588,21 @@ module gamepad_faceplates(){
 
 //screen_cut();
 module screen_cut(){   
-   //straight cut, quick
-   //height must be more than shell_thickness cus of the way corners cut
-   color("red", 0.2)
-   translate([0,0,body_thickness/2+shell_thickness/2])
-   linear_extrude(height = 6, center = true) {
-        minkowski() {
-            //TODO: why is this -2? That greatly affects how much the lip is gripping
-            square([screen_width-2*screen_radius, screen_length-2*screen_radius], true);
-            circle(screen_radius);
-        }
-    }
-    //TODO: round the inside. Use a bezier curve on a path. Try BOSL2 library
+    screen_cut_height = 6; //must be more than shell_thickness
+    //this gets flipped 180 on the X, so top/bottom are swapped
+    screen_corners = [
+        screen_radius + screen_extra_top_right,
+        screen_radius + screen_extra_top_left,
+        screen_radius + screen_extra_bottom_left,
+        screen_radius + screen_extra_bottom_right
+    ];
+    rectangle = square([screen_width, screen_length],center=true);
+    round_rectangle = round_corners(rectangle, radius=screen_corners,$fn=24);
+    
+    color("red", 0.2)
+    translate([0,0,body_thickness/2+shell_thickness+extra_lip_bonus+0.05])
+    rotate([180,0,0])
+    offset_sweep(round_rectangle, height=screen_cut_height,bottom=os_circle(r=-shell_thickness));
 }
 
 //color("red", 0.2) lanyard_cut();
