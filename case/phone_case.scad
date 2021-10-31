@@ -4,9 +4,8 @@
  * Author: Maave
  */
 
-$fn=20;
 use <fonts/orbitron/orbitron-light.otf>
-//TODO: include these in the repo
+//TODO: include these in libraries directory. They're saved on my comp
 include <BOSL2/std.scad>
 include <BOSL2/hull.scad>
 include <BOSL2/rounding.scad>
@@ -16,20 +15,23 @@ include <BOSL2/rounding.scad>
  *  Customizer's UI precision (0.1, 0.01, etc) depends on the precision of the variable
  */
 
+case_material = "hard"; // [hard, soft]
+case_type = "phone case"; // [phone case, gamepad, joycon, junglecat]
+//joycon and junglecat rail requires support to print horizontally. "Cutout" support is designed to remove with a razor blade. "None" means you'll handle it yourself in your slicer. "Peeloff" is experimental and still requires a blade
+
 //Is there a good way to measuring this on the phone? Print-out guide template?
 //rounding of the corners when viewed screen-up.
 face_radius = 5.25;
 face_length = 145.5;
 face_width = 70.1;
 body_thickness = 8.1;
-body_radius = 3.1;
 body_radius_top = 2.1;
 body_radius_bottom = 3.1;
 
-screen_radius = 5.25;
-screen_lip_length = 2.0;
+screen_radius = 8.01;
+screen_lip_length = 3.1;
 screen_length = face_length - screen_lip_length;
-screen_lip_width = 4.0;
+screen_lip_width = 3.1;
 screen_width = face_width - screen_lip_width;
 extra_lip = false;
 screen_extra_top_left = 0;
@@ -38,7 +40,7 @@ screen_extra_bottom_left = 0;
 screen_extra_bottom_right = 0;
 
 //this should be a multiple of nozzle diameter
-shell_thickness = 1.2;
+shell_thickness = 1.6;
 
 right_button = false;
 right_button_from_top = 31;
@@ -67,7 +69,7 @@ camera_from_top_2 = 8.7;
 mic_notch_top = false;
 mic_from_right_edge = 14.0;
 headphone_from_left_edge = 14.0;
-headphone_jack_cut = false;
+headphone_jack_cut = true;
 
 bottom_speakers = false;
 
@@ -75,30 +77,31 @@ fingerprint = false;
 fingerprint_center_from_top = 36.5;
 fingerprint_diam = 13;
 
-case_type = "phone case"; // [phone case, gamepad, joycon, junglecat]
-//joycon and junglecat rail requires support to print horizontally. "Cutout" support is designed to remove easily with a razor blade. "None" means you'll handle it yourself in your slicer.
-rail_support = "cutout"; // [cutout, none]
+rail_support = "cutout"; // [cutout, peeloff, none]
 //set this to your layer height
 support_airgap = 0.20; //TODO: test and tweak. This may depend on layer height.
-
-//unsupported
-lanyard_loop = false;
 
 emboss_version_text = true;
 phone_model = "Pixel 3";
 
+//debug cuts
+debug = "none"; //[none, corners, bottom_end, top_end]
 //end customizer variables
 module end_customizer_variables(){}
- 
+
+//alternate Fn values to speed up OpenSCAD
+$fn=20;
+lowFn = 10;
+renderFn = 20;
+
  /* I cannot override case_type for some reason, it doesn't take effect. But this works. */
 case_type_override="stupid_hack";
 case_type2 = (case_type_override!=undef && case_type_override!="stupid_hack") ? case_type_override : case_type;
 
 // phone case / general variables
-buttons_fillet = 3;
-buttons_cut_thickness = 3;
 buttons_clearance = 10;
 extra_lip_bonus = extra_lip ? 1 : 0;
+anti_snag_radius = 3.8;
 
 // gamepad variables
 gamepad_wing_length = 35; //max that will fit on my printer
@@ -121,16 +124,20 @@ joycon_thickness = (body_thickness < joycon_min_thickness) ? joycon_min_thicknes
 joycon_z_shift = body_thickness-joycon_thickness+2*shell_thickness;
 
 //junglecat variables
+junglecat_rail_length = 61.0;
+junglecat_dimple_from_top = 63.5;
 junglecat_inner_width = 3.5;
 junglecat_lip_width = 2;
 junglecat_lip_thickness = 0.4; //should be a multiple of nozzle width
 junglecat_depth = 3.3;
-junglecat_dimple_from_top = 63.5;
 
 //embossment text
 name = "Cuttlephone";
 author = "Maave";
 version = "v0.1";
+
+//unsupported features
+lanyard_loop = false;
 
 
 color("SeaGreen")
@@ -152,6 +159,7 @@ module phone_case(){
         phone_shell();
         body();
         shell_cuts();
+        debug_cuts();
     }
 }
 
@@ -161,6 +169,7 @@ module gamepad(){
         body();
         shell_cuts();
         gamepad_cuts();
+        debug_cuts();
     }
     
     gamepad_trigger();
@@ -190,6 +199,7 @@ module joycon_rails(){
         body();
         shell_cuts();
         joycon_cuts();
+        debug_cuts();
     }
 }
 
@@ -200,6 +210,7 @@ module junglecat_rails(){
         body();
         shell_cuts();
         junglecat_cuts();
+        debug_cuts();
     }
 }
 
@@ -209,7 +220,7 @@ module body(){
     minkowski() {
         cube([ face_width - 2*face_radius, 
             face_length - 2*face_radius, 
-            0.05 ], 
+            0.01 ], 
             center=true
         );
         body_profile();
@@ -232,7 +243,7 @@ module phone_shell(){
         cube(
             [ face_width - 2*face_radius,
             face_length - 2*face_radius ,
-            0.05 ],
+            0.01 ],
             center=true
         );
         shell_profile();
@@ -256,11 +267,12 @@ module gamepad_shell(){
         cube(
             [ face_width - 2*gamepad_face_radius,
             face_length + gamepad_wing_length*2 - 2*gamepad_face_radius,
-            0.05 ], 
+            0.01 ], 
             center=true);
         //edge shape and thickness
+        translate([0,0,extra_lip_bonus/2])
         cyl( 
-            l=body_thickness + 2*shell_thickness, 
+            l=body_thickness + 2*shell_thickness + extra_lip_bonus, 
             r=gamepad_face_radius+shell_thickness,
             rounding1=gamepad_shell_radius, 
             rounding2=gamepad_shell_radius
@@ -275,11 +287,12 @@ module joycon_shell(){
         cube(
             [ face_width - 2*rail_face_radius,
             face_length + 2*joycon_depth + 2*joycon_lip_thickness - 2*rail_face_radius,
-            0.05 ],
+            0.01 ],
             center=true);
         //edge shape and thickness
+        translate([0,0,extra_lip_bonus/2])
         cyl( 
-            l=joycon_thickness + 2*shell_thickness, 
+            l=joycon_thickness + 2*shell_thickness + extra_lip_bonus, 
             r=rail_face_radius+shell_thickness,
             rounding1=rail_shell_radius, 
             rounding2=rail_shell_radius
@@ -287,20 +300,19 @@ module joycon_shell(){
     }
 }
 
-
-//TODO: tidy this up like the gamepad/joycon
 module junglecat_shell(){
     minkowski() {
         //face shape
         cube(
             [ face_width - 2*rail_face_radius,
             face_length + 2*junglecat_depth + 2*junglecat_lip_thickness - 2*rail_face_radius,
-            0.05 ],
+            0.01 ],
             center=true
         );
         //edge shape and thickness
+        translate([0,0,extra_lip_bonus/2])
         cyl( 
-            l=body_thickness + 2*shell_thickness, 
+            l=body_thickness + 2*shell_thickness + extra_lip_bonus, 
             r=rail_face_radius+shell_thickness,
             rounding1=rail_shell_radius, 
             rounding2=rail_shell_radius
@@ -309,7 +321,6 @@ module junglecat_shell(){
 }
 
 //junglecat_cuts();
-junglecat_rail_length = 60.0; //there's a bevel that I'm not trying to model
 module junglecat_cuts(){
     copy_mirror() {
         color("red", 0.2)
@@ -319,9 +330,6 @@ module junglecat_cuts(){
             -(shell_thickness+junglecat_lip_thickness),
             0])
             sphere(d=2.0);
-            //inner cutout
-            //junglecat_fudge = 0;
-            //junglecat_inner_chamfer = 0;
             translate([(face_width-junglecat_rail_length)/2+shell_thickness,0,0])
             rotate([0,90,0])
             prismoid(
@@ -334,16 +342,22 @@ module junglecat_cuts(){
             );
             //lip cutout
             translate([(face_width-junglecat_rail_length)/2+shell_thickness,-junglecat_depth/2-junglecat_lip_thickness/2,0]) {
-                if(rail_support=="cutout"){
+                if(rail_support=="peeloff"){
                     //this adds a visible lip so you rip off the support and not the rail
                     removal_aid = 4;
                     rotate([90,0,0])
                     rect_tube(
-                        size=[ junglecat_rail_length+shell_thickness, junglecat_lip_width+support_airgap],
+                        size=[ junglecat_rail_length+support_airgap*2, junglecat_lip_width+support_airgap],
                         isize=[junglecat_rail_length, junglecat_lip_width], 
                         h=junglecat_depth,
                         anchor=CENTER);
-                } else { //bring your own support
+                } else if (rail_support=="cutout") {
+                    //solid wall that you must cut with a craft knife
+                    //the only cutout is a "hint" on one side
+                    translate([-junglecat_rail_length/2,0,0])
+                    cuboid([1,1,junglecat_lip_width]);
+                }
+                else { //bring your own support
                     cube([face_width+shell_thickness+1, junglecat_lip_thickness+2, junglecat_lip_width], center=true);
                 }
             }
@@ -588,28 +602,25 @@ module gamepad_faceplates(){
 
 //screen_cut();
 module screen_cut(){   
-    screen_cut_height = 6; //must be more than shell_thickness
-    //this gets flipped 180 on the X, so top/bottom are swapped
+    screen_cut_height = shell_thickness+extra_lip_bonus+0.5;
     screen_corners = [
-        screen_radius + screen_extra_top_right,
-        screen_radius + screen_extra_top_left,
+        screen_radius + screen_extra_bottom_right,
         screen_radius + screen_extra_bottom_left,
-        screen_radius + screen_extra_bottom_right
+        screen_radius + screen_extra_top_left,
+        screen_radius + screen_extra_top_right,
     ];
     rectangle = square([screen_width, screen_length],center=true);
-    round_rectangle = round_corners(rectangle, radius=screen_corners,$fn=24);
-    
+    round_rectangle = round_corners(rectangle, radius=screen_corners,$fn=20);
     color("red", 0.2)
-    translate([0,0,body_thickness/2+shell_thickness+extra_lip_bonus+0.05])
-    rotate([180,0,0])
-    offset_sweep(round_rectangle, height=screen_cut_height,bottom=os_circle(r=-shell_thickness));
+    translate([0,0,body_thickness/2-screen_cut_height+shell_thickness+extra_lip_bonus+0.05])
+    offset_sweep(round_rectangle, height=screen_cut_height,top=os_circle(r=-shell_thickness));
 }
 
 //color("red", 0.2) lanyard_cut();
 module lanyard_cut(){
     //unsupported
     /*  
-    //thick ring shaped extension
+    //thick ring-shaped extension
     if(lanyard_loop)
     color("red", 0.2) 
     rotate([0,90,0])
@@ -625,34 +636,19 @@ module lanyard_cut(){
 
 //usb_cut();
 module usb_cut(){
-    charge_port_height = 10;
+    usb_cut_width = 12;
+    bottom_speaker_cut_width = face_width*0.65;
     //why'd I do this with the gamepad? It doesn't even cut flush with the bottom surface
-    charge_port_width = (bottom_speakers || case_type=="gamepad") ? face_width*0.5 : 8;
+    charge_port_width = (bottom_speakers || case_type=="gamepad") ? bottom_speaker_cut_width : usb_cut_width;
+    usb_cut_height = shell_thickness+body_thickness+extra_lip_bonus+0.01;
+    
+    rectangle = square([charge_port_width, 10],center=true);
+    
     color("red", 0.2)
-    translate( [0, -face_length/2 - 2, 2] )
-    rotate( [90, 0, 0] )
-    union(){
-        hull(){
-            translate ([charge_port_width/2, 0, 0]) 
-                cylinder( 10, charge_port_height/2, charge_port_height/2, true);
-            translate ([-charge_port_width/2, 0, 0]) 
-                cylinder( 10, charge_port_height/2, charge_port_height/2, true);
-            //bridges weren't printing nicely. Trying a full cutout
-            translate ([charge_port_width/2, 5, 0]) 
-                cylinder( 10, charge_port_height/2, charge_port_height/2, true);
-            translate ([-charge_port_width/2, 5, 0]) 
-                cylinder( 10, charge_port_height/2, charge_port_height/2, true);
-        }
-        
-        //corner of the cutout was snagging clothing
-        translate ([charge_port_width/2+5, 5, 0]) 
-        rotate([0,0,45])
-        cube([10,5,10], center=true);
-        
-        translate ([-charge_port_width/2-5, 5, 0]) 
-        rotate([0,0,-45])
-        cube([10,5,10], center=true);
-    }
+    translate( [0, -face_length/2, 0] )
+    anti_snag(charge_port_width);
+    //offset_sweep(rectangle, height=usb_cut_height,top=os_circle(r=-anti_snag_radius));
+    
 }
 
 //right_button_cut=true; right_button_cut();
@@ -671,36 +667,23 @@ module left_button_cut(){
 
 module button_cut(left, button_length, button_offset){
     left_or_right = left ? 1 : -1;
+    anti_snag_height = body_thickness; //TODO: use joycon_thickness on joycon version
+    button_cut_thickness2 = 1.5;
+    button_cut_thickness3 = 6;
+    buttons_fillet = 2;
+    
     color("red", 0.2)
-    translate( [ left_or_right*(face_width/2+buttons_cut_thickness),
-    face_length/2 - button_offset - button_length/2 + buttons_fillet - buttons_clearance/2,
-    0 ] )
-    rotate([0,-90,0])
-    {
-        //cuts the radius part of the buttons
-        minkowski() {
-            cube([10, button_length - 2*buttons_fillet + buttons_clearance, buttons_cut_thickness],true);
-            sphere(r=buttons_fillet);
-        }
-        
-        //cuts the top edge
-        translate ([body_thickness/2, 0, 0]) 
-        rotate([0,0,90])
-        cube([button_length+buttons_clearance/2,body_thickness,15], center=true);
-        
-        //45-degree anti snag cut (toward top)
-        translate ([body_thickness/2, button_length/2 + buttons_fillet, 0]) 
-        rotate([0,0,45])
-        cube([15,5,15], center=true);
-        //(toward bottom)
-        translate ([body_thickness/2, -button_length/2-buttons_fillet, 0]) 
-        rotate([0,0,-45])
-        cube([15,5,15], center=true);
-        
-        //experimental corner rounter
-        //translate ([body_thickness+10, button_length/2 - buttons_fillet + buttons_clearance, 0]) 
-        //rotate([0,0,90])
-        //corner_rounder();
+    translate( [ left_or_right*(face_width/2),
+        face_length/2 - button_offset - button_length/2 - buttons_clearance/2, 
+        -body_thickness/2+shell_thickness+extra_lip_bonus+0.05
+    ] )
+    rotate([0,0,90]) {
+        //button cut
+        cuboid([button_length+buttons_clearance, button_cut_thickness3, 50], rounding=buttons_fillet);
+
+        //anti snag rounding
+        rectangle = square([button_length+buttons_clearance, shell_thickness*4+0.1],center=true);
+        offset_sweep(rectangle, height=anti_snag_height,top=os_circle(r=-anti_snag_radius));
     }
 }
 
@@ -720,6 +703,7 @@ module camera_cut(){
         rounding=camera_radius_clearanced,
         anchor=ALLPOS
     );
+    //if(case_material=="soft") //soft
 }
 
 //extra_camera_cut();
@@ -760,7 +744,7 @@ module fingerprint_cut(){
     cylinder( fingerprint_cut_height, fingerprint_radius*2, fingerprint_radius, true);
 }
 
-//mic_cut();
+//mic_notch_top=true; mic_cut();
 module mic_cut(){
     //can this be improved?
     mic_diam = 2.0;
@@ -771,67 +755,34 @@ module mic_cut(){
         translate( [ face_width/2-mic_from_right_edge, face_length/2, -2 ] )
         rotate([90,0,0])
         hull(){
-            cylinder( 20, mic_diam, mic_diam, true);
-            translate ([0,6,0]) 
-                cylinder( 20, mic_diam, mic_diam, true);
+            cylinder( 20, mic_diam, mic_diam, center=true, $fn=lowFn);
+            translate ([0,10,0]) 
+                cylinder( 20, mic_diam, mic_diam, center=true, $fn=lowFn);
         }
     } else {
         //simple hole
         translate( [ face_width/2-mic_from_right_edge, face_length/2, 0 ] )
         rotate([90,0,0])
-        cylinder( 20, mic_diam, mic_diam, true);
-    }
-    
+        cylinder( 20, mic_diam, mic_diam, center=true, $fn=lowFn);
+    }   
 }
 
-//top_headphone_cut();
+//headphone_jack_cut=true; top_headphone_cut();
 module top_headphone_cut(){
-    //can this be improved?
-    headphone_diam = 4.0;
+    headphone_radius_hard = 5;
+    headphone_radius_soft = 4;
+    trans = [ -face_width/2+headphone_from_left_edge+1.7, face_length/2, 0 ];
+    color("red", 0.2)
     if (headphone_jack_cut) {
-        if (case_type=="joycon") {
-            color("red", 0.2)
-            translate( [ -face_width/2+headphone_from_left_edge+1.7, face_length/2, -2 ] )
-            rotate([90,0,0])
-            hull(){
-                cylinder( 20, headphone_diam, headphone_diam, true);
-                translate ([0,6,0]) 
-                    cylinder( 20, headphone_diam, headphone_diam, true);
-            }
-        } else {
-            //case_type=="junglecat"
-            color("red", 0.2)
+        if(case_material=="hard"){
             //we measure from edge of phone to edge of the 3.5mm jack. +1.7 to center it
-            translate( [ -face_width/2+headphone_from_left_edge+1.7, face_length/2, 0 ] ) {
-                rotate([90,0,0])
-                hull(){
-                    cylinder( 20, headphone_diam, headphone_diam, true);
-                    translate ([0,6,0])
-                        cylinder( 20, headphone_diam, headphone_diam, true);
-                }
-                
-                //anti snag bevel
-                translate([0,0,6])
-                rotate([0,45,0])
-                cube([10,10,10], center=true);
-            }
-        }
-    }
-}
-
-//corner_rounder();
-module corner_rounder(){
-    round_radius = body_radius/2+shell_thickness;
-    color("red", 0.4)
-    difference(){
-        cube([10,10,round_radius*3], center=true);
-        translate([round_radius,round_radius,0])
-        hull(){
-            sphere(round_radius);
-            translate([round_radius*2,0,0])
-            sphere(round_radius);
-            translate([0,round_radius*2,0])
-            sphere(round_radius);
+            translate(trans)
+            anti_snag(headphone_radius_hard*2, top_radius=headphone_radius_hard/1.1, bottom_radius=headphone_radius_hard/1.1);
+            //anti_snag(headphone_radius_hard); //trying this with default radius out but it's kinda ugly
+        } else {
+            translate(trans)
+            rotate([90,0,0])
+            cylinder(9, headphone_radius_soft*1.2, headphone_radius_soft*0.9, center=true);
         }
     }
 }
@@ -839,8 +790,9 @@ module corner_rounder(){
 //version_info_emboss();
 module version_info_emboss(){
     if(emboss_version_text) {
-        emboss_font = "Orbitron";
+        emboss_font = "Orbitron"; //need a simple sans-serif font to come out good in the print
         font_size = 8;
+        version_font_size = 6;
         line_translate = 12;
         color("red")
         rotate([0,0,-90])
@@ -848,7 +800,7 @@ module version_info_emboss(){
             linear_extrude(height = shell_thickness/2, center = true) {
                 text(name, font=emboss_font, size=font_size);
                 translate([0,-line_translate,0])
-                text(version, font=emboss_font, size=font_size);
+                text(version, font=emboss_font, size=version_font_size);
                 translate([0,-line_translate*2,0])
                 text(phone_model, font=emboss_font, size=font_size);
             }
@@ -856,15 +808,54 @@ module version_info_emboss(){
     }
 }
 
+//debug_cuts();
+module debug_cuts(){
+    if(debug=="corners") {
+        translate([0,0,0])
+        cuboid([100,200,50], anchor=CENTER+BOTTOM);
+    }
+    else if(debug=="bottom_end") {
+        translate([0,-face_length/2+10,0])
+        cuboid([100,200,50], anchor=CENTER+FRONT);
+    }
+    else if(debug=="top_end") {
+        translate([0,face_length/2-10,0])
+        cuboid([100,200,50], anchor=CENTER+BACK);
+    }
+    
+}
+
 /* support functions */
 
-//replace with bosl?
-module prism(l, w, h){
-   polyhedron(
-           points=[ [0,0,0], [l,0,0], [l,w,0], [0,w,0], [0,w,h], [l,w,h] ],
-           faces=[ [0,1,2,3],[5,4,3,2],[0,4,5,1],[0,3,4],[5,2,1] ]
-    );
+//anti_snag(8);
+module anti_snag(width=8, top_radius=4, bottom_radius=3.9){
+    anti_snag_height = body_thickness + shell_thickness+extra_lip_bonus;
+    if(bottom_radius >= width/2 || bottom_radius >=anti_snag_height/2){
+        echo(width=width, top_radius=top_radius, bottom_radius=bottom_radius, anti_snag_height=anti_snag_height);
+        echo("too much bottom rounding. Fixing ... ");
+        smaller_width = (width>anti_snag_height)? anti_snag_height : width;
+        bottom_radius=smaller_width/2.05;
+        echo("Bottom radius must be half the width or less.");
+        echo(str("Called by: ", parent_module(1)));
+    }
+    //if((top_radius+bottom_radius) >= anti_snag_height){
+    if((bottom_radius+top_radius) >= anti_snag_height){
+        echo(width=width, top_radius=top_radius, bottom_radius=bottom_radius, anti_snag_height=anti_snag_height);
+        echo("too much rounding. Fixing ...");
+        top_radius = anti_snag_height/2.05;
+        echo("top+bottom radius must be less than anti_snag_height");
+        echo(str("Called by: ", parent_module(1)));
+    }
+    
+    rectangle = square([width, 20],center=true);
+    round_rectangle = round_corners(rectangle, radius=bottom_radius,$fn=15);
+    //round_rectangle = round_corners(rectangle, radius=bottom_radius,$fn=15);
+    color("red", 0.2)
+    translate( [0, 0, -body_thickness/2  +0.01] )
+    offset_sweep(round_rectangle, height=anti_snag_height,top=os_circle(r=-top_radius),bottom=os_circle(r=bottom_radius));
 }
+
+//used for lanyard
 module ring(h=8, od = body_thickness+shell_thickness*2, id = 7, de = 0.1 ) {
     difference() {
         cylinder(h=h, r=od/2);
@@ -872,6 +863,8 @@ module ring(h=8, od = body_thickness+shell_thickness*2, id = 7, de = 0.1 ) {
             cylinder(h=h+2*de, r=id/2);
     }
 }
+
+//used for copying the rails and gamepad features
 module copy_mirror(vec=[0,1,0]){
     children();
     mirror(vec) children();
