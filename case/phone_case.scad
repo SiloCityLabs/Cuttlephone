@@ -642,13 +642,18 @@ module usb_cut(){
     charge_port_width = (bottom_speakers || case_type=="gamepad") ? bottom_speaker_cut_width : usb_cut_width;
     usb_cut_height = shell_thickness+body_thickness+extra_lip_bonus+0.01;
     
-    rectangle = square([charge_port_width, 10],center=true);
-    
     color("red", 0.2)
     translate( [0, -face_length/2, 0] )
-    anti_snag(charge_port_width);
-    //offset_sweep(rectangle, height=usb_cut_height,top=os_circle(r=-anti_snag_radius));
-    
+    if(case_material=="hard"){
+        anti_snag(charge_port_width);
+    }
+    else {
+        //does this need the angle?
+        rotate([90,0,0])
+        prismoid(
+        size1=[charge_port_width,body_thickness*0.6], 
+        size2=[charge_port_width+5,body_thickness*0.6+3], rounding=2, h=shell_thickness*3, anchor=CENTER);
+    }
 }
 
 //right_button_cut=true; right_button_cut();
@@ -672,18 +677,27 @@ module button_cut(left, button_length, button_offset){
     button_cut_thickness3 = 6;
     buttons_fillet = 2;
     
+    
     color("red", 0.2)
     translate( [ left_or_right*(face_width/2),
-        face_length/2 - button_offset - button_length/2 - buttons_clearance/2, 
-        -body_thickness/2+shell_thickness+extra_lip_bonus+0.05
+        face_length/2 - button_offset - button_length/2, 
+        0
     ] )
-    rotate([0,0,90]) {
-        //button cut
-        cuboid([button_length+buttons_clearance, button_cut_thickness3, 50], rounding=buttons_fillet);
+    if(case_material=="hard"){
+        translate([0,0,-body_thickness/2+shell_thickness+extra_lip_bonus+0.05])
+        rotate([0,0,90]) {
+            //button cut
+            cuboid([button_length+buttons_clearance, button_cut_thickness3, 50], rounding=buttons_fillet);
 
-        //anti snag rounding
-        rectangle = square([button_length+buttons_clearance, shell_thickness*4+0.1],center=true);
-        offset_sweep(rectangle, height=anti_snag_height,top=os_circle(r=-anti_snag_radius));
+            //anti snag rounding
+            rectangle = square([button_length+buttons_clearance, shell_thickness*4+0.1],center=true);
+            offset_sweep(rectangle, height=anti_snag_height,top=os_circle(r=-anti_snag_radius));
+        }
+    }
+    else{
+        rotate([left_or_right*90,0,90]) {
+            prismoid(size1=[button_length+buttons_clearance,body_thickness*0.6], size2=[button_length+buttons_clearance+10,body_thickness*0.6+3], rounding=buttons_fillet, h=shell_thickness*3, anchor=CENTER);
+        }
     }
 }
 
