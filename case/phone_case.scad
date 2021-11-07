@@ -85,11 +85,12 @@ emboss_version_text = true;
 phone_model = "Pixel 3";
 
 //debug cuts
-debug = "none"; //[none, corners, bottom_end, top_end]
+debug = "none"; //[none, corners, side_edge, bottom_edge, top_edge]
+
 //end customizer variables
 module end_customizer_variables(){}
 
-//alternate Fn values to speed up OpenSCAD
+//alternate Fn values to speed up OpenSCAD. Turn this up during build
 $fn=20;
 lowFn = 10;
 renderFn = 20;
@@ -139,19 +140,21 @@ version = "v0.1";
 //unsupported features
 lanyard_loop = false;
 
-
-color("SeaGreen")
-if(case_type2=="phone case") {
-    phone_case();
-}
-else if(case_type2=="gamepad") {
-    gamepad();
-}
-else if(case_type2=="joycon") {
-    joycon_rails();
-}
-else if(case_type2=="junglecat") {
-    junglecat_rails();
+difference(){
+    color("SeaGreen")
+    if(case_type2=="phone case") {
+        phone_case();
+    }
+    else if(case_type2=="gamepad") {
+        gamepad();
+    }
+    else if(case_type2=="joycon") {
+        joycon_rails();
+    }
+    else if(case_type2=="junglecat") {
+        junglecat_rails();
+    }
+    debug_cuts();
 }
 
 module phone_case(){
@@ -159,8 +162,8 @@ module phone_case(){
         phone_shell();
         body();
         shell_cuts();
-        debug_cuts();
     }
+    soft_supports();
 }
 
 module gamepad(){
@@ -169,7 +172,6 @@ module gamepad(){
         body();
         shell_cuts();
         gamepad_cuts();
-        debug_cuts();
     }
     
     gamepad_trigger();
@@ -179,8 +181,7 @@ module gamepad(){
 
 module shell_cuts(){
     usb_cut();
-    right_button_cut();
-    left_button_cut();
+    button_cuts();
     camera_cut();
     extra_camera_cut();
     fingerprint_cut();
@@ -199,7 +200,6 @@ module joycon_rails(){
         body();
         shell_cuts();
         joycon_cuts();
-        debug_cuts();
     }
 }
 
@@ -210,7 +210,6 @@ module junglecat_rails(){
         body();
         shell_cuts();
         junglecat_cuts();
-        debug_cuts();
     }
 }
 
@@ -235,6 +234,12 @@ module body_profile(){
         rounding2=body_radius_top,
         $fn=15
     );
+}
+
+//manual supports for soft TPU prints
+module soft_supports(){
+    soft_button_supports();
+    soft_usb_support();
 }
 
 //phone_shell();
@@ -601,7 +606,7 @@ module gamepad_faceplates(){
 }
 
 //screen_cut();
-module screen_cut(){   
+module screen_cut(){
     screen_cut_height = shell_thickness+extra_lip_bonus+0.5;
     screen_corners = [
         screen_radius + screen_extra_bottom_right,
@@ -634,12 +639,13 @@ module lanyard_cut(){
     ring(body_thickness/2, 9, 6, 0.1 );
 }
 
+usb_cut_width = 12;
+usb_cut_rounding = 2;
+bottom_speaker_cut_width = face_width*0.65;
+charge_port_width = (bottom_speakers || case_type=="gamepad") ? bottom_speaker_cut_width : usb_cut_width;
 //usb_cut();
 module usb_cut(){
-    usb_cut_width = 12;
-    bottom_speaker_cut_width = face_width*0.65;
     //why'd I do this with the gamepad? It doesn't even cut flush with the bottom surface
-    charge_port_width = (bottom_speakers || case_type=="gamepad") ? bottom_speaker_cut_width : usb_cut_width;
     usb_cut_height = shell_thickness+body_thickness+extra_lip_bonus+0.01;
     
     color("red", 0.2)
@@ -648,35 +654,49 @@ module usb_cut(){
         anti_snag(charge_port_width);
     }
     else {
-        //does this need the angle?
         rotate([90,0,0])
-        prismoid(
-        size1=[charge_port_width,body_thickness*0.6], 
-        size2=[charge_port_width+5,body_thickness*0.6+3], rounding=2, h=shell_thickness*3, anchor=CENTER);
+        //straight-thru cut
+        prismoid( size1=[charge_port_width,body_thickness*0.6], 
+            size2=[charge_port_width,body_thickness*0.6], 
+            rounding=usb_cut_rounding, h=shell_thickness*10, anchor=CENTER
+        );
+        //bevel cut
+        rotate([90,0,0])
+        prismoid( size1=[charge_port_width,body_thickness*0.6], 
+            size2=[charge_port_width,body_thickness*0.6+3], 
+            rounding=usb_cut_rounding, h=shell_thickness*3, anchor=CENTER+BOTTOM
+        );
     }
 }
 
-//right_button_cut=true; right_button_cut();
-module right_button_cut(){
+//soft_usb_support();
+module soft_usb_support(){
+    if(case_material=="soft")
+    color("blue", 0.2)
+    translate( [0, -face_length/2, 0] )
+    rotate([90,0,0])
+    prismoid(
+    size1=[charge_port_width-usb_cut_rounding,body_thickness*0.6], 
+    size2=[charge_port_width-usb_cut_rounding,body_thickness*0.6], h=0.4, anchor=CENTER);
+    
+}
+
+module button_cuts(){
+    //left_button=true;
+    if(left_button){
+        button_cut(false, left_button_length, right_button_from_top);
+    }
+    //right_button_cut=true;
     if(right_button) {
         button_cut(true, right_button_length, right_button_from_top);
     }
 }
 
-//left_button=true; left_button_cut();
-module left_button_cut(){
-    if(left_button){
-        button_cut(false, left_button_length, right_button_from_top);
-    }
-}
-
+buttons_rounding = 2;
 module button_cut(left, button_length, button_offset){
     left_or_right = left ? 1 : -1;
     anti_snag_height = body_thickness; //TODO: use joycon_thickness on joycon version
-    button_cut_thickness2 = 1.5;
-    button_cut_thickness3 = 6;
-    buttons_fillet = 2;
-    
+    button_cut_thickness = 6;
     
     color("red", 0.2)
     translate( [ left_or_right*(face_width/2),
@@ -687,7 +707,7 @@ module button_cut(left, button_length, button_offset){
         translate([0,0,-body_thickness/2+shell_thickness+extra_lip_bonus+0.05])
         rotate([0,0,90]) {
             //button cut
-            cuboid([button_length+buttons_clearance, button_cut_thickness3, 50], rounding=buttons_fillet);
+            cuboid([button_length+buttons_clearance, button_cut_thickness, 50], rounding=buttons_rounding);
 
             //anti snag rounding
             rectangle = square([button_length+buttons_clearance, shell_thickness*4+0.1],center=true);
@@ -696,8 +716,38 @@ module button_cut(left, button_length, button_offset){
     }
     else{
         rotate([left_or_right*90,0,90]) {
-            prismoid(size1=[button_length+buttons_clearance,body_thickness*0.6], size2=[button_length+buttons_clearance+10,body_thickness*0.6+3], rounding=buttons_fillet, h=shell_thickness*3, anchor=CENTER);
+            //straight-thru cut
+            prismoid(size1=[button_length+buttons_clearance,body_thickness*0.6], size2=[button_length+buttons_clearance,body_thickness*0.6], rounding=buttons_rounding, h=shell_thickness*3, anchor=CENTER);
+            //bevel cut. Needs to be nugdged over
+            prismoid(size1=[button_length+buttons_clearance,body_thickness*0.6], size2=[button_length+buttons_clearance+10,body_thickness*0.6+3], rounding=buttons_rounding, h=shell_thickness*3, anchor=CENTER+BOTTOM);
         }
+    }
+}
+
+//soft_button_supports();
+module soft_button_supports(){
+    if(case_material=="soft") {
+        //left_button=true;
+        if(left_button){
+            soft_button_support(false, left_button_length, right_button_from_top);
+        }
+        //right_button_cut=true;
+        if(right_button) {
+            soft_button_support(true, right_button_length, right_button_from_top);
+        }
+    }
+}
+
+module soft_button_support(left, button_length, button_offset){
+    left_or_right = left ? 1 : -1;
+    support_thickness = 0.4;
+    color("blue", 0.2)
+    translate( [ left_or_right*(face_width/2),
+        face_length/2 - button_offset - button_length/2, 
+        0
+    ] )
+    rotate([left_or_right*90,0,90]) {
+        prismoid(size1=[button_length+buttons_clearance-buttons_rounding,body_thickness*0.6], size2=[button_length+buttons_clearance-buttons_rounding,body_thickness*0.6], h=support_thickness, anchor=CENTER);
     }
 }
 
@@ -828,15 +878,18 @@ module debug_cuts(){
         translate([0,0,0])
         cuboid([100,200,50], anchor=CENTER+BOTTOM);
     }
-    else if(debug=="bottom_end") {
-        translate([0,-face_length/2+10,0])
+    else if(debug=="bottom_edge") {
+        translate([0,-face_length/2+15,0])
         cuboid([100,200,50], anchor=CENTER+FRONT);
     }
-    else if(debug=="top_end") {
-        translate([0,face_length/2-10,0])
+    else if(debug=="top_edge") {
+        translate([0,face_length/2-15,0])
         cuboid([100,200,50], anchor=CENTER+BACK);
     }
-    
+    else if(debug=="side_edge") {
+        translate([-face_width/4,0,0])
+        cuboid([100,200,50], anchor=CENTER+LEFT);
+    }
 }
 
 /* support functions */
