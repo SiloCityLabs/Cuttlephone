@@ -15,9 +15,26 @@ include <BOSL2/rounding.scad>
  *  Customizer's UI precision (0.1, 0.01, etc) depends on the precision of the variable
  */
 
+/* [shell] */
+
 case_material = "hard"; // [hard, soft]
 case_type = "phone case"; // [phone case, gamepad, joycon, junglecat]
 //joycon and junglecat rail requires support to print horizontally. "Cutout" support is designed to remove with a razor blade. "None" means you'll handle it yourself in your slicer. "Peeloff" is experimental and still requires a blade
+
+//this should be a multiple of nozzle diameter
+shell_thickness = 1.6;
+
+rail_support = "cutout"; // [cutout, peeloff, none]
+//set this to your layer height
+support_airgap = 0.20; //TODO: test and tweak. This may depend on layer height.
+
+emboss_version_text = true;
+phone_model = "Pixel 3";
+
+//debug cuts
+debug = "none"; //[none, corners, side_edge, bottom_edge, top_edge]
+
+/* [body] */
 
 //Is there a good way to measuring this on the phone? Print-out guide template?
 //rounding of the corners when viewed screen-up.
@@ -27,6 +44,8 @@ face_width = 70.1;
 body_thickness = 8.1;
 body_radius_top = 2.1;
 body_radius_bottom = 3.1;
+
+/* [screen] */
 
 screen_radius = 8.01;
 screen_lip_length = 3.1;
@@ -39,15 +58,15 @@ screen_extra_top_right = 0;
 screen_extra_bottom_left = 0;
 screen_extra_bottom_right = 0;
 
-//this should be a multiple of nozzle diameter
-shell_thickness = 1.6;
-
+/* [side buttons] */
 right_button = false;
 right_button_from_top = 31;
 right_button_length = 42;
 left_button = false;
 left_button_from_top = 35;
 left_button_length = 42;
+
+/* [camera/fingerprint] */
 
 //camera cutout is a rectangle with rounded corners
 camera_width = 20.5;
@@ -66,6 +85,11 @@ camera_height_2 = 9.0;
 camera_from_side_2 = 8.5;
 camera_from_top_2 = 8.7;
 
+fingerprint = false;
+fingerprint_center_from_top = 36.5;
+fingerprint_diam = 13;
+
+/* [headphone and mic] */
 mic_notch_top = false;
 mic_from_right_edge = 14.0;
 headphone_from_left_edge = 14.0;
@@ -73,27 +97,13 @@ headphone_jack_cut = true;
 
 bottom_speakers = false;
 
-fingerprint = false;
-fingerprint_center_from_top = 36.5;
-fingerprint_diam = 13;
-
-rail_support = "cutout"; // [cutout, peeloff, none]
-//set this to your layer height
-support_airgap = 0.20; //TODO: test and tweak. This may depend on layer height.
-
-emboss_version_text = true;
-phone_model = "Pixel 3";
-
-//debug cuts
-debug = "none"; //[none, corners, side_edge, bottom_edge, top_edge]
-
 //end customizer variables
 module end_customizer_variables(){}
 
 //alternate Fn values to speed up OpenSCAD. Turn this up during build
 $fn=20;
 lowFn = 10;
-renderFn = 20;
+highFn = 25;
 
  /* I cannot override case_type for some reason, it doesn't take effect. But this works. */
 case_type_override="stupid_hack";
@@ -615,7 +625,7 @@ module screen_cut(){
         screen_radius + screen_extra_top_right,
     ];
     rectangle = square([screen_width, screen_length],center=true);
-    round_rectangle = round_corners(rectangle, radius=screen_corners,$fn=20);
+    round_rectangle = round_corners(rectangle, radius=screen_corners,$fn=highFn);
     color("red", 0.2)
     translate([0,0,body_thickness/2-screen_cut_height+shell_thickness+extra_lip_bonus+0.05])
     offset_sweep(round_rectangle, height=screen_cut_height,top=os_circle(r=-shell_thickness));
@@ -658,13 +668,13 @@ module usb_cut(){
         //straight-thru cut
         prismoid( size1=[charge_port_width,body_thickness*0.6], 
             size2=[charge_port_width,body_thickness*0.6], 
-            rounding=usb_cut_rounding, h=shell_thickness*10, anchor=CENTER
+            rounding=usb_cut_rounding, h=shell_thickness*10, anchor=CENTER, $fn=lowFn
         );
         //bevel cut
         rotate([90,0,0])
         prismoid( size1=[charge_port_width,body_thickness*0.6], 
             size2=[charge_port_width,body_thickness*0.6+3], 
-            rounding=usb_cut_rounding, h=shell_thickness*3, anchor=CENTER+BOTTOM
+            rounding=usb_cut_rounding, h=shell_thickness*3, anchor=CENTER+BOTTOM, $fn=lowFn
         );
     }
 }
@@ -707,7 +717,7 @@ module button_cut(left, button_length, button_offset){
         translate([0,0,-body_thickness/2+shell_thickness+extra_lip_bonus+0.05])
         rotate([0,0,90]) {
             //button cut
-            cuboid([button_length+buttons_clearance, button_cut_thickness, 50], rounding=buttons_rounding);
+            cuboid([button_length+buttons_clearance, button_cut_thickness, 50], rounding=buttons_rounding, $fn=lowFn);
 
             //anti snag rounding
             rectangle = square([button_length+buttons_clearance, shell_thickness*4+0.1],center=true);
@@ -717,9 +727,9 @@ module button_cut(left, button_length, button_offset){
     else{
         rotate([left_or_right*90,0,90]) {
             //straight-thru cut
-            prismoid(size1=[button_length+buttons_clearance,body_thickness*0.6], size2=[button_length+buttons_clearance,body_thickness*0.6], rounding=buttons_rounding, h=shell_thickness*3, anchor=CENTER);
+            prismoid(size1=[button_length+buttons_clearance,body_thickness*0.6], size2=[button_length+buttons_clearance,body_thickness*0.6], rounding=buttons_rounding, h=shell_thickness*3, anchor=CENTER, $fn=lowFn);
             //bevel cut. Needs to be nugdged over
-            prismoid(size1=[button_length+buttons_clearance,body_thickness*0.6], size2=[button_length+buttons_clearance+10,body_thickness*0.6+3], rounding=buttons_rounding, h=shell_thickness*3, anchor=CENTER+BOTTOM);
+            prismoid(size1=[button_length+buttons_clearance,body_thickness*0.6], size2=[button_length+buttons_clearance+10,body_thickness*0.6+3], rounding=buttons_rounding, h=shell_thickness*3, anchor=CENTER+BOTTOM, $fn=lowFn);
         }
     }
 }
