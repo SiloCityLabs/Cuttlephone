@@ -6,9 +6,9 @@
 
 use <fonts/orbitron/orbitron-light.otf>
 //TODO: include these in libraries directory. They're saved on my comp
-include <BOSL2/std.scad>
-include <BOSL2/hull.scad>
-include <BOSL2/rounding.scad>
+include <libraries/BOSL2/std.scad>
+include <libraries/BOSL2/hull.scad>
+include <libraries/BOSL2/rounding.scad>
 
 /*  measurements from the phone
  *  all values are in mm
