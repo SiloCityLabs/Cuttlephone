@@ -1,6 +1,6 @@
-/* Phone case generator
+/* Phone case generator.
  * Supports phone case, Joycon rails, Junglecat rails, and Cuttlephone gamepad
- * Designed to 3d print with PLA+, 0.4 nozzle, 0.2 layer height
+ * Designed to 3d print with PLA+, 0.4mm nozzle, 0.2mm layer height.
  * Author: Maave
  */
 
@@ -19,20 +19,22 @@ include <libraries/BOSL2/rounding.scad>
 
 case_material = "hard"; // [hard, soft]
 case_type = "phone case"; // [phone case, gamepad, joycon, junglecat]
-//joycon and junglecat rail requires support to print horizontally. "Cutout" support is designed to remove with a razor blade. "None" means you'll handle it yourself in your slicer. "Peeloff" is experimental and still requires a blade
 
 //this should be a multiple of nozzle diameter
 shell_thickness = 1.6;
+//thing wall manual supports. Set this to nozzle diameter. In your slicer, enable thin wall support
+support_thickness = 0.4;
 
-rail_support = "cutout"; // [cutout, peeloff, none]
+ //"Cutout" can be removed with a razor blade. Use "thin wall detection" in your slicer. "None" means you'll handle it yourself in your slicer. "Peeloff" is experimental and still requires a blade
+manual_supports = "cutout"; // [cutout, peeloff, none]
 //set this to your layer height
 support_airgap = 0.20; //TODO: test and tweak. This may depend on layer height.
 
 emboss_version_text = true;
 phone_model = "Pixel 3";
 
-//debug cuts
-debug = "none"; //[none, corners, side_edge, bottom_edge, top_edge]
+//test cuts
+test = "none"; //[none, corners, right_edge, right_buttons, left_edge, bottom_edge, top_edge]
 
 /* [body] */
 
@@ -60,11 +62,20 @@ screen_extra_bottom_right = 0;
 
 /* [side buttons] */
 right_button = false;
-right_button_from_top = 31;
-right_button_length = 42;
+right_power_button = false;
+right_power_from_top = 31.1;
+right_power_length = 10.1;
+right_volume_buttons = false;
+right_volume_from_top = 50.1;
+right_volume_length = 20.1;
 left_button = false;
-left_button_from_top = 35;
-left_button_length = 42;
+left_button_from_top = 35.1;
+left_power_button = false;
+left_power_from_top = 30.1;
+left_power_length = 10.1;
+left_volume_from_top = 50.1;
+left_volume_buttons = false;
+left_volume_length = 20.1;
 
 /* [camera/fingerprint] */
 
@@ -110,7 +121,7 @@ case_type_override="stupid_hack";
 case_type2 = (case_type_override!=undef && case_type_override!="stupid_hack") ? case_type_override : case_type;
 
 // phone case / general variables
-buttons_clearance = 10;
+buttons_clearance = 5;
 extra_lip_bonus = extra_lip ? 1 : 0;
 anti_snag_radius = 3.8;
 
@@ -164,7 +175,7 @@ difference(){
     else if(case_type2=="junglecat") {
         junglecat_rails();
     }
-    debug_cuts();
+    test_cuts();
 }
 
 module phone_case(){
@@ -246,10 +257,12 @@ module body_profile(){
     );
 }
 
-//manual supports for soft TPU prints
+//manual supports and stick-out buttons for soft TPU prints
 module soft_supports(){
-    soft_button_supports();
-    soft_usb_support();
+    if(case_material=="soft") {
+        soft_buttons();
+        soft_usb_support();
+    }
 }
 
 //phone_shell();
@@ -357,7 +370,7 @@ module junglecat_cuts(){
             );
             //lip cutout
             translate([(face_width-junglecat_rail_length)/2+shell_thickness,-junglecat_depth/2-junglecat_lip_thickness/2,0]) {
-                if(rail_support=="peeloff"){
+                if(manual_supports=="peeloff"){
                     //this adds a visible lip so you rip off the support and not the rail
                     removal_aid = 4;
                     rotate([90,0,0])
@@ -366,7 +379,7 @@ module junglecat_cuts(){
                         isize=[junglecat_rail_length, junglecat_lip_width], 
                         h=junglecat_depth,
                         anchor=CENTER);
-                } else if (rail_support=="cutout") {
+                } else if (manual_supports=="cutout") {
                     //solid wall that you must cut with a craft knife
                     //the only cutout is a "hint" on one side
                     translate([-junglecat_rail_length/2,0,0])
@@ -392,7 +405,7 @@ module joycon_cuts(){
             cube([face_width+shell_thickness+2,joycon_depth,joycon_inner_width],center=true);
             //lip cutout
             translate([0,-joycon_depth/2-joycon_lip_thickness/2,0]) {
-                if(rail_support=="cutout"){
+                if(manual_supports=="cutout"){
                     //this adds a visible lip so you rip off the support and not the rail
                     removal_aid = 4;
                     rotate([90,0,0])
@@ -691,73 +704,144 @@ module soft_usb_support(){
     
 }
 
+//button_cuts();
 module button_cuts(){
     //left_button=true;
     if(left_button){
-        button_cut(false, left_button_length, right_button_from_top);
+        button_cut(false, left_power_button, left_power_from_top, left_power_length, left_volume_buttons, left_volume_from_top, left_volume_length);
     }
     //right_button_cut=true;
-    if(right_button) {
-        button_cut(true, right_button_length, right_button_from_top);
+    if(right_button){
+        button_cut(true, right_power_button, right_power_from_top, right_power_length, right_volume_buttons, right_volume_from_top, right_volume_length);
     }
 }
 
-buttons_rounding = 2;
-module button_cut(left, button_length, button_offset){
-    left_or_right = left ? 1 : -1;
-    anti_snag_height = body_thickness; //TODO: use joycon_thickness on joycon version
+button_cut_rounding = 2;
+module button_cut(right,  power_button, power_from_top, power_length, volume_buttons, volume_from_top, volume_length){
+    right_or_left = right ? 1 : -1;
+    has_power_button = power_button ? 1 : 0;
+    has_volume_buttons = volume_buttons ? 1 : 0;
+    has_space = (has_volume_buttons && has_power_button) ? 1 : 0;
+    power_position = (power_from_top > volume_from_top) ? 1 : 0;
+    volume_position = (power_from_top < volume_from_top) ? 1 : 0;
+    space_between_buttons = abs(power_from_top-volume_from_top) - power_position*volume_length - volume_position*power_length;
+    button_length = has_volume_buttons*volume_length + has_power_button*power_length + has_space*space_between_buttons;
+    button_offset = min(power_from_top, volume_from_top);
+
     button_cut_thickness = 6;
+    anti_snag_height = body_thickness; //TODO: use joycon_thickness on joycon version
     
     color("red", 0.2)
-    translate( [ left_or_right*(face_width/2),
-        face_length/2 - button_offset - button_length/2, 
-        0
-    ] )
     if(case_material=="hard"){
+        translate( [ right_or_left*(face_width/2),
+            face_length/2 - button_offset - button_length/2, 
+            0
+        ] )
         translate([0,0,-body_thickness/2+shell_thickness+extra_lip_bonus+0.05])
         rotate([0,0,90]) {
             //button cut
-            cuboid([button_length+buttons_clearance, button_cut_thickness, 50], rounding=buttons_rounding, $fn=lowFn);
+            cuboid([button_length+buttons_clearance*2, button_cut_thickness, 50], rounding=button_cut_rounding, $fn=lowFn);
 
             //anti snag rounding
-            rectangle = square([button_length+buttons_clearance, shell_thickness*4+0.1],center=true);
+            rectangle = square([button_length+buttons_clearance*2, shell_thickness*4+0.1],center=true);
             offset_sweep(rectangle, height=anti_snag_height,top=os_circle(r=-anti_snag_radius));
         }
     }
     else{
-        rotate([left_or_right*90,0,90]) {
+        //
+        soft_cut(right, button_offset, button_length, true);
+    }
+}
+
+//simple cutout for mute switches
+module soft_cut(right, button_offset, button_length, disable_cutout){
+    right_or_left = right ? 1 : -1;
+    difference() {
+        //cutout
+        translate( [ right_or_left*(face_width/2),
+            face_length/2 - button_offset - button_length/2, 
+            0
+        ] )
+        rotate([right_or_left*90,0,90]) {
             //straight-thru cut
-            prismoid(size1=[button_length+buttons_clearance,body_thickness*0.6], size2=[button_length+buttons_clearance,body_thickness*0.6], rounding=buttons_rounding, h=shell_thickness*3, anchor=CENTER, $fn=lowFn);
-            //bevel cut. Needs to be nugdged over
-            prismoid(size1=[button_length+buttons_clearance,body_thickness*0.6], size2=[button_length+buttons_clearance+10,body_thickness*0.6+3], rounding=buttons_rounding, h=shell_thickness*3, anchor=CENTER+BOTTOM, $fn=lowFn);
+            prismoid(size1=[button_length+buttons_clearance*2,body_thickness*0.6], size2=[button_length+buttons_clearance*2,body_thickness*0.6], rounding=button_cut_rounding, h=shell_thickness*3, anchor=CENTER, $fn=lowFn);
+            //bevel cut. Needs to be nudged over
+            prismoid(size1=[button_length+buttons_clearance*2,body_thickness*0.6], size2=[button_length+buttons_clearance*2+10,body_thickness*0.6+5], rounding=button_cut_rounding, h=shell_thickness*3, anchor=CENTER+BOTTOM, $fn=lowFn);
+        }
+        
+        //manual supports
+        color("blue", 0.2)
+        if(manual_supports=="cutout" && !disable_cutout) {
+            translate( [ right_or_left*(face_width/2),
+                face_length/2 - button_offset - button_length/2, 
+                0
+            ] )
+            rotate([right_or_left*90,0,90]) {
+                prismoid(size1=[button_length+buttons_clearance*2-button_cut_rounding,body_thickness*0.6], size2=[button_length+buttons_clearance*2-button_cut_rounding,body_thickness*0.6], h=support_thickness, anchor=CENTER);
+            }
         }
     }
 }
 
-//soft_button_supports();
-module soft_button_supports(){
-    if(case_material=="soft") {
-        //left_button=true;
-        if(left_button){
-            soft_button_support(false, left_button_length, right_button_from_top);
-        }
-        //right_button_cut=true;
-        if(right_button) {
-            soft_button_support(true, right_button_length, right_button_from_top);
-        }
+module soft_buttons(){
+    //left_button=true;
+    if(left_button){
+        soft_button(false, left_power_button, left_power_from_top, left_power_length, left_volume_buttons, left_volume_from_top, left_volume_length);
+    }
+    //right_button_cut=true;
+    if(right_button){
+        soft_button(true, right_power_button, right_power_from_top, right_power_length, right_volume_buttons, right_volume_from_top, right_volume_length);
     }
 }
-
-module soft_button_support(left, button_length, button_offset){
-    left_or_right = left ? 1 : -1;
-    support_thickness = 0.4;
+/* soft buttons are RIGHT aligned (not CENTER) to simplify the measurement */
+module soft_button(right,  power_button, power_from_top, power_length, volume_buttons, volume_from_top, volume_length){
+    //lots of booleans to enable/disable features
+    right_or_left = right ? 1 : -1;
+    has_power_button = power_button ? 1 : 0;
+    has_volume_buttons = volume_buttons ? 1 : 0;
+    has_space = (has_volume_buttons && has_power_button) ? 1 : 0;
+    power_position = (power_from_top > volume_from_top) ? 1 : 0;
+    volume_position = (power_from_top < volume_from_top) ? 1 : 0;
+    space_between_buttons = abs(power_from_top-volume_from_top) - power_position*volume_length - volume_position*power_length;
+    button_length = has_volume_buttons*volume_length + has_power_button*power_length + has_space*space_between_buttons;
+    button_offset = min(power_from_top, volume_from_top);
+    
+    button_protrusion = 0.8;
+    button_rounding=body_thickness*0.1;
+    buttons_padding=1; //bonus to allow error in measuring
+    
     color("blue", 0.2)
-    translate( [ left_or_right*(face_width/2),
-        face_length/2 - button_offset - button_length/2, 
+    translate( [ right_or_left*(face_width/2),
+        face_length/2,
         0
     ] )
-    rotate([left_or_right*90,0,90]) {
-        prismoid(size1=[button_length+buttons_clearance-buttons_rounding,body_thickness*0.6], size2=[button_length+buttons_clearance-buttons_rounding,body_thickness*0.6], h=support_thickness, anchor=CENTER);
+    rotate([right_or_left*90,0,90]) {
+        difference(){
+            soft_button_positive();
+            soft_button_negative();
+        }
+    }
+    //todo: align buttons. It's still off
+    module soft_button_positive(){
+        //backing
+        translate([buttons_clearance - button_offset - button_cut_rounding,0,0])
+        prismoid(size1=[button_length+buttons_clearance*2-button_cut_rounding*2,body_thickness*0.6], size2=[button_length+buttons_clearance*2-button_cut_rounding*2,body_thickness*0.6], h=support_thickness, anchor=CENTER+RIGHT);
+        //power
+        if(has_power_button)
+        translate([-power_from_top+buttons_padding,0,0])
+        prismoid(size1=[power_length+buttons_padding*2,body_thickness*0.5], size2=[power_length*0.9,body_thickness*0.3], h=shell_thickness+button_protrusion, rounding=button_rounding, anchor=CENTER+BOTTOM+RIGHT);
+        //volume
+        if(has_volume_buttons)
+        translate([-volume_from_top+buttons_padding,0,0])
+        prismoid(size1=[volume_length+buttons_padding*2,body_thickness*0.5], size2=[volume_length*0.9,body_thickness*0.3], h=shell_thickness+button_protrusion, rounding=button_rounding, anchor=CENTER+BOTTOM+RIGHT);
+    }
+    module soft_button_negative(){
+        //power
+        translate([-power_from_top+buttons_padding,0,0])
+        prismoid(size1=[power_length+buttons_padding*2,body_thickness*0.3], size2=[power_length,body_thickness*0.3], h=shell_thickness/2, rounding=button_rounding, anchor=CENTER+RIGHT);
+        //volume
+        translate([-volume_from_top+buttons_padding,0,0])
+        prismoid(size1=[volume_length+buttons_padding*2,body_thickness*0.3], size2=[volume_length,body_thickness*0.3], h=shell_thickness/2, rounding=button_rounding, anchor=CENTER+RIGHT);
     }
 }
 
@@ -882,23 +966,37 @@ module version_info_emboss(){
     }
 }
 
-//debug_cuts();
-module debug_cuts(){
-    if(debug=="corners") {
+//test_cuts();
+module test_cuts(){
+    if(test=="corners") {
         translate([0,0,0])
         cuboid([100,200,50], anchor=CENTER+BOTTOM);
     }
-    else if(debug=="bottom_edge") {
+    else if(test=="bottom_edge") {
         translate([0,-face_length/2+15,0])
         cuboid([100,200,50], anchor=CENTER+FRONT);
     }
-    else if(debug=="top_edge") {
+    else if(test=="top_edge") {
         translate([0,face_length/2-15,0])
         cuboid([100,200,50], anchor=CENTER+BACK);
     }
-    else if(debug=="side_edge") {
+    else if(test=="right_edge") {
+        translate([face_width/4,0,0])
+        cuboid([100,200,50], anchor=CENTER+RIGHT);
+    }
+    else if(test=="left_edge") {
         translate([-face_width/4,0,0])
         cuboid([100,200,50], anchor=CENTER+LEFT);
+    }
+    else if(test=="right_buttons") { //
+        translate([face_width/4,0,0])
+        cuboid([100,200,50], anchor=CENTER+RIGHT);
+        
+        translate([0,
+            face_length/3-max(right_volume_from_top,right_power_from_top) - max(right_volume_length,right_power_length),
+            0
+        ])
+        cuboid([100,200,50], anchor=[0,1,0]);
     }
 }
 
