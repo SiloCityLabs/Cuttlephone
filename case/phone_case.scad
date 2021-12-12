@@ -761,7 +761,7 @@ module button_cut(right,  power_button, power_from_top, power_length, volume_but
             buttons_vertical_fudge
         ] )
         rotate([right_or_left*90,0,90])
-        soft_cut(button_length, true);
+        soft_cut(button_length, disable_support=true, disable_clearance=false);
     }
 }
 
@@ -814,12 +814,12 @@ module soft_button(right,  power_button, power_from_top, power_length, volume_bu
     button_protrusion = 0.8;
     button_recess = 1.6;
     button_rounding=body_thickness*0.1;
-    buttons_padding=2; //bonus to allow error in measuring
+    button_padding=2; //bonus to allow error in measuring
     
     color("blue", 0.2)
     translate( [ right_or_left*(face_width/2),
         face_length/2,
-        0
+        buttons_vertical_fudge
     ] )
     rotate([right_or_left*90,0,90]) {
         difference(){
@@ -830,27 +830,46 @@ module soft_button(right,  power_button, power_from_top, power_length, volume_bu
     
     module soft_button_positive(){
         //backing
-        translate([buttons_clearance - button_offset - button_cut_rounding,buttons_vertical_fudge,0])
+        //I tried having this all filled in (looks better) but it makes the buttons hard to press
+        translate([buttons_clearance - button_offset-button_cut_rounding,0,0])
         prismoid(size1=[button_length+buttons_clearance*2-button_cut_rounding*2,body_thickness*0.6], size2=[button_length+buttons_clearance*2-button_cut_rounding*2,body_thickness*0.6], h=support_thickness, anchor=CENTER+RIGHT);
         //power
         if(has_power_button)
-        translate([-power_from_top+buttons_padding,buttons_vertical_fudge,0])
-        prismoid(size1=[power_length+buttons_padding*2,body_thickness*0.5], size2=[power_length*0.9,body_thickness*0.3], h=shell_thickness+button_protrusion, rounding=button_rounding, anchor=CENTER+BOTTOM+RIGHT);
+        translate([-power_from_top+button_padding,0,0])
+        prismoid(size1=[power_length+button_padding*2,body_thickness*0.55], size2=[(power_length+button_padding*2)*0.9,body_thickness*0.2], h=shell_thickness+button_protrusion, rounding=button_rounding, anchor=CENTER+BOTTOM+RIGHT);
         //volume
         if(has_volume_buttons)
-        translate([-volume_from_top+buttons_padding,buttons_vertical_fudge,0])
-        prismoid(size1=[volume_length+buttons_padding*2,body_thickness*0.5], size2=[volume_length*0.9,body_thickness*0.3], h=shell_thickness+button_protrusion, rounding=button_rounding, anchor=CENTER+BOTTOM+RIGHT);
+        translate([-volume_from_top+button_padding,0,0])
+        prismoid(size1=[volume_length+button_padding*2,body_thickness*0.5], size2=[(volume_length+button_padding*2)*0.9,body_thickness*0.2], h=shell_thickness+button_protrusion, rounding=button_rounding, anchor=CENTER+BOTTOM+RIGHT);
     }
-    //the recess for the phone's buttons to sit in
+    
     module soft_button_negative(){
         //power
-        if(has_power_button)
-        translate([-power_from_top+buttons_padding,buttons_vertical_fudge,0])
-        prismoid(size1=[power_length+buttons_padding*2,body_thickness*0.4], size2=[power_length,body_thickness*0.4], h=button_recess, rounding=button_rounding, anchor=CENTER+RIGHT);
+        translate([-power_from_top+button_padding,0,0])
+        if(has_power_button){
+            //recess
+            prismoid(size1=[power_length+button_padding*2,body_thickness*0.4], size2=[power_length,body_thickness*0.4], h=button_recess, rounding=button_rounding, anchor=CENTER+RIGHT);
+            
+            //power button texture
+            box=1;
+            sep=2;
+            for(i=[0:floor((power_length+button_padding*2)/sep)]){
+                translate([-i*sep,0,shell_thickness+button_protrusion])
+                rotate([0,45,0])
+                cuboid([2,2,2], anchor=CENTER+RIGHT);
+            }
+        }
         //volume
-        if(has_volume_buttons)
-        translate([-volume_from_top+buttons_padding,buttons_vertical_fudge,0])
-        prismoid(size1=[volume_length+buttons_padding*2,body_thickness*0.4], size2=[volume_length,body_thickness*0.4], h=button_recess, rounding=button_rounding, anchor=CENTER+RIGHT);
+        translate([-volume_from_top+button_padding,0,0])
+        if(has_volume_buttons){
+            //recess
+            prismoid(size1=[volume_length+button_padding*2,body_thickness*0.4], size2=[volume_length,body_thickness*0.4], h=button_recess, rounding=button_rounding, anchor=CENTER+RIGHT);
+        
+            //texture
+            translate([-volume_length/2-button_padding,0,shell_thickness+button_protrusion])
+            rotate([0,45,0])
+            cuboid([2,2,2], anchor=CENTER+RIGHT);
+        }
     }
 }
 
