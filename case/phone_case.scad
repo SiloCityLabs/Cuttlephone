@@ -115,9 +115,11 @@ $fn=20;
 lowFn = 10;
 highFn = 25;
 
- /* I cannot override case_type for some reason, it doesn't take effect. But this works. */
+ /* I cannot override some variables via command line for some reason. But this works. */
 case_type_override="stupid_hack";
 case_type2 = (case_type_override!=undef && case_type_override!="stupid_hack") ? case_type_override : case_type;
+case_material_override="stupid_hack";
+case_material2 = (case_material_override!=undef && case_material_override!="stupid_hack") ? case_material_override : case_material;
 
 // phone case / general variables
 buttons_clearance = 5;
@@ -155,7 +157,7 @@ junglecat_depth = 3.3;
 //embossment text
 name = "Cuttlephone";
 author = "Maave";
-version = "v0.1";
+version = "v0.1 808c493";
 
 //unsupported features
 lanyard_loop = false;
@@ -258,7 +260,7 @@ module body_profile(){
 
 //manual supports and stick-out buttons for soft TPU prints
 module soft_supports(){
-    if(case_material=="soft") {
+    if(case_material2=="soft") {
         soft_buttons();
         soft_usb_support();
     }
@@ -673,7 +675,7 @@ module usb_cut(){
     
     color("red", 0.2)
     translate( [0, -face_length/2, 0] )
-    if(case_material=="hard"){
+    if(case_material2=="hard"){
         anti_snag(charge_port_width);
     }
     else { //soft cut
@@ -699,7 +701,7 @@ module usb_cut(){
 //soft_usb_support();
 module soft_usb_support(){
     /*
-    if(case_material=="soft")
+    if(case_material2=="soft")
     color("blue", 0.2)
     translate( [0, -face_length/2, 0] )
     rotate([90,0,0])
@@ -739,7 +741,7 @@ module button_cut(right,  power_button, power_from_top, power_length, volume_but
     anti_snag_height = body_thickness; //TODO: use joycon_thickness on joycon version
     
     color("red", 0.2)
-    if(case_material=="hard"){
+    if(case_material2=="hard"){
         translate( [ right_or_left*(face_width/2),
             face_length/2 - button_offset - button_length/2, 
             0
@@ -889,7 +891,7 @@ module camera_cut(){
         rounding=camera_radius_clearanced,
         anchor=ALLPOS
     );
-    //if(case_material=="soft") //soft
+    //if(case_material2=="soft") //soft
 }
 
 //extra_camera_cut();
@@ -960,7 +962,7 @@ module top_headphone_cut(){
     trans = [ -face_width/2+headphone_from_left_edge+1.7, face_length/2, 0 ];
     color("red", 0.2)
     if (headphone_jack_cut) {
-        if(case_material=="hard"){
+        if(case_material2=="hard"){
             //we measure from edge of phone to edge of the 3.5mm jack. +1.7 to center it
             translate(trans)
             anti_snag(headphone_radius_hard*2, top_radius=headphone_radius_hard/1.1, bottom_radius=headphone_radius_hard/1.1);
