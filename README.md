@@ -1,11 +1,16 @@
 # Cuttlephone
-Cuttlephone is a modular 3D printed phone case and USB-C gamepad.
+Cuttlephone is a adaptable 3D printed phone case and USB-C gamepad.
 
 # Status
 A prototype (0.x) is currently in development. Currently supports:
  - phone case
  - Switch Joy-Con rails
  - Razer Junglecat rails
+ 
+ # How to use
+Check the website for premade .3MF model of supported phones. To create your own phone, install OpenSCAD, clone the repo or download the .ZIP, and run "case/phone_case.scad". Run "sh build.sh" to create all 3MF files.
+
+# Build logs 
 
 You can follow progress here:
  - [HackADay.io project log](https://hackaday.io/project/165606-cuttlephone-gamepad-phone-case)
@@ -24,9 +29,6 @@ You can follow progress here:
 The phone case uses OpenSCAD Customizer to support many phone models.
 
 The gamepad uses an ATmega32u4 which has built in USB support. The firmware will use the [LUFA library](https://github.com/abcminiuser/lufa) to implement a USB HID gamepad.
-
-# How can I help?
-Stick around until the prototype is finished! Follow the project with the links above. I'm open to suggestions.
 
 # Roadmap
 

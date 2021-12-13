@@ -38,9 +38,11 @@ pcb/intermediates/
 # IDE files
 .idea/
 
-# local file server stuff
+# local file server for Jekyll pages
 Gemfile
 Gemfile.lock
+docs/_site/
+docs/.jekyll-cache
 
 # build dir
 case/build/
