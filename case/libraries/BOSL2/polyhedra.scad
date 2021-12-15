@@ -1,11 +1,11 @@
 //////////////////////////////////////////////////////////////////////
 // LibFile: polyhedra.scad
 //   Useful platonic, archimedian, and catalan polyhedra.
-//   To use, add the following lines to the beginning of your file:
-//   ```
+// Includes:
 //   include <BOSL2/std.scad>
 //   include <BOSL2/polyhedra.scad>
-//   ```
+// FileGroup: Parts
+// FileSummary: Platonic, Archimidean, Catalan, and stellated polyhedra.
 //////////////////////////////////////////////////////////////////////
 
 
@@ -120,9 +120,11 @@ function _unique_groups(m) = [
 //     * `"great dodecahedron"`
 //     * `"small stellated dodecahedron"`
 //     * `"great stellated dodecahedron"`
+//     * `"small triambic icosahedron"`
 //
 // Arguments:
 //   name = Name of polyhedron to create.
+//   ---
 //   index = Index to select from polyhedron list.  Default: 0.
 //   type = Type of polyhedron: "platonic", "archimedean", "catalan".
 //   faces = Number of faces.
@@ -148,7 +150,7 @@ function _unique_groups(m) = [
 // Side Effects:
 //   `$faceindex` - Index number of the face
 //   `$face` - Coordinates of the face (2d if rotate_children==true, 3d if not)
-//   `$center` - Polyhedron center in the child coordinate system
+//   `$center` - Face center in the child coordinate system
 //
 // Examples: All of the available polyhedra by name in their native orientation
 //   regular_polyhedron("tetrahedron", facedown=false);
@@ -186,6 +188,7 @@ function _unique_groups(m) = [
 //   regular_polyhedron("great dodecahedron");
 //   regular_polyhedron("small stellated dodecahedron");
 //   regular_polyhedron("great stellated dodecahedron");
+//   regular_polyhedron("small triambic icosahedron");
 // Example: Third Archimedean solid
 //   regular_polyhedron(type="archimedean", index=2);
 // Example(Med): Solids that have 8 or 10 vertex faces
@@ -216,7 +219,7 @@ function _unique_groups(m) = [
 //     color("red") sphere(r=.1);
 //     color("green") sphere(r=.1);
 //   }
-// Example(FlatSpin): Difference the children from the polyhedron; children depend on $faceindex
+// Example(FlatSpin,VPD=100): Difference the children from the polyhedron; children depend on $faceindex
 //   difference(){
 //     regular_polyhedron("tetrahedron", side=25);
 //     regular_polyhedron("tetrahedron", side=25,draw=false)
@@ -228,7 +231,7 @@ function _unique_groups(m) = [
 //     cylinder(r=.1, h=.5);
 //   right(2) regular_polyhedron(name="tetrahedron", anchor=UP, rotate_children=false)
 //     cylinder(r=.1, h=.5);
-// Example(FlatSpin,Med): Using `$face` you can have full control of the construction of your children.  This example constructs the Great Icosahedron.
+// Example(FlatSpin,Med,VPD=15): Using `$face` you can have full control of the construction of your children.  This example constructs the Great Icosahedron.
 //   module makestar(pts) {    // Make a star from a point list
 //       polygon(
 //         [
@@ -276,6 +279,10 @@ function _unique_groups(m) = [
 //     %sphere(r=.98);
 //     regular_polyhedron("pentagonal hexecontahedron", or=1,facedown=false);
 //   }
+// Example: Stellate an Archimedian solid, which has mixed faces
+//   regular_polyhedron("truncated icosahedron",stellate=1.5,or=1);
+// Example: Stellate a Catalan solid where faces are not regular
+//   regular_polyhedron("triakis tetrahedron",stellate=0.5,or=1);
 module regular_polyhedron(
     name=undef,
     index=undef,
@@ -283,7 +290,7 @@ module regular_polyhedron(
     faces=undef,
     facetype=undef,
     hasfaces=undef,
-    side=1,
+    side=undef,
     ir=undef,
     mr=undef,
     or=undef,
@@ -331,20 +338,19 @@ module regular_polyhedron(
             }
         }
     }
+    translate(translation)
     if ($children>0) {
         maxrange = repeat ? len(faces)-1 : $children-1;
         for(i=[0:1:maxrange]) {
             // Would like to orient so an edge (longest edge?) is parallel to x axis
-            facepts = move(translation, p=select(scaled_points, faces[i]));
-            center = mean(facepts);
-            rotatedface = rot(from=face_normals[i], to=[0,0,1], p=move(-center, p=facepts));
-            clockwise = sortidx([for(pt=rotatedface) -atan2(pt.y,pt.x)]);
-            $face = rotate_children?
-                        path2d(select(rotatedface,clockwise)) :
-                        select(move(-center,p=facepts), clockwise);
+            facepts = select(scaled_points, faces[i]);
+            $center = -mean(facepts);
+            cfacepts = move($center, p=facepts);
+            $face = rotate_children
+                      ? path2d(rot(from=face_normals[i], to=[0,0,1], p=cfacepts))
+                      : cfacepts;
             $faceindex = i;
-            $center = -translation-center;
-            translate(center)
+            translate(-$center)
             if (rotate_children) {
                 rot(from=[0,0,1], to=face_normals[i])
                 children(i % $children);
@@ -373,7 +379,7 @@ function _point_ref(points, sign="both") =
     unique([
         for(i=[-1,1],j=[-1,1],k=[-1,1])
             if (sign=="both" || sign=="even" && i*j*k>0 || sign=="odd" && i*j*k<0)
-                each [for(point=points) vmul(point,[i,j,k])]
+                each [for(point=points) v_mul(point,[i,j,k])]
     ]);
 //
 _tribonacci=(1+4*cosh(acosh(2+3/8)/3))/3;
@@ -538,12 +544,14 @@ _stellated_polyhedra_ = [
     ["great dodecahedron", "icosahedron", -sqrt(5/3-PHI)],
     ["small stellated dodecahedron", "dodecahedron", sqrt((5+2*sqrt(5))/5)],
     ["great stellated dodecahedron", "icosahedron", sqrt(2/3+PHI)],
+    ["small triambic icosahedron", "icosahedron", sqrt(3/5) - 1/sqrt(3)]
 ];
 
 
 // Function: regular_polyhedron_info()
 //
-// Usage: regular_polyhedron_info(info, ....)
+// Usage:
+//   x = regular_polyhedron_info(info, ....);
 //
 // Description:
 //   Calculate characteristics of regular polyhedra or the selection set for regular_polyhedron().
@@ -565,6 +573,7 @@ _stellated_polyhedra_ = [
 //
 // Arguments:
 //   name = Name of polyhedron to create.
+//   ---
 //   index = Index to select from polyhedron list.  Default: 0.
 //   type = Type of polyhedron: "platonic", "archimedean", "catalan".
 //   faces = Number of faces.
@@ -590,7 +599,7 @@ function regular_polyhedron_info(
     info=undef, name=undef,
     index=undef, type=undef,
     faces=undef, facetype=undef,
-    hasfaces=undef, side=1,
+    hasfaces=undef, side=undef,
     ir=undef, mr=undef, or=undef,
     r=undef, d=undef,
     anchor=[0,0,0], center=undef,
@@ -601,7 +610,7 @@ function regular_polyhedron_info(
         argcount = num_defined([ir,mr,or,r,d])
     )
     assert(argcount<=1, "You must specify only one of 'ir', 'mr', 'or', 'r', and 'd'")
-    let(
+    let(  
         //////////////////////
         //Index values into the _polyhedra_ array
         //
@@ -663,6 +672,7 @@ function regular_polyhedron_info(
     )
     assert(valid_facedown,str("'facedown' set to ",facedown," but selected polygon only has faces with size(s) ",entry[facevertices]))
     let(
+        side = default(side,1),   // This default setting must occur after _trapezohedron is called
         scalefactor = (
             name=="trapezohedron" ? 1 : (
                 argcount == 0? side :
@@ -687,7 +697,7 @@ function regular_polyhedron_info(
         boundtable = [bounds[0], [0,0,0], bounds[1]],
         translation = [for(i=[0:2]) -boundtable[1+anchor[i]][i]],
         face_normals = rot(p=faces_normals_vertices[1], from=down_direction, to=[0,0,-1]),
-        side_length = scalefactor * entry[edgelen]
+        radius_scale = name=="trapezohedron" ? 1 : scalefactor * entry[edgelen]
     )
     info == "fullentry" ? [
         scaled_points,
@@ -695,15 +705,15 @@ function regular_polyhedron_info(
         stellate ? faces : face_triangles,
         faces,
         face_normals,
-        side_length*entry[in_radius]
+        radius_scale*entry[in_radius]
     ] :
-    info == "vnf" ? [move(translation,p=scaled_points), stellate ? faces : face_triangles] : 
+    info == "vnf" ? [move(translation,p=scaled_points), faces] :
     info == "vertices" ? move(translation,p=scaled_points) :
     info == "faces" ? faces :
     info == "face normals" ? face_normals :
-    info == "in_radius" ? side_length * entry[in_radius] :
-    info == "mid_radius" ? side_length * entry[mid_radius] :
-    info == "out_radius" ? side_length * entry[out_radius] :
+    info == "in_radius" ? radius_scale * entry[in_radius] :
+    info == "mid_radius" ? radius_scale * entry[mid_radius] :
+    info == "out_radius" ? radius_scale * entry[out_radius] :
     info == "index set" ? indexlist :
     info == "face vertices" ? (stellate==false? entry[facevertices] : [3]) :
     info == "edge length" ? scalefactor * entry[edgelen] :
@@ -729,13 +739,13 @@ function _stellate_faces(scalefactor,stellate,vertices,faces_normals) =
 function _trapezohedron(faces, r, side, longside, h, d) =
     assert(faces%2==0, "Must set 'faces' to an even number for trapezohedron")
     let(
-        r = get_radius(r=r, d=d, dflt=1),
+        r = get_radius(r=r, d=d),
         N = faces/2,
         parmcount = num_defined([r,side,longside,h])
     )
     assert(parmcount==2,"Must define exactly two of 'r', 'side', 'longside', and 'height'")
-    let(
-        separation = (
+    let(       
+        separation = (     // z distance between non-apex vertices that aren't in the same plane
             !is_undef(h) ? 2*h*sqr(tan(90/N)) :
             (!is_undef(r) && !is_undef(side))? sqrt(side*side+2*r*r*(cos(180/N)-1)) :
             (!is_undef(r) && !is_undef(longside))? 2 * sqrt(sqr(longside)-sqr(r)) / (1-sqr(tan(90/N))) * sqr(tan(90/N)) :
@@ -753,7 +763,7 @@ function _trapezohedron(faces, r, side, longside, h, d) =
         top = [for(i=[0:1:N-1]) [r*cos(360/N*i), r*sin(360/N*i),separation/2]],
         bot = [for(i=[0:1:N-1]) [r*cos(180/N+360/N*i), r*sin(180/N+360/N*i),-separation/2]],
         vertices = concat([[0,0,h],[0,0,-h]],top,bot)
-    ) [
+    ) [  
         "trapezohedron", "trapezohedron", faces, [4],
         !is_undef(side)? side : sqrt(sqr(separation)-2*r*(cos(180/N)-1)),  // actual side length
         h*r/sqrt(r*r+sqr(h+separation/2)),     // in_radius
@@ -768,15 +778,28 @@ function _facenormal(pts, face) = unit(cross(pts[face[2]]-pts[face[0]], pts[face
 
 // hull() function returns triangulated faces.    This function identifies the vertices that belong to each face
 // by grouping together the face triangles that share normal vectors.    The output gives the face polygon
-// point indices in arbitrary order (not usable as input to a polygon call) and a normal vector.
+// point indices in arbitrary order (not usable as input to a polygon call) and a normal vector.  Finally
+// the faces are ordered based on angle with their center (will always give a valid order for convex polygons).
+// Final return is [ordered_faces, facenormals] where the first is a list of indices into the point list
+// and the second is a list of vectors.  
 
 function _full_faces(pts,faces) =
     let(
         normals = [for(face=faces) quant(_facenormal(pts,face),1e-12)],
         groups = _unique_groups(normals),
         faces = [for(entry=groups) unique(flatten(select(faces, entry)))],
-        facenormals = [for(entry=groups) normals[entry[0]]]
-    ) [faces, facenormals];
+        facenormals = [for(entry=groups) normals[entry[0]]],
+        ordered_faces = [
+            for(i=idx(faces))
+              let(
+                  facepts = select(pts, faces[i]),
+                  center = mean(facepts),
+                  rotatedface = rot(from=facenormals[i], to=[0,0,1], p=move(-center, p=facepts)),
+                  clockwise = sortidx([for(pt=rotatedface) -atan2(pt.y,pt.x)])
+              )
+            select(faces[i],clockwise)
+        ]
+    ) [ordered_faces, facenormals];
 
 
 // vim: expandtab tabstop=4 shiftwidth=4 softtabstop=4 nowrap

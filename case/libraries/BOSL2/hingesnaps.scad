@@ -1,13 +1,14 @@
 //////////////////////////////////////////////////////////////////////
 // LibFile: hingesnaps.scad
 //   Useful hinge mask and snaps shapes.
-//   To use, add the following lines to the beginning of your file:
-//   ```
+// Includes:
 //   include <BOSL2/std.scad>
 //   include <BOSL2/hingesnaps.scad>
-//   ```
+// FileGroup: Parts
+// FileSummary: Foldable, snap-locking parts.
 //////////////////////////////////////////////////////////////////////
 
+// Section: Hinges and Snaps
 
 // Module: folding_hinge_mask()
 // Usage:
@@ -22,9 +23,9 @@
 //   layerheight = The expected printing layer height in mm.
 //   foldangle = The interior angle in degrees of the joint to be created with the hinge.  Default: 90
 //   hingegap = Size in mm of the gap at the bottom of the hinge, to make room for folding.
-//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#anchor).  Default: `CENTER`
-//   spin = Rotate this many degrees around the Z axis.  See [spin](attachments.scad#spin).  Default: `0`
-//   orient = Vector to rotate top towards.  See [orient](attachments.scad#orient).  Default: `UP`
+//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
+//   spin = Rotate this many degrees around the Z axis.  See [spin](attachments.scad#subsection-spin).  Default: `0`
+//   orient = Vector to rotate top towards.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 // Example:
 //   folding_hinge_mask(l=100, thick=3, foldangle=60);
 module folding_hinge_mask(l, thick, layerheight=0.2, foldangle=90, hingegap=undef, anchor=CENTER, spin=0, orient=UP)
@@ -51,9 +52,9 @@ module folding_hinge_mask(l, thick, layerheight=0.2, foldangle=90, hingegap=unde
 //   layerheight = The expected printing layer height in mm.
 //   foldangle = The interior angle in degrees of the joint to be created with the hinge.  Default: 90
 //   hingegap = Size in mm of the gap at the bottom of the hinge, to make room for folding.
-//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#anchor).  Default: `CENTER`
-//   spin = Rotate this many degrees around the Z axis.  See [spin](attachments.scad#spin).  Default: `0`
-//   orient = Vector to rotate top towards.  See [orient](attachments.scad#orient).  Default: `UP`
+//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
+//   spin = Rotate this many degrees around the Z axis.  See [spin](attachments.scad#subsection-spin).  Default: `0`
+//   orient = Vector to rotate top towards.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 // Example:
 //   snap_lock(thick=3, foldangle=60);
 module snap_lock(thick, snaplen=5, snapdiam=5, layerheight=0.2, foldangle=90, hingegap=undef, anchor=CENTER, spin=0, orient=UP)
@@ -85,9 +86,9 @@ module snap_lock(thick, snaplen=5, snapdiam=5, layerheight=0.2, foldangle=90, hi
 //   layerheight = The expected printing layer height in mm.
 //   foldangle = The interior angle in degrees of the joint to be created with the hinge.  Default: 90
 //   hingegap = Size in mm of the gap at the bottom of the hinge, to make room for folding.
-//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#anchor).  Default: `CENTER`
-//   spin = Rotate this many degrees around the Z axis.  See [spin](attachments.scad#spin).  Default: `0`
-//   orient = Vector to rotate top towards.  See [orient](attachments.scad#orient).  Default: `UP`
+//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
+//   spin = Rotate this many degrees around the Z axis.  See [spin](attachments.scad#subsection-spin).  Default: `0`
+//   orient = Vector to rotate top towards.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 // Example:
 //   snap_socket(thick=3, foldangle=60);
 module snap_socket(thick, snaplen=5, snapdiam=5, layerheight=0.2, foldangle=90, hingegap=undef, anchor=CENTER, spin=0, orient=UP)
@@ -130,10 +131,8 @@ module snap_socket(thick, snaplen=5, snapdiam=5, layerheight=0.2, foldangle=90, 
 //   apply_folding_hinges_and_snaps(
 //       thick=3, foldangle=54.74,
 //       hinges=[
-//           for (a=[0,120,240]) each [
-//               [100, rot(a,p=[ size/4, 0        ]), a+90],
-//               [100, rot(a,p=[-size/2,-size/2.33]), a+90],
-//               [100, rot(a,p=[-size/2, size/2.33]), a+90]
+//           for (a=[0,120,240], b=[-size/2,size/4]) each [
+//               [200, polar_to_xy(b,a), a+90]
 //           ]
 //       ],
 //       snaps=[
@@ -149,10 +148,11 @@ module snap_socket(thick, snaplen=5, snapdiam=5, layerheight=0.2, foldangle=90, 
 //           ]
 //       ]
 //   ) {
+//       $fn=3;
 //       difference() {
-//           cylinder(r=size-1, h=3, spin=180, $fn=3);
-//           down(0.01) cylinder(r=size/4, h=3.1, spin=0, $fn=3);
-//           down(0.01) for (a=[0:120:359.9]) zrot(a) right(size/2) cylinder(r=size/4, h=3.1, spin=180, $fn=3);
+//           cylinder(r=size-1, h=3);
+//           down(0.01) cylinder(r=size/4.5, h=3.1, spin=180);
+//           down(0.01) for (a=[0:120:359.9]) zrot(a) right(size/2) cylinder(r=size/4.5, h=3.1);
 //       }
 //   }
 module apply_folding_hinges_and_snaps(thick, foldangle=90, hinges=[], snaps=[], sockets=[], snaplen=5, snapdiam=5, hingegap=undef, layerheight=0.2)

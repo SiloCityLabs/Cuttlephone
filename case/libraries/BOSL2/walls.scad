@@ -1,11 +1,11 @@
 //////////////////////////////////////////////////////////////////////
 // LibFile: walls.scad
 //   Various wall constructions.
-//   To use, add the following lines to the beginning of your file:
-//   ```
+// Includes:
 //   include <BOSL2/std.scad>
 //   include <BOSL2/walls.scad>
-//   ```
+// FileGroup: Parts
+// FileSummary: Walls and structural elements that 3D print without support.
 //////////////////////////////////////////////////////////////////////
 
 
@@ -28,9 +28,9 @@
 //   l = Length of the strut.
 //   wall = height of rectangular portion of the strut.
 //   ang = angle that the trianglar side will converge at.
-//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#anchor).  Default: `CENTER`
-//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#orient).  Default: `UP`
+//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
+//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
+//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 //
 // Example:
 //   narrowing_strut(w=10, l=100, wall=5, ang=30);
@@ -75,9 +75,9 @@ module narrowing_strut(w=10, l=100, wall=5, ang=30, anchor=BOTTOM, spin=0, orien
 //   ang = Maximum overhang angle of diagonal brace.
 //   braces = If true, adds diagonal crossbraces for strength.
 //   strut = The width of the borders and diagonal braces.  Default: `thick/2`
-//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#anchor).  Default: `CENTER`
-//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#orient).  Default: `UP`
+//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
+//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
+//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 //
 // Example: Typical Shape
 //   thinning_wall(h=50, l=80, thick=4);
@@ -93,10 +93,10 @@ module thinning_wall(h=50, l=100, thick=5, ang=30, braces=false, strut, wall, an
     wall = is_num(wall)? wall : thick/2;
 
     bevel_h = strut + (thick-wall)/2/tan(ang);
-    cp1 = find_circle_2tangents([0,0,h/2], [l2/2,0,h/2], [l1/2,0,-h/2], r=strut)[0];
-    cp2 = find_circle_2tangents([0,0,h/2], [l2/2,0,h/2], [l1/2,0,-h/2], r=bevel_h)[0];
-    cp3 = find_circle_2tangents([0,0,-h/2], [l1/2,0,-h/2], [l2/2,0,h/2], r=bevel_h)[0];
-    cp4 = find_circle_2tangents([0,0,-h/2], [l1/2,0,-h/2], [l2/2,0,h/2], r=strut)[0];
+    cp1 = circle_2tangents([0,0,+h/2], [l2/2,0,+h/2], [l1/2,0,-h/2], r=strut)[0];
+    cp2 = circle_2tangents([0,0,+h/2], [l2/2,0,+h/2], [l1/2,0,-h/2], r=bevel_h)[0];
+    cp3 = circle_2tangents([0,0,-h/2], [l1/2,0,-h/2], [l2/2,0,+h/2], r=bevel_h)[0];
+    cp4 = circle_2tangents([0,0,-h/2], [l1/2,0,-h/2], [l2/2,0,+h/2], r=strut)[0];
 
     z1 = h/2;
     z2 = cp1.z;
@@ -118,7 +118,7 @@ module thinning_wall(h=50, l=100, thick=5, ang=30, braces=false, strut, wall, an
 
     size = [l1, thick, h];
     attachable(anchor,spin,orient, size=size, size2=[l2,thick]) {
-        union() {
+        zrot(90) {
             polyhedron(
                 points=[
                     [-x4, -y1, -z1],
@@ -254,9 +254,9 @@ module thinning_wall(h=50, l=100, thick=5, ang=30, braces=false, strut, wall, an
 //   wall = the thickness of the thinned portion of the wall.
 //   diagonly = boolean, which denotes only the diagonal side (hypotenuse) should be thick.
 //   center = If true, centers shape.  If false, overrides `anchor` with `UP+BACK`.
-//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#anchor).  Default: `CENTER`
-//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#orient).  Default: `UP`
+//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
+//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
+//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 //
 // Example: Centered
 //   thinning_triangle(h=50, l=80, thick=4, ang=30, strut=5, wall=2, center=true);
@@ -314,9 +314,9 @@ module thinning_triangle(h=50, l=100, thick=5, ang=30, strut=5, wall=3, diagonly
 //   maxang = maximum overhang angle of cross-braces.
 //   max_bridge = maximum bridging distance between cross-braces.
 //   strut = the width of the cross-braces.
-//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#anchor).  Default: `CENTER`
-//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#orient).  Default: `UP`
+//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
+//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
+//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 //
 // Example: Typical Shape
 //   sparse_strut(h=40, l=100, thick=3);
@@ -383,9 +383,9 @@ module sparse_strut(h=50, l=100, thick=4, maxang=30, strut=5, max_bridge=20, anc
 //   maxang = maximum overhang angle of cross-braces.
 //   max_bridge = maximum bridging distance between cross-braces.
 //   strut = the width of the cross-braces.
-//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#anchor).  Default: `CENTER`
-//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#orient).  Default: `UP`
+//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
+//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
+//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 //
 // Example(Med): Typical Shape
 //   sparse_strut3d(h=30, w=30, l=100);
@@ -480,9 +480,9 @@ module sparse_strut3d(h=50, l=100, w=50, thick=3, maxang=40, strut=3, max_bridge
 //   thick = thickness of strut wall.
 //   strut = the width of the cross-braces.
 //   wall = thickness of corrugations.
-//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#anchor).  Default: `CENTER`
-//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#orient).  Default: `UP`
+//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
+//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
+//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 //
 // Example: Typical Shape
 //   corrugated_wall(h=50, l=100);

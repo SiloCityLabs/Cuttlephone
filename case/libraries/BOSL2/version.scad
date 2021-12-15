@@ -1,14 +1,15 @@
 //////////////////////////////////////////////////////////////////////
 // LibFile: version.scad
 //   File that provides functions to manage versioning.
-//   To use, add the following lines to the beginning of your file:
-//   ```
+// Includes:
 //   include <BOSL2/std.scad>
-//   ```
+// FileGroup: Data Management
+// FileSummary: Parse and compare semantic versions.
+// FileFootnotes: STD=Included in std.scad
 //////////////////////////////////////////////////////////////////////
 
 
-BOSL_VERSION = [2,0,419];
+BOSL_VERSION = [2,0,652];
 
 
 // Section: BOSL Library Version Functions

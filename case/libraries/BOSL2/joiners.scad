@@ -1,16 +1,15 @@
 //////////////////////////////////////////////////////////////////////
 // LibFile: joiners.scad
 //   Snap-together joiners.
-//   To use, add the following lines to the beginning of your file:
-//   ```
+// Includes:
 //   include <BOSL2/std.scad>
 //   include <BOSL2/joiners.scad>
-//   ```
+// FileGroup: Parts
+// FileSummary: Joiner shapes for connecting separately printed objects.
 //////////////////////////////////////////////////////////////////////
 
 
 include <rounding.scad>
-include <skin.scad>
 
 
 // Section: Half Joiners
@@ -27,11 +26,11 @@ include <skin.scad>
 //   a = Overhang angle of the joiner.
 //   clearance = Extra width to clear.
 //   overlap = Extra depth to clear.
-//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#anchor).  Default: `CENTER`
-//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#orient).  Default: `UP`
+//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
+//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
+//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 // Example:
-//   half_joiner_clear(spin=-90);
+//   half_joiner_clear();
 module half_joiner_clear(h=20, w=10, a=30, clearance=0, overlap=0.01, anchor=CENTER, spin=0, orient=UP)
 {
     dmnd_height = h*1.0;
@@ -73,44 +72,46 @@ module half_joiner_clear(h=20, w=10, a=30, clearance=0, overlap=0.01, anchor=CEN
 //   a = Overhang angle of the half_joiner.
 //   screwsize = Diameter of screwhole.
 //   guides = If true, create sliding alignment guides.
-//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#anchor).  Default: `CENTER`
-//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#orient).  Default: `UP`
+//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
+//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
+//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 //   $slop = Printer specific slop value to make parts fit more closely.
-// Example:
-//   half_joiner(screwsize=3, spin=-90);
+// Examples(FlatSpin,VPD=75):
+//   half_joiner(screwsize=3);
+//   half_joiner(h=20,w=10,l=10);
 module half_joiner(h=20, w=10, l=10, a=30, screwsize=undef, guides=true, anchor=CENTER, spin=0, orient=UP)
 {
     dmnd_height = h*1.0;
     dmnd_width = dmnd_height*tan(a);
     guide_size = w/3;
     guide_width = 2*(dmnd_height/2-guide_size)*tan(a);
+    a2 = atan2(guide_width/2,h/3);
 
     render(convexity=12)
     attachable(anchor,spin,orient, size=[w, 2*l, h]) {
         difference() {
             union() {
-                // Make base.
                 difference() {
-                    // Solid backing base.
-                    fwd(l/2) cube(size=[w, l, h], center=true);
+                    // Base cube
+                    fwd(l) cube([w, l+guide_width/2, h], anchor=FRONT);
 
-                    // Clear diamond for tab
-                    xcopies(2*w*2/3) {
-                        half_joiner_clear(h=h+0.01, w=w, clearance=$slop*2, a=a);
+                    // Bevel top and bottom
+                    yrot_copies(n=2)
+                        down(h/2)
+                            xrot(-a2)
+                                down(0.1)
+                                    cube([w+1, guide_width+1, h+1], anchor=FWD+BOT);
+
+                    // Clear sides
+                    xcopies(2*w*2/3-$slop*2) {
+                        cube([w, guide_width, h/3], center=true);
+                        fwd(guide_width/2)
+                            yrot_copies(n=2)
+                                down(h/6)
+                                    xrot(a2)
+                                        cube([w, guide_width, h/2], anchor=FWD+TOP);
                     }
                 }
-
-                difference() {
-                    // Make tab
-                    scale([w/3-$slop*2, dmnd_width/2, dmnd_height/2]) xrot(45)
-                        cube(size=[1,sqrt(2),sqrt(2)], center=true);
-
-                    // Blunt point of tab.
-                    back(guide_width/2+2)
-                        cube(size=[w*0.99,4,guide_size*2], center=true);
-                }
-
 
                 // Guide ridges.
                 if (guides == true) {
@@ -136,8 +137,6 @@ module half_joiner(h=20, w=10, l=10, a=30, screwsize=undef, guides=true, anchor=
         children();
     }
 }
-//half_joiner(screwsize=3);
-
 
 
 // Module: half_joiner2()
@@ -152,11 +151,12 @@ module half_joiner(h=20, w=10, l=10, a=30, screwsize=undef, guides=true, anchor=
 //   a = Overhang angle of the half_joiner.
 //   screwsize = Diameter of screwhole.
 //   guides = If true, create sliding alignment guides.
-//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#anchor).  Default: `CENTER`
-//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#orient).  Default: `UP`
-// Example:
-//   half_joiner2(screwsize=3, spin=-90);
+//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
+//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
+//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+// Examples(FlatSpin,VPD=75):
+//   half_joiner2(screwsize=3);
+//   half_joiner2(h=20,w=10,l=10);
 module half_joiner2(h=20, w=10, l=10, a=30, screwsize=undef, guides=true, anchor=CENTER, spin=0, orient=UP)
 {
     dmnd_height = h*1.0;
@@ -200,11 +200,11 @@ module half_joiner2(h=20, w=10, l=10, a=30, screwsize=undef, guides=true, anchor
 //   a = Overhang angle of the joiner.
 //   clearance = Extra width to clear.
 //   overlap = Extra depth to clear.
-//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#anchor).  Default: `CENTER`
-//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#orient).  Default: `UP`
+//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
+//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
+//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 // Example:
-//   joiner_clear(spin=-90);
+//   joiner_clear();
 module joiner_clear(h=40, w=10, a=30, clearance=0, overlap=0.01, anchor=CENTER, spin=0, orient=UP)
 {
     dmnd_height = h*0.5;
@@ -235,13 +235,13 @@ module joiner_clear(h=40, w=10, a=30, clearance=0, overlap=0.01, anchor=CENTER, 
 //   a = Overhang angle of the joiner.
 //   screwsize = Diameter of screwhole.
 //   guides = If true, create sliding alignment guides.
-//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#anchor).  Default: `CENTER`
-//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#orient).  Default: `UP`
+//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
+//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
+//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 //   $slop = Printer specific slop value to make parts fit more closely.
-// Examples:
-//   joiner(screwsize=3, spin=-90);
-//   joiner(w=10, l=10, h=40, spin=-90) cuboid([10, 10*2, 40], anchor=RIGHT);
+// Examples(FlatSpin,VPD=125):
+//   joiner(screwsize=3);
+//   joiner(w=10, l=10, h=40);
 module joiner(h=40, w=10, l=10, a=30, screwsize=undef, guides=true, anchor=CENTER, spin=0, orient=UP)
 {
     attachable(anchor,spin,orient, size=[w, 2*l, h]) {
@@ -271,9 +271,9 @@ module joiner(h=40, w=10, l=10, a=30, screwsize=undef, guides=true, anchor=CENTE
 //   n = Number of joiners (2 by default) to clear for.
 //   clearance = Extra width to clear.
 //   overlap = Extra depth to clear.
-//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#anchor).  Default: `CENTER`
-//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#orient).  Default: `UP`
+//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
+//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
+//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 // Examples:
 //   joiner_pair_clear(spacing=50, n=2);
 //   joiner_pair_clear(spacing=50, n=3);
@@ -309,16 +309,16 @@ module joiner_pair_clear(spacing=100, h=40, w=10, a=30, n=2, clearance=0, overla
 //   alternate = If true (default), each joiner alternates it's orientation.  If alternate is "alt", do opposite alternating orientations.
 //   screwsize = Diameter of screwhole.
 //   guides = If true, create sliding alignment guides.
-//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#anchor).  Default: `CENTER`
-//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#orient).  Default: `UP`
+//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
+//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
+//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 //   $slop = Printer specific slop value to make parts fit more closely.
+// Example(FlatSpin,VPD=200):
+//   joiner_pair(spacing=50, l=10);
 // Examples:
-//   joiner_pair(spacing=50, l=10, spin=-90) cuboid([10, 50+10-0.1, 40], anchor=RIGHT);
-//   joiner_pair(spacing=50, l=10, n=2, spin=-90);
-//   joiner_pair(spacing=50, l=10, n=3, alternate=false, spin=-90);
-//   joiner_pair(spacing=50, l=10, n=3, alternate=true, spin=-90);
-//   joiner_pair(spacing=50, l=10, n=3, alternate="alt", spin=-90);
+//   joiner_pair(spacing=50, l=10, n=3, alternate=false);
+//   joiner_pair(spacing=50, l=10, n=3, alternate=true);
+//   joiner_pair(spacing=50, l=10, n=3, alternate="alt");
 module joiner_pair(spacing=100, h=40, w=10, l=10, a=30, n=2, alternate=true, screwsize=undef, guides=true, anchor=CENTER, spin=0, orient=UP)
 {
     attachable(anchor,spin,orient, size=[spacing+w, 2*l, h]) {
@@ -354,9 +354,9 @@ module joiner_pair(spacing=100, h=40, w=10, l=10, a=30, n=2, alternate=true, scr
 //   n = Number of joiners in a row.  Default: 2
 //   clearance = Extra width to clear.
 //   overlap = Extra depth to clear.
-//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#anchor).  Default: `CENTER`
-//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#orient).  Default: `UP`
+//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
+//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
+//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
 // Examples:
 //   joiner_quad_clear(spacing1=50, spacing2=50, n=2);
 //   joiner_quad_clear(spacing1=50, spacing2=50, n=3);
@@ -388,19 +388,19 @@ module joiner_quad_clear(xspacing=undef, yspacing=undef, spacing1=undef, spacing
 //   l = Length of the backing to the joiners.
 //   a = Overhang angle of the joiners.
 //   n = Number of joiners in a row.  Default: 2
-//   alternate = If true (default), each joiner alternates it's orientation.  If alternate is "alt", do opposite alternating orientations.
+//   alternate = If true (default), joiners on each side alternate orientations.  If alternate is "alt", do opposite alternating orientations.
 //   screwsize = Diameter of screwhole.
 //   guides = If true, create sliding alignment guides.
 //   $slop = Printer specific slop value to make parts fit more closely.
-//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#anchor).  Default: `CENTER`
-//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#spin).  Default: `0`
-//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#orient).  Default: `UP`
+//   anchor = Translate so anchor point is at origin (0,0,0).  See [anchor](attachments.scad#subsection-anchor).  Default: `CENTER`
+//   spin = Rotate this many degrees around the Z axis after anchor.  See [spin](attachments.scad#subsection-spin).  Default: `0`
+//   orient = Vector to rotate top towards, after spin.  See [orient](attachments.scad#subsection-orient).  Default: `UP`
+// Example(FlatSpin,VPD=250):
+//   joiner_quad(spacing1=50, spacing2=50, l=10);
 // Examples:
-//   joiner_quad(spacing1=50, spacing2=50, l=10, spin=-90) cuboid([50, 50+10-0.1, 40]);
-//   joiner_quad(spacing1=50, spacing2=50, l=10, n=2, spin=-90);
-//   joiner_quad(spacing1=50, spacing2=50, l=10, n=3, alternate=false, spin=-90);
-//   joiner_quad(spacing1=50, spacing2=50, l=10, n=3, alternate=true, spin=-90);
-//   joiner_quad(spacing1=50, spacing2=50, l=10, n=3, alternate="alt", spin=-90);
+//   joiner_quad(spacing1=50, spacing2=50, l=10, n=3, alternate=false);
+//   joiner_quad(spacing1=50, spacing2=50, l=10, n=3, alternate=true);
+//   joiner_quad(spacing1=50, spacing2=50, l=10, n=3, alternate="alt");
 module joiner_quad(spacing1=undef, spacing2=undef, xspacing=undef, yspacing=undef, h=40, w=10, l=10, a=30, n=2, alternate=true, screwsize=undef, guides=true, anchor=CENTER, spin=0, orient=UP)
 {
     spacing1 = first_defined([spacing1, xspacing, 100]);
@@ -408,7 +408,7 @@ module joiner_quad(spacing1=undef, spacing2=undef, xspacing=undef, yspacing=unde
     attachable(anchor,spin,orient, size=[w+spacing1, spacing2, h]) {
         zrot_copies(n=2) {
             back(spacing2/2) {
-                joiner_pair(spacing=spacing1, n=n, h=h, w=w, l=l, a=a, screwsize=screwsize, guides=guides);
+                joiner_pair(spacing=spacing1, n=n, h=h, w=w, l=l, a=a, screwsize=screwsize, guides=guides, alternate=alternate);
             }
         }
         children();
@@ -421,7 +421,7 @@ module joiner_quad(spacing1=undef, spacing2=undef, xspacing=undef, yspacing=unde
 // Module: dovetail()
 //
 // Usage:
-//   dovetail(l|length, h|height, w|width, slope|angle, taper|back_width, [chamfer], [r|radius], [round], [$slop])
+//   dovetail(gender, w|width, h|height, slide, [slope|angle], [taper|back_width], [chamfer], [r|radius], [round], [extra], [$slop])
 //
 // Description:
 //   Produces a possibly tapered dovetail joint shape to attach to or subtract from two parts you wish to join together.
@@ -429,13 +429,18 @@ module joiner_quad(spacing1=undef, spacing2=undef, xspacing=undef, yspacing=unde
 //   it is fully closed, and then wedges tightly.  You can chamfer or round the corners of the dovetail shape for better
 //   printing and assembly, or choose a fully rounded joint that looks more like a puzzle piece.  The dovetail appears 
 //   parallel to the Y axis and projecting upwards, so in its default orientation it will slide together with a translation
-//   in the positive Y direction.  The default anchor for dovetails is BOTTOM; the default orientation depends on the gender,
-//   with male dovetails oriented UP and female ones DOWN.  
+//   in the positive Y direction.  The gender determines whether the shape is meant to be added to your model or
+//   differenced, and it also changes the anchor and orientation.  The default anchor for dovetails is BOTTOM;
+//   the default orientation depends on the gender, with male dovetails oriented UP and female ones DOWN.  The dovetails by default
+//   have extra extension of 0.01 for unions and differences.  You should ensure that attachment is done with overlap=0 to ensure that
+//   the sizing and positioning is correct.
 //
 // Arguments:
-//   l / length = Length of the dovetail (amount the joint slides during assembly)
-//   h / height = Height of the dovetail
+//   gender = A string, "male" or "female", to specify the gender of the dovetail.
 //   w / width = Width (at the wider, top end) of the dovetail before tapering
+//   h / height = Height of the dovetail (the amount it projects from its base)
+//   slide = Distance the dovetail slides when you assemble it (length of sliding dovetails, thickness of regular dovetails)
+//   ---
 //   slope = slope of the dovetail.  Standard woodworking slopes are 4, 6, or 8.  Default: 6.  
 //   angle = angle (in degrees) of the dovetail.  Specify only one of slope and angle.
 //   taper = taper angle (in degrees). Dovetail gets narrower by this angle.  Default: no taper
@@ -445,68 +450,66 @@ module joiner_quad(spacing1=undef, spacing2=undef, xspacing=undef, yspacing=unde
 //   round = true to round both corners of the dovetail and give it a puzzle piece look.  Default: false.  
 //   extra = amount of extra length and base extension added to dovetails for unions and differences.  Default: 0.01
 // Example: Ordinary straight dovetail, male version (sticking up) and female version (below the xy plane)
-//   dovetail("male", length=30, width=15, height=8);
-//   right(20) dovetail("female", length=30, width=15, height=8);
+//   dovetail("male", width=15, height=8, slide=30);
+//   right(20) dovetail("female", width=15, height=8, slide=30);
 // Example: Adding a 6 degree taper (Such a big taper is usually not necessary, but easier to see for the example.)
-//   dovetail("male", length=30, width=15, height=8, taper=6);
-//   right(20) dovetail("female", length=30, width=15, height=8, taper=6);
+//   dovetail("male", w=15, h=8, slide=30, taper=6);
+//   right(20) dovetail("female", 15, 8, 30, taper=6);  // Same as above
 // Example: A block that can link to itself
 //   diff("remove")
 //     cuboid([50,30,10]){
-//       attach(BACK) dovetail("male", length=10, width=15, height=8);
-//       attach(FRONT) dovetail("female", length=10, width=15, height=8,$tags="remove");
+//       attach(BACK) dovetail("male", slide=10, width=15, height=8);
+//       attach(FRONT) dovetail("female", slide=10, width=15, height=8,$tags="remove");
 //     }
 // Example: Setting the dovetail angle.  This is too extreme to be useful.  
 //   diff("remove")
 //     cuboid([50,30,10]){
-//       attach(BACK) dovetail("male", length=10, width=15, height=8,angle=30);
-//       attach(FRONT) dovetail("female", length=10, width=15, height=8,angle=30,$tags="remove");
+//       attach(BACK) dovetail("male", slide=10, width=15, height=8, angle=30);
+//       attach(FRONT) dovetail("female", slide=10, width=15, height=8, angle=30,$tags="remove");
 //     }
 // Example: Adding a chamfer helps printed parts fit together without problems at the corners
 //   diff("remove")
 //     cuboid([50,30,10]){
-//       attach(BACK) dovetail("male", length=10, width=15, height=8,chamfer=1);
-//       attach(FRONT) dovetail("female", length=10, width=15, height=8,chamfer=1,$tags="remove");
+//       attach(BACK) dovetail("male", slide=10, width=15, height=8, chamfer=1);
+//       attach(FRONT) dovetail("female", slide=10, width=15, height=8,chamfer=1,$tags="remove");
 //     }
 // Example: Rounding the outside corners is another option
 //   diff("remove")
-//     cuboid([50,30,10]){
-//       attach(BACK) dovetail("male", length=10, width=15, height=8,radius=1,$fn=32);
-//       attach(FRONT) dovetail("female", length=10, width=15, height=8,radius=1,$tags="remove",$fn=32);
-//     }
+//   cuboid([50,30,10]) {
+//       attach(BACK)  dovetail("male", slide=10, width=15, height=8, radius=1, $fn=32);
+//       attach(FRONT) dovetail("female", slide=10, width=15, height=8, radius=1, $tags="remove", $fn=32);
+//   }
 // Example: Or you can make a fully rounded joint
 //   $fn=32;
 //   diff("remove")
-//     cuboid([50,30,10]){
-//       attach(BACK) dovetail("male", length=10, width=15, height=8,radius=1.5, round=true);
-//       attach(FRONT) dovetail("female", length=10, width=15, height=8,radius=1.5, round=true, $tags="remove");
+//   cuboid([50,30,10]){
+//       attach(BACK) dovetail("male", slide=10, width=15, height=8, radius=1.5, round=true);
+//       attach(FRONT) dovetail("female", slide=10, width=15, height=8, radius=1.5, round=true, $tags="remove");
 //   }
-// Example: With a long joint like this, a taper makes the joint easy to assemble.  It will go together easily and wedge tightly if you get the tolerances right.  Specifying the taper with `back_width` may be easier than using a taper angle.  
+// Example: With a long joint like this, a taper makes the joint easy to assemble.  It will go together easily and wedge tightly if you get the tolerances right.  Specifying the taper with `back_width` may be easier than using a taper angle.    
 //   cuboid([50,30,10])
-//     attach(TOP) dovetail("male", length=50, width=18, height=4, back_width=15, spin=90);
+//     attach(TOP) dovetail("male", slide=50, width=18, height=4, back_width=15, spin=90);
 //   fwd(35)
 //     diff("remove")
 //       cuboid([50,30,10])
-//         attach(TOP) dovetail("female", length=50, width=18, height=4, back_width=15, spin=90,$tags="remove");
-// Example: A series of dovtails
+//         attach(TOP) dovetail("female", slide=50, width=18, height=4, back_width=15, spin=90, $tags="remove");
+// Example: A series of dovetails forming a tail board, with the inside of the joint up.  A standard wood joint would have a zero taper. 
 //   cuboid([50,30,10])
-//     attach(BACK) xcopies(10,5) dovetail("male", length=10, width=7, height=4);
-// Example: Mating pin board for a right angle joint.  Note that the anchor method and use of `spin` ensures that the joint works even with a taper.
+//     attach(BACK) xcopies(10,5) dovetail("male", slide=10, width=7, taper=4, height=4);
+// Example: Mating pin board for a half-blind right angle joint, where the joint only shows on the side but not the front.  Note that the anchor method and use of `spin` ensures that the joint works even with a taper.
 //   diff("remove")
 //     cuboid([50,30,10])
-//       position(TOP+BACK) xcopies(10,5) dovetail("female", length=10, width=7, taper=4, height=4, $tags="remove",anchor=BOTTOM+FRONT,spin=180);
-module dovetail(gender, length, l, width, w, height, h, angle, slope, taper, back_width, chamfer, extra=0.01, r, radius, round=false, anchor=BOTTOM, spin=0, orient)
+//       position(TOP+BACK) xcopies(10,5) dovetail("female", slide=10, width=7, taper=4, height=4, $tags="remove",anchor=BOTTOM+FRONT,spin=180);
+module dovetail(gender, width, height, slide, h, w, angle, slope, taper, back_width, chamfer, extra=0.01, r, radius, round=false, anchor=BOTTOM, spin=0, orient)
 {
     radius = get_radius(r1=radius,r2=r);
-    lcount = num_defined([l,length]);
     hcount = num_defined([h,height]);
     wcount = num_defined([w,width]);
-    assert(lcount==1, "Must define exactly one of l and length");
-    assert(wcount==1, "Must define exactly one of w and width");
+    assert(is_def(slide), "Must define slide");
     assert(hcount==1, "Must define exactly one of h and height");
+    assert(wcount==1, "Must define exactly one of w and width");
     h = first_defined([h,height]);
     w = first_defined([w,width]);
-    length = first_defined([l,length]);
     orient = is_def(orient) ? orient :
         gender == "female" ? DOWN : UP;
     count = num_defined([angle,slope]);
@@ -520,10 +523,10 @@ module dovetail(gender, length, l, width, w, height, h, angle, slope, taper, bac
     extra_slop = gender == "female" ? 2*$slop : 0;
     width = w + extra_slop;
     height = h + extra_slop;
-    back_width = back_width + extra_slop;
+    back_width = u_add(back_width, extra_slop);
 
     front_offset = is_def(taper) ? -extra * tan(taper) :
-        is_def(back_width) ? extra * (back_width-width)/length/2 : 0;
+        is_def(back_width) ? extra * (back_width-width)/slide/2 : 0;
 
     size = is_def(chamfer) && chamfer>0 ? chamfer :
         is_def(radius) && radius>0 ? radius : 0;
@@ -534,7 +537,7 @@ module dovetail(gender, length, l, width, w, height, h, angle, slope, taper, bac
 
     smallend_half = round_corners(
         move(
-            [0,-length/2-extra,0],
+            [0,-slide/2-extra,0],
             p=[
                 [0                     , 0, height],
                 [width/2-front_offset  , 0, height],
@@ -545,13 +548,14 @@ module dovetail(gender, length, l, width, w, height, h, angle, slope, taper, bac
         method=type, cut = fullsize, closed=false
     );
     smallend_points = concat(select(smallend_half, 1, -2), [down(extra,p=select(smallend_half, -2))]);
-    offset = is_def(taper) ? -(length+extra) * tan(taper) :
+    offset = is_def(taper) ? -(slide+extra) * tan(taper) :
         is_def(back_width) ? (back_width-width) / 2 : 0;
-    bigend_points = move([offset,length+2*extra,0], p=smallend_points);
+    bigend_points = move([offset,slide+2*extra,0], p=smallend_points);
 
-    adjustment = gender == "male" ? -0.01 : 0.01;  // Adjustment for default overlap in attach()
-
-    attachable(anchor,spin,orient, size=[width+2*offset, length, height]) {
+    //adjustment = $overlap * (gender == "male" ? -1 : 1);  // Adjustment for default overlap in attach()
+    adjustment = 0;    // Default overlap is assumed to be zero
+    
+    attachable(anchor,spin,orient, size=[width+2*offset, slide, height]) {
         down(height/2+adjustment) {
             skin(
                 [
@@ -602,7 +606,8 @@ module _pin_slot(l, r, t, d, nub, depth, stretch) {
 
 module _pin_shaft(r, lStraight, nub, nubscale, stretch, d, pointed)
 {
-   extra = 0.02;
+   extra = 0.02;         // This sets the extra extension below the socket bottom
+                         // so that difference() works without issues
    rPoint = r / sqrt(2);
    down(extra) cylinder(r = r, h = lStraight + extra);
    up(lStraight) {
@@ -727,6 +732,8 @@ module snap_pin(size,r,radius,d,diameter, l,length, nub_depth, snap, thickness, 
 //   if you add a lubricant.  If `pointed` is true the socket is pointed to receive a pointed pin, otherwise it has a rounded and and
 //   will be shorter.  If `fins` is set to true then two fins are included inside the socket to act as supports (which may help when printing tip up,
 //   especially when `pointed=false`).  The default orientation is DOWN with anchor BOTTOM so that you can difference() the socket away from an object.
+//   The socket extends 0.02 extra below its bottom anchor point so that differences will work correctly.  (You must have $overlap smaller than 0.02 in 
+//   attach or the socket will be beneath the surface of the parent object.)  
 //   .
 //   The "large" or "standard" size pin has a length of 10.8 and diameter of 7.  The "medium" pin has a length of 8 and diameter of 4.6.  The "small" pin
 //   has a length of 6 and diameter of 3.2.  The "tiny" pin has a length of 4 and a diameter of 2.5.  
@@ -766,8 +773,7 @@ module snap_pin_socket(size, r, radius, l,length, d,diameter,nub_depth, snap, fi
   {  
   down(lPin/2)
     intersection() {
-      if (fixed) 
-        cube([3 * (radius + snap), radius * sqrt(2), 3 * lPin + 3 * radius], center = true);
+      cube([3 * (radius + snap), fixed ? radius * sqrt(2) : 3*(radius+snap), 3 * lPin + 3 * radius], center = true);        
       union() {
         _pin_shaft(radius,lStraight,snap,1,1,nub_depth,pointed);
         if (fins) 
@@ -785,8 +791,7 @@ module snap_pin_socket(size, r, radius, l,length, d,diameter,nub_depth, snap, fi
 
 // Module: rabbit_clip()
 // Usage:
-//   rabbit_clip(type, length, width, snap, thickness, depth, [compression], [clearance], [lock],
-//               [lock_clearance], [splineteps], [anchor], [orient], [spin])
+//   rabbit_clip(type, length, width, snap, thickness, depth, [compression], [clearance], [lock], [lock_clearance], [splineteps], [anchor], [orient], [spin])
 // Description:
 //   Creates a clip with two flexible ears to lock into a mating socket, or create a mask to produce the appropriate
 //   mating socket.  The clip can be made to insert and release easily, or to hold much better, or it can be
@@ -805,13 +810,14 @@ module snap_pin_socket(size, r, radius, l,length, d,diameter,nub_depth, snap, fi
 //   make the socket with a larger depth than the clip (try 0.4 mm) to allow ease of insertion of the clip.  The clearance
 //   value does not apply to the depth.  The splinesteps parameter increases the sampling of the clip curves.
 //   .
-//   By default clips appear with orient=UP and sockets with orient=DOWN.  
+//   By default clips appear with orient=UP and sockets with orient=DOWN.  The clips and sockets extend 0.02 units below
+//   their base so that unions and differences will work without trouble, but be sure that the attach overlap is smaller
+//   than 0.02.  
 //   .
 //   The first figure shows the dimensions of the rabbit clip.  The second figure shows the clip in red overlayed on
 //   its socket in yellow.  The left clip has a nonzero clearance, so its socket is bigger than the clip all around.
 //   The right hand locking clip has no clearance, but it has a lock clearance, which provides some space behind
-//   the lock to allow the clip to fit.  (Note that depending on your printer, this can be set to zero.)  
-//
+//   the lock to allow the clip to fit.  (Note that depending on your printer, this can be set to zero.)
 // Figure(2DMed):
 //   snap=1.5;
 //   comp=0.75;
@@ -942,7 +948,8 @@ module rabbit_clip(type, length, width,  snap, thickness, depth, compression=0.1
   } else {
     anchor = default(anchor,BOTTOM);
     is_pin = in_list(type,["pin","male"]);
-    default_overlap = 0.01 * (is_pin?1:-1);    // Shift by this much to undo default overlap
+    //default_overlap = 0.01 * (is_pin?1:-1);    // Shift by this much to undo default overlap
+    default_overlap = 0;
     extra = 0.02;  // Amount of extension below nominal based position for the socket, must exceed default overlap of 0.01
     clearance = is_pin ? 0 : clearance;
     compression = is_pin ? compression : 0;
@@ -971,7 +978,7 @@ module rabbit_clip(type, length, width,  snap, thickness, depth, compression=0.1
                       );
     assert(fullpath[4].y < fullpath[3].y, "Pin is too wide for its length");
     
-    snapmargin = -snap + select(sidepath,-1).x;// - compression;
+    snapmargin = -snap + last(sidepath).x;// - compression;
     if (is_pin){
       if (snapmargin<0) echo("WARNING: The snap is too large for the clip to squeeze to fit its socket")
       echo(snapmargin=snapmargin);
@@ -990,10 +997,8 @@ module rabbit_clip(type, length, width,  snap, thickness, depth, compression=0.1
                   : let(side_smooth=select(pin_smooth, 0, 2))
                     concat(side_smooth, [socket_smooth], reverse(side_smooth));
     bez = path_to_bezier(path,relsize=smoothing,tangents=tangent);
-    rounded = bezier_polyline(bez,splinesteps=splinesteps);
+    rounded = bezier_path(bez,splinesteps=splinesteps);
     bounds = pointlist_bounds(rounded);
-    kk = search([bounds[1].y], subindex(rounded,1));
-    echo(rounded[kk[0]]);
     extrapt = is_pin ? [] : [rounded[0] - [0,extra]];
     finalpath = is_pin ? rounded
                        : let(withclearance=offset(rounded, r=-clearance))
@@ -1008,6 +1013,7 @@ module rabbit_clip(type, length, width,  snap, thickness, depth, compression=0.1
               xflip_copy()
               right(clearance)
               polygon([sidepath[1]+[-thickness/10,lock_clearance],
+                       sidepath[2]-[thickness*.75,0],
                        sidepath[2],
                        [sidepath[2].x,sidepath[1].y+lock_clearance]]);
             if (is_pin)

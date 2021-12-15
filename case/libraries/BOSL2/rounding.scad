@@ -1,22 +1,23 @@
-//////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 // LibFile: rounding.scad
 //   Routines to create rounded corners, with either circular rounding,
 //   or continuous curvature rounding with no sudden curvature transitions.
-//   To use, add the following lines to the beginning of your file:
-//   ```
+// Includes:
 //   include <BOSL2/std.scad>
 //   include <BOSL2/rounding.scad>
-//   ```
+// FileGroup: Advanced Modeling
+// FileSummary: Round path corners, rounded prisms, rounded cutouts in tubes.
 //////////////////////////////////////////////////////////////////////
 include <beziers.scad>
 include <structs.scad>
+
 
 // Section: Functions
 
 // Function: round_corners()
 //
 // Usage:
-//   round_corners(path, [method], [radius], [cut], [joint], [closed], [verbose]);
+//   rounded_path = round_corners(path, [method], [radius=], [cut=], [joint=], [closed=], [verbose=]);
 //
 // Description:
 //   Takes a 2D or 3D path as input and rounds each corner
@@ -26,25 +27,29 @@ include <structs.scad>
 //   tactile "bump" where the curvature changes from flat to circular.
 //   See https://hackernoon.com/apples-icons-have-that-shape-for-a-very-good-reason-720d4e7c8a14
 //   .
-//   You select the type of rounding using the `method` option, which should be `"smooth"` to
+//   You select the type of rounding using the `method` parameter, which should be `"smooth"` to
 //   get continuous curvature rounding, `"circle"` to get circular rounding, or `"chamfer"` to get chamfers.  The default is circle
-//   rounding.  Each method has two options you can use to specify the amount of rounding.
-//   All of the rounding methods accept the cut option.   This mode specifies the distance from the unrounded corner to the rounded tip, so how
+//   rounding.  Each method accepts multiple options to specify the amount of rounding.
+//   .
+//   The `cut` parameter specifies the distance from the unrounded corner to the rounded tip, so how
 //   much of the corner to "cut" off.  This can be easier to understand than setting a circular radius, which can be
 //   unexpectedly extreme when the corner is very sharp.  It also allows a systematic specification of
 //   corner treatments that are the same size for all three methods.
 //   .
-//   For circular rounding you can also use the `radius` parameter, which sets a circular rounding
-//   radius.  For chamfers and smooth rounding you can specify the `joint` parameter, which specifies the distance
+//   The `joint` parameter specifies the distance
 //   away from the corner along the path where the roundover or chamfer should start.  The figure below shows
-//   the cut and joint distances for a given roundover.
+//   the cut and joint distances for a given roundover.  This parameter is good for ensuring that your roundover will
+//   fit on the polygon, since you can easily tell whether adjacent corner treatments will interfere.  
+//   .
+//   For circular rounding you can also use the `radius` parameter, which sets a circular rounding
+//   radius.
 //   .
 //   The `"smooth"` method rounding also has a parameter that specifies how smooth the curvature match
 //   is.  This parameter, `k`, ranges from 0 to 1, with a default of 0.5.  Larger values give a more
 //   abrupt transition and smaller ones a more gradual transition.  If you set the value much higher
 //   than 0.8 the curvature changes abruptly enough that though it is theoretically continuous, it may
 //   not be continuous in practice.  If you set it very small then the transition is so gradual that
-//   the length of the roundover may be extremely long.
+//   the length of the roundover may be extremely long. 
 //   .
 //   If you select curves that are too large to fit the function will fail with an error.  You can set `verbose=true` to
 //   get a message showing a list of scale factors you can apply to your rounding parameters so that the
@@ -55,6 +60,10 @@ include <structs.scad>
 //   can specify a list to round each corner with different parameters.  If the curve is not closed then the first and last points
 //   of the curve are not rounded.  In this case you can specify a full list of points anyway, and the endpoint values are ignored,
 //   or you can specify a list that has length len(path)-2, omitting the two dummy values.
+//   .
+//   If your input path includes collinear points you must use a cut or radius value of zero for those "corners".  You can
+//   choose a nonzero joint parameter when the collinear points form a 180 degree angle.  This will cause extra points to be inserted. 
+//   If the collinear points form a spike (0 degree angle) then round_corners will fail. 
 //   .
 //   Examples:
 //   * `method="circle", radius=2`:
@@ -68,10 +77,11 @@ include <structs.scad>
 //   circular roundovers.  For continuous curvature roundovers `$fs` and `$fn` are used and `$fa` is
 //   ignored.  Note that $fn is interpreted as the number of points on the roundover curve, which is
 //   not equivalent to its meaning for rounding circles because roundovers are usually small fractions
-//   of a circular arc.  When doing continuous curvature rounding be sure to use lots of segments or the effect
-//   will be hidden by the discretization.
+//   of a circular arc.  As usual, $fn overrides $fs.  When doing continuous curvature rounding be sure to use lots of segments or the effect
+//   will be hidden by the discretization.  Note that if you use $fn with "smooth" then $fn points are added at each corner, even
+//   if the "corner" is flat, with collinear points, so this guarantees a specific output length.  
 //
-// Figure(2DMed):
+// Figure(2D,Med):
 //   h = 18;
 //   w = 12.6;
 //   example = [[0,0],[w,h],[2*w,0]];
@@ -86,6 +96,7 @@ include <structs.scad>
 // Arguments:
 //   path = list of 2d or 3d points defining the path to be rounded.
 //   method = rounding method to use.  Set to "chamfer" for chamfers, "circle" for circular rounding and "smooth" for continuous curvature 4th order bezier rounding.  Default: "circle"
+//   ---
 //   radius = rounding radius, only compatible with `method="circle"`. Can be a number or vector.
 //   cut = rounding cut distance, compatible with all methods.  Can be a number or vector.
 //   joint = rounding joint distance, compatible with `method="chamfer"` and `method="smooth"`.  Can be a number or vector.
@@ -93,38 +104,38 @@ include <structs.scad>
 //   closed = if true treat the path as a closed polygon, otherwise treat it as open.  Default: true.
 //   verbose = if true display rounding scale factors that show how close roundovers are to overlapping.  Default: false
 //
-// Example(Med2D): Standard circular roundover with radius the same at every point. Compare results at the different corners.
+// Example(2D,Med): Standard circular roundover with radius the same at every point. Compare results at the different corners.
 //   $fn=36;
 //   shape = [[0,0], [10,0], [15,12], [6,6], [6, 12], [-3,7]];
 //   polygon(round_corners(shape, radius=1));
 //   color("red") down(.1) polygon(shape);
-// Example(Med2D): Circular roundover using the "cut" specification, the same at every corner.
+// Example(2D,Med): Circular roundover using the "cut" specification, the same at every corner.
 //   $fn=36;
 //   shape = [[0,0], [10,0], [15,12], [6,6], [6, 12], [-3,7]];
 //   polygon(round_corners(shape, cut=1));
 //   color("red") down(.1) polygon(shape);
-// Example(Med2D): Continous curvature roundover using "cut", still the same at every corner.  The default smoothness parameter of 0.5 was too gradual for these roundovers to fit, but 0.7 works.
+// Example(2D,Med): Continous curvature roundover using "cut", still the same at every corner.  The default smoothness parameter of 0.5 was too gradual for these roundovers to fit, but 0.7 works.
 //   $fn=36;
 //   shape = [[0,0], [10,0], [15,12], [6,6], [6, 12], [-3,7]];
 //   polygon(round_corners(shape, method="smooth", cut=1, k=0.7));
 //   color("red") down(.1) polygon(shape);
-// Example(Med2D): Continuous curvature roundover using "joint", for the last time the same at every corner.  Notice how small the roundovers are.
+// Example(2D,Med): Continuous curvature roundover using "joint", for the last time the same at every corner.  Notice how small the roundovers are.
 //   $fn=36;
 //   shape = [[0,0], [10,0], [15,12], [6,6], [6, 12], [-3,7]];
 //   polygon(round_corners(shape, method="smooth", joint=1, k=0.7));
 //   color("red") down(.1) polygon(shape);
-// Example(Med2D): Circular rounding, different at every corner, some corners left unrounded
+// Example(2D,Med): Circular rounding, different at every corner, some corners left unrounded
 //   shape = [[0,0], [10,0], [15,12], [6,6], [6, 12], [-3,7]];
 //   radii = [1.8, 0, 2, 0.3, 1.2, 0];
 //   polygon(round_corners(shape, radius = radii,$fn=64));
 //   color("red") down(.1) polygon(shape);
-// Example(Med2D): Continuous curvature rounding, different at every corner, with varying smoothness parameters as well, and `$fs` set very small.  Note that `$fa` is ignored here with method set to "smooth".
+// Example(2D,Med): Continuous curvature rounding, different at every corner, with varying smoothness parameters as well, and `$fs` set very small.  Note that `$fa` is ignored here with method set to "smooth".
 //   shape = [[0,0], [10,0], [15,12], [6,6], [6, 12], [-3,7]];
 //   cuts = [1.5,0,2,0.3, 1.2, 0];
 //   k = [0.6, 0.5, 0.5, 0.7, 0.3, 0.5];
 //   polygon(round_corners(shape, method="smooth", cut=cuts, k=k, $fs=0.1));
 //   color("red") down(.1) polygon(shape);
-// Example(Med2D): Chamfers
+// Example(2D,Med): Chamfers
 //   $fn=36;
 //   shape = [[0,0], [10,0], [15,12], [6,6], [6, 12], [-3,7]];
 //   polygon(round_corners(shape, method="chamfer", cut=1));
@@ -144,12 +155,12 @@ include <structs.scad>
 //     translate([60,60,0])polygon(round_corners(ten, method="smooth", cut=cut, k=0.32, $fn=96));
 //     translate([0,60,0])polygon(round_corners(ten, method="smooth", cut=cut, k=0.7, $fn=96));
 //   }
-// Example(Med2D): Rounding a path that is not closed in a three different ways.
+// Example(2D,Med): Rounding a path that is not closed in a three different ways.
 //   $fs=.1;
 //   $fa=1;
 //   zigzagx = [-10, 0, 10, 20, 29, 38, 46, 52, 59, 66, 72, 78, 83, 88, 92, 96, 99, 102, 112];
 //   zigzagy = concat([0], flatten(repeat([-10,10],8)), [-10,0]);
-//   zig = zip(zigzagx,zigzagy);
+//   zig = hstack(zigzagx,zigzagy);
 //   stroke(zig,width=1);   // Original shape
 //   fwd(20)            // Smooth size corners with a cut of 4 and curvature parameter 0.6
 //     stroke(round_corners(zig,cut=4, k=0.6, method="smooth", closed=false),width=1);
@@ -158,7 +169,7 @@ include <structs.scad>
 //                      // Smooth size corners with a circular arc and radius 1.5 (close to maximum possible)
 //   fwd(60)            // Note how the different points are cut back by different amounts
 //     stroke(round_corners(zig,radius=1.5,closed=false),width=1);
-// Example(FlatSpin): Rounding some random 3D paths
+// Example(FlatSpin,VPD=42,VPT=[7.75,6.69,5.22]): Rounding some random 3D paths
 //   $fn=36;
 //   list1= [
 //     [2.887360, 4.03497, 6.372090],
@@ -179,28 +190,46 @@ include <structs.scad>
 //   path_sweep(regular_ngon(n=36,or=.1),round_corners(list1,closed=false, method="smooth", cut = 0.65));
 //   right(6)
 //     path_sweep(regular_ngon(n=36,or=.1),round_corners(list2,closed=false, method="circle", cut = 0.75));
-// Example(FlatSpin):  Rounding a spiral with increased rounding along the length
+// Example(3D,Med):  Rounding a spiral with increased rounding along the length
 //   // Construct a square spiral path in 3D
-//   include <BOSL2/skin.scad>
 //   $fn=36;
 //   square = [[0,0],[1,0],[1,1],[0,1]];
 //   spiral = flatten(repeat(concat(square,reverse(square)),5));  // Squares repeat 10 times, forward and backward
-//   squareind = [for(i=[0:9]) each [i,i,i,i]];                    // Index of the square for each point
-//   z = list_range(40)*.2+squareind;
-//   path3d = zip(spiral,z);                                       // 3D spiral
+//   squareind = [for(i=[0:9]) each [i,i,i,i]];                   // Index of the square for each point
+//   z = count(40)*.2+squareind;
+//   path3d = hstack(spiral,z);                                   // 3D spiral
 //   rounding = squareind/20;
 //       // Setting k=1 means curvature won't be continuous, but curves are as round as possible
 //       // Try changing the value to see the effect.
 //   rpath = round_corners(path3d, joint=rounding, k=1, method="smooth", closed=false);
 //   path_sweep( regular_ngon(n=36, or=.1), rpath);
+// Example(2D): The rounding invocation that is commented out gives an error because the rounding parameters interfere with each other.  The error message gives a list of factors that can help you fix this: [0.852094, 0.852094, 1.85457, 10.1529]
+//   $fn=64;
+//   path = [[0, 0],[10, 0],[20, 20],[30, -10]];
+//   debug_polygon(path);
+//   //polygon(round_corners(path,cut = [1,3,1,1], method="circle"));
+// Example(2D): The list of factors shows that the problem is in the first two rounding values, because the factors are smaller than one.  If we multiply the first two parameters by 0.85 then the roundings fit.  The verbose option gives us the same fit factors.  
+//   $fn=64;
+//   path = [[0, 0],[10, 0],[20, 20],[30, -10]];
+//   polygon(round_corners(path,cut = [0.85,3*0.85,1,1], method="circle", verbose=true));
+// Example(2D): From the fit factors we can see that rounding at vertices 2 and 3 could be increased a lot.  Applying those factors we get this more rounded shape.  The new fit factors show that we can still further increase the rounding parameters if we wish.  
+//   $fn=64;
+//   path = [[0, 0],[10, 0],[20, 20],[30, -10]];
+//   polygon(round_corners(path,cut = [0.85,3*0.85,2.13, 10.15], method="circle",verbose=true));
+// Example(2D): Using the `joint` parameter it's easier to understand whether your roundvers will fit.  We can guarantee a fairly large roundover on any path by picking each one to use up half the segment distance along the shorter of its two segments:
+//   $fn=64;
+//   path = [[0, 0],[10, 0],[20, 20],[30, -10]];
+//   path_len = path_segment_lengths(path,closed=true);
+//   halflen = [for(i=idx(path)) min(select(path_len,i-1,i))/2];
+//   polygon(round_corners(path,joint = halflen, method="circle",verbose=true));
+
+module round_corners(path, method="circle", radius, cut, joint, k, closed=true, verbose=false) {no_module();}
 function round_corners(path, method="circle", radius, cut, joint, k, closed=true, verbose=false) =
     assert(in_list(method,["circle", "smooth", "chamfer"]), "method must be one of \"circle\", \"smooth\" or \"chamfer\"")
     let(
         default_k = 0.5,
-        size=one_defined([radius, cut, joint], ["radius", "cut", "joint"]),
-        path = is_region(path)?
-                   assert(len(path)==1, "Region supplied as path does not have exactly one component")
-                   path[0] : path,
+        size=one_defined([radius, cut, joint], "radius,cut,joint"),
+        path = force_path(path), 
         size_ok = is_num(size) || len(size)==len(path) || (!closed && len(size)==len(path)-2),
         k_ok = is_undef(k) || (method=="smooth" && (is_num(k) || len(k)==len(path) || (!closed && len(k)==len(path)-2))),
         measure = is_def(radius) ? "radius" :
@@ -212,7 +241,6 @@ function round_corners(path, method="circle", radius, cut, joint, k, closed=true
     assert(k_ok,method=="smooth" ? str("Input k must be a number or list with length ",len(path), closed?"":str(" or ",len(path)-2)) :
                                    "Input k is only allowed with method=\"smooth\"")
     assert(method=="circle" || measure!="radius", "radius parameter allowed only with method=\"circle\"")
-    assert(method!="circle" || measure!="joint", "joint parameter not allowed with method=\"circle\"")
     let(
         parm = is_num(size) ? repeat(size, len(path)) :
                len(size)<len(path) ? [0, each size, 0] :
@@ -234,28 +262,37 @@ function round_corners(path, method="circle", radius, cut, joint, k, closed=true
         dk = [
               for(i=[0:1:len(path)-1])
                   let(
-                      angle = vector_angle(select(path,i-1,i+1))/2
+                      pathbit = select(path,i-1,i+1),
+                      angle = approx(pathbit[0],pathbit[1]) || approx(pathbit[1],pathbit[2]) ? undef
+                            : vector_angle(select(path,i-1,i+1))/2
                   )
                   (!closed && (i==0 || i==len(path)-1))  ? [0] :          // Force zeros at ends for non-closed
+                  parm[i]==0 ? [0]    : // If no rounding requested then don't try to compute parameters
+                  assert(is_def(angle), str("Repeated point in path at index ",i," with nonzero rounding"))
+                  assert(!approx(angle,0), closed && i==0 ? "Closing the path causes it to turn back on itself at the end" :
+                                                            str("Path turns back on itself at index ",i," with nonzero rounding"))
                   (method=="chamfer" && measure=="joint")? [parm[i]] :
                   (method=="chamfer" && measure=="cut")  ? [parm[i]/cos(angle)] :
                   (method=="smooth" && measure=="joint") ? [parm[i],k[i]] :
                   (method=="smooth" && measure=="cut")   ? [8*parm[i]/cos(angle)/(1+4*k[i]),k[i]] :
                   (method=="circle" && measure=="radius")? [parm[i]/tan(angle), parm[i]] :
-                       let( circ_radius = parm[i] / (1/sin(angle) - 1))
-                       [circ_radius/tan(angle), circ_radius],
+                  (method=="circle" && measure=="joint") ? [parm[i], parm[i]*tan(angle)] : 
+                /*(method=="circle" && measure=="cut")*/   approx(angle,90) ? [INF] : 
+                                                           let( circ_radius = parm[i] / (1/sin(angle) - 1))
+                                                           [circ_radius/tan(angle), circ_radius],
         ],
         lengths = [for(i=[0:1:len(path)]) norm(select(path,i)-select(path,i-1))],
         scalefactors = [
             for(i=[0:1:len(path)-1])
-                min(
-                    lengths[i]/sum(subindex(select(dk,i-1,i),0)),
-                    lengths[i+1]/sum(subindex(select(dk,i,i+1),0))
-                )
+                if (closed || (i!=0 && i!=len(path)-1))
+                 min(
+                    lengths[i]/(select(dk,i-1)[0]+dk[i][0]),
+                    lengths[i+1]/(dk[i][0]+select(dk,i+1)[0])
+                 )
         ],
         dummy = verbose ? echo("Roundover scale factors:",scalefactors) : 0
     )
-    assert(min(scalefactors)>=1,"Roundovers are too big for the path")
+    assert(min(scalefactors)>=1,str("Roundovers are too big for the path.  If you multitply them by this vector they should fit: ",scalefactors))
     [
         for(i=[0:1:len(path)-1]) each
             (dk[i][0] == 0)? [path[i]] :
@@ -309,7 +346,7 @@ function _bezcorner(points, parm) =
                         ] : _smooth_bez_fill(points,parm),
                 N = max(3,$fn>0 ?$fn : ceil(bezier_segment_length(P)/$fs))
         )
-        bezier_curve(P,N);
+        bezier_curve(P,N+1,endpoint=true);
 
 function _chamfcorner(points, parm) =
         let(
@@ -321,19 +358,22 @@ function _chamfcorner(points, parm) =
 
 function _circlecorner(points, parm) =
         let(
-                angle = vector_angle(points)/2,
-                d = parm[0],
-                r = parm[1],
-                prev = unit(points[0]-points[1]),
-                next = unit(points[2]-points[1]),
-                center = r/sin(angle) * unit(prev+next)+points[1],
-                        start = points[1]+prev*d,
-                        end = points[1]+next*d
+            angle = vector_angle(points)/2,
+            d = parm[0],
+            r = parm[1],
+            prev = unit(points[0]-points[1]),
+            next = unit(points[2]-points[1])
+        )
+        approx(angle,90) ? [points[1]+prev*d, points[1]+next*d] :
+        let(
+            center = r/sin(angle) * unit(prev+next)+points[1],
+                    start = points[1]+prev*d,
+                    end = points[1]+next*d
         )     // 90-angle is half the angle of the circular arc
-        arc(max(3,(90-angle)/180*segs(r)), cp=center, points=[start,end]);
+        arc(max(3,ceil((90-angle)/180*segs(r))), cp=center, points=[start,end]);
 
 
-// Used by offset_sweep and convex_offset_extrude:
+// Used by offset_sweep and convex_offset_extrude.
 // Produce edge profile curve from the edge specification
 // z_dir is the direction multiplier (1 to build up, -1 to build down)
 function _rounding_offsets(edgespec,z_dir=1) =
@@ -344,17 +384,24 @@ function _rounding_offsets(edgespec,z_dir=1) =
                 r = struct_val(edgespec,"r"),
                 cut = struct_val(edgespec,"cut"),
                 k = struct_val(edgespec,"k"),
-                radius = in_list(edgetype,["circle","teardrop"])?
-                        first_defined([cut/(sqrt(2)-1),r]) :
-                        edgetype=="chamfer"? first_defined([sqrt(2)*cut,r]) : undef,
+                radius = in_list(edgetype,["circle","teardrop"])
+                            ? (is_def(cut) ? cut/(sqrt(2)-1) : r)
+                         :edgetype=="chamfer"
+                            ? (is_def(cut) ? sqrt(2)*cut : r)
+                         : undef,
                 chamf_angle = struct_val(edgespec, "angle"),
                 cheight = struct_val(edgespec, "chamfer_height"),
                 cwidth = struct_val(edgespec, "chamfer_width"),
-                chamf_width = first_defined([cut/cos(chamf_angle), cwidth, cheight*tan(chamf_angle)]),
-                chamf_height = first_defined([cut/sin(chamf_angle),cheight, cwidth/tan(chamf_angle)]),
+                chamf_width = first_defined([!all_defined([cut,chamf_angle]) ? undef : cut/cos(chamf_angle),
+                                             cwidth,
+                                             !all_defined([cheight,chamf_angle]) ? undef : cheight*tan(chamf_angle)]),
+                chamf_height = first_defined([
+                                              !all_defined([cut,chamf_angle]) ? undef : cut/sin(chamf_angle),
+                                              cheight,
+                                              !all_defined([cwidth, chamf_angle]) ? undef : cwidth/tan(chamf_angle)]),
                 joint = first_defined([
                         struct_val(edgespec,"joint"),
-                        16*cut/sqrt(2)/(1+4*k)
+                        all_defined([cut,k]) ? 16*cut/sqrt(2)/(1+4*k) : undef
                 ]),
                 points = struct_val(edgespec, "points"),
                 argsOK = in_list(edgetype,["circle","teardrop"])? is_def(radius) :
@@ -366,7 +413,7 @@ function _rounding_offsets(edgespec,z_dir=1) =
         assert(argsOK,str("Invalid specification with type ",edgetype))
         let(
                 offsets =
-                        edgetype == "profile"? scale([-1,z_dir], slice(points,1,-1)) :
+                        edgetype == "profile"? scale([-1,z_dir], p=list_tail(points)) :
                         edgetype == "chamfer"?  chamf_width==0 && chamf_height==0? [] : [[-chamf_width,z_dir*abs(chamf_height)]] :
                         edgetype == "teardrop"? (
                                 radius==0? [] : concat(
@@ -376,18 +423,18 @@ function _rounding_offsets(edgespec,z_dir=1) =
                         ) :
                         edgetype == "circle"? radius==0? [] : [for(i=[1:N]) [radius*(cos(i*90/N)-1), z_dir*abs(radius)*sin(i*90/N)]] :
                         /* smooth */ joint==0 ? [] :
-                        select(
-                                _bezcorner([[0,0],[0,z_dir*abs(joint)],[-joint,z_dir*abs(joint)]], k, $fn=N+2),
-                                1, -1
+                        list_tail(
+                                _bezcorner([[0,0],[0,z_dir*abs(joint)],[-joint,z_dir*abs(joint)]], k, $fn=N+2)
                         )
         )
-        quant(extra > 0? concat(offsets, [select(offsets,-1)+[0,z_dir*extra]]) : offsets, 1/1024);
+  
+        quant(extra > 0? concat(offsets, [last(offsets)+[0,z_dir*extra]]) : offsets, 1/1024);
 
 
 
 // Function: smooth_path()
 // Usage:
-//   smooth_path(path, [size|relsize], [tangents], [splinesteps], [closed], [uniform])
+//   smoothed = smooth_path(path, [tangents], <size=|relsize=>, [splinesteps=], [closed=], [uniform=]);
 // Description:
 //   Smooths the input path using a cubic spline.  Every segment of the path will be replaced by a cubic curve
 //   with `splinesteps` points.  The cubic interpolation will pass through every input point on the path
@@ -405,9 +452,10 @@ function _rounding_offsets(edgespec,z_dir=1) =
 //   value is too large it will be rounded down.  See also path_to_bezier().
 // Arguments:
 //   path = path to smooth
-//   size = absolute size specification for the curve, a number or vector
+//   tangents = tangents constraining curve direction at each point.  Default: computed automatically
+//   ---
 //   relsize = relative size specification for the curve, a number or vector.  Default: 0.1
-//   tangents = tangents constraining curve direction at each point
+//   size = absolute size specification for the curve, a number or vector
 //   uniform = set to true to compute tangents with uniform=true.  Default: false
 //   closed = true if the curve is closed.  Default: false. 
 // Example(2D): Original path in green, smoothed path in yellow:
@@ -439,7 +487,7 @@ function _rounding_offsets(edgespec,z_dir=1) =
 //   polygon(smooth_path(square(4),tangents=1.25*[[-2,-1], [-4,1], [1,2], [6,-1]],size=0.4,closed=true));
 // Example(2D): Or you can give a different size for each segment
 //   polygon(smooth_path(square(4),size = [.4, .05, 1, .3],closed=true));
-// Example(FlatSpin):  Works on 3d paths as well
+// Example(FlatSpin,VPD=35,VPT=[4.5,4.5,1]):  Works on 3d paths as well
 //   path = [[0,0,0],[3,3,2],[6,0,1],[9,9,0]];
 //   stroke(smooth_path(path,relsize=.1),width=.3);
 // Example(2D): This shows the type of overshoot that can occur with uniform=true.  You can produce overshoots like this if you supply a tangent that is difficult to connect to the adjacent points  
@@ -450,32 +498,209 @@ function _rounding_offsets(edgespec,z_dir=1) =
 //   pts = [[-3.3, 1.7], [-3.7, -2.2], [3.8, -4.8], [-0.9, -2.4]];
 //   stroke(smooth_path(pts, uniform=false, relsize=0.1),width=.1);
 //   color("red")move_copies(pts)circle(r=.15,$fn=12);
+module smooth_path(path, tangents, size, relsize, splinesteps=10, uniform=false, closed=false) {no_module();}
 function smooth_path(path, tangents, size, relsize, splinesteps=10, uniform=false, closed=false) =
   let (
      bez = path_to_bezier(path, tangents=tangents, size=size, relsize=relsize, uniform=uniform, closed=closed)
   )
-  bezier_polyline(bez,splinesteps=splinesteps);
+  bezier_path(bez,splinesteps=splinesteps);
 
+
+
+function _scalar_to_vector(value,length,varname) = 
+  is_vector(value)
+    ? assert(len(value)==length, str(varname," must be length ",length))
+      value
+    : assert(is_num(value), str(varname, " must be a numerical value"))
+      repeat(value, length);
+
+
+// Function: path_join()
+// Usage:
+//   joined_path = path_join(paths, [joint], [k=], [relocate=], [closed=]);
+// Description:
+//   Connect a sequence of paths together into a single path with optional rounding
+//   applied at the joints.  By default the first path is taken as specified and subsequent paths are
+//   translated into position so that each path starts where the previous path ended.
+//   If you set relocate to false then this relocation is skipped.
+//   You specify rounding using the `joint` parameter, which specifies the distance away from the corner
+//   where the roundover should start.  The path_join function may remove many path points to cut the path 
+//   back by the joint length.  Rounding is using continous curvature 4th order bezier splines and
+//   the parameter `k` specifies how smooth the curvature match is.  This parameter ranges from 0 to 1 with
+//   a default of 0.5.  Use a larger k value to get a curve that is bigger for the same joint value.  When
+//   k=1 the curve may be similar to a circle if your curves are symmetric.  As the path is built up, the joint
+//   parameter applies to the growing path, so if you pick a large joint parameter it may interact with the
+//   previous path sections.
+//   .
+//   The rounding is created by extending the two clipped paths to define a corner point.  If the extensions of
+//   the paths do not intersect, the function issues an error.  When closed=true the final path should actually close
+//   the shape, repeating the starting point of the shape.  If it does not, then the rounding will fill the gap.
+//   .
+//   The number of segments in the roundovers is set based on $fn and $fs.  If you use $fn it specifies the number of
+//   segments in the roundover, regardless of its angular extent.
+// Arguments:
+//   paths = list of paths to join
+//   joint = joint distance, either a number, a pair (giving the previous and next joint distance) or a list of numbers and pairs.  Default: 0
+//   ---
+//   k = curvature parameter, either a number or vector.  Default: 0.5
+//   relocate = set to false to prevent paths from being arranged tail to head.  Default: true
+//   closed = set to true to round the junction between the last and first paths.  Default: false
+// Example(2D): Connection of 3 simple paths.  
+//   horiz = [[0,0],[10,0]];
+//   vert = [[0,0],[0,10]];
+//   stroke(path_join([horiz, vert, -horiz]));
+// Example(2D): Adding curvature with joint of 3
+//   horiz = [[0,0],[10,0]];
+//   vert = [[0,0],[0,10]];
+//   stroke(path_join([horiz, vert, -horiz],joint=3,$fn=16));
+// Example(2D): Setting k=1 increases the amount of curvature
+//   horiz = [[0,0],[10,0]];
+//   vert = [[0,0],[0,10]];
+//   stroke(path_join([horiz, vert, -horiz],joint=3,k=1,$fn=16));
+// Example(2D): Specifying pairs of joint values at a path joint creates an asymmetric curve
+//   horiz = [[0,0],[10,0]];
+//   vert = [[0,0],[0,10]];
+//   stroke(path_join([horiz, vert, -horiz],joint=[[4,1],[1,4]],$fn=16),width=.3);
+// Example(2D): A closed square
+//   horiz = [[0,0],[10,0]];
+//   vert = [[0,0],[0,10]];
+//   stroke(path_join([horiz, vert, -horiz, -vert],joint=3,k=1,closed=true,$fn=16),closed=true);
+// Example(2D): Different curve at each corner by changing the joint size
+//   horiz = [[0,0],[10,0]];
+//   vert = [[0,0],[0,10]];
+//   stroke(path_join([horiz, vert, -horiz, -vert],joint=[3,0,1,2],k=1,closed=true,$fn=16),closed=true,width=0.4);
+// Example(2D): Different curve at each corner by changing the curvature parameter.  Note that k=0 still gives a small curve, unlike joint=0 which gives a sharp corner.
+//   horiz = [[0,0],[10,0]];
+//   vert = [[0,0],[0,10]];
+//   stroke(path_join([horiz, vert, -horiz, -vert],joint=3,k=[1,.5,0,.7],closed=true,$fn=16),closed=true,width=0.4);
+// Example(2D): Joint value of 7 is larger than half the square so curves interfere with each other, which breaks symmetry because they are computed sequentially
+//   horiz = [[0,0],[10,0]];
+//   vert = [[0,0],[0,10]];
+//   stroke(path_join([horiz, vert, -horiz, -vert],joint=7,k=.4,closed=true,$fn=16),closed=true);
+// Example(2D): Unlike round_corners, we can add curves onto curves.
+//   $fn=64;
+//   myarc = arc(width=20, thickness=5 );
+//   stroke(path_join(repeat(myarc,3), joint=4));
+// Example(2D): Here we make a closed shape from two arcs and round the sharp tips
+//   arc1 = arc(width=20, thickness=4,$fn=75);
+//   arc2 = reverse(arc(width=20, thickness=2,$fn=75));
+//   stroke(path_join([arc1,arc2]),width=.3);    // Join without rounding
+//   color("red")stroke(path_join([arc1,arc2], 3,k=1,closed=true), width=.3,closed=true,$fn=12);  // Join with rounding
+// Example(2D): Combining arcs with segments
+//   arc1 = arc(width=20, thickness=4,$fn=75);
+//   arc2 = reverse(arc(width=20, thickness=2,$fn=75));
+//   vpath = [[0,0],[0,-5]];
+//   stroke(path_join([arc1,vpath,arc2,reverse(vpath)]),width=.2);
+//   color("red")stroke(path_join([arc1,vpath,arc2,reverse(vpath)], [1,2,2,1],k=1,closed=true), width=.2,closed=true,$fn=12);
+// Example(2D): Here relocation is off.  We have three segments (in yellow) and add the curves to the segments.  Notice that joint zero still produces a curve because it refers to the endpoints of the supplied paths.  
+//   p1 = [[0,0],[2,0]];
+//   p2 = [[3,1],[1,3]];
+//   p3 = [[0,3],[-1,1]];
+//   color("red")stroke(path_join([p1,p2,p3], joint=0, relocate=false,closed=true),width=.3,$fn=12);
+//   for(x=[p1,p2,p3]) stroke(x,width=.3);
+// Example(2D): If you specify closed=true when the last path doesn't meet the first one then it is similar to using relocate=false: the function tries to close the path using a curve.  In the example below, this results in a long curve to the left, when given the unclosed three segments as input.  Note that if the segments are parallel the function fails with an error.  The extension of the curves must intersect in a corner for the rounding to be well-defined.  To get a normal rounding of the closed shape, you must include a fourth path, the last segment that closes the shape.
+//   horiz = [[0,0],[10,0]];
+//   vert = [[0,0],[0,10]];
+//   h2 = [[0,-3],[10,0]];
+//   color("red")stroke(path_join([horiz, vert, -h2],closed=true,joint=3,$fn=25),closed=true,width=.5);
+//   stroke(path_join([horiz, vert, -h2]),width=.3);
+// Example(2D): With a single path with closed=true the start and end junction is rounded.
+//   tri = regular_ngon(n=3, r=7);
+//   stroke(path_join([tri], joint=3,closed=true,$fn=12),closed=true,width=.5);
+module path_join(paths,joint=0,k=0.5,relocate=true,closed=false) { no_module();}
+function path_join(paths,joint=0,k=0.5,relocate=true,closed=false)=
+  assert(is_list(paths),"Input paths must be a list of paths")
+  let(
+      paths = [for(i=idx(paths)) force_path(paths[i],str("paths[",i,"]"))],
+      badpath = [for(j=idx(paths)) if (!is_path(paths[j])) j]
+  )
+  assert(badpath==[], str("Entries in paths are not valid paths: ",badpath))
+  len(paths)==0 ? [] :
+  len(paths)==1 && !closed ? paths[0] :
+  let(
+      paths = !closed || len(paths)>1
+            ? paths
+            : [close_path(paths[0])],
+      N = len(paths) + (closed?0:-1),
+      k = _scalar_to_vector(k,N),
+      repjoint = is_num(joint) || (is_vector(joint,2) && len(paths)!=3),
+      joint = repjoint ? repeat(joint,N) : joint
+  )
+  assert(all_nonnegative(k), "k must be nonnegative")
+  assert(len(joint)==N,str("Input joint must be scalar or length ",N))
+  let(
+      bad_j = [for(j=idx(joint)) if (!is_num(joint[j]) && !is_vector(joint[j],2)) j]
+  )
+  assert(bad_j==[], str("Invalid joint values at indices ",bad_j))
+  let(result=_path_join(paths,joint,k, relocate=relocate, closed=closed))
+  closed ? cleanup_path(result) : result;
+
+function _path_join(paths,joint,k=0.5,i=0,result=[],relocate=true,closed=false) =
+  let( 
+      result = result==[] ? paths[0] : result,
+      loop = i==len(paths)-1,
+      revresult = reverse(result),
+      nextpath = loop     ? result
+               : relocate ? move(revresult[0]-paths[i+1][0], p=paths[i+1])
+               : paths[i+1],
+      d_first = is_vector(joint[i]) ? joint[i][0] : joint[i],
+      d_next = is_vector(joint[i]) ? joint[i][1] : joint[i]
+  )
+  assert(d_first>=0 && d_next>=0, str("Joint value negative when adding path ",i+1))
+  assert(d_first<path_length(revresult),str("Path ",i," is too short for specified cut distance ",d_first))
+  assert(d_next<path_length(nextpath), str("Path ",i+1," is too short for specified cut distance ",d_next))
+  let(
+      firstcut = _path_cut_points(revresult, d_first, direction=true),
+      nextcut = _path_cut_points(nextpath, d_next, direction=true)
+  )
+  assert(!loop || nextcut[1] < len(revresult)-1-firstcut[1], "Path is too short to close the loop")
+  let(
+     first_dir=firstcut[2],
+     next_dir=nextcut[2],
+     corner = line_intersection([firstcut[0], firstcut[0]-first_dir], [nextcut[0], nextcut[0]-next_dir],RAY,RAY)
+  )
+  assert(is_def(corner), str("Curve directions at cut points don't intersect in a corner when ",
+                             loop?"closing the path":str("adding path ",i+1)))
+  let(
+      bezpts = _smooth_bez_fill([firstcut[0], corner, nextcut[0]],k[i]),
+      N = max(3,$fn>0 ?$fn : ceil(bezier_segment_length(bezpts)/$fs)),
+      bezpath = approx(firstcut[0],corner) && approx(corner,nextcut[0])
+                  ? []
+                  : bezier_curve(bezpts,N),
+      new_result = [each select(result,loop?nextcut[1]:0,len(revresult)-1-firstcut[1]),
+                    each bezpath,
+                    nextcut[0],
+                    if (!loop) each list_tail(nextpath,nextcut[1])
+                   ]
+  )
+  i==len(paths)-(closed?1:2)
+     ? new_result
+     : _path_join(paths,joint,k,i+1,new_result, relocate,closed);
 
 
 // Function&Module: offset_sweep()
-//
+// Usage: most common module arguments.  See Arguments list below for more.
+//    offset_sweep(path, <height|h|l>, [bottom], [top], [offset=], [convexity=],...) [attachments]
+// Usage: most common function arguments.  See Arguments list below for more.
+//    vnf = offset_sweep(path, <height|h|l>, [bottom], [top], [offset=], ...)
 // Description:
 //   Takes a 2d path as input and extrudes it upwards and/or downward.  Each layer in the extrusion is produced using `offset()` to expand or shrink the previous layer.  When invoked as a function returns a VNF; when invoked as a module produces geometry.  
-//   You can specify a sequence of offsets values, or you can use several built-in offset profiles that are designed to provide end treatments such as roundovers.
+//   Using the `top` and/or `bottom` arguments you can specify a sequence of offsets values, or you can use several built-in offset profiles that
+//   provide end treatments such as roundovers.
+//   The height of the resulting object can be specified using the `height` argument, in which case `height` must be larger than the combined height
+//   of the end treatments.  If you omit `height` then the object height will be the height of just the top and bottom end treatments.  
+//   .
 //   The path is shifted by `offset()` multiple times in sequence
 //   to produce the final shape (not multiple shifts from one parent), so coarse definition of the input path will degrade
 //   from the successive shifts.  If the result seems rough or strange try increasing the number of points you use for
-//   your input.  If you get unexpected corners in your result, decrease `offset_maxstep` or decrease `steps`.  You must
-//   choose `offset_maxstep` small enough so that the first offset step rounds, otherwise you will probably not get any
-//   rounding, even if you have selected rounding.  This may require a much smaller value than you expect.  However, be
-//   aware that large numbers of points (especially when check_valid is true) can lead to lengthy run times.  If your
-//   shape doesn't develop corners you may be able to save a lot of time by setting `check_valid=false`.  Be aware that
+//   your input.  If you get unexpected corners in your result you may have forgotten to set `$fn` or `$fa` and `$fs`.  
+//   Be aware that large numbers of points (especially when check_valid is true) can lead to lengthy run times.  If your
+//   shape doesn't develop new corners from the offsetting you may be able to save a lot of time by setting `check_valid=false`.  Be aware that
 //   disabling the validity check when it is needed can generate invalid polyhedra that will produce CGAL errors upon
 //   rendering.  Such validity errors will also occur if you specify a self-intersecting shape.
 //   The offset profile is quantized to 1/1024 steps to avoid failures in offset() that can occur with very tiny offsets.
 //   .
-//   The build-in profiles are: circular rounding, teardrop rounding, chamfer, continuous curvature rounding, and chamfer.
+//   The build-in profiles are: circular rounding, teardrop rounding, continuous curvature rounding, and chamfer.
 //   Also note that when a rounding radius is negative the rounding will flare outwards.  The easiest way to specify
 //   the profile is by using the profile helper functions.  These functions take profile parameters, as well as some
 //   general settings and translate them into a profile specification, with error checking on your input.  The description below
@@ -485,7 +710,7 @@ function smooth_path(path, tangents, size, relsize, splinesteps=10, uniform=fals
 //   - profile: os_profile(points)
 //     Define the offset profile with a list of points.  The first point must be [0,0] and the roundover should rise in the positive y direction, with positive x values for inward motion (standard roundover) and negative x values for flaring outward.  If the y value ever decreases then you might create a self-intersecting polyhedron, which is invalid.  Such invalid polyhedra will create cryptic assertion errors when you render your model and it is your responsibility to avoid creating them.  Note that the starting point of the profile is the center of the extrusion.  If you use a profile as the top it will rise upwards.  If you use it as the bottom it will be inverted, and will go downward.
 //   - circle: os_circle(r|cut).  Define circular rounding either by specifying the radius or cut distance.
-//   - smooth: os_smooth(cut|joint).  Define continuous curvature rounding, with `cut` and `joint` as for round_corners.
+//   - smooth: os_smooth(cut|joint, [k]).  Define continuous curvature rounding, with `cut` and `joint` as for round_corners. The k parameter controls how fast the curvature changes and should be between 0 and 1.  
 //   - teardrop: os_teardrop(r|cut).  Rounding using a 1/8 circle that then changes to a 45 degree chamfer.  The chamfer is at the end, and enables the object to be 3d printed without support.  The radius gives the radius of the circular part.
 //   - chamfer: os_chamfer([height], [width], [cut], [angle]).  Chamfer the edge at desired angle or with desired height and width.  You can specify height and width together and the angle will be ignored, or specify just one of height and width and the angle is used to determine the shape.  Alternatively, specify "cut" along with angle to specify the cut back distance of the chamfer.
 //   - mask: os_mask(mask, [out]).  Create a profile from one of the [2d masking shapes](shapes2d.scad#5-2d-masking-shapes).  The `out` parameter specifies that the mask should flare outward (like crown molding or baseboard).  This is set false by default.  
@@ -495,14 +720,14 @@ function smooth_path(path, tangents, size, relsize, splinesteps=10, uniform=fals
 //   - check_valid: passed to offset().  Default: true
 //   - quality: passed to offset().  Default: 1
 //   - steps: Number of vertical steps to use for the profile.  (Not used by os_profile).  Default: 16
-//   - offset_maxstep: The maxstep distance for offset() calls; controls the horizontal step density.  Set smaller if you don't get the expected rounding.  Default: 1
 //   - offset: Select "round" (r=) or "delta" (delta=) offset types for offset. You can also choose "chamfer" but this leads to exponential growth in the number of vertices with the steps parameter.  Default: "round"
 //   .
 //   Many of the arguments are described as setting "default" values because they establish settings which may be overridden by
 //   the top and bottom profile specifications.
 //   .
 //   You will generally want to use the above helper functions to generate the profiles.
-//   The profile specification is a list of pairs of keywords and values, e.g. ["r",12, type, "circle"]. The keywords are
+//   The profile specification is a list of pairs of keywords and values, e.g. ["for","offset_sweep","r",12, type, "circle"]. The keywords are
+//   - "for" - must appear first in the list and have the value "offset_sweep"
 //   - "type" - type of rounding to apply, one of "circle", "teardrop", "chamfer", "smooth", or "profile" (Default: "circle")
 //   - "r" - the radius of the roundover, which may be zero for no roundover, or negative to round or flare outward.  Default: 0
 //   - "cut" - the cut distance for the roundover or chamfer, which may be negative for flares
@@ -516,7 +741,6 @@ function smooth_path(path, tangents, size, relsize, splinesteps=10, uniform=fals
 //   - "check_valid" - passed to offset.  Default: true.
 //   - "quality" - passed to offset.  Default: 1.
 //   - "steps" - number of vertical steps to use for the roundover.  Default: 16.
-//   - "offset_maxstep" - maxstep distance for offset() calls; controls the horizontal step density.  Set smaller if you don't get expected rounding.  Default: 1
 //   - "offset" - select "round" (r=), "delta" (delta=), or "chamfer" offset type for offset.  Default: "round"
 //   .
 //   Note that if you set the "offset" parameter to "chamfer" then every exterior corner turns from one vertex into two vertices with
@@ -530,13 +754,13 @@ function smooth_path(path, tangents, size, relsize, splinesteps=10, uniform=fals
 // Arguments:
 //   path = 2d path (list of points) to extrude
 //   height / l / h = total height (including rounded portions, but not extra sections) of the output.  Default: combined height of top and bottom end treatments.
-//   top = rounding spec for the top end.
 //   bottom = rounding spec for the bottom end
+//   top = rounding spec for the top end.
+//   ---
 //   offset = default offset, `"round"` or `"delta"`.  Default: `"round"`
 //   steps = default step count.  Default: 16
 //   quality = default quality.  Default: 1
 //   check_valid = default check_valid.  Default: true.
-//   offset_maxstep = default maxstep value to pass to offset.  Default: 1
 //   extra = default extra height.  Default: 0
 //   cut = default cut value.
 //   chamfer_width = default width value for chamfers.
@@ -554,24 +778,26 @@ function smooth_path(path, tangents, size, relsize, splinesteps=10, uniform=fals
 //   star = star(5, r=22, ir=13);
 //   rounded_star = round_corners(star, cut=flatten(repeat([.5,0],5)), $fn=24);
 //   offset_sweep(rounded_star, height=20, bottom=os_circle(r=4), top=os_circle(r=1), steps=15);
-// Example: Rounding a star shaped prism with negative radius values
-//   star = star(5, r=22, ir=13);
-//   rounded_star = round_corners(star, cut=flatten(repeat([.5,0],5)), $fn=24);
+// Example: Rounding a star shaped prism with negative radius values.  The starting shape has no corners, so the value of `$fn` does not matter.
+//   star = star(5, r=22, ir=13); 
+//   rounded_star = round_corners(star, cut=flatten(repeat([.5,0],5)), $fn=36);
 //   offset_sweep(rounded_star, height=20, bottom=os_circle(r=-4), top=os_circle(r=-1), steps=15);
-// Example: Unexpected corners in the result even with `offset="round"` (the default), even with offset_maxstep set small.
+// Example: If the shape has sharp corners, make sure to set `$fn/$fs/$fa`.  The corners of this triangle are not round, even though `offset="round"` (the default) because the number of segments is small.
 //   triangle = [[0,0],[10,0],[5,10]];
-//   offset_sweep(triangle, height=6, bottom = os_circle(r=-2),steps=16,offset_maxstep=0.25);
-// Example: Can improve the result by decreasing the number of steps
+//   offset_sweep(triangle, height=6, bottom = os_circle(r=-2),steps=4);
+// Example: Can improve the result by increasing $fn
+//   $fn=12;
 //   triangle = [[0,0],[10,0],[5,10]];
-//   offset_sweep(triangle, height=6, bottom = os_circle(r=-2),steps=4,offset_maxstep=0.25);
-// Example: Or by decreasing `offset_maxstep`
+//   offset_sweep(triangle, height=6, bottom = os_circle(r=-2),steps=4);
+// Example: Using $fa and $fs works too; it produces a different looking triangulation of the rounded corner
+//   $fa=1;$fs=0.3;
 //   triangle = [[0,0],[10,0],[5,10]];
-//   offset_sweep(triangle, height=6, bottom = os_circle(r=-2),steps=16,offset_maxstep=0.01);
-// Example: Here is the star chamfered at the top with a teardrop rounding at the bottom. Check out the rounded corners on the chamfer.  Note that a very small value of `offset_maxstep` is needed to keep these round.  Observe how the rounded star points vanish at the bottom in the teardrop: the number of vertices does not remain constant from layer to layer.
-//   star = star(5, r=22, ir=13);
-//   rounded_star = round_corners(star, cut=flatten(repeat([.5,0],5)), $fn=24);
-//   offset_sweep(rounded_star, height=20, bottom=os_teardrop(r=4), top=os_chamfer(width=4,offset_maxstep=.1));
-// Example: We round a cube using the continous curvature rounding profile.  But note that the corners are not smooth because the curved square collapses into a square with corners.    When a collapse like this occurs, we cannot turn `check_valid` off.
+//   offset_sweep(triangle, height=6, bottom = os_circle(r=-2),steps=4);
+// Example: Here is the star chamfered at the top with a teardrop rounding at the bottom. Check out the rounded corners on the chamfer.  The large $fn value ensures a smooth curve on the concave corners of the chamfer.  It has no effect anywhere else on the model.  Observe how the rounded star points vanish at the bottom in the teardrop: the number of vertices does not remain constant from layer to layer.
+//    star = star(5, r=22, ir=13);
+//    rounded_star = round_corners(star, cut=flatten(repeat([.5,0],5)), $fn=24);
+//    offset_sweep(rounded_star, height=20, bottom=os_teardrop(r=4), top=os_chamfer(width=4),$fn=64);
+// Example: We round a cube using the continous curvature rounding profile.  But note that the corners are not smooth because the curved square collapses into a square with corners.    When a collapse like this occurs, we cannot turn `check_valid` off.  For a better result use `rounded_prism()` instead.
 //   square = square(1);
 //   rsquare = round_corners(square, method="smooth", cut=0.1, k=0.7, $fn=36);
 //   end_spec = os_smooth(cut=0.1, k=0.7, steps=22);
@@ -593,13 +819,14 @@ function smooth_path(path, tangents, size, relsize, splinesteps=10, uniform=fals
 //   height=50;
 //   back_half(y=25, s=200)
 //     difference(){
-//       offset_sweep(roundbox, height=height, bottom=["r",10,"type","teardrop"], top=["r",2], steps = 22, check_valid=false);
+//       offset_sweep(roundbox, height=height, bottom=["for","offset_sweep","r",10,"type","teardrop"],
+//                                             top=["for","offset_sweep","r",2], steps = 22, check_valid=false);
 //       up(thickness)
 //         offset_sweep(offset(roundbox, r=-thickness, closed=true),
 //                       height=height-thickness, steps=22,
-//                       bottom=["r",6],
-//                       top=["type","chamfer","angle",30,"chamfer_height",-3,"extra",1,"check_valid",false]);
-//     }
+//                       bottom=["for","offset_sweep","r",6],
+//                       top=["for","offset_sweep","type","chamfer","angle",30,"chamfer_height",-3,"extra",1,"check_valid",false]);
+//   }
 // Example: A box with multiple sections and rounded dividers
 //   thickness = 2;
 //   box = square([255,50]);
@@ -623,30 +850,30 @@ function smooth_path(path, tangents, size, relsize, splinesteps=10, uniform=fals
 //   thickness = 2;
 //   ht=20;
 //   difference(){
-//     offset_sweep(rounded_star, height=ht, bottom=["r",4], top=["r",1], steps=15);
+//     offset_sweep(rounded_star, height=ht, bottom=["for","offset_sweep","r",4], top=["for","offset_sweep","r",1], steps=15);
 //     up(thickness)
 //         offset_sweep(offset(rounded_star,r=-thickness,closed=true),
 //                       height=ht-thickness, check_valid=false,
-//                       bottom=os_circle(r=7), top=os_circle(r=-1, extra=1));
+//                       bottom=os_circle(r=7), top=os_circle(r=-1, extra=1),$fn=40);
 //     }
 // Example: A profile defined by an arbitrary sequence of points.
 //   star = star(5, r=22, ir=13);
 //   rounded_star = round_corners(star, cut=flatten(repeat([.5,0],5)), $fn=24);
 //   profile = os_profile(points=[[0,0],[.3,.1],[.6,.3],[.9,.9], [1.2, 2.7],[.8,2.7],[.8,3]]);
-//   offset_sweep(reverse(rounded_star), height=20, top=profile, bottom=profile);
+//   offset_sweep(reverse(rounded_star), height=20, top=profile, bottom=profile, $fn=32);
 // Example: Parabolic rounding
 //   star = star(5, r=22, ir=13);
 //   rounded_star = round_corners(star, cut=flatten(repeat([.5,0],5)), $fn=24);
 //   offset_sweep(rounded_star, height=20, top=os_profile(points=[for(r=[0:.1:2])[sqr(r),r]]),
-//                                          bottom=os_profile(points=[for(r=[0:.2:5])[-sqrt(r),r]]));
-// Example: This example uses a sine wave offset profile.  Note that because the offsets occur sequentially and the path grows incrementally the offset needs a very fine resolution to produce the proper result.  Note that we give no specification for the bottom, so it is straight.
+//                                          bottom=os_profile(points=[for(r=[0:.2:5])[-sqrt(r),r]]),$fn=32);
+// Example: This example uses a sine wave offset profile.  Note that we give no specification for the bottom, so it is straight.
 //   sq = [[0,0],[20,0],[20,20],[0,20]];
 //   sinwave = os_profile(points=[for(theta=[0:5:720]) [4*sin(theta), theta/700*15]]);
-//   offset_sweep(sq, height=20, top=sinwave, offset_maxstep=.05);
+//   offset_sweep(sq, height=20, top=sinwave, $fn=32);
 // Example: The same as the previous example but `offset="delta"`
 //   sq = [[0,0],[20,0],[20,20],[0,20]];
 //   sinwave = os_profile(points=[for(theta=[0:5:720]) [4*sin(theta), theta/700*15]]);
-//   offset_sweep(sq, height=20, top=sinwave, offset_maxstep=.05, offset="delta");
+//   offset_sweep(sq, height=20, top=sinwave, offset="delta");
 // Example: a box with a flared top.  A nice roundover on the top requires a profile edge, but we can use "extra" to create a small chamfer.
 //   rhex = round_corners(hexagon(side=10), method="smooth", joint=2, $fs=0.2);
 //   back_half()
@@ -668,11 +895,11 @@ function smooth_path(path, tangents, size, relsize, splinesteps=10, uniform=fals
 
 // This function does the actual work of repeatedly calling offset() and concatenating the resulting face and vertex lists to produce
 // the inputs for the polyhedron module.
-function _make_offset_polyhedron(path,offsets, offset_type, flip_faces, quality, check_valid, maxstep, offsetind=0,
+function _make_offset_polyhedron(path,offsets, offset_type, flip_faces, quality, check_valid, offsetind=0,
                                  vertexcount=0, vertices=[], faces=[] )=
         offsetind==len(offsets)? (
                 let(
-                        bottom = list_range(n=len(path),s=vertexcount),
+                        bottom = count(len(path),vertexcount),
                         oriented_bottom = !flip_faces? bottom : reverse(bottom)
                 ) [vertices, concat(faces,[oriented_bottom])]
         ) : (
@@ -686,41 +913,47 @@ function _make_offset_polyhedron(path,offsets, offset_type, flip_faces, quality,
                         vertices_faces = offset(
                                 path, r=r, delta=delta, chamfer = do_chamfer, closed=true,
                                 check_valid=check_valid, quality=quality,
-                                maxstep=maxstep, return_faces=true,
+                                return_faces=true,
                                 firstface_index=vertexcount,
                                 flip_faces=flip_faces
                         )
                 )
                 _make_offset_polyhedron(
                         vertices_faces[0], offsets, offset_type,
-                        flip_faces, quality, check_valid, maxstep,
+                        flip_faces, quality, check_valid, 
                         offsetind+1, vertexcount+len(path),
                         vertices=concat(
                                 vertices,
-                                zip(vertices_faces[0],repeat(offsets[offsetind][1],len(vertices_faces[0])))
+                                path3d(vertices_faces[0],offsets[offsetind][1])
                         ),
                         faces=concat(faces, vertices_faces[1])
                 )
         );
 
 
+function _struct_valid(spec, func, name) =
+        spec==[] ? true :
+        assert(is_list(spec) && len(spec)>=2 && spec[0]=="for",str("Specification for \"", name, "\" is an invalid structure"))
+        assert(spec[1]==func, str("Specification for \"",name,"\" is for a different function (",func,")"));
+
 function offset_sweep(
-                       path, height, h, l,
-                       top=[], bottom=[],
+                       path, height, 
+                       bottom=[], top=[], 
+                       h, l,
                        offset="round", r=0, steps=16,
                        quality=1, check_valid=true,
-                       offset_maxstep=1, extra=0,
+                       extra=0,
                        cut=undef, chamfer_width=undef, chamfer_height=undef,
                        joint=undef, k=0.75, angle=45
                       ) =
     let(
         argspec = [
+                   ["for",""],
                    ["r",r],
                    ["extra",extra],
                    ["type","circle"],
                    ["check_valid",check_valid],
                    ["quality",quality],
-                   ["offset_maxstep", offset_maxstep],
                    ["steps",steps],
                    ["offset",offset],
                    ["chamfer_width",chamfer_width],
@@ -731,33 +964,38 @@ function offset_sweep(
                    ["k", k],
                    ["points", []],
         ],
-        path = check_and_fix_path(path, [2], closed=true),
-        clockwise = polygon_is_clockwise(path),
-        
+        path = force_path(path)
+    )
+    assert(is_path(path,2), "Input path must be a 2D path")
+    let(
+        clockwise = is_polygon_clockwise(path),
+        dummy1 = _struct_valid(top,"offset_sweep","top"),
+        dummy2 = _struct_valid(bottom,"offset_sweep","bottom"),
         top = struct_set(argspec, top, grow=false),
         bottom = struct_set(argspec, bottom, grow=false),
 
         //  This code does not work.  It hits the error in _make_offset_polyhedron from offset being wrong
         //  before this code executes.  Had to move the test into _make_offset_polyhedron, which is ugly since it's in the loop
-        offsetsok = in_list(struct_val(top, "offset"),["round","delta"])
-                    && in_list(struct_val(bottom, "offset"),["round","delta"])
+        offsetsok = in_list(struct_val(top, "offset"),["round","delta","chamfer"])
+                    && in_list(struct_val(bottom, "offset"),["round","delta","chamfer"])
     )
-    assert(offsetsok,"Offsets must be one of \"round\" or \"delta\"")
-    let( 
+    assert(offsetsok,"Offsets must be one of \"round\", \"delta\", or \"chamfer\"")
+    let(
         offsets_bot = _rounding_offsets(bottom, -1),
         offsets_top = _rounding_offsets(top, 1),
-        dummy = offset == "chamfer" && (len(offsets_bot)>5 || len(offsets_top)>5)
+        dummy = (struct_val(top,"offset")=="chamfer" && len(offsets_top)>5)
+                        || (struct_val(bottom,"offset")=="chamfer" && len(offsets_bot)>5)
                 ? echo("WARNING: You have selected offset=\"chamfer\", which leads to exponential growth in the vertex count and requested more than 5 layers.  This can be slow or run out of recursion depth.")
                 : 0,
 
         // "Extra" height enlarges the result beyond the requested height, so subtract it
-        bottom_height = len(offsets_bot)==0 ? 0 : abs(select(offsets_bot,-1)[1]) - struct_val(bottom,"extra"),
-        top_height = len(offsets_top)==0 ? 0 : abs(select(offsets_top,-1)[1]) - struct_val(top,"extra"),
+        bottom_height = len(offsets_bot)==0 ? 0 : abs(last(offsets_bot)[1]) - struct_val(bottom,"extra"),
+        top_height = len(offsets_top)==0 ? 0 : abs(last(offsets_top)[1]) - struct_val(top,"extra"),
 
-        height = get_height(l=l,h=h,height=height,dflt=bottom_height+top_height),
+        height = one_defined([l,h,height], "l,h,height", dflt=u_add(bottom_height,top_height)),
         middle = height-bottom_height-top_height
     )
-    assert(height>=0, "Height must be nonnegative") 
+    assert(height>0, "Height must be positive") 
     assert(middle>=0, str("Specified end treatments (bottom height = ",bottom_height,
                           " top_height = ",top_height,") are too large for extrusion height (",height,")"
                          )
@@ -769,18 +1007,16 @@ function offset_sweep(
                 path, offsets_bot, struct_val(bottom,"offset"), clockwise,
                 struct_val(bottom,"quality"),
                 struct_val(bottom,"check_valid"),
-                struct_val(bottom,"offset_maxstep"),
                 vertices=initial_vertices_bot
         ),
 
         top_start_ind = len(vertices_faces_bot[0]),
-        initial_vertices_top = zip(path, repeat(middle,len(path))),
+        initial_vertices_top = path3d(path, middle),
         vertices_faces_top = _make_offset_polyhedron(
                 path, move(p=offsets_top,[0,middle]),
                 struct_val(top,"offset"), !clockwise,
                 struct_val(top,"quality"),
                 struct_val(top,"check_valid"),
-                struct_val(top,"offset_maxstep"),
                 vertexcount=top_start_ind,
                 vertices=initial_vertices_top
         ),
@@ -794,21 +1030,22 @@ function offset_sweep(
      concat(vertices_faces_bot[1], vertices_faces_top[1], middle_faces)];     // Faces
 
 
-module offset_sweep(path, height, h, l,
-                    top=[], bottom=[],
+module offset_sweep(path, height, 
+                    bottom=[], top=[], 
+                    h, l,
                     offset="round", r=0, steps=16,
                     quality=1, check_valid=true,
-                    offset_maxstep=1, extra=0,
+                    extra=0,
                     cut=undef, chamfer_width=undef, chamfer_height=undef,
                     joint=undef, k=0.75, angle=45,
                     convexity=10,anchor="origin",cp,
                     spin=0, orient=UP, extent=false)
 {
-    vnf = offset_sweep(path=path, height=height, h=h, l=l, top=top, bottom=bottom, offset=offset, r=0, steps=steps,
-                       quality=quality, check_valid=true, offset_maxstep=1, extra=0, cut=cut, chamfer_width=chamfer_width,
+    vnf = offset_sweep(path=path, height=height, h=h, l=l, top=top, bottom=bottom, offset=offset, r=r, steps=steps,
+                       quality=quality, check_valid=true, extra=extra, cut=cut, chamfer_width=chamfer_width,
                        chamfer_height=chamfer_height, joint=joint, k=k, angle=angle);
   
-    attachable(anchor=anchor, spin=spin, orient=orient, vnf=vnf, extent=extent, cp=is_def(cp) ? cp : vnf_centroid(vnf))
+    attachable(anchor=anchor, spin=spin, orient=orient, vnf=vnf, extent=extent, cp=is_def(cp) ? cp : centroid(vnf))
     {
         vnf_polyhedron(vnf,convexity=convexity);
         children();
@@ -817,9 +1054,10 @@ module offset_sweep(path, height, h, l,
 
 
 
-function os_circle(r,cut,extra,check_valid, quality,steps, offset_maxstep, offset) =
+function os_circle(r,cut,extra,check_valid, quality,steps, offset) =
         assert(num_defined([r,cut])==1, "Must define exactly one of `r` and `cut`")
         _remove_undefined_vals([
+                "for", "offset_sweep",
                 "type", "circle",
                 "r",r,
                 "cut",cut,
@@ -827,13 +1065,13 @@ function os_circle(r,cut,extra,check_valid, quality,steps, offset_maxstep, offse
                 "check_valid",check_valid,
                 "quality", quality,
                 "steps", steps,
-                "offset_maxstep", offset_maxstep,
                 "offset", offset
         ]);
 
-function os_teardrop(r,cut,extra,check_valid, quality,steps, offset_maxstep, offset) =
+function os_teardrop(r,cut,extra,check_valid, quality,steps, offset) =
         assert(num_defined([r,cut])==1, "Must define exactly one of `r` and `cut`")
         _remove_undefined_vals([
+                "for", "offset_sweep",
                 "type", "teardrop",
                 "r",r,
                 "cut",cut,
@@ -841,14 +1079,14 @@ function os_teardrop(r,cut,extra,check_valid, quality,steps, offset_maxstep, off
                 "check_valid",check_valid,
                 "quality", quality,
                 "steps", steps,
-                "offset_maxstep", offset_maxstep,
                 "offset", offset
         ]);
 
-function os_chamfer(height, width, cut, angle, extra,check_valid, quality,steps, offset_maxstep, offset) =
+function os_chamfer(height, width, cut, angle, extra,check_valid, quality,steps, offset) =
         let(ok = (is_def(cut) && num_defined([height,width])==0) || num_defined([height,width])>0)
         assert(ok, "Must define `cut`, or one or both of `width` and `height`")
         _remove_undefined_vals([
+                "for", "offset_sweep",
                 "type", "chamfer",
                 "chamfer_width",width,
                 "chamfer_height",height,
@@ -858,13 +1096,13 @@ function os_chamfer(height, width, cut, angle, extra,check_valid, quality,steps,
                 "check_valid",check_valid,
                 "quality", quality,
                 "steps", steps,
-                "offset_maxstep", offset_maxstep,
                 "offset", offset
         ]);
 
-function os_smooth(cut, joint, k, extra,check_valid, quality,steps, offset_maxstep, offset) =
+function os_smooth(cut, joint, k, extra,check_valid, quality,steps, offset) =
         assert(num_defined([joint,cut])==1, "Must define exactly one of `joint` and `cut`")
         _remove_undefined_vals([
+                "for", "offset_sweep",
                 "type", "smooth",
                 "joint",joint,
                 "k",k,
@@ -873,33 +1111,32 @@ function os_smooth(cut, joint, k, extra,check_valid, quality,steps, offset_maxst
                 "check_valid",check_valid,
                 "quality", quality,
                 "steps", steps,
-                "offset_maxstep", offset_maxstep,
                 "offset", offset
         ]);
 
-function os_profile(points, extra,check_valid, quality, offset_maxstep, offset) =
+function os_profile(points, extra,check_valid, quality, offset) =
         assert(is_path(points),"Profile point list is not valid")
         _remove_undefined_vals([
+                "for", "offset_sweep",
                 "type", "profile",
                 "points", points,
                 "extra",extra,
                 "check_valid",check_valid,
                 "quality", quality,
-                "offset_maxstep", offset_maxstep,
                 "offset", offset
         ]);
 
 
-function os_mask(mask, out=false, extra,check_valid, quality, offset_maxstep, offset) =
+function os_mask(mask, out=false, extra,check_valid, quality, offset) =
   let(
       origin_index = [for(i=idx(mask)) if (mask[i].x<0 && mask[i].y<0) i],
       xfactor = out ? -1 : 1
   )
   assert(len(origin_index)==1,"Cannot find origin in the mask")
   let(
-      points = ([for(pt=polygon_shift(mask,origin_index[0])) [xfactor*max(pt.x,0),-max(pt.y,0)]])
+      points = ([for(pt=list_rotate(mask,origin_index[0])) [xfactor*max(pt.x,0),-max(pt.y,0)]])
   )
-  os_profile(deduplicate(move(-points[1],p=select(points,1,-1))), extra,check_valid,quality,offset_maxstep,offset);
+  os_profile(deduplicate(move(-points[1],p=list_tail(points))), extra,check_valid,quality,offset);
 
 
 // Module: convex_offset_extrude()
@@ -908,10 +1145,12 @@ function os_mask(mask, out=false, extra,check_valid, quality, offset_maxstep, of
 //   Extrudes 2d children with layers formed from the convex hull of the offset of each child according to a sequence of offset values.
 //   Like `offset_sweep` this module can use built-in offset profiles to provide treatments such as roundovers or chamfers but unlike `offset_sweep()` it
 //   operates on 2d children rather than a point list.  Each offset is computed using
-//   the native `offset()` module from the input geometry.  If your geometry has internal holes or is too small for the specified offset then you may get
+//   the native `offset()` module from the input geometry.
+//   If your shape has corners that you want rounded by offset be sure to set `$fn` or `$fs` appropriately.
+//   If your geometry has internal holes or is too small for the specified offset then you may get
 //   unexpected results.
 //   .
-//   The build-in profiles are: circular rounding, teardrop rounding, chamfer, continuous curvature rounding, and chamfer.
+//   The build-in profiles are: circular rounding, teardrop rounding, continuous curvature rounding, and chamfer.
 //   Also note that when a rounding radius is negative the rounding will flare outwards.  The easiest way to specify
 //   the profile is by using the profile helper functions.  These functions take profile parameters, as well as some
 //   general settings and translate them into a profile specification, with error checking on your input.  The description below
@@ -925,7 +1164,7 @@ function os_mask(mask, out=false, extra,check_valid, quality, offset_maxstep, of
 //   - profile: os_profile(points)
 //     Define the offset profile with a list of points.  The first point must be [0,0] and the roundover should rise in the positive y direction, with positive x values for inward motion (standard roundover) and negative x values for flaring outward.  If the y value ever decreases then you might create a self-intersecting polyhedron, which is invalid.  Such invalid polyhedra will create cryptic assertion errors when you render your model and it is your responsibility to avoid creating them.  Note that the starting point of the profile is the center of the extrusion.  If you use a profile as the top it will rise upwards.  If you use it as the bottom it will be inverted, and will go downward.
 //   - circle: os_circle(r|cut).  Define circular rounding either by specifying the radius or cut distance.
-//   - smooth: os_smooth(cut|joint).  Define continuous curvature rounding, with `cut` and `joint` as for round_corners.
+//   - smooth: os_smooth(cut|joint, [k]).  Define continuous curvature rounding, with `cut` and `joint` as for round_corners.  The k parameter controls how fast the curvature changes and should be between 0 and 1.
 //   - teardrop: os_teardrop(r|cut).  Rounding using a 1/8 circle that then changes to a 45 degree chamfer.  The chamfer is at the end, and enables the object to be 3d printed without support.  The radius gives the radius of the circular part.
 //   - chamfer: os_chamfer([height], [width], [cut], [angle]).  Chamfer the edge at desired angle or with desired height and width.  You can specify height and width together and the angle will be ignored, or specify just one of height and width and the angle is used to determine the shape.  Alternatively, specify "cut" along with angle to specify the cut back distance of the chamfer.
 //   .
@@ -977,8 +1216,17 @@ function os_mask(mask, out=false, extra,check_valid, quality, offset_maxstep, of
 //   xscale(4)circle(r=6,$fn=64);
 // Example: If you give a non-convex input you get a convex hull output
 //   right(50) linear_extrude(height=7) star(5,r=22,ir=13);
-//   convex_offset_extrude(bottom = os_chamfer(height=-2), top=os_chamfer(height=1), height=7)
+//   convex_offset_extrude(bottom = os_chamfer(height=-2), top=os_chamfer(height=1), height=7, $fn=32)
 //     star(5,r=22,ir=13);
+function convex_offset_extrude(
+        height, h, l,
+        top=[], bottom=[],
+        offset="round", r=0, steps=16,
+        extra=0,
+        cut=undef, chamfer_width=undef, chamfer_height=undef,
+        joint=undef, k=0.75, angle=45,
+        convexity=10, thickness = 1/1024
+) = no_function("convex_offset_extrude");
 module convex_offset_extrude(
         height, h, l,
         top=[], bottom=[],
@@ -989,6 +1237,7 @@ module convex_offset_extrude(
         convexity=10, thickness = 1/1024
 ) {
         argspec = [
+                ["for", ""],
                 ["r",r],
                 ["extra",extra],
                 ["type","circle"],
@@ -1009,10 +1258,10 @@ module convex_offset_extrude(
         offsets_top = _rounding_offsets(top, 1);
 
         // "Extra" height enlarges the result beyond the requested height, so subtract it
-        bottom_height = len(offsets_bot)==0 ? 0 : abs(select(offsets_bot,-1)[1]) - struct_val(bottom,"extra");
-        top_height = len(offsets_top)==0 ? 0 : abs(select(offsets_top,-1)[1]) - struct_val(top,"extra");
+        bottom_height = len(offsets_bot)==0 ? 0 : abs(last(offsets_bot)[1]) - struct_val(bottom,"extra");
+        top_height = len(offsets_top)==0 ? 0 : abs(last(offsets_top)[1]) - struct_val(top,"extra");
 
-        height = get_height(l=l,h=h,height=height,dflt=bottom_height+top_height);
+        height = one_defined([l,h,height], "l,h,height", dflt=u_add(bottom_height,top_height));
         assert(height>=0, "Height must be nonnegative");
 
         middle = height-bottom_height-top_height;
@@ -1025,7 +1274,7 @@ module convex_offset_extrude(
         // The entry r[i] is [radius,z] for a given layer
         r = move([0,bottom_height],p=concat(
                           reverse(offsets_bot), [[0,0], [0,middle]], move([0,middle], p=offsets_top)));
-        delta = [for(val=deltas(subindex(r,0))) sign(val)];
+        delta = [for(val=deltas(column(r,0))) sign(val)];
         below=[-thickness,0];
         above=[0,thickness];
            // layers is a list of pairs of the relative positions for each layer, e.g. [0,thickness]
@@ -1069,14 +1318,17 @@ function _remove_undefined_vals(list) =
 
 
 // Function&Module: offset_stroke()
-// Usage:
-//   offset_stroke(path, [width], [rounded], [chamfer], [start], [end], [check_valid], [quality], [maxstep], [closed])
+// Usage: as module
+//   offset_stroke(path, [width], [rounded=], [chamfer=], [start=], [end=], [check_valid=], [quality=], [closed=]);
+// Usage: as function
+//   path = offset_stroke(path, [width], closed=false, [rounded=], [chamfer=], [start=], [end=], [check_valid=], [quality=]);
+//   region = offset_stroke(path, [width], closed=true, [rounded=], [chamfer=], [start=], [end=], [check_valid=], [quality=]);
 // Description:
 //   Uses `offset()` to compute a stroke for the input path.  Unlike `stroke`, the result does not need to be
 //   centered on the input path.  The corners can be rounded, pointed, or chamfered, and you can make the ends
 //   rounded, flat or pointed with the `start` and `end` parameters.
 //   .
-//   The `check_valid`, `quality` and `maxstep` parameters are passed through to `offset()`
+//   The `check_valid` and `quality`  parameters are passed through to `offset()`
 //   .
 //   If `width` is a scalar then the output will be a centered stroke of the specified width.  If width
 //   is a list of two values then those two values will define the stroke side positions relative to the center line, where
@@ -1093,33 +1345,34 @@ function _remove_undefined_vals(list) =
 //   .
 //   More complex end treatments are available through parameter lists with helper functions to ease parameter passing.  The parameter list
 //   keywords are
+//      - "for" : must appear first in the list and have the value "offset_stroke"
 //      - "type": the type of end treatment, one of "shifted_point", "roundover", or "flat"
 //      - "angle": relative angle (relative to the path)
 //      - "abs_angle": absolute angle (angle relative to x-axis)
 //      - "cut": cut distance for roundovers, a single value to round both corners identically or a list of two values for the two corners.  Negative values round outward.
 //      - "k": curvature smoothness parameter for roundovers, default 0.75
 //   .
-//   Function helpers for defining ends, prefixed by "os" for offset_stroke.
-//   .
-//   os_flat(angle|absangle): specify a flat end either relative to the path or relative to the x-axis
-//   os_pointed(loc,dist): specify a pointed tip where the point is distance `loc` from the centerline (positive is the left direction as for offset), and `dist` is the distance from the path end to the point tip.  The default value for `loc` is zero (the center).  You must specify `dist` when using this option.
-//   os_round(cut,angle|absangle,k).  Rounded ends with the specified cut distance, based on the specified angle or absolute angle.  The `k` parameter is the smoothness parameter for continuous curvature rounding.
+//   Function helpers for defining ends, prefixed by "os" for offset_stroke, are:
+//      - os_flat(angle|absangle): specify a flat end either relative to the path or relative to the x-axis
+//      - os_pointed(dist, [loc]): specify a pointed tip where the point is distance `loc` from the centerline (positive is the left direction as for offset), and `dist` is the distance from the path end to the point tip.  The default value for `loc` is zero (the center).  You must specify `dist` when using this option.
+//      - os_round(cut, [angle|absangle], [k]).  Rounded ends with the specified cut distance, based on the specified angle or absolute angle.  The `k` parameter is the smoothness parameter for continuous curvature rounding.
 //   .
 //   Note that `offset_stroke()` will attempt to apply roundovers and angles at the ends even when it means deleting segments of the stroke, unlike round_corners which only works on a segment adjacent to a corner.  If you specify an overly extreme angle it will fail to find an intersection with the stroke and display an error.  When you specify an angle the end segment is rotated around the center of the stroke and the last segment of the stroke one one side is extended to the corner.
 //   .
-//   The $fn and $fs variables are used to determine the number of segments for rounding, while maxstep is used to determine the segments of `offset`.  If you
-//   get the expected rounding along the path, decrease `maxstep` and if the curves created by `os_round()` are too coarse, adjust $fn or $fs.
-//
+//   The `$fn` and `$fs` variables are used in the usual way to determine the number of segments for roundings produced by the offset
+//   invocations and roundings produced by the semi-circular "round" end treatment.  The os_round() end treatment
+//   uses a bezier curve, and will produce segments of approximate length `$fs` or it will produce `$fn` segments.
+//   (This means that even a quarter circle will have `$fn` segments, unlike the usual case where it would have `$fn/4` segments.)
 // Arguments:
 //   path = 2d path that defines the stroke
 //   width = width of the stroke, a scalar or a vector of 2 values giving the offset from the path.  Default: 1
+//   ---
 //   rounded = set to true to use rounded offsets, false to use sharp (delta) offsets.  Default: true
 //   chamfer = set to true to use chamfers when `rounded=false`.  Default: false
 //   start = end treatment for the start of the stroke.  See above for details.  Default: "flat"
 //   end = end treatment for the end of the stroke.  See above for details.  Default: "flat"
 //   check_valid = passed to offset().  Default: true
 //   quality = passed to offset().  Default: 1
-//   maxstep = passed to offset() to define number of points in the offset.  Default: 0.1
 //   closed = true if the curve is closed, false otherwise.  Default: false
 //
 // Example(2D):  Basic examples illustrating flat, round, and pointed ends, on a finely sampled arc and a path made from 3 segments.
@@ -1138,14 +1391,14 @@ function _remove_undefined_vals(list) =
 // Example(2D):  The effect of the `rounded` and `chamfer` options is most evident at sharp corners.  This only affects the middle of the path, not the ends.
 //   sharppath = [[0,0], [1.5,5], [3,0]];
 //   xdistribute(spacing=5){
-//     offset_stroke(sharppath);
+//     offset_stroke(sharppath, $fn=16);
 //     offset_stroke(sharppath, rounded=false);
 //     offset_stroke(sharppath, rounded=false, chamfer=true);
 //   }
 // Example(2D):  When closed is enabled all the corners are affected by those options.
 //   sharppath = [[0,0], [1.5,5], [3,0]];
 //   xdistribute(spacing=5){
-//     offset_stroke(sharppath,closed=true);
+//     offset_stroke(sharppath,closed=true, $fn=16);
 //     offset_stroke(sharppath, rounded=false, closed=true);
 //     offset_stroke(sharppath, rounded=false, chamfer=true, closed=true);
 //   }
@@ -1182,14 +1435,14 @@ function _remove_undefined_vals(list) =
 //   offset_stroke(path, width=2, rounded=false,start=os_round(cut=-1, abs_angle=90), end=os_round(cut=-0.5, abs_angle=0),$fn=36);
 //   right(10)
 //      offset_stroke(arc, width=2, rounded=false, start=os_round(cut=[-.75,-.2], angle=-45), end=os_round(cut=[-.2,.2], angle=20),$fn=36);
-// Example(2D):  Setting the width to a vector allows generation of a set of parallel strokes
+// Example(2D):  Setting the width to a vector allows you to offset the stroke.  Here with successive increasing offsets we create a set of parallel strokes
 //   path = [[0,0],[4,4],[8,4],[2,9],[10,10]];
 //   for(i=[0:.25:2])
 //     offset_stroke(path, rounded=false,width = [i,i+.08]);
-// Example(2D):  Setting rounded=true in the above example makes a very big difference in the result.
+// Example(2D):  Setting rounded=true in the above example makes a very big difference in the result.  
 //   path = [[0,0],[4,4],[8,4],[2,9],[10,10]];
 //   for(i=[0:.25:2])
-//     offset_stroke(path, rounded=true,width = [i,i+.08]);
+//     offset_stroke(path, rounded=true,width = [i,i+.08], $fn=36);
 // Example(2D):  In this example a spurious triangle appears.  This results from overly enthusiastic validity checking.  Turning validity checking off fixes it in this case.
 //   path = [[0,0],[4,4],[8,4],[2,9],[10,10]];
 //   offset_stroke(path, check_valid=true,rounded=false,width = [1.4, 1.5]);
@@ -1201,17 +1454,19 @@ function _remove_undefined_vals(list) =
 //   translate([1,-0.25])
 //     offset_stroke(path, check_valid=false,rounded=false,width = [1.9, 2]);
 // Example(2D): Self-intersecting paths are handled differently than with the `stroke()` module.
+//   $fn=16;
 //   path = turtle(["move",10,"left",144], repeat=4);
 //   stroke(path, closed=true);
 //   right(12)
 //     offset_stroke(path, width=1, closed=true);
-function offset_stroke(path, width=1, rounded=true, start="flat", end="flat", check_valid=true, quality=1, maxstep=0.1, chamfer=false, closed=false) =
+function offset_stroke(path, width=1, rounded=true, start="flat", end="flat", check_valid=true, quality=1, chamfer=false, closed=false) =
+        let(path = force_path(path))
         assert(is_path(path,2),"path is not a 2d path")
         let(closedok = !closed || (is_undef(start) && is_undef(end)))
         assert(closedok, "Parameters `start` and `end` not allowed with closed path")
         let(
-                start = closed? [] : _parse_stroke_end(default(start,"flat")),
-                end = closed? [] : _parse_stroke_end(default(end,"flat")),
+                start = closed? [] : _parse_stroke_end(default(start,"flat"),"start"),
+                end = closed? [] : _parse_stroke_end(default(end,"flat"),"end"),
                 width = is_list(width)? reverse(sort(width)) : [1,-1]*width/2,
                 left_r = !rounded? undef : width[0],
                 left_delta = rounded? undef : width[0],
@@ -1220,12 +1475,12 @@ function offset_stroke(path, width=1, rounded=true, start="flat", end="flat", ch
                 left_path = offset(
                         path, delta=left_delta, r=left_r, closed=closed,
                         check_valid=check_valid, quality=quality,
-                        chamfer=chamfer, maxstep=maxstep
+                        chamfer=chamfer 
                 ),
                 right_path = offset(
                         path, delta=right_delta, r=right_r, closed=closed,
                         check_valid=check_valid, quality=quality,
-                        chamfer=chamfer, maxstep=maxstep
+                        chamfer=chamfer 
                 )
         )
         closed? [left_path, right_path] :
@@ -1243,15 +1498,17 @@ function offset_stroke(path, width=1, rounded=true, start="flat", end="flat", ch
         );
 
 
-function os_pointed(loc=0,dist) =
+function os_pointed(dist,loc=0) =
         assert(is_def(dist), "Must specify `dist`")
         [
+                "for", "offset_stroke",
                 "type", "shifted_point",
                 "loc",loc,
                 "dist",dist
         ];
 
-function os_round(cut, angle, abs_angle, k) =
+function os_round(cut, angle, abs_angle, k, r) =
+        assert(is_undef(r), "Radius not supported for os_round with offset_stroke.  (Did you mean os_circle for offset_sweep?)")
         let(
                 acount = num_defined([angle,abs_angle]),
                 use_angle = first_defined([angle,abs_angle,0])
@@ -1259,6 +1516,7 @@ function os_round(cut, angle, abs_angle, k) =
         assert(acount<2, "You must define only one of `angle` and `abs_angle`")
         assert(is_def(cut), "Parameter `cut` not defined.")
         [
+                "for", "offset_stroke",
                 "type", "roundover",
                 "angle", use_angle,
                 "absolute", is_def(abs_angle),
@@ -1274,6 +1532,7 @@ function os_flat(angle, abs_angle) =
         )
         assert(acount<2, "You must define only one of `angle` and `abs_angle`")
         [
+                "for", "offset_stroke",
                 "type", "flat",
                 "angle", use_angle,
                 "absolute", is_def(abs_angle)
@@ -1289,14 +1548,17 @@ function angle_between_lines(line1,line2) =
         angle;
 
 
-function _parse_stroke_end(spec) =
+function _parse_stroke_end(spec,name) =
         is_string(spec)?
-                assert(
-                        in_list(spec,["flat","round","pointed"]),
-                        str("Unknown end string specification \"", spec,"\".  Must be \"flat\", \"round\", or \"pointed\"")
-                )
-                [["type", spec]] :
-                struct_set([], spec);
+            assert(
+                    in_list(spec,["flat","round","pointed"]),
+                    str("Unknown \"",name,"\" string specification \"", spec,"\".  Must be \"flat\", \"round\", or \"pointed\"")
+            )
+            [["type", spec]]
+        : let(
+              dummy = _struct_valid(spec,"offset_stroke",name)
+          )
+          struct_set([], spec);
 
 
 function _stroke_end(width,left, right, spec) =
@@ -1310,7 +1572,7 @@ function _stroke_end(width,left, right, spec) =
                 normal_dir = unit(normal_seg[1]-normal_seg[0]),
                 width_dir = sign(width[0]-width[1])
         )
-        type == "round"? [arc(points=[right[0],normal_pt,left[0]],N=50),1,1]  :
+        type == "round"? [arc(points=[right[0],normal_pt,left[0]],N=ceil(segs(width/2)/2)),1,1]  :
         type == "pointed"? [[normal_pt],0,0] :
         type == "shifted_point"? (
                 let(shiftedcenter = center + width_dir * parallel_dir * struct_val(spec, "loc"))
@@ -1340,11 +1602,11 @@ function _stroke_end(width,left, right, spec) =
                         cutright = cut[1],
                         // Create updated paths taking into account clipping for end rotation
                         newright = intright?
-                                concat([pathclip[0]],select(right,pathclip[1],-1)) :
-                                concat([pathextend],select(right,1,-1)),
+                                concat([pathclip[0]],list_tail(right,pathclip[1])) :
+                                concat([pathextend],list_tail(right)),
                         newleft = !intright?
-                                concat([pathclip[0]],select(left,pathclip[1],-1)) :
-                                concat([pathextend],select(left,1,-1)),
+                                concat([pathclip[0]],list_tail(left,pathclip[1])) :
+                                concat([pathextend],list_tail(left)),
                         // calculate corner angles, which are different when the cut is negative (outside corner)
                         leftangle = cutleft>=0?
                                 vector_angle([newleft[1],newleft[0],newright[0]])/2 :
@@ -1354,8 +1616,8 @@ function _stroke_end(width,left, right, spec) =
                                 90-vector_angle([newright[1],newright[0],newleft[0]])/2,
                         jointleft = 8*cutleft/cos(leftangle)/(1+4*bez_k),
                         jointright = 8*cutright/cos(rightangle)/(1+4*bez_k),
-                        pathcutleft = path_cut(newleft,abs(jointleft)),
-                        pathcutright = path_cut(newright,abs(jointright)),
+                        pathcutleft = _path_cut_points(newleft,abs(jointleft)),
+                        pathcutright = _path_cut_points(newright,abs(jointright)),
                         leftdelete = intright? pathcutleft[1] : pathcutleft[1] + pathclip[1] -1,
                         rightdelete = intright? pathcutright[1] + pathclip[1] -1 : pathcutright[1],
                         leftcorner = line_intersection([pathcutleft[0], newleft[pathcutleft[1]]], [newright[0],newleft[0]]),
@@ -1384,21 +1646,21 @@ function _stroke_end(width,left, right, spec) =
 // returns [intersection_pt, index of first point in path after the intersection]
 function _path_line_intersection(path, line, ind=0) =
         ind==len(path)-1 ? undef :
-        let(intersect=line_segment_intersection(line, select(path,ind,ind+1)))
+        let(intersect=line_intersection(line, select(path,ind,ind+1),LINE,SEGMENT))
         // If it intersects the segment excluding it's final point, then we're done
         // The final point is treated as part of the next segment
         is_def(intersect) && intersect != path[ind+1]?
                 [intersect, ind+1] :
                 _path_line_intersection(path, line, ind+1);
 
-module offset_stroke(path, width=1, rounded=true, start, end, check_valid=true, quality=1, maxstep=0.1, chamfer=false, closed=false)
+module offset_stroke(path, width=1, rounded=true, start, end, check_valid=true, quality=1, chamfer=false, closed=false)
 {
         no_children($children);
         result = offset_stroke(
                 path, width=width, rounded=rounded,
                 start=start, end=end,
                 check_valid=check_valid, quality=quality,
-                maxstep=maxstep, chamfer=chamfer,
+                chamfer=chamfer,
                 closed=closed
         );
         if (closed) {
@@ -1437,8 +1699,10 @@ function _rp_compute_patches(top, bot, rtop, rsides, ktop, ksides, concave) =
                     let(
                        prev_corner = prev_offset + abs(rtop_in)*in_prev,
                        next_corner = next_offset + abs(rtop_in)*in_next,
-                       prev_degenerate = is_undef(ray_intersection(path2d([far_corner, far_corner+prev]), path2d([prev_offset, prev_offset+in_prev]))),
-                       next_degenerate = is_undef(ray_intersection(path2d([far_corner, far_corner+next]), path2d([next_offset, next_offset+in_next])))
+                       prev_degenerate = is_undef(line_intersection(path2d([far_corner, far_corner+prev]),
+                                                                   path2d([prev_offset, prev_offset+in_prev]),RAY,RAY)),
+                       next_degenerate = is_undef(line_intersection(path2d([far_corner, far_corner+next]),
+                                                                   path2d([next_offset, next_offset+in_next]),RAY,RAY))
                     )
                     [ prev_degenerate ? far_corner : prev_corner,
                       far_corner,
@@ -1449,9 +1713,10 @@ function _rp_compute_patches(top, bot, rtop, rsides, ktop, ksides, concave) =
 
 
 // Function&Module: rounded_prism()
-// Usage:
-//   rounded_prism(bottom, [top], joint_top, joint_bot, joint_sides, [k], [k_top], [k_bot], [k_sides], [splinesteps], [height|h|length|l], [debug], [convexity])
-//   vnf = rounded_prism(bottom, [top], joint_top, joint_bot, joint_sides, [k], [k_top], [k_bot], [k_sides], [splinesteps], [height|h|length|l], [debug])
+// Usage: as a module
+//   rounded_prism(bottom, [top], <height=|h=|length=|l=>, [joint_top=], [joint_bot=], [joint_sides=], [k=], [k_top=], [k_bot=], [k_sides=], [splinesteps=], [debug=], [convexity=],...) [attachments];
+// Usage: as a function
+//   vnf = rounded_prism(bottom, [top], <height=|h=|length=|l=>, [joint_top=], [joint_bot=], [joint_sides=], [k=], [k_top=], [k_bot=], [k_sides=], [splinesteps=], [debug=]);
 // Description:
 //   Construct a generalized prism with continuous curvature rounding.  You supply the polygons for the top and bottom of the prism.  The only
 //   limitation is that joining the edges must produce a valid polyhedron with coplanar side faces.  You specify the rounding by giving
@@ -1483,10 +1748,11 @@ function _rp_compute_patches(top, bot, rtop, rsides, ktop, ksides, concave) =
 // Arguments:
 //   bottom = 2d or 3d path describing bottom polygon
 //   top = 2d or 3d path describing top polygon (must be the same dimension as bottom)
+//   ---
 //   height/length/h/l = height of the shape when you give 2d bottom
-//   joint_top = rounding length for top (number or 2-vector)
-//   joint_bot = rounding length for bottom (number or 2-vector)
-//   joint_sides = rounding length for side edges, a number/2-vector or list of them
+//   joint_top = rounding length for top (number or 2-vector).  Default: 0
+//   joint_bot = rounding length for bottom (number or 2-vector).  Default: 0
+//   joint_sides = rounding length for side edges, a number/2-vector or list of them.  Default: 0
 //   k = continuous curvature rounding parameter for all edges.  Default: 0.5
 //   k_top = continuous curvature rounding parameter for top
 //   k_bot = continuous curvature rounding parameter for bottom
@@ -1545,15 +1811,19 @@ function _rp_compute_patches(top, bot, rtop, rsides, ktop, ksides, concave) =
 //   rounded_prism(pentagon(3), height=3, joint_top=[1,-1], joint_bot=[-0.5,2], joint_sides=0.5);
 // Example: Sideways polygons:
 //   rounded_prism(apply(yrot(95),path3d(hexagon(3))), apply(yrot(95), path3d(hexagon(3),3)), joint_top=2, joint_bot=1, joint_sides=1);
+// Example: Chamfer a polyhedron by setting splinesteps to 1
+//   N = apply(rot(180)*yscale(.8),turtle(["length",3,"left", "move", 2, "right", 135, "move", sqrt(2), "left", "move", sqrt(2), "right", 135, "move", 2]));
+//   rounded_prism(N, height=3, joint_bot=-0.3, joint_top=.4, joint_sides=[.75,0,.2,.2,.7], splinesteps=1);
 
-module rounded_prism(bottom, top, joint_bot, joint_top, joint_sides, k_bot, k_top, k_sides,
+
+module rounded_prism(bottom, top, joint_bot=0, joint_top=0, joint_sides=0, k_bot, k_top, k_sides,
                      k=0.5, splinesteps=16, h, length, l, height, convexity=10, debug=false,
                      anchor="origin",cp,spin=0, orient=UP, extent=false)
 {
   result = rounded_prism(bottom=bottom, top=top, joint_bot=joint_bot, joint_top=joint_top, joint_sides=joint_sides,
                          k_bot=k_bot, k_top=k_top, k_sides=k_sides, k=k, splinesteps=splinesteps, h=h, length=length, height=height, l=l,debug=debug);
   vnf = debug ? result[1] : result;
-  attachable(anchor=anchor, spin=spin, orient=orient, vnf=vnf, extent=extent, cp=is_def(cp) ? cp : vnf_centroid(vnf))
+  attachable(anchor=anchor, spin=spin, orient=orient, vnf=vnf, extent=extent, cp=is_def(cp) ? cp : centroid(vnf))
   {
     if (debug){
         vnf_polyhedron(vnf, convexity=convexity);
@@ -1565,16 +1835,20 @@ module rounded_prism(bottom, top, joint_bot, joint_top, joint_sides, k_bot, k_to
 }
 
 
-function rounded_prism(bottom, top, joint_bot, joint_top, joint_sides, k_bot, k_top, k_sides, k=0.5, splinesteps=16,
+function rounded_prism(bottom, top, joint_bot=0, joint_top=0, joint_sides=0, k_bot, k_top, k_sides, k=0.5, splinesteps=16,
                        h, length, l, height, debug=false) =
-   assert(is_path(bottom) && len(bottom)>=3)
+   let(
+       bottom = force_path(bottom,"bottom"),
+       top = force_path(top,"top")
+   )
+   assert(is_path(bottom,[2,3]) && len(bottom)>=3, "bottom must be a 2D or 3D path")
    assert(is_num(k) && k>=0 && k<=1, "Curvature parameter k must be in interval [0,1]")
    let(
      N=len(bottom),
      k_top = default(k_top, k),
      k_bot = default(k_bot, k),
      k_sides = default(k_sides, k),
-     height = one_defined([h,l,height,length],["height","length","l","h"], required=false),
+     height = one_defined([h,l,height,length],"height,length,l,h", dflt=undef),
      shapedimok = (len(bottom[0])==3 && is_path(top,3)) || (len(bottom[0])==2 && (is_undef(top) || is_path(top,2)))
    )
    assert(is_num(k_top) && k_top>=0 && k_top<=1, "Curvature parameter k_top must be in interval [0,1]")
@@ -1583,14 +1857,14 @@ function rounded_prism(bottom, top, joint_bot, joint_top, joint_sides, k_bot, k_
    assert(len(bottom[0])==3 || is_num(height),"Must give height/length with 2d polygon input")
    let(
      // Determine which points are concave by making bottom 2d if necessary
-     bot_proj = len(bottom[0])==2 ? bottom :  project_plane(bottom, select(bottom,0,2)),
-     bottom_sign = polygon_is_clockwise(bot_proj) ? 1 : -1,
-     concave = [for(i=[0:N-1]) bottom_sign*sign(point_left_of_line2d(select(bot_proj,i+1), select(bot_proj, i-1,i)))>0],
+     bot_proj = len(bottom[0])==2 ? bottom :  project_plane(select(bottom,0,2),bottom),
+     bottom_sign = is_polygon_clockwise(bot_proj) ? 1 : -1,
+     concave = [for(i=[0:N-1]) bottom_sign*sign(_point_left_of_line2d(select(bot_proj,i+1), select(bot_proj, i-1,i)))>0],
      top = is_undef(top) ? path3d(bottom,height/2) :
            len(top[0])==2 ? path3d(top,height/2) :
            top,
      bottom = len(bottom[0])==2 ? path3d(bottom,-height/2) : bottom,
-     jssingleok = (is_num(joint_sides) && joint_sides > 0) || (is_vector(joint_sides,2) && joint_sides[0]>=0 && joint_sides[1]>=0),
+     jssingleok = (is_num(joint_sides) && joint_sides >= 0) || (is_vector(joint_sides,2) && joint_sides[0]>=0 && joint_sides[1]>=0),
      jsvecok = is_list(joint_sides) && len(joint_sides)==N && []==[for(entry=joint_sides) if (!(is_num(entry) || is_vector(entry,2))) entry]
    )
    assert(is_num(joint_top) || is_vector(joint_top,2))
@@ -1600,16 +1874,16 @@ function rounded_prism(bottom, top, joint_bot, joint_top, joint_sides, k_bot, k_
    assert(jsvecok || jssingleok,
           str("Argument joint_sides is invalid.  All entries must be nonnegative, and it must be a number, 2-vector, or a length ",N," list those."))
    assert(is_num(k_sides) || is_vector(k_sides,N), str("Curvature parameter k_sides must be a number or length ",N," vector"))
-   assert(coplanar(bottom))
-   assert(coplanar(top))
+   assert(is_coplanar(bottom))
+   assert(is_coplanar(top))
    assert(!is_num(k_sides) || (k_sides>=0 && k_sides<=1), "Curvature parameter k_sides must be in interval [0,1]")
    let(
-     non_coplanar=[for(i=[0:N-1]) if (!coplanar(concat(select(top,i,i+1), select(bottom,i,i+1)))) [i,(i+1)%N]],
+     non_coplanar=[for(i=[0:N-1]) if (!is_coplanar(concat(select(top,i,i+1), select(bottom,i,i+1)))) [i,(i+1)%N]],
      k_sides_vec = is_num(k_sides) ? repeat(k_sides, N) : k_sides,
      kbad = [for(i=[0:N-1]) if (k_sides_vec[i]<0 || k_sides_vec[i]>1) i],
      joint_sides_vec = jssingleok ? repeat(joint_sides,N) : joint_sides,
-     top_collinear = [for(i=[0:N-1]) if (collinear(select(top,i-1,i+1))) i],
-     bot_collinear = [for(i=[0:N-1]) if (collinear(select(bottom,i-1,i+1))) i]
+     top_collinear = [for(i=[0:N-1]) if (is_collinear(select(top,i-1,i+1))) i],
+     bot_collinear = [for(i=[0:N-1]) if (is_collinear(select(bottom,i-1,i+1))) i]
    )
    assert(non_coplanar==[], str("Side faces are non-coplanar at edges: ",non_coplanar))
    assert(top_collinear==[], str("Top has collinear or duplicated points at indices: ",top_collinear))
@@ -1642,8 +1916,8 @@ function rounded_prism(bottom, top, joint_bot, joint_top, joint_sides, k_bot, k_
    let(
      // Entries in the next two lists have the form [edges, vnf] where
      // edges is a list [leftedge, rightedge, topedge, botedge]
-     top_samples = [for(patch=top_patch) bezier_patch_degenerate(patch,splinesteps,reverse=true) ],
-     bot_samples = [for(patch=bot_patch) bezier_patch_degenerate(patch,splinesteps,reverse=false) ],
+     top_samples = [for(patch=top_patch) bezier_patch_degenerate(patch,splinesteps,reverse=false,return_edges=true) ],
+     bot_samples = [for(patch=bot_patch) bezier_patch_degenerate(patch,splinesteps,reverse=true,return_edges=true) ],
      leftidx=0,
      rightidx=1,
      topidx=2,
@@ -1651,14 +1925,14 @@ function rounded_prism(bottom, top, joint_bot, joint_top, joint_sides, k_bot, k_
      edge_points =
        [for(i=[0:N-1])
             let(
-               top_edge  = [ top_samples[i][0][rightidx], select(top_samples, i+1)[0][leftidx]],
-               bot_edge  = [ select(bot_samples, i+1)[0][leftidx], bot_samples[i][0][rightidx]],
-               vert_edge = [ bot_samples[i][0][botidx], top_samples[i][0][botidx]]
+               top_edge  = [ top_samples[i][1][rightidx], select(top_samples, i+1)[1][leftidx]],
+               bot_edge  = [ select(bot_samples, i+1)[1][leftidx], bot_samples[i][1][rightidx]],
+               vert_edge = [ bot_samples[i][1][botidx], top_samples[i][1][botidx]]
                )
                each [top_edge, bot_edge, vert_edge] ],
      faces = [
-              [for(i=[0:N-1]) each top_samples[i][0][topidx]],
-              [for(i=[N-1:-1:0]) each reverse(bot_samples[i][0][topidx])],
+              [for(i=[0:N-1]) each top_samples[i][1][topidx]],
+              [for(i=[N-1:-1:0]) each reverse(bot_samples[i][1][topidx])],
               for(i=[0:N-1]) [
                                  bot_patch[i][4][4],
                                  select(bot_patch,i+1)[4][0],
@@ -1666,147 +1940,38 @@ function rounded_prism(bottom, top, joint_bot, joint_top, joint_sides, k_bot, k_
                                  top_patch[i][4][4]
                              ]
              ],
-     top_intersections = path_self_intersections(faces[0]),
-     bot_intersections = path_self_intersections(faces[1]),
+     top_simple = is_path_simple(project_plane(faces[0],faces[0]),closed=true),
+     bot_simple = is_path_simple(project_plane(faces[1],faces[1]),closed=true),
      // verify vertical edges
      verify_vert =
        [for(i=[0:N-1],j=[0:4])
          let(
-               vline = concat(select(subindex(top_patch[i],j),2,4),
-                              select(subindex(bot_patch[i],j),2,4))
+               vline = concat(select(column(top_patch[i],j),2,4),
+                              select(column(bot_patch[i],j),2,4))
              )
-         if (!collinear(vline)) [i,j]],
+         if (!is_collinear(vline)) [i,j]],
      //verify horiz edges
      verify_horiz=[for(i=[0:N-1], j=[0:4])
          let(
              hline_top = concat(select(top_patch[i][j],2,4), select(select(top_patch, i+1)[j],0,2)),
              hline_bot = concat(select(bot_patch[i][j],2,4), select(select(bot_patch, i+1)[j],0,2))
          )
-         if (!collinear(hline_top) || !collinear(hline_bot)) [i,j]]
+         if (!is_collinear(hline_top) || !is_collinear(hline_bot)) [i,j]]
     )
-    assert(debug || top_intersections==[],
+    assert(debug || top_simple,
           "Roundovers interfere with each other on top face: either input is self intersecting or top joint length is too large")
-    assert(debug || bot_intersections==[],
+    assert(debug || bot_simple,
           "Roundovers interfere with each other on bottom face: either input is self intersecting or top joint length is too large")
     assert(debug || (verify_vert==[] && verify_horiz==[]), "Curvature continuity failed")
-    let(
-        vnf = vnf_merge([ each subindex(top_samples,1),
-                          each subindex(bot_samples,1),
+    let( 
+        vnf = vnf_join([ each column(top_samples,0),
+                          each column(bot_samples,0),
                           for(pts=edge_points) vnf_vertex_array(pts),
-                          vnf_triangulate(vnf_add_faces(EMPTY_VNF,faces))
+                          debug ? vnf_from_polygons(faces) 
+                                : vnf_triangulate(vnf_from_polygons(faces))
                        ])
     )
     debug ? [concat(top_patch, bot_patch), vnf] : vnf;
-
-
-// This function takes a bezier patch as input and returns [edges, vnf], where
-// edges = [leftedge, rightedge, topedge, bottomedge]
-// gives the points along the edges of the patch, and the vnf is the patch vnf.
-// It checks for various types of degeneracy and uses half or full triangular
-// sampling on degenerate patches.
-
-function bezier_patch_degenerate(patch, splinesteps=16, reverse=false) =
-    assert(is_num(splinesteps), "splinesteps must be a number")
-    let(
-        top_degen = patch[0][0] == select(patch[0],-1),
-        bot_degen = select(patch,-1)[0] == select(select(patch,-1),-1),
-        left_degen = patch[0][0] == select(patch,-1)[0],
-        right_degen = select(patch[0],-1) == select(select(patch,-1),-1),
-        samplepts = list_range(splinesteps+1)/splinesteps
-    )
-    top_degen && bot_degen && left_degen && right_degen ?   // fully degenerate case
-        [repeat([patch[0][0]],4), EMPTY_VNF] :
-    top_degen && bot_degen ?                                // double degenerate case (top/bot)
-        let(  
-            pts = bezier_points(subindex(patch,0), samplepts)
-        )
-        [[pts,pts,[pts[0]],[select(pts,-1)]], EMPTY_VNF] :
-    left_degen && right_degen ?                             // double degenerate case (sides)
-       let(
-          pts = bezier_points(patch[0], samplepts)
-       )
-       [[[pts[0]], [select(pts,-1)], pts, pts], EMPTY_VNF] :
-    !top_degen && !bot_degen ?                             // non-degenerate case
-       let(
-           k=echo("non-degenerate case"),
-           pts = bezier_patch_points(patch, samplepts, samplepts)
-       )
-       [
-        [subindex(pts,0), subindex(pts,len(pts)-1), pts[0], select(pts,-1)],
-        vnf_vertex_array(pts, reverse=reverse)
-       ] :
-    bot_degen ?                                           // only bottom is degenerate
-       let(
-           result = bezier_patch_degenerate(reverse(patch), splinesteps=splinesteps, reverse=!reverse)
-       )
-       [
-          [reverse(result[0][0]), reverse(result[0][1]), (result[0][3]), (result[0][2])],
-          result[1]
-       ] :
-    // at this point top_degen is true                   // only top is degenerate
-       let(
-           full_degen = patch[1][0] == select(patch[1],-1),
-           rowmax = full_degen ? list_range(splinesteps+1) :
-                                 [for(j=[0:splinesteps]) j<=splinesteps/2 ? 2*j : splinesteps],
-           vbb=echo("single degenerate case"),
-           bpatch = [for(i=[0:1:len(patch[0])-1]) bezier_points(subindex(patch,i), samplepts)],
-           pts = [
-                  [bpatch[0][0]],
-                  for(j=[1:splinesteps]) bezier_points(subindex(bpatch,j), list_range(rowmax[j]+1)/rowmax[j])
-                 ],
-           vnf = vnf_tri_array(pts, reverse=reverse)
-        ) [
-            [
-             subindex(pts,0),
-             [for(row=pts) select(row,-1)],
-             pts[0],
-             select(pts,-1),
-            ],
-            vnf
-          ];
-
-
-// This function produces a vnf with a triangulation for a list of rows
-// where the number of points between rows differs by at most 2.
-// It's a generalization of vnf_vertex_array.
-function vnf_tri_array(points, row_wrap=false, reverse=false) =
-   let(
-       lens = [for(row=points) len(row)],
-       rowstarts = [0,each cumsum(lens)],
-       faces =
-          [for(i=[0:1:len(points) - 1 - (row_wrap ? 0 : 1)]) each
-            let(
-                rowstart = rowstarts[i],
-                nextrow = select(rowstarts,i+1),
-                delta = select(lens,i+1)-lens[i]
-            )
-            delta == 0 ?
-              [for(j=[0:1:lens[i]-2]) reverse ? [j+rowstart+1, j+rowstart, j+nextrow] : [j+rowstart, j+rowstart+1, j+nextrow],
-               for(j=[0:1:lens[i]-2]) reverse ? [j+rowstart+1, j+nextrow, j+nextrow+1] : [j+rowstart+1, j+nextrow+1, j+nextrow]] :
-            delta == 1 ?
-              [for(j=[0:1:lens[i]-2]) reverse ? [j+rowstart+1, j+rowstart, j+nextrow+1] : [j+rowstart, j+rowstart+1, j+nextrow+1],
-               for(j=[0:1:lens[i]-1]) reverse ? [j+rowstart, j+nextrow, j+nextrow+1] : [j+rowstart, j+nextrow+1, j+nextrow]] :
-            delta == -1 ?
-              [for(j=[0:1:lens[i]-3]) reverse ? [j+rowstart+1, j+nextrow, j+nextrow+1]: [j+rowstart+1, j+nextrow+1, j+nextrow],
-               for(j=[0:1:lens[i]-2]) reverse ? [j+rowstart+1, j+rowstart, j+nextrow] : [j+rowstart, j+rowstart+1, j+nextrow]] :
-            let(count = floor((lens[i]-1)/2))
-            delta == 2 ?
-              [
-               for(j=[0:1:count-1]) reverse ? [j+rowstart+1, j+rowstart, j+nextrow+1] : [j+rowstart, j+rowstart+1, j+nextrow+1],       // top triangles left
-               for(j=[count:1:lens[i]-2]) reverse ? [j+rowstart+1, j+rowstart, j+nextrow+2] : [j+rowstart, j+rowstart+1, j+nextrow+2], // top triangles right
-               for(j=[0:1:count]) reverse ? [j+rowstart, j+nextrow, j+nextrow+1] : [j+rowstart, j+nextrow+1, j+nextrow],                        // bot triangles left
-               for(j=[count+1:1:select(lens,i+1)-2]) reverse ? [j+rowstart-1, j+nextrow, j+nextrow+1] : [j+rowstart-1, j+nextrow+1, j+nextrow], // bot triangles right
-              ] :
-             delta == -2 ?
-              [
-               for(j=[0:1:count-2]) reverse ? [j+nextrow, j+nextrow+1, j+rowstart+1] : [j+nextrow, j+rowstart+1, j+nextrow+1],
-               for(j=[count-1:1:lens[i]-4]) reverse ? [j+nextrow,j+nextrow+1,j+rowstart+2] : [j+nextrow,j+rowstart+2, j+nextrow+1],
-               for(j=[0:1:count-1]) reverse ? [j+nextrow, j+rowstart+1, j+rowstart] : [j+nextrow, j+rowstart, j+rowstart+1],
-               for(j=[count:1:select(lens,i+1)]) reverse ? [ j+nextrow-1, j+rowstart+1, j+rowstart]: [ j+nextrow-1, j+rowstart, j+rowstart+1],
-              ] :
-            assert(false,str("Unsupported row length difference of ",delta, " between row ",i," and ",i+1))
-        ])
-    [flatten(points), faces];
 
 
 
@@ -1830,7 +1995,7 @@ function _circle_mask(r) =
 
 // Module: bent_cutout_mask()
 // Usage:
-//   bent_cutout_mask(r|radius, thickness, path)
+//   bent_cutout_mask(r|radius, thickness, path);
 // Description:
 //   Creates a mask for cutting a round-edged hole out of a vertical cylindrical shell.  The specified radius
 //   is the center radius of the cylindrical shell.  The path needs to be sampled finely enough
@@ -1958,7 +2123,7 @@ function _circle_mask(r) =
 //           ]),
 //           radius = [0,0,each repeat(slotradius,4),0,0], closed=false
 //       )
-//   ) apply(left(max(subindex(slot,0))/2)*fwd(min(subindex(slot,1))), slot);
+//   ) apply(left(max(column(slot,0))/2)*fwd(min(column(slot,1))), slot);
 //   stroke(slot(15,29,7));
 // Example: A cylindrical container with rounded edges and a rounded finger slot.
 //   function slot(slotwidth, slotheight, slotradius) = let(
@@ -1982,7 +2147,7 @@ function _circle_mask(r) =
 //           ]),
 //           radius = [0,0,each repeat(slotradius,4),0,0], closed=false
 //       )
-//   ) apply(left(max(subindex(slot,0))/2)*fwd(min(subindex(slot,1))), slot);
+//   ) apply(left(max(column(slot,0))/2)*fwd(min(column(slot,1))), slot);
 //   diam = 80;
 //   wall = 4;
 //   height = 40;
@@ -1994,24 +2159,27 @@ function _circle_mask(r) =
 //           bent_cutout_mask(diam/2-wall/2, wall+.1, subdivide_path(apply(back(10),slot(15, 29, 7)),250));
 //       }
 //   }
-
-module bent_cutout_mask(r, thickness, path, convexity=10)
+function bent_cutout_mask(r, thickness, path, radius, convexity=10) = no_function("bent_cutout_mask");
+module bent_cutout_mask(r, thickness, path, radius, convexity=10)
 {
   no_children($children);
-  assert(is_path(path,2),"Input path must be a 2d path")
+  r = get_radius(r1=r, r2=radius);
+  dummy1=assert(is_def(r) && r>0,"Radius of the cylinder to bend around must be positive");
+  path2 = force_path(path);
+  dummy2=assert(is_path(path2,2),"Input path must be a 2D path");
   assert(r-thickness>0, "Thickness too large for radius");
   assert(thickness>0, "Thickness must be positive");
-  path = clockwise_polygon(path);
+  fixpath = clockwise_polygon(path2);
   curvepoints = arc(d=thickness, angle = [-180,0]);
-  profiles = [for(pt=curvepoints) _cyl_hole(r+pt.x,apply(xscale((r+pt.x)/r), offset(path,delta=thickness/2+pt.y,check_valid=false,closed=true)))];
-  pathx = subindex(path,0);
+  profiles = [for(pt=curvepoints) _cyl_hole(r+pt.x,apply(xscale((r+pt.x)/r), offset(fixpath,delta=thickness/2+pt.y,check_valid=false,closed=true)))];
+  pathx = column(fixpath,0);
   minangle = (min(pathx)-thickness/2)*360/(2*PI*r);
   maxangle = (max(pathx)+thickness/2)*360/(2*PI*r);
   mindist = (r+thickness/2)/cos((maxangle-minangle)/2);
   assert(maxangle-minangle<180,"Cutout angle span is too large.  Must be smaller than 180.");
-  zmean = mean(subindex(path,1));
-  innerzero = repeat([0,0,zmean], len(path));
-  outerpt = repeat( [1.5*mindist*cos((maxangle+minangle)/2),1.5*mindist*sin((maxangle+minangle)/2),zmean], len(path));
+  zmean = mean(column(fixpath,1));
+  innerzero = repeat([0,0,zmean], len(fixpath));
+  outerpt = repeat( [1.5*mindist*cos((maxangle+minangle)/2),1.5*mindist*sin((maxangle+minangle)/2),zmean], len(fixpath));
   vnf_polyhedron(vnf_vertex_array([innerzero, each profiles, outerpt],col_wrap=true),convexity=convexity);
 }
 
