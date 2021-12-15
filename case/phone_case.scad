@@ -5,10 +5,10 @@
  */
 
 use <fonts/orbitron/orbitron-light.otf>
-//TODO: include these in libraries directory. They're saved on my comp
 include <libraries/BOSL2/std.scad>
 include <libraries/BOSL2/hull.scad>
 include <libraries/BOSL2/rounding.scad>
+include <libraries/BOSL2/shapes3d.scad>
 
 /*  measurements from the phone
  *  all values are in mm
@@ -133,8 +133,11 @@ gamepad_shell_radius = 2;
 gamepad_peg_y_distance = 14;
 
 // joycon and junglecat shared variables
-rail_shell_radius = 3; //TODO: tweak this, make is softer to hold, ensure it doesn't conflict with body
-rail_face_radius = 2; //sharper corner for looks
+max_rail_shell_radius = 4;
+max_rail_face_radius = 3; //sharper corner for looks
+rail_shell_radius_top = (body_radius_top<max_rail_shell_radius) ? body_radius_top : max_rail_shell_radius; //TODO: tweak this, make is softer to hold, ensure it doesn't conflict with body
+rail_shell_radius_bottom = (body_radius_bottom<max_rail_shell_radius) ? body_radius_bottom : max_rail_shell_radius; //TODO: tweak this, make is softer to hold, ensure it doesn't conflict with body
+rail_face_radius = (face_radius<max_rail_face_radius) ? face_radius : max_rail_face_radius; //sharper corner for looks
 
 // joycon variables
 joycon_inner_width = 10.4;
@@ -157,7 +160,7 @@ junglecat_depth = 3.3;
 //embossment text
 name = "Cuttlephone";
 author = "Maave";
-version = "v0.1 808c493";
+version = "v0.2";
 
 //unsupported features
 lanyard_loop = false;
@@ -264,7 +267,6 @@ module body_profile(){
 module soft_supports(){
     if(case_material2=="soft") {
         soft_buttons();
-        soft_usb_support();
     }
 }
 
@@ -278,6 +280,7 @@ module phone_shell(){
             center=true
         );
         shell_profile();
+		//TODO: why haven't I changed this to use BOSL yet?
     }
 }
 
@@ -325,8 +328,8 @@ module joycon_shell(){
         cyl( 
             l=joycon_thickness + 2*shell_thickness + extra_lip_bonus, 
             r=rail_face_radius+shell_thickness,
-            rounding1=rail_shell_radius, 
-            rounding2=rail_shell_radius
+            rounding1=rail_shell_radius_bottom, 
+            rounding2=rail_shell_radius_top
         );
     }
 }
@@ -345,8 +348,8 @@ module junglecat_shell(){
         cyl( 
             l=body_thickness + 2*shell_thickness + extra_lip_bonus, 
             r=rail_face_radius+shell_thickness,
-            rounding1=rail_shell_radius, 
-            rounding2=rail_shell_radius
+            rounding1=rail_shell_radius_bottom, 
+            rounding2=rail_shell_radius_top
         );
     }
 }
@@ -683,7 +686,12 @@ module usb_cut(){
     else { //soft cut
         //usb
         rotate([90,0,0])
-        soft_cut(usb_cut_width, disable_clearance=true, disable_bevel=(case_type=="junglecat"));
+        soft_cut(
+			usb_cut_width, 
+			disable_clearance=true, 
+			disable_bevel=(case_type=="junglecat" || case_type=="joycon" || case_type=="gamepad"),
+			junglecat_support=true
+		);
         
         //speakers
         if(bottom_speakers){
@@ -691,27 +699,18 @@ module usb_cut(){
             //calculate speaker cuts based on phone width
             translate([usb_cut_width/2+fudge+speaker_cut_width/2,0,0])
             rotate([90,0,0])
-            soft_cut(speaker_cut_width, disable_support=false, disable_bevel=true, disable_clearance=true);
+            soft_cut(
+				speaker_cut_width, disable_bevel=true, disable_clearance=true,
+				shallow_cut=(case_type=="junglecat" || case_type=="joycon" || case_type=="gamepad")
+			);
             
             translate([-usb_cut_width/2-fudge-speaker_cut_width/2,0,0])
             rotate([90,0,0])
-            soft_cut(speaker_cut_width, disable_support=false, disable_bevel=true, disable_clearance=true);
+            soft_cut(
+				speaker_cut_width, disable_bevel=true, disable_clearance=true, shallow_cut=(case_type=="junglecat" || case_type=="joycon" || case_type=="gamepad")
+			);
         }
     }
-}
-
-//soft_usb_support();
-module soft_usb_support(){
-    /*
-    if(case_material2=="soft")
-    color("blue", 0.2)
-    translate( [0, -face_length/2, 0] )
-    rotate([90,0,0])
-    prismoid(
-    size1=[charge_port_width-usb_cut_rounding,body_thickness*0.6], 
-    size2=[charge_port_width-usb_cut_rounding,body_thickness*0.6], h=0.4, anchor=CENTER);
-    */
-    
 }
 
 //button_cuts();
@@ -770,8 +769,9 @@ module button_cut(right,  power_button, power_from_top, power_length, volume_but
 }
 
 //simple cutout for mute switches
-module soft_cut(button_length, disable_support=false, disable_bevel=false, disable_clearance=false){
-    clearance_override = disable_clearance ? 0:buttons_clearance;
+module soft_cut(button_length, disable_support=false, disable_bevel=false, disable_clearance=false, shallow_cut=false, junglecat_support=false, joycon_support=false){
+    soft_clearance = disable_clearance ? 0:buttons_clearance;
+	cut_depth = shallow_cut ? 0:10;
     difference() {
         //cutout
         soft_cut_submodule();
@@ -779,16 +779,25 @@ module soft_cut(button_length, disable_support=false, disable_bevel=false, disab
         //manual supports
         color("blue", 0.2)
         if(manual_supports=="cutout" && !disable_support) {
-            prismoid(size1=[button_length+clearance_override*2-button_cut_rounding*2,body_thickness*0.6], size2=[button_length+clearance_override*2-button_cut_rounding*2,body_thickness*0.6], h=support_thickness, anchor=CENTER);
+			prismoid(size1=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.6], size2=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.6], h=support_thickness, anchor=CENTER);
+			//TODO: manual support for junglecat and joycon
+			if(junglecat_support) {
+				//for(i=[0:floor(shell_thickness+junglecat_inner_width)]) {
+				//	translate([0,0,1*i])
+				//	prismoid(size1=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.6], size2=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.6], h=support_thickness, anchor=CENTER);
+				//}
+				translate([0,0,shell_thickness+junglecat_inner_width])
+				prismoid(size1=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.6], size2=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.6], h=support_thickness, anchor=CENTER);
+			}
         }
     }
     
     module soft_cut_submodule(){
         //straight-thru cut
-        prismoid(size1=[button_length+clearance_override*2,body_thickness*0.6], size2=[button_length+clearance_override*2,body_thickness*0.6], rounding=button_cut_rounding, h=shell_thickness*3, anchor=CENTER, $fn=lowFn);
+        prismoid(size1=[button_length+soft_clearance*2,body_thickness*0.6], size2=[button_length+soft_clearance*2,body_thickness*0.6], rounding=button_cut_rounding, h=shell_thickness*3+cut_depth, anchor=CENTER, $fn=lowFn);
         //bevel cut. Needs better angle calculation
         if(!disable_bevel)
-        prismoid(size1=[button_length+clearance_override*2,body_thickness*0.6], size2=[button_length+clearance_override*2+10,body_thickness*0.6+7], rounding=button_cut_rounding, h=shell_thickness*3, anchor=CENTER+BOTTOM, $fn=lowFn);
+        prismoid(size1=[button_length+soft_clearance*2,body_thickness*0.6], size2=[button_length+soft_clearance*2+10,body_thickness*0.6+7], rounding=button_cut_rounding, h=shell_thickness*3, anchor=CENTER+BOTTOM, $fn=lowFn);
     }
 }
 
@@ -846,7 +855,7 @@ module soft_button(right,  power_button, power_from_top, power_length, volume_bu
         //volume
         if(has_volume_buttons)
         translate([-volume_from_top+button_padding,0,0])
-        prismoid(size1=[volume_length+button_padding*2,body_thickness*0.5], size2=[(volume_length+button_padding*2)*0.9,body_thickness*0.2], h=shell_thickness+button_protrusion, rounding=button_rounding, anchor=CENTER+BOTTOM+RIGHT);
+        prismoid(size1=[volume_length+button_padding*2,body_thickness*0.55], size2=[(volume_length+button_padding*2)*0.9,body_thickness*0.2], h=shell_thickness+button_protrusion, rounding=button_rounding, anchor=CENTER+BOTTOM+RIGHT);
     }
     
     module soft_button_negative(){
@@ -893,7 +902,7 @@ module camera_cut(){
         size2=[camera_width+camera_clearance*2, camera_height+camera_clearance*2], 
         h=height,
         rounding=camera_radius_clearanced,
-        anchor=ALLPOS
+        anchor=[1,1,1]
     );
     //if(case_material2=="soft") //soft
 }
@@ -916,7 +925,7 @@ module extra_camera_cut(){
         size2=[camera_width_2+camera_clearance*2, camera_height_2+camera_clearance*2], 
         h=height,
         rounding=camera_radius_clearanced,
-        anchor=ALLPOS
+        anchor=[1,1,1]
     );
 }
 
@@ -974,7 +983,7 @@ module top_headphone_cut(){
         } else {
             translate(trans)
             rotate([90,0,0])
-            cylinder(9, headphone_radius_soft*1.2, headphone_radius_soft*0.9, center=true);
+            cylinder(15, headphone_radius_soft*1.2, headphone_radius_soft*0.9, center=true);
         }
     }
 }
