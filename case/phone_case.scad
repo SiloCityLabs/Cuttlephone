@@ -133,7 +133,7 @@ gamepad_shell_radius = 2;
 gamepad_peg_y_distance = 14;
 
 // joycon and junglecat shared variables
-rail_shell_radius = 2; //sharper corner for looks
+rail_shell_radius = 3; //TODO: tweak this, make is softer to hold, ensure it doesn't conflict with body
 rail_face_radius = 2; //sharper corner for looks
 
 // joycon variables
@@ -223,6 +223,7 @@ module joycon_rails(){
         shell_cuts();
         joycon_cuts();
     }
+    soft_supports();
 }
 
 module junglecat_rails(){
@@ -233,6 +234,7 @@ module junglecat_rails(){
         shell_cuts();
         junglecat_cuts();
     }
+    soft_supports();
 }
 
 //body();
@@ -371,7 +373,7 @@ module junglecat_cuts(){
             );
             //lip cutout
             translate([(face_width-junglecat_rail_length)/2+shell_thickness,-junglecat_depth/2-junglecat_lip_thickness/2,0]) {
-                if(manual_supports=="peeloff"){
+                if(manual_supports=="peeloff" || manual_supports=="cutout"){ //TODO fixerize
                     //this adds a visible lip so you rip off the support and not the rail
                     removal_aid = 4;
                     rotate([90,0,0])
@@ -681,7 +683,7 @@ module usb_cut(){
     else { //soft cut
         //usb
         rotate([90,0,0])
-        soft_cut(usb_cut_width, disable_clearance=true);
+        soft_cut(usb_cut_width, disable_clearance=true, disable_bevel=(case_type=="junglecat"));
         
         //speakers
         if(bottom_speakers){
@@ -830,6 +832,8 @@ module soft_button(right,  power_button, power_from_top, power_length, volume_bu
         }
     }
     
+    //TODO: the positive and negative don't line up well. It causes a thin area which doesn't slice properly and then droops
+    //TODO: paramatize button recess
     module soft_button_positive(){
         //backing
         //I tried having this all filled in (looks better) but it makes the buttons hard to press
