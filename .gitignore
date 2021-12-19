@@ -43,6 +43,7 @@ Gemfile
 Gemfile.lock
 docs/_site/
 docs/.jekyll-cache
+docs/.sass-cache/
 
-# build dir
+# 3d model build dir
 case/build/

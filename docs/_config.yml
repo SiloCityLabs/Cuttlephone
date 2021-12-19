@@ -1,7 +1,20 @@
-remote_theme: pages-themes/minimal@v0.2.0
-plugins:
-- jekyll-remote-theme # add this line to the plugins list if you already have one
 title: Cuttlephone
 description: Phone case generator with gaming in mind
 logo: https://user-images.githubusercontent.com/1850819/146625509-2912b6e2-4588-4564-96ca-3bf1879dbf04.png
 github: [metadata]
+repository: SiloCityLabs/Cuttlephone
+
+github:
+  repository_url: https://silocitylabs.github.io/Cuttlephone/
+  models_url: /premade-models.md
+
+theme: jekyll-theme-minimal
+remote_theme: pages-themes/minimal@v0.2.0
+plugins:
+- jekyll-remote-theme
+- jekyll-github-metadata
+- jekyll-mentions
+- jekyll-redirect-from
+- jekyll-sitemap
+- jemoji
+
