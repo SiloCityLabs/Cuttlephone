@@ -1,18 +1,25 @@
 # Cuttlephone
-Cuttlephone is a modular 3D printed phone case and USB-C gamepad.
+Cuttlephone is a 3D printed phone case and gamepad system. Download pre-made models or create your own.
+
+[![](https://user-images.githubusercontent.com/1850819/73496293-3f021080-4386-11ea-9fc7-d2fafe343bc1.png)](https://hackaday.io/project/165606-cuttlephone-gamepad-phone-case)
 
 # Status
-A prototype (0.x) is currently in development. Currently supports:
- - phone case
+Cuttlephone currently in development
+
+The phone case generator supports:
+ - hard plastic (PLA+) or soft plastic (TPU)
+ - phone case mode
  - Switch Joy-Con rails
  - Razer Junglecat rails
+ 
+and supports these phone models:
+
+
 
 You can follow progress here:
  - [HackADay.io project log](https://hackaday.io/project/165606-cuttlephone-gamepad-phone-case)
  - [SiloCityLabs project blog / newsletter](https://silocitylabs.com/categories/projects/)
  - [SiloCityLabs Twitter](https://twitter.com/silocitylabs)
-
-[![](https://user-images.githubusercontent.com/1850819/73496293-3f021080-4386-11ea-9fc7-d2fafe343bc1.png)](https://hackaday.io/project/165606-cuttlephone-gamepad-phone-case)
 
 # To-do
  - Make a really good phone case
@@ -20,10 +27,6 @@ You can follow progress here:
  - Demo and test prototype with friends
  - Community feedback, brainstorm v2
 
-# How it works
-The phone case uses OpenSCAD Customizer to support many phone models.
-
-The gamepad uses an ATmega32u4 which has built in USB support. The firmware will use the [LUFA library](https://github.com/abcminiuser/lufa) to implement a USB HID gamepad.
 
 # How can I help?
 Stick around until the prototype is finished! Follow the project with the links above. I'm open to suggestions.
