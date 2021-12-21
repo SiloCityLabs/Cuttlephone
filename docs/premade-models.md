@@ -7,15 +7,18 @@ permalink: /premade-models/
 # Premade models
 3MF files are made for all versions of a phone
 
-<ul>
+<!-- loop through phone_case.json, copied over from build script -->
 {% for model in site.data.phone_case.parameterSets %}
-    <!--<li><a href="{{ item.filename }}">{{ item.title }}</a></li>-->
-    <li>key-name : {{ model[0] }} , value : {{ model[1] }}</li>
-{% endfor %}
-</ul>
+<!-- if I indent then Jekyll wraps it in a code block -->
+## {{ model[0] }}
+{% for type in site.data.model_types %}
 
-<ul>
-{% for item in site.data.premade_models %}
-    <li><a href="{{ item.filename }}">{{ item.title }}</a></li>
+<label>{{type.model_type}}:</label>
+{% for material in site.data.case_materials %}
+{% for filetypes in site.data.filetypes %}
+<a href="{{ model[0] }} {{ type.model_type}} {{ material.material}}.{{filetypes.filetype}}">{{ material.material}} ({{material.example}}) {{filetypes.filetype}}</a>
 {% endfor %}
-</ul>
+
+{% endfor %}
+{% endfor %}
+{% endfor %}
