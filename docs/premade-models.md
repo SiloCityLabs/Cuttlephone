@@ -1,6 +1,7 @@
 ---
 layout: default
 title: "Premade Models"
+permalink: /premade-models/
 ---
 
 # Premade models
