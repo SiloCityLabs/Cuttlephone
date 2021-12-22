@@ -1,7 +1,7 @@
 ---
 layout: default
 tle: "Premade Models"
-permalink: /premade-models/
+permalink: /Cuttlephone/premade-models/
 ---
 
 # Premade models
@@ -16,7 +16,7 @@ permalink: /premade-models/
 <label>{{type.model_type}}:</label>
 {% for material in site.data.case_materials %}
 {% for filetypes in site.data.filetypes %}
-<a href="{{ model[0] }} {{ type.model_type}} {{ material.material}}.{{filetypes.filetype}}">{{ material.material}} ({{material.example}}) {{filetypes.filetype}}</a>
+<a href="/premade-models/{{ model[0] }} {{ type.model_type}} {{ material.material}}.{{filetypes.filetype}}">{{ material.material}} ({{material.example}}) {{filetypes.filetype}}</a>
 {% endfor %}
 
 {% endfor %}
