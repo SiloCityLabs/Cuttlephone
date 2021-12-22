@@ -16,7 +16,7 @@ permalink: /premade-models/
 <label>{{type.model_type}}:</label>
 {% for material in site.data.case_materials %}
 {% for filetypes in site.data.filetypes %}
-<a href="/premade_models/{{ model[0] }} {{ type.model_type}} {{ material.material}}.{{filetypes.filetype}}">{{ material.material}} ({{material.example}}) {{filetypes.filetype}}</a>
+<a href="{{ model[0] }} {{ type.model_type}} {{ material.material}}.{{filetypes.filetype}}">{{ material.material}} ({{material.example}}) {{filetypes.filetype}}</a>
 {% endfor %}
 
 {% endfor %}
