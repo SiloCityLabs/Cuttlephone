@@ -269,12 +269,14 @@ footer {
     padding:15px;
   }
 
-  .downloads {
+  ul.downloads {
     width:99%;
   }
+}
 
-  .downloads li, .downloads li + li + li {
-    width:33%;
+@media print, screen and (max-width: 720px) {
+  ul.downloads {
+    width:99%;
   }
 }
 
