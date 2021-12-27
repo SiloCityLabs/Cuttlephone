@@ -44,6 +44,9 @@ Gemfile.lock
 docs/_site/
 docs/.jekyll-cache
 docs/.sass-cache/
+docs/.jekyll-metadata
+docs/vendor
+
 
 # 3d model build dir
 case/build/
