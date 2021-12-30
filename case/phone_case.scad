@@ -100,10 +100,12 @@ fingerprint_center_from_top = 36.5;
 fingerprint_diam = 13;
 
 /* [headphone and mic] */
-mic_notch_top = false;
+mic_on_top = false;
+mic_on_bottom = false;
 mic_from_right_edge = 14.0;
 headphone_from_left_edge = 14.0;
-headphone_jack_cut = true;
+headphone_on_top = false;
+headphone_on_bottom = false;
 
 bottom_speakers = false;
 
@@ -165,8 +167,12 @@ version = "v0.2";
 //unsupported features
 lanyard_loop = false;
 
+//colors are only visual, and only in OpenSCAD
+bodyColor="SeaGreen";
+//bodyColor="";
+
 difference(){
-    color("SeaGreen")
+    //color(bodyColor)
     if(case_type2=="phone case") {
         phone_case();
     }
@@ -184,6 +190,7 @@ difference(){
 
 module phone_case(){
     difference(){
+        color(bodyColor)
         phone_shell();
         body();
         shell_cuts();
@@ -193,6 +200,7 @@ module phone_case(){
 
 module gamepad(){
     difference(){
+        color(bodyColor)
         gamepad_shell();
         body();
         shell_cuts();
@@ -219,8 +227,8 @@ module shell_cuts(){
 
 
 module joycon_rails(){
-    color("SeaGreen")
     difference(){
+        color(bodyColor)
         joycon_shell();
         body();
         shell_cuts();
@@ -230,8 +238,8 @@ module joycon_rails(){
 }
 
 module junglecat_rails(){
-    color("SeaGreen")
     difference(){
+        color(bodyColor)
         junglecat_shell();
         body();
         shell_cuts();
@@ -280,7 +288,7 @@ module phone_shell(){
             center=true
         );
         shell_profile();
-		//TODO: why haven't I changed this to use BOSL yet?
+        //TODO: why haven't I changed this to use BOSL yet?
     }
 }
 
@@ -687,11 +695,11 @@ module usb_cut(){
         //usb
         rotate([90,0,0])
         soft_cut(
-			usb_cut_width, 
-			disable_clearance=true, 
-			disable_bevel=(case_type=="junglecat" || case_type=="joycon" || case_type=="gamepad"),
-			junglecat_support=true
-		);
+            usb_cut_width, 
+            disable_clearance=true, 
+            disable_bevel=(case_type=="junglecat" || case_type=="joycon" || case_type=="gamepad"),
+            junglecat_support=true
+        );
         
         //speakers
         if(bottom_speakers){
@@ -700,15 +708,15 @@ module usb_cut(){
             translate([usb_cut_width/2+fudge+speaker_cut_width/2,0,0])
             rotate([90,0,0])
             soft_cut(
-				speaker_cut_width, disable_bevel=true, disable_clearance=true,
-				shallow_cut=(case_type=="junglecat" || case_type=="joycon" || case_type=="gamepad")
-			);
+                speaker_cut_width, disable_bevel=true, disable_clearance=true,
+                shallow_cut=(case_type=="junglecat" || case_type=="joycon" || case_type=="gamepad")
+            );
             
             translate([-usb_cut_width/2-fudge-speaker_cut_width/2,0,0])
             rotate([90,0,0])
             soft_cut(
-				speaker_cut_width, disable_bevel=true, disable_clearance=true, shallow_cut=(case_type=="junglecat" || case_type=="joycon" || case_type=="gamepad")
-			);
+                speaker_cut_width, disable_bevel=true, disable_clearance=true, shallow_cut=(case_type=="junglecat" || case_type=="joycon" || case_type=="gamepad")
+            );
         }
     }
 }
@@ -745,9 +753,9 @@ module button_cut(right,  power_button, power_from_top, power_length, volume_but
     if(case_material2=="hard"){
         translate( [ right_or_left*(face_width/2),
             face_length/2 - button_offset - button_length/2, 
-            0
+            -body_thickness/2+shell_thickness+extra_lip_bonus+0.05
         ] )
-        translate([0,0,-body_thickness/2+shell_thickness+extra_lip_bonus+0.05])
+        translate([0,0,])
         rotate([0,0,90]) {
             //button cut
             cuboid([button_length+buttons_clearance*2, button_cut_thickness, 50], rounding=button_cut_rounding, $fn=lowFn);
@@ -757,8 +765,7 @@ module button_cut(right,  power_button, power_from_top, power_length, volume_but
             offset_sweep(rectangle, height=anti_snag_height,top=os_circle(r=-anti_snag_radius));
         }
     }
-    else{
-        //
+    else {
         translate( [ right_or_left*(face_width/2),
             face_length/2 - button_offset - button_length/2, 
             buttons_vertical_fudge
@@ -771,7 +778,7 @@ module button_cut(right,  power_button, power_from_top, power_length, volume_but
 //simple cutout for mute switches
 module soft_cut(button_length, disable_support=false, disable_bevel=false, disable_clearance=false, shallow_cut=false, junglecat_support=false, joycon_support=false){
     soft_clearance = disable_clearance ? 0:buttons_clearance;
-	cut_depth = shallow_cut ? 0:10;
+    cut_depth = shallow_cut ? 0:10;
     difference() {
         //cutout
         soft_cut_submodule();
@@ -779,16 +786,16 @@ module soft_cut(button_length, disable_support=false, disable_bevel=false, disab
         //manual supports
         color("blue", 0.2)
         if(manual_supports=="cutout" && !disable_support) {
-			prismoid(size1=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.6], size2=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.6], h=support_thickness, anchor=CENTER);
-			//TODO: manual support for junglecat and joycon
-			if(junglecat_support) {
-				//for(i=[0:floor(shell_thickness+junglecat_inner_width)]) {
-				//	translate([0,0,1*i])
-				//	prismoid(size1=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.6], size2=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.6], h=support_thickness, anchor=CENTER);
-				//}
-				translate([0,0,shell_thickness+junglecat_inner_width])
-				prismoid(size1=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.6], size2=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.6], h=support_thickness, anchor=CENTER);
-			}
+            prismoid(size1=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.6], size2=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.6], h=support_thickness, anchor=CENTER);
+            //TODO: manual support for junglecat and joycon
+            if(junglecat_support) {
+                //for(i=[0:floor(shell_thickness+junglecat_inner_width)]) {
+                //  translate([0,0,1*i])
+                //  prismoid(size1=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.6], size2=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.6], h=support_thickness, anchor=CENTER);
+                //}
+                translate([0,0,shell_thickness+junglecat_inner_width])
+                prismoid(size1=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.6], size2=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.6], h=support_thickness, anchor=CENTER);
+            }
         }
     }
     
@@ -842,7 +849,7 @@ module soft_button(right,  power_button, power_from_top, power_length, volume_bu
     }
     
     //TODO: the positive and negative don't line up well. It causes a thin area which doesn't slice properly and then droops
-    //TODO: paramatize button recess
+    //TODO: paramatize button recess. Pixel has tall buttons, Galaxy has shallow
     module soft_button_positive(){
         //backing
         //I tried having this all filled in (looks better) but it makes the buttons hard to press
@@ -945,15 +952,16 @@ module fingerprint_cut(){
     cylinder( fingerprint_cut_height, fingerprint_radius*2, fingerprint_radius, true);
 }
 
-//mic_notch_top=true; mic_cut();
+//mic_on_top=true; mic_cut();
 module mic_cut(){
+    top_or_bottom = mic_on_top?1:-1;
     //can this be improved?
     mic_diam = 2.0;
-    if (mic_notch_top) 
+    if (mic_on_top || mic_on_bottom) 
     color("red", 0.2)
     if (case_type=="joycon") {
         //this cuts upward
-        translate( [ face_width/2-mic_from_right_edge, face_length/2, -2 ] )
+        translate( [ face_width/2-mic_from_right_edge, top_or_bottom*face_length/2, -2 ] )
         rotate([90,0,0])
         hull(){
             cylinder( 20, mic_diam, mic_diam, center=true, $fn=lowFn);
@@ -962,27 +970,28 @@ module mic_cut(){
         }
     } else {
         //simple hole
-        translate( [ face_width/2-mic_from_right_edge, face_length/2, 0 ] )
+        translate( [ face_width/2-mic_from_right_edge, top_or_bottom*face_length/2, 0 ] )
         rotate([90,0,0])
         cylinder( 20, mic_diam, mic_diam, center=true, $fn=lowFn);
     }   
 }
 
-//headphone_jack_cut=true; top_headphone_cut();
+//headphone_on_top=true; top_headphone_cut();
 module top_headphone_cut(){
+    top_or_bottom = headphone_on_top? 1:-1;
     headphone_radius_hard = 5;
     headphone_radius_soft = 4;
-    trans = [ -face_width/2+headphone_from_left_edge+1.7, face_length/2, 0 ];
+    trans = [ -face_width/2+headphone_from_left_edge+1.7, top_or_bottom*face_length/2, 0 ];
     color("red", 0.2)
-    if (headphone_jack_cut) {
+    if (headphone_on_top || headphone_on_bottom) {
         if(case_material2=="hard"){
             //we measure from edge of phone to edge of the 3.5mm jack. +1.7 to center it
             translate(trans)
             anti_snag(headphone_radius_hard*2, top_radius=headphone_radius_hard/1.1, bottom_radius=headphone_radius_hard/1.1);
-            //anti_snag(headphone_radius_hard); //trying this with default radius out but it's kinda ugly
+            //anti_snag(headphone_radius_hard); //I tried this with default radius out but it's kinda ugly
         } else {
             translate(trans)
-            rotate([90,0,0])
+            rotate([90*top_or_bottom,0,0])
             cylinder(15, headphone_radius_soft*1.2, headphone_radius_soft*0.9, center=true);
         }
     }

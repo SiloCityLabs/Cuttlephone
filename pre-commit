@@ -7,7 +7,8 @@
 
 exec 1>&2
 
-# sort attributes, readd to git
-sorted=$(jq -S '.' case/phone_case.json)
+# sort attributes, strip Windows newlines
+sorted=$(jq -S '.' case/phone_case.json  | tr -d '\r')
+# readd to git
 echo "$sorted" > case/phone_case.json
 git add case/phone_case.json;
