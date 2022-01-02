@@ -34,7 +34,11 @@ emboss_version_text = true;
 phone_model = "Pixel 3";
 
 //test cuts
-test = "none"; //[none, corners, right_edge, right_buttons, left_edge, bottom_edge, top_edge]
+test_mode = "none"; //[none, corners, right_edge, right_buttons, left_edge, bottom_edge, top_edge, left_button, top_half_pla]
+
+//the blank option gives each part and cut a color
+//display_color = ""; //["", SeaGreen]
+//TODO: blank string does what I want but generates a warning
 
 /* [body] */
 
@@ -169,10 +173,9 @@ lanyard_loop = false;
 
 //colors are only visual, and only in OpenSCAD
 bodyColor="SeaGreen";
-//bodyColor="";
 
 difference(){
-    //color(bodyColor)
+    //color(display_color)
     if(case_type2=="phone case") {
         phone_case();
     }
@@ -818,7 +821,7 @@ module soft_buttons(){
         soft_button(true, right_power_button, right_power_from_top, right_power_length, right_volume_buttons, right_volume_from_top, right_volume_length);
     }
 }
-/* soft buttons are RIGHT aligned (not CENTER) to simplify the measurement */
+
 module soft_button(right,  power_button, power_from_top, power_length, volume_buttons, volume_from_top, volume_length){
     //lots of booleans to enable/disable features
     right_or_left = right ? 1 : -1;
@@ -832,7 +835,7 @@ module soft_button(right,  power_button, power_from_top, power_length, volume_bu
     button_offset = has_space ? min(power_from_top*has_power_button, volume_from_top*has_volume_buttons) : power_from_top*has_power_button + volume_from_top*has_volume_buttons;
     
     button_protrusion = 0.8;
-    button_recess = 1.6;
+    button_recess = 1.6; //TODO: parametize
     button_rounding=body_thickness*0.1;
     button_padding=2; //bonus to allow error in measuring
     
@@ -848,49 +851,77 @@ module soft_button(right,  power_button, power_from_top, power_length, volume_bu
         }
     }
     
-    //TODO: the positive and negative don't line up well. It causes a thin area which doesn't slice properly and then droops
-    //TODO: paramatize button recess. Pixel has tall buttons, Galaxy has shallow
     module soft_button_positive(){
         //backing
         //I tried having this all filled in (looks better) but it makes the buttons hard to press
         translate([buttons_clearance - button_offset-button_cut_rounding,0,0])
-        prismoid(size1=[button_length+buttons_clearance*2-button_cut_rounding*2,body_thickness*0.6], size2=[button_length+buttons_clearance*2-button_cut_rounding*2,body_thickness*0.6], h=support_thickness, anchor=CENTER+RIGHT);
+        prismoid(
+            size1=[button_length+buttons_clearance*2-button_cut_rounding*2,body_thickness*0.6], 
+            size2=[button_length+buttons_clearance*2-button_cut_rounding*2,body_thickness*0.6], 
+            h=support_thickness, 
+            anchor=CENTER+RIGHT
+        );
         //power
-        if(has_power_button)
-        translate([-power_from_top+button_padding,0,0])
-        prismoid(size1=[power_length+button_padding*2,body_thickness*0.55], size2=[(power_length+button_padding*2)*0.9,body_thickness*0.2], h=shell_thickness+button_protrusion, rounding=button_rounding, anchor=CENTER+BOTTOM+RIGHT);
+        if(has_power_button && test_mode!="top_half_pla")
+        translate([-power_from_top-power_length/2,0,0])
+        prismoid(
+            size1=[power_length+button_padding*2,body_thickness*0.55], 
+            size2=[(power_length+button_padding*2)*0.9,body_thickness*0.2], 
+            h=shell_thickness+button_protrusion, 
+            rounding=button_rounding, 
+            anchor=CENTER+BOTTOM
+        );
         //volume
-        if(has_volume_buttons)
-        translate([-volume_from_top+button_padding,0,0])
-        prismoid(size1=[volume_length+button_padding*2,body_thickness*0.55], size2=[(volume_length+button_padding*2)*0.9,body_thickness*0.2], h=shell_thickness+button_protrusion, rounding=button_rounding, anchor=CENTER+BOTTOM+RIGHT);
+        if(has_volume_buttons && test_mode!="top_half_pla")
+        translate([-volume_from_top-volume_length/2,0,0])
+        prismoid(
+            size1=[volume_length+button_padding*2,body_thickness*0.55], 
+            size2=[(volume_length+button_padding*2)*0.9,body_thickness*0.2], 
+            h=shell_thickness+button_protrusion, 
+            rounding=button_rounding, 
+            anchor=CENTER+BOTTOM
+        );
     }
     
     module soft_button_negative(){
         //power
-        translate([-power_from_top+button_padding,0,0])
+        translate([-power_from_top-power_length/2,0,0])
         if(has_power_button){
             //recess
-            prismoid(size1=[power_length+button_padding*2,body_thickness*0.4], size2=[power_length,body_thickness*0.4], h=button_recess, rounding=button_rounding, anchor=CENTER+RIGHT);
+            prismoid(
+                size1=[power_length+button_padding*2,body_thickness*0.4], 
+                size2=[power_length,body_thickness*0.4], 
+                h=button_recess, 
+                rounding=button_rounding, 
+                anchor=CENTER
+            );
             
-            //power button texture
+            //power button texture. Use a cube's edge to make serrations
             box=1;
             sep=2;
-            for(i=[0:floor((power_length+button_padding*2)/sep)]){
-                translate([-i*sep,0,shell_thickness+button_protrusion])
+            for(i=[0:floor((power_length)/sep)]){
+                translate([-i*sep+power_length/2,0,shell_thickness+button_protrusion])
                 rotate([0,45,0])
-                cuboid([2,2,2], anchor=CENTER+RIGHT);
+                cuboid([2,2,2], 
+                anchor=CENTER);
             }
         }
         //volume
-        translate([-volume_from_top+button_padding,0,0])
+        translate([-volume_from_top-volume_length/2,0,0])
         if(has_volume_buttons){
             //recess
-            prismoid(size1=[volume_length+button_padding*2,body_thickness*0.4], size2=[volume_length,body_thickness*0.4], h=button_recess, rounding=button_rounding, anchor=CENTER+RIGHT);
+            prismoid(
+                size1=[volume_length+button_padding*2,body_thickness*0.4], 
+                size2=[volume_length,body_thickness*0.4], 
+                h=button_recess, 
+                rounding=button_rounding, 
+                anchor=CENTER
+            );
         
-            //texture
-            translate([-volume_length/2-button_padding,0,shell_thickness+button_protrusion])
+            //use a cube's edge to make a cut
+            translate([0,0,shell_thickness+button_protrusion])
             rotate([0,45,0])
-            cuboid([2,2,2], anchor=CENTER+RIGHT);
+            cuboid([2,2,2], anchor=CENTER);
         }
     }
 }
@@ -1020,27 +1051,27 @@ module version_info_emboss(){
 
 //test_cuts();
 module test_cuts(){
-    if(test=="corners") {
+    if(test_mode=="corners") {
         translate([0,0,0])
         cuboid([100,200,50], anchor=CENTER+BOTTOM);
     }
-    else if(test=="bottom_edge") {
+    else if(test_mode=="bottom_edge") {
         translate([0,-face_length/2+15,0])
         cuboid([100,200,50], anchor=CENTER+FRONT);
     }
-    else if(test=="top_edge") {
+    else if(test_mode=="top_edge") {
         translate([0,face_length/2-15,0])
         cuboid([100,200,50], anchor=CENTER+BACK);
     }
-    else if(test=="right_edge") {
+    else if(test_mode=="right_edge") {
         translate([face_width/4,0,0])
         cuboid([100,200,50], anchor=CENTER+RIGHT);
     }
-    else if(test=="left_edge") {
+    else if(test_mode=="left_edge") {
         translate([-face_width/4,0,0])
         cuboid([100,200,50], anchor=CENTER+LEFT);
     }
-    else if(test=="right_buttons") {
+    else if(test_mode=="right_buttons") {
         translate([face_width/4,0,0])
         cuboid([100,200,50], anchor=CENTER+RIGHT);
         
@@ -1049,6 +1080,20 @@ module test_cuts(){
             0
         ])
         cuboid([100,200,50], anchor=[0,1,0]);
+    }
+    else if(test_mode=="left_button") {
+        translate([-face_width/4,0,0])
+        cuboid([100,200,50], anchor=CENTER+LEFT);
+        
+        translate([0,
+            face_length/3-max(left_volume_from_top,left_power_from_top) - max(left_volume_length,left_power_length),
+            0
+        ])
+        cuboid([100,200,50], anchor=[0,1,0]);
+    }
+    else if(test_mode=="top_half_pla") {
+        translate([0,0,0])
+        cuboid([100,200,50], anchor=CENTER+BACK);
     }
 }
 
