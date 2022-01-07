@@ -51,6 +51,15 @@ body_thickness = 8.1;
 body_radius_top = 2.1;
 body_radius_bottom = 3.1;
 
+/* [complex body] */
+
+//if the phone's shape has irregular edges
+complex_body = false;
+bottom_north_radius = 0;
+bottom_south_radius = 0;
+bottom_east_radius = 0;
+bottom_west_radius = 0;
+
 /* [screen] */
 
 screen_radius = 8.01;
@@ -254,13 +263,28 @@ module junglecat_rails(){
 //body();
 module body(){
     color("orange", 0.2)
-    minkowski() {
-        cube([ face_width - 2*face_radius, 
-            face_length - 2*face_radius, 
-            0.01 ], 
-            center=true
-        );
-        body_profile();
+    if(!complex_body) {
+        minkowski() {
+            cube([ face_width - 2*face_radius, 
+                face_length - 2*face_radius, 
+                0.01 ], 
+                center=true
+            );
+            body_profile();
+        }
+    } else {
+        echo("complex");
+        difference() {
+            minkowski() {
+                cube([ face_width - 2*face_radius, 
+                    face_length - 2*face_radius, 
+                    0.01 ], 
+                    center=true
+                );
+                body_profile();
+            }
+            body_complex_edges();
+        }
     }
 }
 //body_profile();
@@ -272,6 +296,12 @@ module body_profile(){
         rounding2=body_radius_top,
         $fn=15
     );
+}
+
+body_complex_edges();
+module body_complex_edges(){
+    rotate([90,0,0])
+    interior_fillet(l=face_length, r=bottom_north_radius, spin=90);
 }
 
 //manual supports and stick-out buttons for soft TPU prints
