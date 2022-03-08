@@ -50,15 +50,9 @@ body_width = 70.1;
 body_thickness = 8.1;
 body_radius_top = 2.1;
 body_radius_bottom = 3.1;
-
-/* [complex body] */
-
-//if the phone's shape has irregular edges
-complex_body = false;
-bottom_north_radius = 0;
-bottom_south_radius = 0;
-bottom_east_radius = 0;
-bottom_west_radius = 0;
+//for phones with different rounding on the sides, like Galaxy S9+
+body_bottom_side_radius = 0;
+shell_side_wings = 0;
 
 /* [screen] */
 
@@ -67,7 +61,14 @@ screen_lip_length = 3.1;
 screen_length = body_length - screen_lip_length;
 screen_lip_width = 3.1;
 screen_width = body_width - screen_lip_width;
+//left/right curved screen radius
+screen_curve_radius = 0.0;
+//for shallow curves like the S9+
+screen_curve_inset = 0.0;
+//sticks up
 extra_lip = false;
+//sticks out left and right
+extra_sides = false;
 screen_extra_top_left = 0;
 screen_extra_top_right = 0;
 screen_extra_bottom_left = 0;
@@ -127,6 +128,7 @@ module end_customizer_variables(){}
 
 //alternate Fn values to speed up OpenSCAD. Turn this up during build
 $fn=20;
+//$fn= $preview ? 32 : 60;
 lowFn = 10;
 highFn = 25;
 
@@ -263,45 +265,51 @@ module junglecat_rails(){
 //body();
 module body(){
     color("orange", 0.2)
-    if(!complex_body) {
+    difference() {
         minkowski() {
             cube([ body_width - 2*body_radius, 
                 body_length - 2*body_radius, 
                 0.01 ], 
                 center=true
             );
-            body_profile();
+            //this pill shape will spin around the cube.
+            //it sets the radius of the body
+            cyl( 
+                l=body_thickness, 
+                r=body_radius,
+                rounding1=body_radius_bottom, 
+                rounding2=body_radius_top,
+                $fn=15
+            );
         }
-    } else {
-        echo("complex");
-        difference() {
-            minkowski() {
-                cube([ body_width - 2*body_radius, 
-                    body_length - 2*body_radius, 
-                    0.01 ], 
-                    center=true
-                );
-                body_profile();
-            }
-            body_complex_edges();
-        }
+        //for curved screens and irregular shapes like Galaxy S9+
+        body_extra_radius();
     }
 }
-//body_profile();
-module body_profile(){
-    cyl( 
-        l=body_thickness, 
-        r=body_radius,
-        rounding1=body_radius_bottom, 
-        rounding2=body_radius_top,
-        $fn=15
-    );
-}
 
-body_complex_edges();
-module body_complex_edges(){
+//body_extra_radius();
+module body_extra_radius(){
+    //bottom curve right
+    color("red", 0.2)
+    translate([body_width/2,0,-body_thickness/2])
     rotate([90,0,0])
-    interior_fillet(l=body_length, r=bottom_north_radius, spin=90);
+    interior_fillet(l=body_length-body_radius, r=body_bottom_side_radius, spin=90); 
+    //bottom curve left
+    color("red", 0.2)
+    translate([-body_width/2,0,-body_thickness/2])
+    rotate([90,0,0])
+    interior_fillet(l=body_length-body_radius, r=body_bottom_side_radius, spin=0);
+   
+    //curved screen right
+    color("red", 0.2)
+    translate([body_width/2,0,body_thickness/2])
+    rotate([90,0,0])
+    interior_fillet(l=body_length-body_radius, r=screen_curve_radius, spin=180); 
+    //curved screen left
+    color("red", 0.2)
+    translate([-body_width/2,0,body_thickness/2])
+    rotate([90,0,0])
+    interior_fillet(l=body_length-body_radius, r=screen_curve_radius, spin=-90);   
 }
 
 //manual supports and stick-out buttons for soft TPU prints
@@ -313,27 +321,32 @@ module soft_supports(){
 
 //phone_shell();
 module phone_shell(){
-    minkowski() {
-        cube(
-            [ body_width - 2*body_radius,
-            body_length - 2*body_radius ,
-            0.01 ],
-            center=true
-        );
-        shell_profile();
-        //TODO: why haven't I changed this to use BOSL yet?
+    difference() {
+        resize(newsize=[
+            body_width + 2*shell_thickness + 2*shell_side_wings,
+            body_length + 2*shell_thickness,
+            body_thickness + 2*shell_thickness
+        ])
+        body();
+        
+        //curved_screen_cuts();
     }
+    
 }
 
-//shell_profile();
-module shell_profile(){
-    translate([0,0,extra_lip_bonus/2])
-    cyl( 
-        l=body_thickness + 2*shell_thickness + extra_lip_bonus, 
-        r=body_radius+shell_thickness,
-        rounding1=body_radius_bottom, 
-        rounding2=body_radius_top
-    );
+//color("red", 0.4) curved_screen_cuts();
+module curved_screen_cuts(){
+    //curved screen right
+    color("red", 0.2)
+    translate([body_width/2,0,body_thickness/2+0.5])
+    rotate([90,0,0])
+    interior_fillet(l=body_length-2*screen_radius, r=screen_curve_radius+0.05, spin=-90); 
+    
+    //curved screen left
+    color("red", 0.2)
+    translate([-body_width/2,0,body_thickness/2])
+    rotate([90,0,0])
+    interior_fillet(l=body_length-2*body_radius, r=screen_curve_radius, spin=-90);
 }
 
 module gamepad_shell(){
@@ -675,7 +688,7 @@ module gamepad_faceplates(){
     }
 }
 
-//screen_cut();
+screen_cut();
 module screen_cut(){
     screen_cut_height = shell_thickness+extra_lip_bonus+0.5;
     screen_corners = [
@@ -716,9 +729,6 @@ speaker_hard_cut_width = body_width*0.65;
 charge_port_width = (bottom_speakers || case_type=="gamepad") ? speaker_hard_cut_width : usb_cut_width;
 //usb_cut();
 module usb_cut(){
-    //why'd I do this with the gamepad? It doesn't even cut flush with the bottom surface
-    usb_cut_height = shell_thickness+body_thickness+extra_lip_bonus+0.01;
-    
     color("red", 0.2)
     translate( [0, -body_length/2, 0] )
     if(case_material2=="hard"){
@@ -731,7 +741,8 @@ module usb_cut(){
             usb_cut_width, 
             disable_clearance=true, 
             disable_bevel=(case_type=="junglecat" || case_type=="joycon" || case_type=="gamepad"),
-            junglecat_support=true
+            junglecat_support=true,
+            extra_tall=true
         );
         
         //speakers
@@ -809,9 +820,9 @@ module button_cut(right,  power_button, power_from_top, power_length, volume_but
 }
 
 //simple cutout for mute switches
-module soft_cut(button_length, disable_support=false, disable_bevel=false, disable_clearance=false, shallow_cut=false, junglecat_support=false, joycon_support=false){
+module soft_cut( button_length, disable_support=false, disable_bevel=false, disable_clearance=false, shallow_cut=false, junglecat_support=false, joycon_support=false, extra_tall=false ){
     soft_clearance = disable_clearance ? 0:buttons_clearance;
-    cut_depth = shallow_cut ? 0:10;
+    cut_depth = shallow_cut ? 0 : 10;
     difference() {
         //cutout
         soft_cut_submodule();
@@ -833,11 +844,26 @@ module soft_cut(button_length, disable_support=false, disable_bevel=false, disab
     }
     
     module soft_cut_submodule(){
+        cut_height = extra_tall ? body_thickness*0.6 : body_thickness*0.8;
         //straight-thru cut
-        prismoid(size1=[button_length+soft_clearance*2,body_thickness*0.6], size2=[button_length+soft_clearance*2,body_thickness*0.6], rounding=button_cut_rounding, h=shell_thickness*3+cut_depth, anchor=CENTER, $fn=lowFn);
+        prismoid( 
+            size1=[ button_length+soft_clearance*2, cut_height ], 
+            size2=[ button_length+soft_clearance*2, cut_height ], 
+            rounding=button_cut_rounding, 
+            h=shell_thickness*3+cut_depth, 
+            anchor=CENTER, 
+            $fn=lowFn
+        );
         //bevel cut. Needs better angle calculation
         if(!disable_bevel)
-        prismoid(size1=[button_length+soft_clearance*2,body_thickness*0.6], size2=[button_length+soft_clearance*2+10,body_thickness*0.6+7], rounding=button_cut_rounding, h=shell_thickness*3, anchor=CENTER+BOTTOM, $fn=lowFn);
+        prismoid(
+            size1=[ button_length+soft_clearance*2, cut_height ], 
+            size2=[ button_length+soft_clearance*2+10, cut_height+7 ], 
+            rounding=button_cut_rounding, 
+            h=shell_thickness*3, 
+            anchor=CENTER+BOTTOM, 
+            $fn=lowFn
+        );
     }
 }
 
