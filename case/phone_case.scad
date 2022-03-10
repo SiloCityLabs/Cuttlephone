@@ -501,7 +501,25 @@ module junglecat_cuts(){
     }
 }
 
+
 module joycon_cut_guide() {
+    translate([0,-body_length*0.6,0]) {
+        difference() {
+            //bar
+            cube([body_width*1.5,joycon_depth,joycon_inner_width],center=true);
+            
+            //cut guides
+            translate([0,-joycon_depth/2-joycon_lip_thickness/2,0]) {
+                rotate([90,0,0])
+                rect_tube(
+                    size=[body_width*2, joycon_lip_width+support_airgap],
+                    isize=[body_width*2-support_airgap, joycon_lip_width], 
+                    h=joycon_depth,
+                    anchor=CENTER
+                );
+            }
+        }
+    }
 }
 
 //joycon_cuts();
