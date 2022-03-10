@@ -19,6 +19,8 @@ include <libraries/BOSL2/shapes3d.scad>
 
 case_material = "hard"; // [hard, soft]
 case_type = "phone case"; // [phone case, gamepad, joycon, junglecat]
+//a plastic guide to help you cut out the Joycon or Junglecat rails
+rail_cut_tools = false;
 
 //this should be a multiple of nozzle diameter
 shell_thickness = 1.6;
@@ -195,10 +197,17 @@ difference(){
     }
     else if(case_type2=="joycon") {
         joycon_rails();
+        if(rail_cut_tools) {
+            joycon_cut_guide();
+        }
     }
     else if(case_type2=="junglecat") {
         junglecat_rails();
+        if(rail_cut_tools) {
+            junglecat_cut_guide();
+        }
     }
+    
     test_cuts();
 }
 
@@ -408,6 +417,44 @@ module junglecat_shell(){
     }
 }
 
+
+//junglecat_cut_guide();
+module junglecat_cut_guide(){
+    copy_mirror() {
+    translate([0,-body_length*0.6,0]) {
+        difference() {
+            //tube to stick down the rail
+            scale([1,0.9,0.9]) //shrink for clearance and overhang droops
+            rotate([0,90,0])
+            prismoid(
+                size1=[junglecat_inner_width, junglecat_depth], 
+                size2=[junglecat_inner_width, junglecat_depth], 
+                h=junglecat_rail_length,
+                chamfer=[0,0,0,0],
+                rounding=[0,junglecat_depth/2,junglecat_depth/2,0],
+                anchor=CENTER
+            );
+            
+            //cutout lines
+            translate([0,-junglecat_depth/2-junglecat_lip_thickness/2,0]) {
+                //this adds a visible lip so you rip off the support and not the rail
+                removal_aid = 4;
+                rotate([90,0,0])
+                rect_tube(
+                    size=[ junglecat_rail_length+support_airgap*2, junglecat_lip_width+support_airgap*2],
+                    isize=[junglecat_rail_length, junglecat_lip_width], 
+                    h=junglecat_depth,
+                    anchor=CENTER
+                );
+            }
+        }
+        //something to hold onto so you don't cut yourself
+        translate([junglecat_rail_length/2,0,-6])
+        cuboid([10,junglecat_inner_width,15], anchor=LEFT+CENTER);
+    }
+    }
+}
+
 //junglecat_cuts();
 module junglecat_cuts(){
     copy_mirror() {
@@ -418,6 +465,7 @@ module junglecat_cuts(){
             -(shell_thickness+junglecat_lip_thickness),
             0])
             sphere(d=2.0);
+            //inside channels
             translate([(body_width-junglecat_rail_length)/2+shell_thickness,0,0])
             rotate([0,90,0])
             prismoid(
@@ -451,6 +499,9 @@ module junglecat_cuts(){
             }
         }
     }
+}
+
+module joycon_cut_guide() {
 }
 
 //joycon_cuts();
