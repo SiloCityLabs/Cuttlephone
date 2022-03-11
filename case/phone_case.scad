@@ -423,36 +423,42 @@ module junglecat_cut_guide(){
     copy_mirror() {
     translate([0,-body_length*0.6,0]) {
         difference() {
-            //tube to stick down the rail
-            scale([1,0.9,0.9]) //shrink for clearance and overhang droops
-            rotate([0,90,0])
-            prismoid(
-                size1=[junglecat_inner_width, junglecat_depth], 
-                size2=[junglecat_inner_width, junglecat_depth], 
-                h=junglecat_rail_length,
-                chamfer=[0,0,0,0],
-                rounding=[0,junglecat_depth/2,junglecat_depth/2,0],
-                anchor=CENTER
-            );
+            union(){
+                //tube to stick down the rail
+                scale([1.1,0.9,0.9]) //shrink for clearance and overhang droops
+                rotate([0,90,0])
+                prismoid(
+                    size1=[junglecat_inner_width, junglecat_depth], 
+                    size2=[junglecat_inner_width, junglecat_depth], 
+                    h=junglecat_rail_length,
+                    chamfer=[0,0,0,0],
+                    rounding=[0,junglecat_depth/2,junglecat_depth/2,0],
+                    anchor=CENTER
+                );
+                //something to hold onto so you don't cut yourself
+                translate([junglecat_rail_length/2,0,-6])
+                cuboid( [ 10, junglecat_inner_width, 15], 
+                    rounding=1, 
+                    edges=[RIGHT,TOP,BOTTOM],
+                    anchor=LEFT+CENTER
+                );
+            }
             
             //cutout lines
             translate([0,-junglecat_depth/2-junglecat_lip_thickness/2,0]) {
-                //this adds a visible lip so you rip off the support and not the rail
-                removal_aid = 4;
                 rotate([90,0,0])
                 rect_tube(
-                    size=[ junglecat_rail_length+support_airgap*2, junglecat_lip_width+support_airgap*2],
-                    isize=[junglecat_rail_length, junglecat_lip_width], 
+                    size=[ junglecat_rail_length*2+support_airgap*2, junglecat_lip_width+support_airgap*2],
+                    isize=[junglecat_rail_length*2, junglecat_lip_width], 
                     h=junglecat_depth,
                     anchor=CENTER
                 );
             }
         }
-        //something to hold onto so you don't cut yourself
-        translate([junglecat_rail_length/2,0,-6])
-        cuboid([10,junglecat_inner_width,15], anchor=LEFT+CENTER);
+
     }
     }
+    
 }
 
 //junglecat_cuts();
