@@ -166,7 +166,7 @@ joycon_depth = 2.8;
 // shell is thickened to fit the joycon
 joycon_min_thickness = joycon_inner_width + 2*shell_thickness;
 joycon_thickness = (body_thickness < joycon_min_thickness) ? joycon_min_thickness:body_thickness;
-joycon_z_shift = body_thickness-joycon_thickness+2*shell_thickness;
+joycon_z_shift = body_thickness-joycon_thickness+shell_thickness;
 
 //junglecat variables
 junglecat_rail_length = 61.0;
