@@ -24,7 +24,9 @@ rail_cut_tools = false;
 
 //this should be a multiple of nozzle diameter
 shell_thickness = 1.6;
-//thing wall manual supports. Set this to nozzle diameter. In your slicer, enable thin wall support
+//if the screen is curved and the case cutaway, you might want some extra grip
+shell_side_stickout = 0;
+//Set this to your nozzle diameter. In your slicer, enable thin wall support
 support_thickness = 0.4;
 
  //"Cutout" can be removed with a razor blade. Use "thin wall detection" in your slicer. "None" means you'll handle it yourself in your slicer. "Peeloff" is experimental and still requires a blade
@@ -52,9 +54,10 @@ body_width = 70.1;
 body_thickness = 8.1;
 body_radius_top = 2.1;
 body_radius_bottom = 3.1;
-//for phones with different rounding on the sides, like Galaxy S9+
+//for phones with different rounding on the sides, like Galaxy S9
 body_bottom_side_radius = 0;
-shell_side_wings = 0;
+//decrease for shallow shallow curves like the S9
+body_bottom_side_angle = 90;
 
 /* [screen] */
 
@@ -65,8 +68,8 @@ screen_lip_width = 3.1;
 screen_width = body_width - screen_lip_width;
 //left/right curved screen radius
 screen_curve_radius = 0.0;
-//for shallow curves like the S9+
-screen_curve_inset = 0.0;
+//decrease for shallow shallow curves like the S9
+screen_curve_angle = 90;
 //sticks up
 extra_lip = false;
 //sticks out left and right
@@ -185,6 +188,7 @@ version = "v0.2";
 lanyard_loop = false;
 
 //colors are only visual, and only in OpenSCAD
+//use hex values or https://en.wikipedia.org/wiki/Web_colors#X11_color_names
 bodyColor="SeaGreen";
 
 difference(){
@@ -296,18 +300,42 @@ module body(){
     }
 }
 
+module shallow_fillet(l=1.0, r, ang=90) {
+    steps = ceil(segs(r)*ang/360); //based on $fn
+    step = ang/steps;
+    path = concat(
+        [[0,0]],
+        [ for (i=[0:1:steps]) 
+            let(a=270-i*step) 
+            // make a pie slice, then move the curve points up and over
+            r*[ cos(a), sin(a) ] + [r*sin(ang), r]
+        ]
+    );
+    linear_extrude(height=l, convexity=10, center=true)
+    polygon(path);
+}
+
+//shallow_fillet_test();
+module shallow_fillet_test(){
+    debug_fudge=10;
+    color("Crimson", 0.8)
+    translate([body_width/2+angle_fudge,-body_length/2,-body_thickness/2+debug_fudge])
+    rotate([90,0,180])
+    shallow_fillet(l=body_length-body_radius, r=body_bottom_side_radius, ang=body_bottom_side_angle);
+}
+
 //body_extra_radius();
 module body_extra_radius(){
     //bottom curve right
-    color("red", 0.2)
+    color("Crimson", 0.8)
     translate([body_width/2,0,-body_thickness/2])
-    rotate([90,0,0])
-    interior_fillet(l=body_length-body_radius, r=body_bottom_side_radius, spin=90); 
+    rotate([90,0,180])
+    shallow_fillet(l=body_length-body_radius, r=body_bottom_side_radius, ang=body_bottom_side_angle);
     //bottom curve left
     color("red", 0.2)
     translate([-body_width/2,0,-body_thickness/2])
     rotate([90,0,0])
-    interior_fillet(l=body_length-body_radius, r=body_bottom_side_radius, spin=0);
+    interior_fillet(l=body_length-body_radius, r=body_bottom_side_radius, ang=body_bottom_side_angle, spin=0);
    
     //curved screen right
     color("red", 0.2)
@@ -318,7 +346,7 @@ module body_extra_radius(){
     color("red", 0.2)
     translate([-body_width/2,0,body_thickness/2])
     rotate([90,0,0])
-    interior_fillet(l=body_length-body_radius, r=screen_curve_radius, spin=-90);   
+    interior_fillet(l=body_length-body_radius, r=screen_curve_radius, ang=screen_curve_angle, spin=-90);   
 }
 
 //manual supports and stick-out buttons for soft TPU prints
@@ -332,7 +360,7 @@ module soft_supports(){
 module phone_shell(){
     difference() {
         resize(newsize=[
-            body_width + 2*shell_thickness + 2*shell_side_wings,
+            body_width + 2*shell_thickness + 2*shell_side_stickout,
             body_length + 2*shell_thickness,
             body_thickness + 2*shell_thickness
         ])
@@ -763,7 +791,7 @@ module gamepad_faceplates(){
     }
 }
 
-screen_cut();
+//screen_cut();
 module screen_cut(){
     screen_cut_height = shell_thickness+extra_lip_bonus+0.5;
     screen_corners = [
@@ -1241,7 +1269,6 @@ module anti_snag(width=8, top_radius=4, bottom_radius=3.9){
         echo("Bottom radius must be half the width or less.");
         echo(str("Called by: ", parent_module(1)));
     }
-    //if((top_radius+bottom_radius) >= anti_snag_height){
     if((bottom_radius+top_radius) >= anti_snag_height){
         echo(width=width, top_radius=top_radius, bottom_radius=bottom_radius, anti_snag_height=anti_snag_height);
         echo("too much rounding. Fixing ...");
@@ -1258,7 +1285,6 @@ module anti_snag(width=8, top_radius=4, bottom_radius=3.9){
     offset_sweep(round_rectangle, height=anti_snag_height,top=os_circle(r=-top_radius),bottom=os_circle(r=bottom_radius));
 }
 
-//used for lanyard
 module ring(h=8, od = body_thickness+shell_thickness*2, id = 7, de = 0.1 ) {
     difference() {
         cylinder(h=h, r=od/2);
@@ -1267,7 +1293,7 @@ module ring(h=8, od = body_thickness+shell_thickness*2, id = 7, de = 0.1 ) {
     }
 }
 
-//used for copying the rails and gamepad features
+//copy and mirror and object
 module copy_mirror(vec=[0,1,0]){
     children();
     mirror(vec) children();
