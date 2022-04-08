@@ -12,7 +12,7 @@ include <libraries/BOSL2/shapes3d.scad>
 
 /*  measurements from the phone
  *  all values are in mm
- *  Customizer's UI precision (0.1, 0.01, etc) depends on the precision of the variable
+ *  Customizer's UI precision (0.1, 0.01, etc) depends on the precision of the variable.
  */
 
 /* [shell] */
@@ -74,6 +74,7 @@ screen_curve_angle = 90;
 extra_lip = false;
 //sticks out left and right
 extra_sides = false;
+//use these if one of the corners is particularly loose and you've already tuned the body tight
 screen_extra_top_left = 0;
 screen_extra_top_right = 0;
 screen_extra_bottom_left = 0;
@@ -92,7 +93,7 @@ left_power_length = 10.1;
 left_volume_from_top = 50.1;
 left_volume_buttons = false;
 left_volume_length = 20.1;
-//moves the buttons toward the screen (positive) or away (negative). Buttons are centered by default
+//moves the buttons toward the screen (positive) or toward the back panel (negative). Buttons are centered by default
 buttons_vertical_fudge = 0.1;
 
 /* [camera/fingerprint] */
@@ -277,7 +278,7 @@ module junglecat_rails(){
 
 //body();
 module body(){
-    color("orange", 0.2)
+    color("orange", 0.8)
     difference() {
         minkowski() {
             cube([ body_width - 2*body_radius, 
@@ -300,21 +301,6 @@ module body(){
     }
 }
 
-module shallow_fillet(l=1.0, r, ang=90) {
-    steps = ceil(segs(r)*ang/360); //based on $fn
-    step = ang/steps;
-    path = concat(
-        [[0,0]],
-        [ for (i=[0:1:steps]) 
-            let(a=270-i*step) 
-            // make a pie slice, then move the curve points up and over
-            r*[ cos(a), sin(a) ] + [r*sin(ang), r]
-        ]
-    );
-    linear_extrude(height=l, convexity=10, center=true)
-    polygon(path);
-}
-
 //shallow_fillet_test();
 module shallow_fillet_test(){
     debug_fudge=10;
@@ -335,18 +321,18 @@ module body_extra_radius(){
     color("red", 0.2)
     translate([-body_width/2,0,-body_thickness/2])
     rotate([90,0,0])
-    interior_fillet(l=body_length-body_radius, r=body_bottom_side_radius, ang=body_bottom_side_angle, spin=0);
+    shallow_fillet(l=body_length-body_radius, r=body_bottom_side_radius, ang=body_bottom_side_angle);
    
     //curved screen right
     color("red", 0.2)
     translate([body_width/2,0,body_thickness/2])
-    rotate([90,0,0])
-    interior_fillet(l=body_length-body_radius, r=screen_curve_radius, spin=180); 
+    rotate([90,180,0])
+    shallow_fillet(l=body_length-body_radius, r=screen_curve_radius, ang=screen_curve_angle);
     //curved screen left
     color("red", 0.2)
     translate([-body_width/2,0,body_thickness/2])
-    rotate([90,0,0])
-    interior_fillet(l=body_length-body_radius, r=screen_curve_radius, ang=screen_curve_angle, spin=-90);   
+    rotate([90,90,0])
+    shallow_fillet(l=body_length-body_radius, r=screen_curve_radius, ang=screen_curve_angle);
 }
 
 //manual supports and stick-out buttons for soft TPU prints
@@ -358,11 +344,12 @@ module soft_supports(){
 
 //phone_shell();
 module phone_shell(){
+    translate([0,0,extra_lip_bonus/2])
     difference() {
         resize(newsize=[
             body_width + 2*shell_thickness + 2*shell_side_stickout,
             body_length + 2*shell_thickness,
-            body_thickness + 2*shell_thickness
+            body_thickness + 2*shell_thickness + extra_lip_bonus
         ])
         body();
         
@@ -802,9 +789,12 @@ module screen_cut(){
     ];
     rectangle = square([screen_width, screen_length],center=true);
     round_rectangle = round_corners(rectangle, radius=screen_corners,$fn=highFn);
+    
+    smooth_edge_radius = (shell_thickness < screen_cut_height/2) ? shell_thickness : screen_cut_height/2 - 0.1;
+    
     color("red", 0.2)
-    translate([0,0,body_thickness/2-screen_cut_height+shell_thickness+extra_lip_bonus+0.05])
-    offset_sweep(round_rectangle, height=screen_cut_height,top=os_circle(r=-shell_thickness));
+    translate([0, 0, body_thickness/2-screen_cut_height+shell_thickness+extra_lip_bonus+0.05])
+    offset_sweep(round_rectangle, height=screen_cut_height,top=os_circle(r=-smooth_edge_radius));
 }
 
 //color("red", 0.2) lanyard_cut();
@@ -1177,9 +1167,9 @@ module top_headphone_cut(){
         if(case_material2=="hard"){
             //we measure from edge of phone to edge of the 3.5mm jack. +1.7 to center it
             translate(trans)
-            anti_snag(headphone_radius_hard*2, top_radius=headphone_radius_hard/1.1, bottom_radius=headphone_radius_hard/1.1);
-            //anti_snag(headphone_radius_hard); //I tried this with default radius out but it's kinda ugly
+            anti_snag(headphone_radius_hard*2);
         } else {
+            // a slightly beveled hole
             translate(trans)
             rotate([90*top_or_bottom,0,0])
             cylinder(15, headphone_radius_soft*1.2, headphone_radius_soft*0.9, center=true);
@@ -1260,11 +1250,12 @@ module test_cuts(){
 
 //anti_snag(8);
 module anti_snag(width=8, top_radius=4, bottom_radius=3.9){
-    anti_snag_height = body_thickness + shell_thickness+extra_lip_bonus;
+    anti_snag_height = body_thickness + shell_thickness + extra_lip_bonus;
+    smaller_width = (width>anti_snag_height)? anti_snag_height : width;
+    
     if(bottom_radius >= width/2 || bottom_radius >=anti_snag_height/2){
         echo(width=width, top_radius=top_radius, bottom_radius=bottom_radius, anti_snag_height=anti_snag_height);
         echo("too much bottom rounding. Fixing ... ");
-        smaller_width = (width>anti_snag_height)? anti_snag_height : width;
         bottom_radius=smaller_width/2.05;
         echo("Bottom radius must be half the width or less.");
         echo(str("Called by: ", parent_module(1)));
@@ -1272,7 +1263,7 @@ module anti_snag(width=8, top_radius=4, bottom_radius=3.9){
     if((bottom_radius+top_radius) >= anti_snag_height){
         echo(width=width, top_radius=top_radius, bottom_radius=bottom_radius, anti_snag_height=anti_snag_height);
         echo("too much rounding. Fixing ...");
-        top_radius = anti_snag_height/2.05;
+        top_radius = smaller_width/2.05;
         echo("top+bottom radius must be less than anti_snag_height");
         echo(str("Called by: ", parent_module(1)));
     }
@@ -1283,6 +1274,22 @@ module anti_snag(width=8, top_radius=4, bottom_radius=3.9){
     color("red", 0.2)
     translate( [0, 0, -body_thickness/2  +0.01] )
     offset_sweep(round_rectangle, height=anti_snag_height,top=os_circle(r=-top_radius),bottom=os_circle(r=bottom_radius));
+}
+
+//for curved screens
+module shallow_fillet(l=1.0, r, ang=90) {
+    steps = ceil(segs(r)*ang/360); //based on $fn
+    step = ang/steps;
+    path = concat(
+        [[0,0]],
+        [ for (i=[0:1:steps]) 
+            let(a=270-i*step) 
+            // make a pie slice, then move the arc points up and over
+            r*[ cos(a), sin(a) ] + [r*sin(ang), r]
+        ]
+    );
+    linear_extrude(height=l, convexity=10, center=true)
+    polygon(path);
 }
 
 module ring(h=8, od = body_thickness+shell_thickness*2, id = 7, de = 0.1 ) {
