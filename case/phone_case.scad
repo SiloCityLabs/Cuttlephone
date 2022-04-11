@@ -310,29 +310,30 @@ module shallow_fillet_test(){
     shallow_fillet(l=body_length-body_radius, r=body_bottom_side_radius, ang=body_bottom_side_angle);
 }
 
-//body_extra_radius();
+*body_extra_radius();
 module body_extra_radius(){
+    debug = 1; //1.2;
     //bottom curve right
-    color("Crimson", 0.8)
+    color("Crimson", 0.4)
     translate([body_width/2,0,-body_thickness/2])
     rotate([90,0,180])
-    shallow_fillet(l=body_length-body_radius, r=body_bottom_side_radius, ang=body_bottom_side_angle);
+    shallow_fillet(l=body_length*debug-body_radius, r=body_bottom_side_radius, ang=body_bottom_side_angle);
     //bottom curve left
-    color("red", 0.2)
+    color("red", 0.4)
     translate([-body_width/2,0,-body_thickness/2])
     rotate([90,0,0])
-    shallow_fillet(l=body_length-body_radius, r=body_bottom_side_radius, ang=body_bottom_side_angle);
+    shallow_fillet(l=body_length*debug-body_radius, r=body_bottom_side_radius, ang=body_bottom_side_angle);
    
     //curved screen right
-    color("red", 0.2)
+    color("red", 0.4)
     translate([body_width/2,0,body_thickness/2])
-    rotate([90,180,0])
-    shallow_fillet(l=body_length-body_radius, r=screen_curve_radius, ang=screen_curve_angle);
+    rotate([90,0,0])
+    shallow_fillet(l=body_length*debug-body_radius, r=screen_curve_radius, ang=screen_curve_angle);
     //curved screen left
-    color("red", 0.2)
+    color("red", 0.4)
     translate([-body_width/2,0,body_thickness/2])
-    rotate([90,90,0])
-    shallow_fillet(l=body_length-body_radius, r=screen_curve_radius, ang=screen_curve_angle);
+    rotate([-90,0,0])
+    shallow_fillet(l=body_length*debug-body_radius, r=screen_curve_radius, ang=screen_curve_angle);
 }
 
 //manual supports and stick-out buttons for soft TPU prints
@@ -353,25 +354,10 @@ module phone_shell(){
         ])
         body();
         
-        //curved_screen_cuts();
     }
     
 }
 
-//color("red", 0.4) curved_screen_cuts();
-module curved_screen_cuts(){
-    //curved screen right
-    color("red", 0.2)
-    translate([body_width/2,0,body_thickness/2+0.5])
-    rotate([90,0,0])
-    interior_fillet(l=body_length-2*screen_radius, r=screen_curve_radius+0.05, spin=-90); 
-    
-    //curved screen left
-    color("red", 0.2)
-    translate([-body_width/2,0,body_thickness/2])
-    rotate([90,0,0])
-    interior_fillet(l=body_length-2*body_radius, r=screen_curve_radius, spin=-90);
-}
 
 module gamepad_shell(){
     minkowski() {
@@ -778,7 +764,7 @@ module gamepad_faceplates(){
     }
 }
 
-//screen_cut();
+*screen_cut();
 module screen_cut(){
     screen_cut_height = shell_thickness+extra_lip_bonus+0.5;
     screen_corners = [
@@ -792,22 +778,22 @@ module screen_cut(){
     
     smooth_edge_radius = (shell_thickness < screen_cut_height/2) ? shell_thickness : screen_cut_height/2 - 0.1;
     
-    color("red", 0.2)
-    translate([0, 0, body_thickness/2-screen_cut_height+shell_thickness+extra_lip_bonus+0.05])
+    //this cuts the screen hole and smooths the edge
+    color("red", 0.3)
+    translate([0, 0, body_thickness/2 - screen_cut_height + shell_thickness + extra_lip_bonus + 0.05])
     offset_sweep(round_rectangle, height=screen_cut_height,top=os_circle(r=-smooth_edge_radius));
+    
+    //this cuts the case further down for curved screens
+    //doesn't play well with the smooth edge above
+    color("red", 0.2)
+    translate([0, 0, body_thickness/2 - screen_cut_height + shell_thickness + extra_lip_bonus + 0.05])
+    linear_extrude(height = body_thickness, center = true)
+    rect([screen_width, screen_length], rounding=screen_radius);
 }
 
-//color("red", 0.2) lanyard_cut();
+*color("red", 0.2) lanyard_cut();
 module lanyard_cut(){
     //unsupported
-    /*  
-    //thick ring-shaped extension
-    if(lanyard_loop)
-    color("red", 0.2) 
-    rotate([0,90,0])
-    translate([0,-body_length/2-3,body_width/4])
-    ring(8, body_thickness+shell_thickness*2, 7, 0.1 );
-    */
     //ring cutout makes 2 slots for thin string lanyards
     if(lanyard_loop)
     color("red", 0.2) 
@@ -820,7 +806,8 @@ usb_cut_rounding = 2;
 speaker_cut_width = body_width*0.2;
 speaker_hard_cut_width = body_width*0.65;
 charge_port_width = (bottom_speakers || case_type=="gamepad") ? speaker_hard_cut_width : usb_cut_width;
-//usb_cut();
+
+*usb_cut();
 module usb_cut(){
     color("red", 0.2)
     translate( [0, -body_length/2, 0] )
@@ -858,7 +845,7 @@ module usb_cut(){
     }
 }
 
-//button_cuts();
+*button_cuts();
 module button_cuts(){
     //left_button=true;
     if(left_power_button || left_volume_buttons){
