@@ -55,7 +55,7 @@ body_thickness = 8.1;
 body_radius_top = 2.1;
 body_radius_bottom = 3.1;
 //for phones with different rounding on the sides, like Galaxy S9
-body_bottom_side_radius = 0;
+body_bottom_side_radius = 0.0;
 //decrease for shallow shallow curves like the S9
 body_bottom_side_angle = 90;
 
@@ -127,7 +127,8 @@ headphone_from_left_edge = 14.0;
 headphone_on_top = false;
 headphone_on_bottom = false;
 
-bottom_speakers = false;
+bottom_speakers_right = false;
+bottom_speakers_left = false;
 
 //end customizer variables
 module end_customizer_variables(){}
@@ -327,7 +328,7 @@ module body_extra_radius(){
     //curved screen right
     color("red", 0.4)
     translate([body_width/2,0,body_thickness/2])
-    rotate([90,0,0])
+    rotate([-90,0,180])
     shallow_fillet(l=body_length*debug-body_radius, r=screen_curve_radius, ang=screen_curve_angle);
     //curved screen left
     color("red", 0.4)
@@ -805,7 +806,7 @@ usb_cut_width = 14;
 usb_cut_rounding = 2;
 speaker_cut_width = body_width*0.2;
 speaker_hard_cut_width = body_width*0.65;
-charge_port_width = (bottom_speakers || case_type=="gamepad") ? speaker_hard_cut_width : usb_cut_width;
+charge_port_width = (bottom_speakers_left || bottom_speakers_right || case_type=="gamepad") ? speaker_hard_cut_width : usb_cut_width;
 
 *usb_cut();
 module usb_cut(){
@@ -826,8 +827,8 @@ module usb_cut(){
         );
         
         //speakers
-        if(bottom_speakers){
-            fudge=3; //avoid overlapping the USB's bevel cut
+        fudge=3; //avoid overlapping the USB's bevel cut
+        if(bottom_speakers_right){
             //calculate speaker cuts based on phone width
             translate([usb_cut_width/2+fudge+speaker_cut_width/2,0,0])
             rotate([90,0,0])
@@ -835,7 +836,8 @@ module usb_cut(){
                 speaker_cut_width, disable_bevel=true, disable_clearance=true,
                 shallow_cut=(case_type=="junglecat" || case_type=="joycon" || case_type=="gamepad")
             );
-            
+        }
+        if(bottom_speakers_left){ 
             translate([-usb_cut_width/2-fudge-speaker_cut_width/2,0,0])
             rotate([90,0,0])
             soft_cut(
