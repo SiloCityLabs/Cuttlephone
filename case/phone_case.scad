@@ -72,7 +72,7 @@ screen_curve_radius = 0.0;
 screen_curve_angle = 90;
 //sticks up
 extra_lip = false;
-//sticks out left and right
+//NOT WORKING: if the corners are sharp, add some "ramp" to the sides
 extra_sides = false;
 //use these if one of the corners is particularly loose and you've already tuned the body tight
 screen_extra_top_left = 0;
@@ -123,6 +123,7 @@ fingerprint_diam = 13;
 mic_on_top = false;
 mic_on_bottom = false;
 mic_from_right_edge = 14.0;
+mic_offset_up = 0.0;
 headphone_from_left_edge = 14.0;
 headphone_on_top = false;
 headphone_on_bottom = false;
@@ -278,7 +279,7 @@ module junglecat_rails(){
 }
 
 //body();
-module body(){
+module body(disable_curved_screen=false){
     color("orange", 0.8)
     difference() {
         minkowski() {
@@ -298,7 +299,10 @@ module body(){
             );
         }
         //for curved screens and irregular shapes like Galaxy S9+
-        body_extra_radius();
+        //only for the phone shape, not the outside of the case
+        if(!disable_curved_screen){
+            body_extra_radius();
+        }
     }
 }
 
@@ -353,7 +357,7 @@ module phone_shell(){
             body_length + 2*shell_thickness,
             body_thickness + 2*shell_thickness + extra_lip_bonus
         ])
-        body();
+        body(disable_curved_screen=true);
         
     }
     
@@ -1128,7 +1132,7 @@ module mic_cut(){
     mic_diam = 2.0;
     if (mic_on_top || mic_on_bottom) 
     color("red", 0.2)
-    if (case_type=="joycon") {
+    if (case_type=="joycon" && case_material2=="hard") {
         //this cuts upward
         translate( [ body_width/2-mic_from_right_edge, top_or_bottom*body_length/2, -2 ] )
         rotate([90,0,0])
@@ -1139,7 +1143,7 @@ module mic_cut(){
         }
     } else {
         //simple hole
-        translate( [ body_width/2-mic_from_right_edge, top_or_bottom*body_length/2, 0 ] )
+        translate( [ body_width/2-mic_from_right_edge, top_or_bottom*body_length/2, mic_offset_up ] )
         rotate([90,0,0])
         cylinder( 20, mic_diam, mic_diam, center=true, $fn=lowFn);
     }   
