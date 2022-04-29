@@ -185,7 +185,7 @@ junglecat_depth = 3.3;
 //embossment text
 name = "Cuttlephone";
 author = "Maave";
-version = "v0.2";
+version = "v0.3";
 
 //unsupported features
 lanyard_loop = false;
