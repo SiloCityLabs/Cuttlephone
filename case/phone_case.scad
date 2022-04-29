@@ -810,7 +810,7 @@ usb_cut_width = 14;
 usb_cut_rounding = 2;
 speaker_cut_width = body_width*0.2;
 speaker_hard_cut_width = body_width*0.65;
-charge_port_width = (bottom_speakers_left || bottom_speakers_right || case_type=="gamepad") ? speaker_hard_cut_width : usb_cut_width;
+charge_port_width = (bottom_speakers_left || bottom_speakers_right || case_type2=="gamepad") ? speaker_hard_cut_width : usb_cut_width;
 
 *usb_cut();
 module usb_cut(){
@@ -825,7 +825,7 @@ module usb_cut(){
         soft_cut(
             usb_cut_width, 
             disable_clearance=true, 
-            disable_bevel=(case_type=="junglecat" || case_type=="joycon" || case_type=="gamepad"),
+            disable_bevel=(case_type2=="junglecat" || case_type2=="joycon" || case_type2=="gamepad"),
             junglecat_support=true,
             extra_tall=true
         );
@@ -838,14 +838,14 @@ module usb_cut(){
             rotate([90,0,0])
             soft_cut(
                 speaker_cut_width, disable_bevel=true, disable_clearance=true,
-                shallow_cut=(case_type=="junglecat" || case_type=="joycon" || case_type=="gamepad")
+                shallow_cut=(case_type2=="junglecat" || case_type2=="joycon" || case_type2=="gamepad")
             );
         }
         if(bottom_speakers_left){ 
             translate([-usb_cut_width/2-fudge-speaker_cut_width/2,0,0])
             rotate([90,0,0])
             soft_cut(
-                speaker_cut_width, disable_bevel=true, disable_clearance=true, shallow_cut=(case_type=="junglecat" || case_type=="joycon" || case_type=="gamepad")
+                speaker_cut_width, disable_bevel=true, disable_clearance=true, shallow_cut=(case_type2=="junglecat" || case_type2=="joycon" || case_type2=="gamepad")
             );
         }
     }
@@ -998,8 +998,8 @@ module soft_button(right,  power_button, power_from_top, power_length, volume_bu
         //I tried having this all filled in (looks better) but it makes the buttons hard to press
         translate([buttons_clearance - button_offset-button_cut_rounding,0,0])
         prismoid(
-            size1=[button_length+buttons_clearance*2-button_cut_rounding*2,body_thickness*0.6], 
-            size2=[button_length+buttons_clearance*2-button_cut_rounding*2,body_thickness*0.6], 
+            size1=[button_length+buttons_clearance*2-button_cut_rounding*2,body_thickness*0.8], 
+            size2=[button_length+buttons_clearance*2-button_cut_rounding*2,body_thickness*0.8], 
             h=support_thickness, 
             anchor=CENTER+RIGHT
         );
@@ -1071,8 +1071,8 @@ module soft_button(right,  power_button, power_from_top, power_length, volume_bu
 //camera_cut();
 module camera_cut(){
     camera_radius_clearanced = camera_radius+camera_clearance;
-    height = 5;
-    angle = 8; //just an offset. TODO: calculate this in degrees
+    height = (case_type2=="joycon") ? joycon_thickness : 5;
+    angle = (case_type2=="joycon") ? 12 : 8; //TODO: calculate this in degrees
     color("red", 0.2)
     down(body_thickness/2)
     back(body_length/2-camera_from_top+camera_clearance)
@@ -1084,7 +1084,6 @@ module camera_cut(){
         rounding=camera_radius_clearanced,
         anchor=[1,1,1]
     );
-    //if(case_material2=="soft") //soft
 }
 
 //extra_camera_cut();
@@ -1114,7 +1113,10 @@ module extra_camera_cut(){
 //fingerprint_cut();
 module fingerprint_cut(){
     fingerprint_radius = fingerprint_diam/2;
-    fingerprint_cut_height = 6; //TODO: calculate this
+    //wider on joycon-mode so you can fit your finger
+    //TODO: use an angle
+    fingerprint_radius2 = (case_type2=="joycon") ? fingerprint_radius*3 : fingerprint_radius*2;
+    fingerprint_cut_height = (case_type2=="joycon") ? joycon_thickness+2 : shell_thickness+6;
     if (fingerprint)
     color("red", 0.2)
     translate([ 
@@ -1122,7 +1124,7 @@ module fingerprint_cut(){
         body_length/2-fingerprint_center_from_top, 
         -body_thickness/2-fingerprint_cut_height/2 
     ])
-    cylinder( fingerprint_cut_height, fingerprint_radius*2, fingerprint_radius, true);
+    cylinder( fingerprint_cut_height, fingerprint_radius2, fingerprint_radius, true);
 }
 
 //mic_on_top=true; mic_cut();
@@ -1132,7 +1134,7 @@ module mic_cut(){
     mic_diam = 2.0;
     if (mic_on_top || mic_on_bottom) 
     color("red", 0.2)
-    if (case_type=="joycon" && case_material2=="hard") {
+    if (case_type2=="joycon" && case_material2=="hard") {
         //this cuts upward
         translate( [ body_width/2-mic_from_right_edge, top_or_bottom*body_length/2, -2 ] )
         rotate([90,0,0])

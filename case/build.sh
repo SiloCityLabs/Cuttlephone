@@ -26,7 +26,7 @@ echo "Building all configs"
 
 #put models and variables on websites
 jekyll_data_dir='../docs/_data/'
-echo "copy phone_case.json"
+echo "copy phone_case.json to website dir"
 cp phone_case.json $jekyll_data_dir
 premade_models_path='../docs/premade-models/'
 
@@ -35,7 +35,7 @@ for model in "${presets[@]}"; do
         for case_material in "${case_materials[@]}"; do
 			filename="${model} ${case_type} ${case_material}.${filetype}"
             echo "Building ${filename}"
-			openscad -o build/"${filename" -D "case_type_override=\"$case_type\"; case_material_override=\"$case_material\"; version=\"$version-$git_commit\";" -p phone_case.json -P "${model}" phone_case.scad
+			openscad -o build/"${filename}" -D "case_type_override=\"$case_type\"; case_material_override=\"$case_material\"; version=\"$version-$git_commit\";" -p phone_case.json -P "${model}" phone_case.scad
 			cp "build/${filename}" $premade_models_path
         done
     done
