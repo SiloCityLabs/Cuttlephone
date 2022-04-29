@@ -13,7 +13,7 @@ Cuttlephone is a 3D printed phone case and gamepad system. Download pre-made mod
 
 ### Switch Joy-Con rails
 
-(needs an update)
+![](/images/joycon.png)
 
 ### Razer Junglecat rails
 
