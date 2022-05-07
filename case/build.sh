@@ -26,8 +26,8 @@ echo
 cp phone_case.json $jekyll_data_dir
 premade_models_path='../docs/premade-models/'
 
-#TODO: pull these from the JSON
-declare -a case_types=( "phone case" "junglecat" "joycon" "gamepad" )
+#TODO: pull these from the JSON #TODO: add "gamepad" when it works
+declare -a case_types=( "phone case" "junglecat" "joycon" )
 declare -a case_materials=( "hard" "soft" )
 filetype='3mf'
 echo "Building all configs"
