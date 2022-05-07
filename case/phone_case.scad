@@ -916,7 +916,7 @@ module soft_cut( button_length, disable_support=false, disable_bevel=false, disa
         //manual supports
         color("blue", 0.2)
         if(manual_supports=="cutout" && !disable_support) {
-            prismoid(size1=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.6], size2=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.6], h=support_thickness, anchor=CENTER);
+            prismoid(size1=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.8], size2=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.8], h=support_thickness, anchor=CENTER);
             //TODO: manual support for junglecat and joycon
             if(junglecat_support) {
                 //for(i=[0:floor(shell_thickness+junglecat_inner_width)]) {
@@ -981,7 +981,7 @@ module soft_button(right,  power_button, power_from_top, power_length, volume_bu
     button_rounding=body_thickness*0.1;
     button_padding=2; //bonus to allow error in measuring
     
-    color("blue", 0.2)
+    color("SeaGreen", 0.8)
     translate( [ right_or_left*(body_width/2),
         body_length/2,
         buttons_vertical_fudge
