@@ -13,6 +13,8 @@ permalink: /premade-models/
 ## {{ model[0] }}
 {% for type in site.data.model_types %}
 
+<!-- hide gamepad. It's not ready -->
+{% if type.model_type != "gamepad" %}
 <label>{{type.model_type}}:</label>
 {% for material in site.data.case_materials %}
 {% for filetypes in site.data.filetypes %}
@@ -20,5 +22,7 @@ permalink: /premade-models/
 {% endfor %}
 
 {% endfor %}
+{% endif %}
+
 {% endfor %}
 {% endfor %}

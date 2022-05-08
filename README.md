@@ -1,5 +1,5 @@
 # Cuttlephone
-Cuttlephone is a adaptable 3D printed phone case and USB-C gamepad. This is the source code
+Cuttlephone is a adaptable 3D printed phone case and USB-C gamepad. This is the source code.
 
 [Get premade 3MF files on the website](https://silocitylabs.github.io/Cuttlephone/)
 
@@ -9,11 +9,20 @@ A prototype (0.x) is currently in development. Currently supports:
  - Switch Joy-Con rails
  - Razer Junglecat rails
  
- # How to phone case generator
-To create your own phone, install OpenSCAD, clone the repo or download the .ZIP, and run "case/phone_case.scad". Run "sh build.sh" to create all 3MF files.
+ # How to use phone case generator
+ - Install OpenSCAD
+ - clone the repo with `git clone https://github.com/SiloCityLabs/Cuttlephone.git` or use Code > Download ZIP
+ - Open the file "case/phone_case.scad" to use the GUI
+ - Run "sh build.sh" to create all 3MF files for all phones
 
-# How to run blog locally
-Install Ruby, gem, and bundle. Run `bundle update` and `bundle exec jekyll serve --incremental`. I couldn't get the Docker versions running on Windows, they wouldn't render the website, just show directory
+# How to run blog locally (Windows)
+ - generate a token at https://github.com/settings/tokens/new
+ - Select the scope *public_repository*
+ - copy the token
+ - install Ruby, gem, and bundle
+ - `bundle update`
+ - `JEKYLL_GITHUB_TOKEN=tokenGoesHere123456789 bundle exec jekyll serve --incremental`
+I couldn't get the Docker versions running on Windows.
 
 # Build logs 
 
