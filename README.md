@@ -10,19 +10,20 @@ A prototype (0.x) is currently in development. Currently supports:
  - Razer Junglecat rails
  
  # How to use phone case generator
- - Install OpenSCAD
+ - install [OpenSCAD](https://openscad.org/downloads.html)
  - clone the repo with `git clone https://github.com/SiloCityLabs/Cuttlephone.git` or use Code > Download ZIP
- - Open the file "case/phone_case.scad" to use the GUI
- - Run "sh build.sh" to create all 3MF files for all phones
+ - open the file "case/phone_case.scad" to use the GUI
+ - in bash run `sh build.sh` to create all 3MF files for all phones
 
 # How to run blog locally (Windows)
  - generate a token at https://github.com/settings/tokens/new
- - Select the scope *public_repository*
- - copy the token
+ - select the scope *public_repository*
+ - copy the token, save it in a password manager
  - install Ruby, gem, and bundle
  - `bundle update`
  - `JEKYLL_GITHUB_TOKEN=tokenGoesHere123456789 bundle exec jekyll serve --incremental`
-I couldn't get the Docker versions running on Windows.
+ 
+There's also a [docker version](https://github.com/Starefossen/docker-github-pages) of Github Pages if you prefer
 
 # Build logs 
 
