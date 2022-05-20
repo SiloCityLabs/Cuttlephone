@@ -996,10 +996,10 @@ module soft_button(right,  power_button, power_from_top, power_length, volume_bu
     module soft_button_positive(){
         //backing
         //I tried having this all filled in (looks better) but it makes the buttons hard to press
-        translate([buttons_clearance - button_offset-button_cut_rounding,0,0])
+        translate([buttons_clearance - button_offset, 0, 0])
         prismoid(
-            size1=[button_length+buttons_clearance*2-button_cut_rounding*2,body_thickness*0.8], 
-            size2=[button_length+buttons_clearance*2-button_cut_rounding*2,body_thickness*0.8], 
+            size1=[button_length+buttons_clearance*2, body_thickness*0.8], 
+            size2=[button_length+buttons_clearance*2, body_thickness*0.8], 
             h=support_thickness, 
             anchor=CENTER+RIGHT
         );
