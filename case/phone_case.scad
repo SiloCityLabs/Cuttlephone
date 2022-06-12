@@ -99,6 +99,7 @@ buttons_vertical_fudge = 0.1;
 /* [camera/fingerprint] */
 
 //camera cutout is a rectangle with rounded corners
+camera = true;
 camera_width = 20.5;
 camera_height = 9.0;
 //get a circle by setting camera_radius to half of height and width
@@ -119,7 +120,7 @@ fingerprint = false;
 fingerprint_center_from_top = 36.5;
 fingerprint_diam = 13;
 
-/* [headphone and mic] */
+/* [charge, headphone, and mic] */
 mic_on_top = false;
 mic_on_bottom = false;
 mic_from_right_edge = 14.0;
@@ -128,8 +129,15 @@ headphone_from_left_edge = 14.0;
 headphone_on_top = false;
 headphone_on_bottom = false;
 
+charge_on_bottom = true;
 bottom_speakers_right = false;
 bottom_speakers_left = false;
+
+/* [universal phone adapters] */
+split_in_half = false;
+rubber_band_loops = false;
+open_top = false;
+clamp_top = false;
 
 //end customizer variables
 module end_customizer_variables(){}
@@ -181,6 +189,10 @@ junglecat_inner_width = 3.5;
 junglecat_lip_width = 2;
 junglecat_lip_thickness = 0.4; //should be a multiple of nozzle width
 junglecat_depth = 3.3;
+//max joycon thickness. If the entire case is thicker than this, we must make stick-out junglecat rails
+junglecat_max_thickness = 11.9;
+junglecat_wings = body_thickness+shell_thickness*2 > junglecat_max_thickness;
+junglecat_stickout = 4;
 
 //embossment text
 name = "Cuttlephone";
@@ -252,6 +264,7 @@ module shell_cuts(){
     top_headphone_cut();
     screen_cut();
     lanyard_cut();
+    universal_cuts();
     version_info_emboss();
 }
 
@@ -361,6 +374,7 @@ module phone_shell(){
         
     }
     
+    rubber_band_loops2();
 }
 
 
@@ -381,6 +395,9 @@ module gamepad_shell(){
             rounding2=gamepad_shell_radius
         );
     }
+    
+    rubber_band_loops2();
+    universal_clamp();
 }
 
 module joycon_shell(){
@@ -401,6 +418,9 @@ module joycon_shell(){
             rounding2=rail_shell_radius_top
         );
     }
+
+    rubber_band_loops2();
+    universal_clamp();
 }
 
 module junglecat_shell(){
@@ -412,6 +432,28 @@ module junglecat_shell(){
             0.01 ],
             center=true
         );
+            
+        junglecat_edge_shape();
+    }
+    
+    if(junglecat_wings) {
+        minkowski(){
+            echo("case too thick. Extending for junglecat rails");
+            //the case is too thick. The junglecat rail needs to stick out
+            cube(
+                [ body_width,
+                body_length + 2*junglecat_depth + 2*junglecat_lip_thickness+ junglecat_stickout*2+shell_thickness*2,
+                junglecat_max_thickness ],
+                center=true
+            );
+            //junglecat_edge_shape();
+        }
+    }
+    
+    rubber_band_loops2();
+    universal_clamp();
+    
+    module junglecat_edge_shape(){
         //edge shape and thickness
         translate([0,0,extra_lip_bonus/2])
         cyl( 
@@ -468,45 +510,55 @@ module junglecat_cut_guide(){
 }
 
 //junglecat_cuts();
-module junglecat_cuts(){
+module junglecat_cuts(universal_inside=false){
+    //adding the universal cut has janked this up
+    //TODO: make a single shape and then mirror/translate to desired position
+    junglecat_stickout_adjust = junglecat_wings && !universal_inside ? junglecat_stickout : 0;
+    universal_inside_negative = universal_inside ? -1 : 1;
+    universal_inside_off = universal_inside ? 0 : 1;
+    universal_inside_on = universal_inside ? 1 : 0;
+    universal_inside_length = junglecat_rail_length * 1.2;
+
     copy_mirror() {
-        color("red", 0.2)
-        translate([0, -body_length/2-shell_thickness-junglecat_depth/2, 0]) {
+        color("red", 0.4)
+        translate([0, -body_length/2-shell_thickness*universal_inside_off-junglecat_depth/2 - junglecat_stickout_adjust, 0]) {
             //dimple
+            if(!universal_inside){
             translate([body_width/2-junglecat_dimple_from_top,
-            -(shell_thickness+junglecat_lip_thickness),
+            -shell_thickness-junglecat_lip_thickness,
             0])
-            sphere(d=2.0);
+            sphere(d=2.0);}
             //inside channels
-            translate([(body_width-junglecat_rail_length)/2+shell_thickness,0,0])
+            translate([(body_width-junglecat_rail_length)/2+shell_thickness,-junglecat_lip_thickness*universal_inside_on,0])
             rotate([0,90,0])
             prismoid(
                 size1=[junglecat_inner_width, junglecat_depth], 
                 size2=[junglecat_inner_width, junglecat_depth], 
-                h=junglecat_rail_length,
+                h=junglecat_rail_length*1.05,
                 chamfer=[0,0,0,0],
                 rounding=[0,junglecat_depth/2,junglecat_depth/2,0],
                 anchor=CENTER
             );
-            //lip cutout
-            translate([(body_width-junglecat_rail_length)/2+shell_thickness,-junglecat_depth/2-junglecat_lip_thickness/2,0]) {
-                if(manual_supports=="peeloff" || manual_supports=="cutout"){ //TODO fixerize
+            //manual supports or just a cutout
+            translate([(body_width-junglecat_rail_length)/2+shell_thickness,
+            (-junglecat_depth/2-junglecat_lip_thickness/2)*universal_inside_negative, 0]) {
+                if(manual_supports=="peeloff"){ //TODO fixerize
                     //this adds a visible lip so you rip off the support and not the rail
                     removal_aid = 4;
                     rotate([90,0,0])
                     rect_tube(
-                        size=[ junglecat_rail_length+support_airgap*2, junglecat_lip_width+support_airgap],
-                        isize=[junglecat_rail_length, junglecat_lip_width], 
+                        size=[ junglecat_rail_length + 0.5, junglecat_lip_width ],
+                        isize=[junglecat_rail_length, junglecat_lip_width - support_airgap - 0.01 ], 
                         h=junglecat_depth,
                         anchor=CENTER);
                 } else if (manual_supports=="cutout") {
                     //solid wall that you must cut with a craft knife
                     //the only cutout is a "hint" on one side
                     translate([-junglecat_rail_length/2,0,0])
-                    cuboid([1,1,junglecat_lip_width]);
+                    cuboid([0.5,0.5,junglecat_lip_width]);
                 }
                 else { //bring your own support
-                    cube([body_width+shell_thickness+1, junglecat_lip_thickness+2, junglecat_lip_width], center=true);
+                    cube([junglecat_rail_length + 0.5, junglecat_depth, junglecat_lip_width ], center=true);
                 }
             }
         }
@@ -814,6 +866,7 @@ charge_port_width = (bottom_speakers_left || bottom_speakers_right || case_type2
 
 *usb_cut();
 module usb_cut(){
+    if(charge_on_bottom)
     color("red", 0.2)
     translate( [0, -body_length/2, 0] )
     if(case_material2=="hard"){
@@ -1072,6 +1125,7 @@ module camera_cut(){
     camera_radius_clearanced = camera_radius+camera_clearance;
     height = (case_type2=="joycon") ? joycon_thickness : 5;
     angle = (case_type2=="joycon") ? 12 : 8; //TODO: calculate this in degrees
+    if(camera)
     color("red", 0.2)
     down(body_thickness/2)
     back(body_length/2-camera_from_top+camera_clearance)
@@ -1192,6 +1246,74 @@ module version_info_emboss(){
     }
 }
 
+band_radius = 8;
+band_height = 5;
+insetX = 10;
+insetY = 10;
+module rubber_band_loops2() {
+    xpos = body_width/2 - band_radius - insetY;
+    ypos = body_length/2 - band_radius - insetX;
+    zpos = -body_thickness/2-shell_thickness;
+    
+    if(rubber_band_loops){
+        translate([xpos, ypos, zpos])
+        rubber_band_loop();
+        
+        translate([xpos, -ypos, zpos])
+        rubber_band_loop();
+        
+        translate([-xpos, ypos, zpos])
+        rubber_band_loop();
+        
+        translate([-xpos, -ypos, zpos])
+        rubber_band_loop();
+    }
+}
+module rubber_band_loop() {
+    cyl(r1=band_radius, r2=band_radius*0.6, h=band_height, anchor=TOP+CENTER);
+}
+
+module universal_clamp() {
+    clamp_thickness = 10;
+    echo("plz");
+    //translate([0,0,20])
+//    cuboid([body_length, body_width, body_thickness*0.9], rounding=body_radius);
+
+    color("red", 0.4)
+    //translate([clamp_thickness,0,0])
+    cuboid([body_length, body_width, body_thickness*0.9], rounding=body_radius);
+}
+
+//universal_cuts();
+module universal_cuts(){
+    if(split_in_half==true) {
+        color("red", 0.2)
+        cuboid([100,10,100], anchor=CENTER);
+    }
+    if(open_top) {
+        color("red", 0.2)
+        translate([20,0,0]) {
+            scale([1, 0.95, 0.99])
+            body();
+            
+            scale([1, 0.95, 1])
+            screen_cut();
+        }
+    }
+    if(clamp_top) {
+        color("red", 0.2)
+        translate([20,0,0]) {
+            //scale([1, 0.95, 0.99])
+            body();
+            
+            //scale([1, 0.95, 1])
+            screen_cut();
+        }
+        
+        junglecat_cuts(universal_inside=true);
+    }
+}
+
 //test_cuts();
 module test_cuts(){
     if(test_mode=="corners") {
@@ -1242,6 +1364,9 @@ module test_cuts(){
 
 /* support functions */
 
+/* cutouts for use with hard plastic. 
+ * The edges are rounded so they don't snag on pockets 
+*/
 //anti_snag(8);
 module anti_snag(width=8, top_radius=4, bottom_radius=3.9){
     anti_snag_height = body_thickness + shell_thickness + extra_lip_bonus;
