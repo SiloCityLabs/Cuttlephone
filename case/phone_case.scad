@@ -29,8 +29,8 @@ shell_side_stickout = 0;
 //Set this to your nozzle diameter. In your slicer, enable thin wall support
 support_thickness = 0.4;
 
- //"Cutout" can be removed with a razor blade. Use "thin wall detection" in your slicer. "None" means you'll handle it yourself in your slicer. "Peeloff" is experimental and still requires a blade
-manual_supports = "cutout"; // [cutout, peeloff, none]
+ //"no_gap" can be removed with a razor blade. Use "thin wall detection" in your slicer. "None" means you'll handle it yourself in your slicer. "with_gap" is experimental and still requires a blade
+manual_supports = "no_gap"; // [no_gap, with_gap, none]
 //set this to your layer height
 support_airgap = 0.20; //TODO: test and tweak. This may depend on layer height.
 
@@ -190,9 +190,10 @@ junglecat_lip_width = 2;
 junglecat_lip_thickness = 0.4; //should be a multiple of nozzle width
 junglecat_depth = 3.3;
 //max joycon thickness. If the entire case is thicker than this, we must make stick-out junglecat rails
-junglecat_max_thickness = 11.9;
-junglecat_wings = body_thickness+shell_thickness*2 > junglecat_max_thickness;
-junglecat_stickout = 4;
+junglecat_wing_thickness = 11.8;
+junglecat_wing_radius = 1.3;
+junglecat_wings = body_thickness+shell_thickness*2 > junglecat_wing_thickness;
+junglecat_stickout = 4.2;
 
 //embossment text
 name = "Cuttlephone";
@@ -436,15 +437,18 @@ module junglecat_shell(){
         junglecat_edge_shape();
     }
     
+    //the case is too thick. The junglecat rail needs to stick out
     if(junglecat_wings) {
+        echo("case too thick. Extending for junglecat rails");
         minkowski(){
-            echo("case too thick. Extending for junglecat rails");
-            //the case is too thick. The junglecat rail needs to stick out
-            cube(
-                [ body_width,
+            wing_length_margin = 8;
+            translate([body_width/2-junglecat_dimple_from_top/2-wing_length_margin/2,0,0])
+            cuboid(
+                [ junglecat_dimple_from_top+wing_length_margin,
                 body_length + 2*junglecat_depth + 2*junglecat_lip_thickness+ junglecat_stickout*2+shell_thickness*2,
-                junglecat_max_thickness ],
-                center=true
+                junglecat_wing_thickness ],
+                rounding=junglecat_wing_radius,
+                anchor=CENTER
             );
             //junglecat_edge_shape();
         }
@@ -542,7 +546,7 @@ module junglecat_cuts(universal_inside=false){
             //manual supports or just a cutout
             translate([(body_width-junglecat_rail_length)/2+shell_thickness,
             (-junglecat_depth/2-junglecat_lip_thickness/2)*universal_inside_negative, 0]) {
-                if(manual_supports=="peeloff"){ //TODO fixerize
+                if(manual_supports=="with_gap"){ //TODO fixerize
                     //this adds a visible lip so you rip off the support and not the rail
                     removal_aid = 4;
                     rotate([90,0,0])
@@ -551,7 +555,7 @@ module junglecat_cuts(universal_inside=false){
                         isize=[junglecat_rail_length, junglecat_lip_width - support_airgap - 0.01 ], 
                         h=junglecat_depth,
                         anchor=CENTER);
-                } else if (manual_supports=="cutout") {
+                } else if (manual_supports=="no_gap") {
                     //solid wall that you must cut with a craft knife
                     //the only cutout is a "hint" on one side
                     translate([-junglecat_rail_length/2,0,0])
@@ -598,7 +602,7 @@ module joycon_cuts(){
             cube([body_width+shell_thickness+2,joycon_depth,joycon_inner_width],center=true);
             //lip cutout
             translate([0,-joycon_depth/2-joycon_lip_thickness/2,0]) {
-                if(manual_supports=="cutout"){
+                if(manual_supports=="no_gap"){
                     //this adds a visible lip so you rip off the support and not the rail
                     removal_aid = 4;
                     rotate([90,0,0])
@@ -870,7 +874,7 @@ module usb_cut(){
     color("red", 0.2)
     translate( [0, -body_length/2, 0] )
     if(case_material2=="hard"){
-        anti_snag(charge_port_width);
+        hard_cut(charge_port_width);
     }
     else { //soft cut
         //usb
@@ -930,7 +934,7 @@ module button_cut(right,  power_button, power_from_top, power_length, volume_but
     button_offset = has_space ? min(power_from_top*has_power_button, volume_from_top*has_volume_buttons) : power_from_top*has_power_button + volume_from_top*has_volume_buttons;
 
     button_cut_thickness = 6;
-    anti_snag_height = body_thickness; //TODO: use joycon_thickness on joycon version
+    hard_cut_height = body_thickness; //TODO: use joycon_thickness on joycon version
     
     color("red", 0.2)
     if(case_material2=="hard"){
@@ -945,7 +949,7 @@ module button_cut(right,  power_button, power_from_top, power_length, volume_but
 
             //anti snag rounding
             rectangle = square([button_length+buttons_clearance*2, shell_thickness*4+0.1],center=true);
-            offset_sweep(rectangle, height=anti_snag_height,top=os_circle(r=-anti_snag_radius));
+            offset_sweep(rectangle, height=hard_cut_height,top=os_circle(r=-anti_snag_radius));
         }
     }
     else {
@@ -968,7 +972,7 @@ module soft_cut( button_length, disable_support=false, disable_bevel=false, disa
         
         //manual supports
         color("blue", 0.2)
-        if(manual_supports=="cutout" && !disable_support) {
+        if(manual_supports=="no_gap" && !disable_support) {
             prismoid(size1=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.8], size2=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.8], h=support_thickness, anchor=CENTER);
             //TODO: manual support for junglecat and joycon
             if(junglecat_support) {
@@ -1215,7 +1219,7 @@ module top_headphone_cut(){
         if(case_material2=="hard"){
             //we measure from edge of phone to edge of the 3.5mm jack. +1.7 to center it
             translate(trans)
-            anti_snag(headphone_radius_hard*2);
+            hard_cut(headphone_radius_hard*2);
         } else {
             // a slightly beveled hole
             translate(trans)
@@ -1274,14 +1278,16 @@ module rubber_band_loop() {
 }
 
 module universal_clamp() {
-    clamp_thickness = 10;
-    echo("plz");
-    //translate([0,0,20])
-//    cuboid([body_length, body_width, body_thickness*0.9], rounding=body_radius);
+    if(clamp_top) {
+        clamp_thickness = 10;
+        echo("plz");
+        //translate([0,0,20])
+    //    cuboid([body_length, body_width, body_thickness*0.9], rounding=body_radius);
 
-    color("red", 0.4)
-    //translate([clamp_thickness,0,0])
-    cuboid([body_length, body_width, body_thickness*0.9], rounding=body_radius);
+        color("red", 0.4)
+        //translate([clamp_thickness,0,0])
+        cuboid([body_length, body_width, body_thickness*0.9], rounding=body_radius);
+    }
 }
 
 //universal_cuts();
@@ -1367,23 +1373,23 @@ module test_cuts(){
 /* cutouts for use with hard plastic. 
  * The edges are rounded so they don't snag on pockets 
 */
-//anti_snag(8);
-module anti_snag(width=8, top_radius=4, bottom_radius=3.9){
-    anti_snag_height = body_thickness + shell_thickness + extra_lip_bonus;
-    smaller_width = (width>anti_snag_height)? anti_snag_height : width;
+//hard_cut(8);
+module hard_cut(width=8, top_radius=4, bottom_radius=3.9){
+    hard_cut_height = body_thickness + shell_thickness + extra_lip_bonus;
+    smaller_width = (width>hard_cut_height)? hard_cut_height : width;
     
-    if(bottom_radius >= width/2 || bottom_radius >=anti_snag_height/2){
-        echo(width=width, top_radius=top_radius, bottom_radius=bottom_radius, anti_snag_height=anti_snag_height);
+    if(bottom_radius >= width/2 || bottom_radius >=hard_cut_height/2){
+        echo(width=width, top_radius=top_radius, bottom_radius=bottom_radius, hard_cut_height=hard_cut_height);
         echo("too much bottom rounding. Fixing ... ");
         bottom_radius=smaller_width/2.05;
         echo("Bottom radius must be half the width or less.");
         echo(str("Called by: ", parent_module(1)));
     }
-    if((bottom_radius+top_radius) >= anti_snag_height){
-        echo(width=width, top_radius=top_radius, bottom_radius=bottom_radius, anti_snag_height=anti_snag_height);
+    if((bottom_radius+top_radius) >= hard_cut_height){
+        echo(width=width, top_radius=top_radius, bottom_radius=bottom_radius, hard_cut_height=hard_cut_height);
         echo("too much rounding. Fixing ...");
         top_radius = smaller_width/2.05;
-        echo("top+bottom radius must be less than anti_snag_height");
+        echo("top+bottom radius must be less than hard_cut_height");
         echo(str("Called by: ", parent_module(1)));
     }
     
@@ -1392,7 +1398,7 @@ module anti_snag(width=8, top_radius=4, bottom_radius=3.9){
     //round_rectangle = round_corners(rectangle, radius=bottom_radius,$fn=15);
     color("red", 0.2)
     translate( [0, 0, -body_thickness/2  +0.01] )
-    offset_sweep(round_rectangle, height=anti_snag_height,top=os_circle(r=-top_radius),bottom=os_circle(r=bottom_radius));
+    offset_sweep(round_rectangle, height=hard_cut_height,top=os_circle(r=-top_radius),bottom=os_circle(r=bottom_radius));
 }
 
 //for curved screens
