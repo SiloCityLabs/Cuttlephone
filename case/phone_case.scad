@@ -138,6 +138,9 @@ split_in_half = false;
 rubber_band_loops = false;
 open_top = false;
 clamp_top = false;
+rotate_upright = false;
+upright_angle = rotate_upright ? -90 : 0;
+upright_translate = rotate_upright ? body_width/2 + shell_thickness : 0;
 
 //end customizer variables
 module end_customizer_variables(){}
@@ -209,6 +212,9 @@ lanyard_loop = false;
 //use hex values or https://en.wikipedia.org/wiki/Web_colors#X11_color_names
 bodyColor="SeaGreen";
 
+translate([0,0,upright_translate])
+rotate([0,upright_angle, 0])
+//main body
 difference(){
     //color(display_color)
     if(case_type2=="phone case") {
