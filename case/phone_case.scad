@@ -173,26 +173,28 @@ rail_shell_radius_bottom = (body_radius_bottom<max_rail_shell_radius) ? body_rad
 rail_body_radius = (body_radius<max_rail_body_radius) ? body_radius : max_rail_body_radius; //sharper corner for looks
 
 // joycon variables
-joycon_inner_width = 10.4;
-joycon_lip_width = 8.0;
+joycon_inner_width = 10.2;
+joycon_lip_width = 7.8;
 joycon_lip_thickness = 0.4; //should be a multiple of nozzle width
-joycon_depth = 2.8;
+joycon_depth = 2.4;
 // shell is thickened to fit the joycon
 joycon_min_thickness = joycon_inner_width + 2*shell_thickness;
 joycon_thickness = (body_thickness < joycon_min_thickness) ? joycon_min_thickness:body_thickness;
 joycon_z_shift = body_thickness-joycon_thickness+shell_thickness;
+lock_notch_width = 3.8;
+lock_notch_offset = 7.8;
 
 //junglecat variables
 junglecat_rail_length = 61.0;
 junglecat_dimple_from_top = 63.5;
 junglecat_inner_width = 3.5;
-junglecat_lip_width = 2;
+junglecat_lip_width = 2.0;
 junglecat_lip_thickness = 0.4; //should be a multiple of nozzle width
 junglecat_depth = 3.3;
 //max joycon thickness. If the entire case is thicker than this, we must make stick-out junglecat rails
-junglecat_wing_thickness = 11.8;
+junglecat_wing_thickness = 11.4;
 junglecat_wing_radius = 1.3;
-junglecat_wings = body_thickness+shell_thickness*2 > junglecat_wing_thickness;
+junglecat_wings = body_thickness+shell_thickness*2 >= junglecat_wing_thickness;
 junglecat_stickout = 4.2;
 
 //embossment text
@@ -592,9 +594,7 @@ module joycon_cut_guide() {
 
 //joycon_cuts();
 module joycon_cuts(){
-    lock_notch_width = 4.5;
     lock_notch_depth = (joycon_inner_width-joycon_lip_width)/2;
-    lock_notch_offset = 9.75;
     copy_mirror() {
         color("red", 0.2)
         translate([0, -body_length/2-shell_thickness-joycon_depth/2, joycon_z_shift]) {
