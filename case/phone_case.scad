@@ -23,7 +23,7 @@ case_type = "phone case"; // [phone case, gamepad, joycon, junglecat]
 rail_cut_tools = false;
 
 //this should be a multiple of nozzle diameter
-shell_thickness = 1.6;
+case_thickness = 1.6;
 //if the screen is curved and the case cutaway, you might want some extra grip
 shell_side_stickout = 0;
 //Set this to your nozzle diameter. In your slicer, enable thin wall support
@@ -35,6 +35,7 @@ manual_supports = "no_gap"; // [no_gap, with_gap, none]
 support_airgap = 0.20; //TODO: test and tweak. This may depend on layer height.
 
 emboss_version_text = true;
+//this must match the name of the preset (or you'll break the build script)
 phone_model = "Pixel 3";
 
 //test cuts
@@ -140,7 +141,6 @@ open_top = false;
 clamp_top = false;
 rotate_upright = false;
 upright_angle = rotate_upright ? -90 : 0;
-upright_translate = rotate_upright ? body_width/2 + shell_thickness : 0;
 
 //end customizer variables
 module end_customizer_variables(){}
@@ -151,16 +151,19 @@ $fn=20;
 lowFn = 10;
 highFn = 25;
 
- /* I cannot override some variables via command line for some reason. But this works. */
+ /* I cannot override some variables via command line. Why? This works. */
 case_type_override="stupid_hack";
 case_type2 = (case_type_override!=undef && case_type_override!="stupid_hack") ? case_type_override : case_type;
 case_material_override="stupid_hack";
 case_material2 = (case_material_override!=undef && case_material_override!="stupid_hack") ? case_material_override : case_material;
+case_thickness2_override="stupid_hack";
+case_thickness2 = (case_thickness2_override!=undef && case_thickness2_override!="stupid_hack") ? case_thickness2_override : case_thickness;
 
 // phone case / general variables
 buttons_clearance = 5;
 extra_lip_bonus = extra_lip ? 1 : 0;
 anti_snag_radius = 3.8;
+upright_translate = rotate_upright ? body_width/2 + case_thickness2 : 0;
 
 // gamepad variables
 gamepad_wing_length = 35; //max that will fit on my printer
@@ -181,9 +184,9 @@ joycon_lip_width = 7.8;
 joycon_lip_thickness = 0.4; //should be a multiple of nozzle width
 joycon_depth = 2.4;
 // shell is thickened to fit the joycon
-joycon_min_thickness = joycon_inner_width + 2*shell_thickness;
+joycon_min_thickness = joycon_inner_width + 2*case_thickness2;
 joycon_thickness = (body_thickness < joycon_min_thickness) ? joycon_min_thickness:body_thickness;
-joycon_z_shift = body_thickness-joycon_thickness+shell_thickness;
+joycon_z_shift = body_thickness-joycon_thickness+case_thickness2;
 lock_notch_width = 3.8;
 lock_notch_offset = 7.8;
 
@@ -197,7 +200,7 @@ junglecat_depth = 3.3;
 //max joycon thickness. If the entire case is thicker than this, we must make stick-out junglecat rails
 junglecat_wing_thickness = 11.4;
 junglecat_wing_radius = 1.3;
-junglecat_wings = body_thickness+shell_thickness*2 >= junglecat_wing_thickness;
+junglecat_wings = body_thickness+case_thickness2*2 >= junglecat_wing_thickness;
 junglecat_stickout = 4.2;
 
 //embossment text
@@ -375,9 +378,9 @@ module phone_shell(){
     translate([0,0,extra_lip_bonus/2])
     difference() {
         resize(newsize=[
-            body_width + 2*shell_thickness + 2*shell_side_stickout,
-            body_length + 2*shell_thickness,
-            body_thickness + 2*shell_thickness + extra_lip_bonus
+            body_width + 2*case_thickness2 + 2*shell_side_stickout,
+            body_length + 2*case_thickness2,
+            body_thickness + 2*case_thickness2 + extra_lip_bonus
         ])
         body(disable_curved_screen=true);
         
@@ -398,8 +401,8 @@ module gamepad_shell(){
         //edge shape and thickness
         translate([0,0,extra_lip_bonus/2])
         cyl( 
-            l=body_thickness + 2*shell_thickness + extra_lip_bonus, 
-            r=gamepad_body_radius+shell_thickness,
+            l=body_thickness + 2*case_thickness2 + extra_lip_bonus, 
+            r=gamepad_body_radius+case_thickness2,
             rounding1=gamepad_shell_radius, 
             rounding2=gamepad_shell_radius
         );
@@ -421,8 +424,8 @@ module joycon_shell(){
         //edge shape and thickness
         translate([0,0,extra_lip_bonus/2])
         cyl( 
-            l=joycon_thickness + 2*shell_thickness + extra_lip_bonus, 
-            r=rail_body_radius+shell_thickness,
+            l=joycon_thickness + 2*case_thickness2 + extra_lip_bonus, 
+            r=rail_body_radius+case_thickness2,
             rounding1=rail_shell_radius_bottom, 
             rounding2=rail_shell_radius_top
         );
@@ -453,7 +456,7 @@ module junglecat_shell(){
             translate([body_width/2-junglecat_dimple_from_top/2-wing_length_margin/2,0,0])
             cuboid(
                 [ junglecat_dimple_from_top+wing_length_margin,
-                body_length + 2*junglecat_depth + 2*junglecat_lip_thickness+ junglecat_stickout*2+shell_thickness*2,
+                body_length + 2*junglecat_depth + 2*junglecat_lip_thickness+ junglecat_stickout*2+case_thickness2*2,
                 junglecat_wing_thickness ],
                 rounding=junglecat_wing_radius,
                 anchor=CENTER
@@ -469,8 +472,8 @@ module junglecat_shell(){
         //edge shape and thickness
         translate([0,0,extra_lip_bonus/2])
         cyl( 
-            l=body_thickness + 2*shell_thickness + extra_lip_bonus, 
-            r=rail_body_radius+shell_thickness,
+            l=body_thickness + 2*case_thickness2 + extra_lip_bonus, 
+            r=rail_body_radius+case_thickness2,
             rounding1=rail_shell_radius_bottom, 
             rounding2=rail_shell_radius_top
         );
@@ -533,15 +536,15 @@ module junglecat_cuts(universal_inside=false){
 
     copy_mirror() {
         color("red", 0.4)
-        translate([0, -body_length/2-shell_thickness*universal_inside_off-junglecat_depth/2 - junglecat_stickout_adjust, 0]) {
+        translate([0, -body_length/2-case_thickness2*universal_inside_off-junglecat_depth/2 - junglecat_stickout_adjust, 0]) {
             //dimple
             if(!universal_inside){
             translate([body_width/2-junglecat_dimple_from_top,
-            -shell_thickness-junglecat_lip_thickness,
+            -case_thickness2-junglecat_lip_thickness,
             0])
             sphere(d=2.0);}
             //inside channels
-            translate([(body_width-junglecat_rail_length)/2+shell_thickness,-junglecat_lip_thickness*universal_inside_on,0])
+            translate([(body_width-junglecat_rail_length)/2+case_thickness2,-junglecat_lip_thickness*universal_inside_on,0])
             rotate([0,90,0])
             prismoid(
                 size1=[junglecat_inner_width, junglecat_depth], 
@@ -552,7 +555,7 @@ module junglecat_cuts(universal_inside=false){
                 anchor=CENTER
             );
             //manual supports or just a cutout
-            translate([(body_width-junglecat_rail_length)/2+shell_thickness,
+            translate([(body_width-junglecat_rail_length)/2+case_thickness2,
             (-junglecat_depth/2-junglecat_lip_thickness/2)*universal_inside_negative, 0]) {
                 if(manual_supports=="with_gap"){ //TODO fixerize
                     //this adds a visible lip so you rip off the support and not the rail
@@ -603,22 +606,22 @@ module joycon_cuts(){
     lock_notch_depth = (joycon_inner_width-joycon_lip_width)/2;
     copy_mirror() {
         color("red", 0.2)
-        translate([0, -body_length/2-shell_thickness-joycon_depth/2, joycon_z_shift]) {
+        translate([0, -body_length/2-case_thickness2-joycon_depth/2, joycon_z_shift]) {
             //inner cutout
-            cube([body_width+shell_thickness+2,joycon_depth,joycon_inner_width],center=true);
+            cube([body_width+case_thickness2+2,joycon_depth,joycon_inner_width],center=true);
             //lip cutout
             translate([0,-joycon_depth/2-joycon_lip_thickness/2,0]) {
-                if(manual_supports=="no_gap"){
+                if(manual_supports=="with_gap"){
                     //this adds a visible lip so you rip off the support and not the rail
                     removal_aid = 4;
                     rotate([90,0,0])
                     rect_tube(
                         size=[ body_width+5, joycon_lip_width+support_airgap],
-                        isize=[body_width+shell_thickness-removal_aid, joycon_lip_width], 
+                        isize=[body_width+case_thickness2-removal_aid, joycon_lip_width], 
                         h=joycon_depth,
                         anchor=CENTER);
                 } else { //bring your own support
-                    cube([body_width+shell_thickness+1, joycon_lip_thickness+2, joycon_lip_width], center=true);
+                    cube([body_width+case_thickness2+1, joycon_lip_thickness+2, joycon_lip_width], center=true);
                 }
             }
             //lock notch
@@ -675,15 +678,15 @@ module gamepad_trigger(){
     trigger_stickout = 2.5;
     //TODO: changig the height affects other sizes. Huh?
     translate([
-        body_width/2+shell_thickness,
+        body_width/2+case_thickness2,
         gamepad_cutout_translate,
-        shell_thickness/2
+        case_thickness2/2
     ])
     rotate([0,90,0])
     copy_mirror() 
-    translate([0,trigger_width/2+trigger_space/2,shell_thickness]) {
+    translate([0,trigger_width/2+trigger_space/2,case_thickness2]) {
         prismoid( 
-            size1=[body_thickness+shell_thickness, trigger_width], 
+            size1=[body_thickness+case_thickness2, trigger_width], 
             size2=[body_thickness-3, trigger_width-3], 
             h=trigger_stickout,
             rounding=trigger_rounding_profile, 
@@ -691,11 +694,11 @@ module gamepad_trigger(){
             $fn=10
         );
         
-        translate([0,0,-shell_thickness-gamepad_width_buffer]){
+        translate([0,0,-case_thickness2-gamepad_width_buffer]){
             prismoid( 
-                size1=[body_thickness+shell_thickness, trigger_width],
-                size2=[body_thickness+shell_thickness, trigger_width],
-                h=shell_thickness+gamepad_width_buffer,
+                size1=[body_thickness+case_thickness2, trigger_width],
+                size2=[body_thickness+case_thickness2, trigger_width],
+                h=case_thickness2+gamepad_width_buffer,
                 rounding=trigger_rounding_profile, 
                 anchor=BOTTOM+CENTER,
                 $fn=10
@@ -704,8 +707,8 @@ module gamepad_trigger(){
             
             translate([0,0,-min_trigger_inside_lip_thickness])
             prismoid( 
-                size1=[body_thickness+shell_thickness, trigger_width+trigger_inside_lip],
-                size2=[body_thickness+shell_thickness, trigger_width+trigger_inside_lip],
+                size1=[body_thickness+case_thickness2, trigger_width+trigger_inside_lip],
+                size2=[body_thickness+case_thickness2, trigger_width+trigger_inside_lip],
                 h=min_trigger_inside_lip_thickness,
                 rounding=trigger_rounding_profile, 
                 anchor=BOTTOM+CENTER,
@@ -727,8 +730,8 @@ module gamepad_trigger_cut() {
     rotate([0,90,0])
     copy_mirror() translate([body_thickness/2,trigger_width/2+trigger_space/2,])
     prismoid( 
-        size1=[ body_thickness+shell_thickness+1, trigger_width+trigger_clearance],
-        size2=[ body_thickness+shell_thickness+1, trigger_width+trigger_clearance],
+        size1=[ body_thickness+case_thickness2+1, trigger_width+trigger_clearance],
+        size2=[ body_thickness+case_thickness2+1, trigger_width+trigger_clearance],
         h=body_thickness*2,
         rounding=trigger_rounding_profile,
         anchor=RIGHT+CENTER,
@@ -760,7 +763,7 @@ module gamepad_cuts(){
 module gamepad_faceplates(){
     //color("red", 0.2) peg_cuts();
     module peg_cuts() {
-        translate([0,gamepad_cutout_translate,-body_thickness/2+shell_thickness +2]) {
+        translate([0,gamepad_cutout_translate,-body_thickness/2+case_thickness2 +2]) {
             cube( 
                 [body_width +10,
                 gamepad_peg_y_distance,
@@ -780,7 +783,7 @@ module gamepad_faceplates(){
         gamepad_button_diam = 7; //snes=10.5
         //center of A to center of B
         gamepad_button_offset = 13; //should I make this edge-to-edge for easier caliper measuring?
-        translate([10, gamepad_cutout_translate, -body_thickness/2+shell_thickness +2])
+        translate([10, gamepad_cutout_translate, -body_thickness/2+case_thickness2 +2])
         rotate([0,0,45])
         copy_mirror([0,1,0]) {
             copy_mirror([1,0,0]) {
@@ -793,7 +796,7 @@ module gamepad_faceplates(){
     module dpad_hole(){
         dpad_width = 25.4;
         dpad_thickness = 9.6;
-        translate([10, gamepad_cutout_translate, -body_thickness/2+shell_thickness +10]) {
+        translate([10, gamepad_cutout_translate, -body_thickness/2+case_thickness2 +10]) {
             cube([dpad_width,dpad_thickness,20],center=true);
             rotate([0,0,90])
             cube([dpad_width,dpad_thickness,20],center=true);
@@ -803,7 +806,7 @@ module gamepad_faceplates(){
     module start_select_hole(){
         start_select_length = 7; //not actually length, arbitrary number
         start_select_radius = 1.5;
-        translate([-20, gamepad_cutout_translate+5, -body_thickness/2+shell_thickness +5])
+        translate([-20, gamepad_cutout_translate+5, -body_thickness/2+case_thickness2 +5])
         rotate([0,0,90])
         hull(){
             cylinder( 20, start_select_radius, start_select_radius, true);
@@ -833,7 +836,7 @@ module gamepad_faceplates(){
 
 *screen_cut();
 module screen_cut(){
-    screen_cut_height = shell_thickness+extra_lip_bonus+0.5;
+    screen_cut_height = case_thickness2+extra_lip_bonus+0.5;
     screen_corners = [
         screen_radius + screen_extra_bottom_right,
         screen_radius + screen_extra_bottom_left,
@@ -843,17 +846,17 @@ module screen_cut(){
     rectangle = square([screen_width, screen_length],center=true);
     round_rectangle = round_corners(rectangle, radius=screen_corners,$fn=highFn);
     
-    smooth_edge_radius = (shell_thickness < screen_cut_height/2) ? shell_thickness : screen_cut_height/2 - 0.1;
+    smooth_edge_radius = (case_thickness2 < screen_cut_height/2) ? case_thickness2 : screen_cut_height/2 - 0.1;
     
     //this cuts the screen hole and smooths the edge
     color("red", 0.3)
-    translate([0, 0, body_thickness/2 - screen_cut_height + shell_thickness + extra_lip_bonus + 0.05])
+    translate([0, 0, body_thickness/2 - screen_cut_height + case_thickness2 + extra_lip_bonus + 0.05])
     offset_sweep(round_rectangle, height=screen_cut_height,top=os_circle(r=-smooth_edge_radius));
     
     //this cuts the case further down for curved screens
     //doesn't play well with the smooth edge above
     color("red", 0.2)
-    translate([0, 0, body_thickness/2 - screen_cut_height + shell_thickness + extra_lip_bonus + 0.05])
+    translate([0, 0, body_thickness/2 - screen_cut_height + case_thickness2 + extra_lip_bonus + 0.05])
     linear_extrude(height = body_thickness, center = true)
     rect([screen_width, screen_length], rounding=screen_radius);
 }
@@ -946,7 +949,7 @@ module button_cut(right,  power_button, power_from_top, power_length, volume_but
     if(case_material2=="hard"){
         translate( [ right_or_left*(body_width/2),
             body_length/2 - button_offset - button_length/2, 
-            -body_thickness/2+shell_thickness+extra_lip_bonus+0.05
+            -body_thickness/2+case_thickness2+extra_lip_bonus+0.05
         ] )
         translate([0,0,])
         rotate([0,0,90]) {
@@ -954,7 +957,7 @@ module button_cut(right,  power_button, power_from_top, power_length, volume_but
             cuboid([button_length+buttons_clearance*2, button_cut_thickness, 50], rounding=button_cut_rounding, $fn=lowFn);
 
             //anti snag rounding
-            rectangle = square([button_length+buttons_clearance*2, shell_thickness*4+0.1],center=true);
+            rectangle = square([button_length+buttons_clearance*2, case_thickness2*4+0.1],center=true);
             offset_sweep(rectangle, height=hard_cut_height,top=os_circle(r=-anti_snag_radius));
         }
     }
@@ -982,11 +985,11 @@ module soft_cut( button_length, disable_support=false, disable_bevel=false, disa
             prismoid(size1=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.8], size2=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.8], h=support_thickness, anchor=CENTER);
             //TODO: manual support for junglecat and joycon
             if(junglecat_support) {
-                //for(i=[0:floor(shell_thickness+junglecat_inner_width)]) {
+                //for(i=[0:floor(case_thickness2+junglecat_inner_width)]) {
                 //  translate([0,0,1*i])
                 //  prismoid(size1=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.6], size2=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.6], h=support_thickness, anchor=CENTER);
                 //}
-                translate([0,0,shell_thickness+junglecat_inner_width])
+                translate([0,0,case_thickness2+junglecat_inner_width])
                 prismoid(size1=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.6], size2=[button_length+soft_clearance*2-button_cut_rounding*2,body_thickness*0.6], h=support_thickness, anchor=CENTER);
             }
         }
@@ -999,7 +1002,7 @@ module soft_cut( button_length, disable_support=false, disable_bevel=false, disa
             size1=[ button_length+soft_clearance*2, cut_height ], 
             size2=[ button_length+soft_clearance*2, cut_height ], 
             rounding=button_cut_rounding, 
-            h=shell_thickness*3+cut_depth, 
+            h=case_thickness2*3+cut_depth, 
             anchor=CENTER, 
             $fn=lowFn
         );
@@ -1009,7 +1012,7 @@ module soft_cut( button_length, disable_support=false, disable_bevel=false, disa
             size1=[ button_length+soft_clearance*2, cut_height ], 
             size2=[ button_length+soft_clearance*2+10, cut_height+7 ], 
             rounding=button_cut_rounding, 
-            h=shell_thickness*3, 
+            h=case_thickness2*3, 
             anchor=CENTER+BOTTOM, 
             $fn=lowFn
         );
@@ -1071,7 +1074,7 @@ module soft_button(right,  power_button, power_from_top, power_length, volume_bu
         prismoid(
             size1=[power_length+button_padding*2,body_thickness*0.55], 
             size2=[(power_length+button_padding*2)*0.9,body_thickness*0.2], 
-            h=shell_thickness+button_protrusion, 
+            h=case_thickness2+button_protrusion, 
             rounding=button_rounding, 
             anchor=CENTER+BOTTOM
         );
@@ -1081,7 +1084,7 @@ module soft_button(right,  power_button, power_from_top, power_length, volume_bu
         prismoid(
             size1=[volume_length+button_padding*2,body_thickness*0.55], 
             size2=[(volume_length+button_padding*2)*0.9,body_thickness*0.2], 
-            h=shell_thickness+button_protrusion, 
+            h=case_thickness2+button_protrusion, 
             rounding=button_rounding, 
             anchor=CENTER+BOTTOM
         );
@@ -1104,7 +1107,7 @@ module soft_button(right,  power_button, power_from_top, power_length, volume_bu
             box=1;
             sep=2;
             for(i=[0:floor((power_length)/sep)]){
-                translate([-i*sep+power_length/2,0,shell_thickness+button_protrusion])
+                translate([-i*sep+power_length/2,0,case_thickness2+button_protrusion])
                 rotate([0,45,0])
                 cuboid([2,2,2], 
                 anchor=CENTER);
@@ -1123,7 +1126,7 @@ module soft_button(right,  power_button, power_from_top, power_length, volume_bu
             );
         
             //use a cube's edge to make a cut
-            translate([0,0,shell_thickness+button_protrusion])
+            translate([0,0,case_thickness2+button_protrusion])
             rotate([0,45,0])
             cuboid([2,2,2], anchor=CENTER);
         }
@@ -1179,7 +1182,7 @@ module fingerprint_cut(){
     //wider on joycon-mode so you can fit your finger
     //TODO: use an angle
     fingerprint_radius2 = (case_type2=="joycon") ? fingerprint_radius*3 : fingerprint_radius*2;
-    fingerprint_cut_height = (case_type2=="joycon") ? joycon_thickness+2 : shell_thickness+6;
+    fingerprint_cut_height = (case_type2=="joycon") ? joycon_thickness+2 : case_thickness2+6;
     if (fingerprint)
     color("red", 0.2)
     translate([ 
@@ -1245,7 +1248,7 @@ module version_info_emboss(){
         color("red")
         rotate([0,0,-90])
         translate([-10,10,-body_thickness/2]) {
-            linear_extrude(height = shell_thickness/2, center = true) {
+            linear_extrude(height = case_thickness2/2, center = true) {
                 text(name, font=emboss_font, size=font_size);
                 translate([0,-line_translate,0])
                 text(version, font=emboss_font, size=version_font_size);
@@ -1263,7 +1266,7 @@ insetY = 10;
 module rubber_band_loops2() {
     xpos = body_width/2 - band_radius - insetY;
     ypos = body_length/2 - band_radius - insetX;
-    zpos = -body_thickness/2-shell_thickness;
+    zpos = -body_thickness/2-case_thickness2;
     
     if(rubber_band_loops){
         translate([xpos, ypos, zpos])
@@ -1381,7 +1384,7 @@ module test_cuts(){
 */
 //hard_cut(8);
 module hard_cut(width=8, top_radius=4, bottom_radius=3.9){
-    hard_cut_height = body_thickness + shell_thickness + extra_lip_bonus;
+    hard_cut_height = body_thickness + case_thickness2 + extra_lip_bonus;
     smaller_width = (width>hard_cut_height)? hard_cut_height : width;
     
     if(bottom_radius >= width/2 || bottom_radius >=hard_cut_height/2){
@@ -1423,7 +1426,7 @@ module shallow_fillet(l=1.0, r, ang=90) {
     polygon(path);
 }
 
-module ring(h=8, od = body_thickness+shell_thickness*2, id = 7, de = 0.1 ) {
+module ring(h=8, od = body_thickness+case_thickness2*2, id = 7, de = 0.1 ) {
     difference() {
         cylinder(h=h, r=od/2);
         translate([0, 0, -de])

@@ -23,6 +23,11 @@ unset IFS
 #TODO: enable "gamepad" when it works
 declare -a case_types=( "phone case" "junglecat" "joycon" )
 declare -a case_materials=( "hard" "soft" )
+declare -A case_thicknesses
+#cases in PLA+ need to be 2.0mm thick or they'll crack on drop
+case_thicknesses[hard]=2.0
+case_thicknesses[soft]=1.6
+
 filetype='3mf'
 echo "Building all configs"
 echo
@@ -32,9 +37,9 @@ for model in "${presets[@]}"; do
     for case_type in "${case_types[@]}"; do
         for case_material in "${case_materials[@]}"; do
             filename="${model} ${case_type} ${case_material}.${filetype}"
-            
+            case_thickness=${case_thicknesses[$case_material]}
             echo "Building ${filename}"
-            openscad -o build/"${filename}" -D "case_type_override=\"$case_type\"; case_material_override=\"$case_material\"; version=\"$version-$git_commit\";" -p phone_case.json -P "${model}" phone_case.scad
+            openscad -o build/"${filename}" -D "case_type_override=\"$case_type\"; case_material_override=\"$case_material\"; case_thickness_override=\"$case_thickness\"; version=\"$version-$git_commit\";" -p phone_case.json -P "${model}" phone_case.scad
             echo
         done
     done
