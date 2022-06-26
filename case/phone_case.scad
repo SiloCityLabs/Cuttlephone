@@ -141,6 +141,7 @@ open_top = false;
 clamp_top = false;
 rotate_upright = false;
 upright_angle = rotate_upright ? -90 : 0;
+telescopic = false;
 
 //end customizer variables
 module end_customizer_variables(){}
@@ -186,7 +187,6 @@ joycon_depth = 2.4;
 // shell is thickened to fit the joycon
 joycon_min_thickness = joycon_inner_width + 2*case_thickness2;
 joycon_thickness = (body_thickness < joycon_min_thickness) ? joycon_min_thickness:body_thickness;
-joycon_z_shift = body_thickness-joycon_thickness+case_thickness2;
 lock_notch_width = 3.8;
 lock_notch_offset = 7.8;
 
@@ -250,6 +250,9 @@ module phone_case(){
         shell_cuts();
     }
     soft_supports();
+    rubber_band_loops2();
+    universal_clamp();
+    telescopic_clamp();
 }
 
 module gamepad(){
@@ -264,6 +267,9 @@ module gamepad(){
     gamepad_trigger();
     copy_mirror() gamepad_trigger();
     //gamepad_faceplates();
+    rubber_band_loops2();
+    universal_clamp();
+    telescopic_clamp();
 }
 
 module shell_cuts(){
@@ -290,6 +296,9 @@ module joycon_rails(){
         joycon_cuts();
     }
     soft_supports();
+    rubber_band_loops2();
+    universal_clamp();
+    telescopic_clamp();
 }
 
 module junglecat_rails(){
@@ -301,6 +310,9 @@ module junglecat_rails(){
         junglecat_cuts();
     }
     soft_supports();
+    rubber_band_loops2();
+    universal_clamp();
+    telescopic_clamp();
 }
 
 //body();
@@ -385,8 +397,6 @@ module phone_shell(){
         body(disable_curved_screen=true);
         
     }
-    
-    rubber_band_loops2();
 }
 
 
@@ -407,13 +417,10 @@ module gamepad_shell(){
             rounding2=gamepad_shell_radius
         );
     }
-    
-    rubber_band_loops2();
-    universal_clamp();
 }
 
 module joycon_shell(){
-    translate([0,0,joycon_z_shift])
+    translate([0,0,0])
     minkowski() {
         //face shape
         cube(
@@ -430,9 +437,6 @@ module joycon_shell(){
             rounding2=rail_shell_radius_top
         );
     }
-
-    rubber_band_loops2();
-    universal_clamp();
 }
 
 module junglecat_shell(){
@@ -467,6 +471,7 @@ module junglecat_shell(){
     
     rubber_band_loops2();
     universal_clamp();
+    telescopic_clamp();
     
     module junglecat_edge_shape(){
         //edge shape and thickness
@@ -606,7 +611,7 @@ module joycon_cuts(){
     lock_notch_depth = (joycon_inner_width-joycon_lip_width)/2;
     copy_mirror() {
         color("red", 0.2)
-        translate([0, -body_length/2-case_thickness2-joycon_depth/2, joycon_z_shift]) {
+        translate([0, -body_length/2-case_thickness2-joycon_depth/2, 0]) {
             //inner cutout
             cube([body_width+case_thickness2+2,joycon_depth,joycon_inner_width],center=true);
             //lip cutout
@@ -1266,21 +1271,25 @@ insetY = 10;
 module rubber_band_loops2() {
     xpos = body_width/2 - band_radius - insetY;
     ypos = body_length/2 - band_radius - insetX;
-    zpos = -body_thickness/2-case_thickness2;
-    
+    body_bottom = (case_type2=="joycon") ? joycon_thickness : body_thickness;
+    zpos = -body_bottom/2-case_thickness2;
+
     if(rubber_band_loops){
-        translate([xpos, ypos, zpos])
-        rubber_band_loop();
-        
-        translate([xpos, -ypos, zpos])
-        rubber_band_loop();
-        
-        translate([-xpos, ypos, zpos])
-        rubber_band_loop();
-        
-        translate([-xpos, -ypos, zpos])
-        rubber_band_loop();
+        rubber_band_loops3(xpos, ypos, zpos);
     }
+}
+module rubber_band_loops3(xpos, ypos, zpos){
+    translate([xpos, ypos, zpos])
+    rubber_band_loop();
+    
+    translate([xpos, -ypos, zpos])
+    rubber_band_loop();
+    
+    translate([-xpos, ypos, zpos])
+    rubber_band_loop();
+    
+    translate([-xpos, -ypos, zpos])
+    rubber_band_loop();
 }
 module rubber_band_loop() {
     cyl(r1=band_radius, r2=band_radius*0.6, h=band_height, anchor=TOP+CENTER);
@@ -1298,6 +1307,84 @@ module universal_clamp() {
         cuboid([body_length, body_width, body_thickness*0.9], rounding=body_radius);
     }
 }
+
+body_bottom = (case_type2=="joycon") ? joycon_thickness : body_thickness;
+tele_band_insetX = 0;
+tele_band_insetY = 10;
+tele_outide_rounding=-3; //negative rounding creates a lip for rubber bands
+tele_rounding=2;
+thick_side_thickness=8;
+thin_side_thickness=2.5;
+tele_clearance = 0.5;
+thin_side_inset = 8.0;
+tele_seam = -body_length/2+16;
+module telescopic_clamp(){
+    if(telescopic) {
+        
+        //thick parts of the telescoping rail & cutout
+        difference(){
+            translate([0,0,-body_bottom/2-case_thickness2])
+            cuboid([
+                body_width-body_radius, body_length-body_radius, thick_side_thickness ], 
+                rounding=tele_outide_rounding,
+                anchor=TOP+CENTER);
+                
+            //slightly separate the two halves so they're separate objects
+            intersection(){
+            translate([0,0,-body_bottom/2-case_thickness2+0.01])
+            cuboid([
+                body_width*1.5, body_length, tele_clearance ],
+                anchor=TOP+CENTER);
+                
+                //mask
+                translate([0,0,0])
+                cuboid([500,-tele_seam,500], anchor=BACK);
+            }
+                
+            //split it
+            color("red", 0.2)
+            translate([0,tele_seam,0])
+            cuboid([100,1,100], anchor=CENTER);
+            
+            //inner cutout + clearances
+            thick_side_cutout();
+        }
+        
+        //thin side on the right
+        translate([0,0,-body_bottom/2-case_thickness2-thick_side_thickness/2])
+        cuboid([
+                body_width-body_radius-thin_side_inset-tele_clearance, body_length-body_radius-thin_side_inset-tele_clearance, thin_side_thickness ], 
+                rounding=tele_rounding,
+                edges=[BACK+RIGHT,BACK+LEFT, FRONT+RIGHT, FRONT+LEFT],
+                anchor=CENTER);
+        
+        //rubber band loops
+        xpos = body_width/2 - band_radius - tele_band_insetY;
+        ypos = body_length/2 - band_radius - tele_band_insetX;
+        zpos = -body_bottom/2-case_thickness2-thick_side_thickness;
+        //rubber_band_loops3(xpos, ypos, zpos);
+    
+
+    }    
+}
+
+//thick_side_cutout();
+module thick_side_cutout(){
+    intersection() {
+        //cutout
+        translate([0,0,-body_bottom/2-case_thickness2-thick_side_thickness/2])
+        cuboid([
+            body_width-thin_side_inset, body_length-thin_side_inset, thin_side_thickness+tele_clearance ], 
+            rounding=0,
+            edges=[BACK+RIGHT,BACK+LEFT, FRONT+RIGHT, FRONT+LEFT],
+            anchor=CENTER);
+            
+        //mask to only cutout on the thick side
+        translate([0,tele_seam,0])
+        cuboid([500,500,500], anchor=FRONT);
+    }
+}
+
 
 //universal_cuts();
 module universal_cuts(){
@@ -1327,6 +1414,7 @@ module universal_cuts(){
         
         junglecat_cuts(universal_inside=true);
     }
+
 }
 
 //test_cuts();
