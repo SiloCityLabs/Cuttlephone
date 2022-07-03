@@ -39,7 +39,7 @@ emboss_version_text = true;
 phone_model = "Pixel 3";
 
 //test cuts
-test_mode = "none"; //[none, corners, right_edge, right_buttons, left_edge, bottom_edge, top_edge, left_button, top_half_pla]
+test_mode = "none"; //[none, corners, right_edge, right_buttons, left_edge, bottom_edge, top_edge, left_button, top_half_pla, telescopic]
 
 //the blank option gives each part and cut a color
 //display_color = ""; //["", SeaGreen]
@@ -136,12 +136,19 @@ bottom_speakers_left = false;
 
 /* [universal phone adapters] */
 split_in_half = false;
+body_seam_width = 0.1;
 rubber_band_loops = false;
+//has a slight lip to grab phone at the top
 open_top = false;
+//no lip, fully open top
+opener_top = false;
 clamp_top = false;
 rotate_upright = false;
 upright_angle = rotate_upright ? -90 : 0;
 telescopic = false;
+telescopic_clearance_thickness = 0.5;
+telescopic_clearance_width = 0.7; //the body_width direction of the slider
+body_chamfer = false;
 
 //end customizer variables
 module end_customizer_variables(){}
@@ -325,15 +332,26 @@ module body(disable_curved_screen=false){
                 0.01 ], 
                 center=true
             );
-            //this pill shape will spin around the cube.
-            //it sets the radius of the body
-            cyl( 
-                l=body_thickness, 
-                r=body_radius,
-                rounding1=body_radius_bottom, 
-                rounding2=body_radius_top,
-                $fn=15
-            );
+            //edge profile
+            //this pill shape will spin around the cube
+            if(body_chamfer) {
+                cyl( 
+                    l=body_thickness, 
+                    r=body_radius,
+                    chamfer1=body_radius_bottom, 
+                    chamfer2=body_radius_top,
+                    $fn=15
+                );
+            } else {
+                cyl( 
+                    l=body_thickness, 
+                    r=body_radius,
+                    rounding1=body_radius_bottom, 
+                    rounding2=body_radius_top,
+                    $fn=15
+                );
+            }
+            
         }
         //for curved screens and irregular shapes like Galaxy S9+
         //only for the phone shape, not the outside of the case
@@ -839,8 +857,11 @@ module gamepad_faceplates(){
     }
 }
 
-*screen_cut();
+
+*translate([0,0,10])
+screen_cut();
 module screen_cut(){
+    //TODO: this offset is janky. I cannot properly align "top face cut" 
     screen_cut_height = case_thickness2+extra_lip_bonus+0.5;
     screen_corners = [
         screen_radius + screen_extra_bottom_right,
@@ -854,15 +875,24 @@ module screen_cut(){
     smooth_edge_radius = (case_thickness2 < screen_cut_height/2) ? case_thickness2 : screen_cut_height/2 - 0.1;
     
     //this cuts the screen hole and smooths the edge
-    color("red", 0.3)
+    color("red", 0.2)
     translate([0, 0, body_thickness/2 - screen_cut_height + case_thickness2 + extra_lip_bonus + 0.05])
-    offset_sweep(round_rectangle, height=screen_cut_height,top=os_circle(r=-smooth_edge_radius));
+    offset_sweep( 
+        round_rectangle, 
+        height=screen_cut_height,
+        top=os_circle(r=-smooth_edge_radius)
+     );
+    
+    //top face cut
+    * color("red", 0.2)
+    translate([0, 0, body_thickness/2 + case_thickness2 + extra_lip_bonus + 0.401])
+    cuboid([body_width+smooth_edge_radius, body_length+smooth_edge_radius, 10], anchor=BOTTOM);
     
     //this cuts the case further down for curved screens
     //doesn't play well with the smooth edge above
-    color("red", 0.2)
+    color("red", 0.1)
     translate([0, 0, body_thickness/2 - screen_cut_height + case_thickness2 + extra_lip_bonus + 0.05])
-    linear_extrude(height = body_thickness, center = true)
+    linear_extrude(height = body_thickness*1.5, center = true)
     rect([screen_width, screen_length], rounding=screen_radius);
 }
 
@@ -1309,88 +1339,91 @@ module universal_clamp() {
 }
 
 body_bottom = (case_type2=="joycon") ? joycon_thickness : body_thickness;
-tele_band_insetX = 0;
-tele_band_insetY = 10;
-tele_outide_rounding=-3; //negative rounding creates a lip for rubber bands
-tele_rounding=2;
+tele_rounding=4;//2.5;
 thick_side_thickness=8;
-thin_side_thickness=2.5;
-tele_clearance = 0.5;
+thin_side_thickness=3.5;
 thin_side_inset = 8.0;
 tele_seam = -body_length/2+16;
+tele_seam_width = 5;
 module telescopic_clamp(){
     if(telescopic) {
-        
+        //thin part of the slider
+        translate([0,0,-body_bottom/2-case_thickness2-thick_side_thickness/2])
+        minkowski(){
+            cuboid([
+                    body_width-thin_side_inset-telescopic_clearance_width-tele_rounding*2, 
+                    body_length-thin_side_inset-telescopic_clearance_width-tele_rounding*2, 
+                    0.01 ],
+                    edges=[BACK+RIGHT,BACK+LEFT, FRONT+RIGHT, FRONT+LEFT],
+                    anchor=CENTER
+            );
+            
+            //edge profile. Big rounding on the flat face
+            cyl( 
+                l=thin_side_thickness-telescopic_clearance_thickness,
+                r=tele_rounding,
+                rounding=(thin_side_thickness-telescopic_clearance_thickness)/2-0.1,
+                anchor=CENTER
+            );
+        }
+    
         //thick parts of the telescoping rail & cutout
+        color("yellow", 0.2)
         difference(){
+            //main thick block
             translate([0,0,-body_bottom/2-case_thickness2])
-            cuboid([
-                body_width-body_radius, body_length-body_radius, thick_side_thickness ], 
-                rounding=tele_outide_rounding,
-                anchor=TOP+CENTER);
-                
-            //slightly separate the two halves so they're separate objects
-            intersection(){
-            translate([0,0,-body_bottom/2-case_thickness2+0.01])
-            cuboid([
-                body_width*1.5, body_length, tele_clearance ],
-                anchor=TOP+CENTER);
-                
-                //mask
-                translate([0,0,0])
-                cuboid([500,-tele_seam,500], anchor=BACK);
+            minkowski() {
+                cuboid(
+                    [ body_width-body_radius, body_length-body_radius, 0.01 ],
+                    anchor=TOP+CENTER
+                );
+            
+                //edge profile. Tapered so that it holds a rubber band
+                cyl( 
+                    l=thick_side_thickness,
+                    r1=tele_rounding,
+                    r2=tele_rounding/3,
+                    rounding1=tele_rounding*0.7,
+                    anchor=TOP+CENTER
+                );
+            
             }
                 
-            //split it
+            //split the block
             color("red", 0.2)
             translate([0,tele_seam,0])
-            cuboid([100,1,100], anchor=CENTER);
+            cuboid([100,tele_seam_width,100], anchor=CENTER);
             
-            //inner cutout + clearances
-            thick_side_cutout();
+            //inner cutout
+            intersection() {
+                //cutout
+                translate([0,0,-body_bottom/2-case_thickness2-thick_side_thickness/2])
+                cuboid([
+                    body_width-thin_side_inset, body_length-thin_side_inset, thin_side_thickness ],
+                    anchor=CENTER);
+                    
+                //mask to only cutout on one side
+                translate([0,tele_seam,0])
+                cuboid([500,500,500], anchor=FRONT);
+            }
+            
+            //separate the block from the phone-case so that each side is 2 closed objects
+            translate([0,tele_seam/2+body_seam_width/4,-body_bottom/2-case_thickness2+0.01])
+                cuboid(
+                    [ body_width*1.5, -tele_seam+body_seam_width/2, telescopic_clearance_thickness ],
+                    anchor=TOP //TODO: change to simplify translate
+                );
+            
         }
         
-        //thin side on the right
-        translate([0,0,-body_bottom/2-case_thickness2-thick_side_thickness/2])
-        cuboid([
-                body_width-body_radius-thin_side_inset-tele_clearance, body_length-body_radius-thin_side_inset-tele_clearance, thin_side_thickness ], 
-                rounding=tele_rounding,
-                edges=[BACK+RIGHT,BACK+LEFT, FRONT+RIGHT, FRONT+LEFT],
-                anchor=CENTER);
-        
-        //rubber band loops
-        xpos = body_width/2 - band_radius - tele_band_insetY;
-        ypos = body_length/2 - band_radius - tele_band_insetX;
-        zpos = -body_bottom/2-case_thickness2-thick_side_thickness;
-        //rubber_band_loops3(xpos, ypos, zpos);
-    
-
     }    
 }
-
-//thick_side_cutout();
-module thick_side_cutout(){
-    intersection() {
-        //cutout
-        translate([0,0,-body_bottom/2-case_thickness2-thick_side_thickness/2])
-        cuboid([
-            body_width-thin_side_inset, body_length-thin_side_inset, thin_side_thickness+tele_clearance ], 
-            rounding=0,
-            edges=[BACK+RIGHT,BACK+LEFT, FRONT+RIGHT, FRONT+LEFT],
-            anchor=CENTER);
-            
-        //mask to only cutout on the thick side
-        translate([0,tele_seam,0])
-        cuboid([500,500,500], anchor=FRONT);
-    }
-}
-
 
 //universal_cuts();
 module universal_cuts(){
     if(split_in_half==true) {
         color("red", 0.2)
-        cuboid([100,10,100], anchor=CENTER);
+        cuboid([100,body_seam_width,100], anchor=CENTER);
     }
     if(open_top) {
         color("red", 0.2)
@@ -1399,6 +1432,16 @@ module universal_cuts(){
             body();
             
             scale([1, 0.95, 1])
+            screen_cut();
+        }
+    }
+    if(opener_top) {
+        color("red", 0.2)
+        translate([20,0,0]) {
+            scale([1, 1, 0.99])
+            body();
+            
+            scale([1, 1, 1])
             screen_cut();
         }
     }
@@ -1462,6 +1505,10 @@ module test_cuts(){
     else if(test_mode=="top_half_pla") {
         translate([0,0,0])
         cuboid([100,200,50], anchor=CENTER+BACK);
+    }
+    else if(test_mode=="telescopic") {
+        translate([0,0,-body_thickness/2-case_thickness2-0.5]) //why -0.5
+        cuboid([100,200,50], anchor=CENTER+BOTTOM);
     }
 }
 
