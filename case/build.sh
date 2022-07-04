@@ -10,6 +10,7 @@ mkdir -p build
 #change split char to help jq parse the JSON
 IFS=""
 #fetch phone models from JSON. Strip \r from Windows JSON
+#TODO: get array name, not phone_model variable
 presets_jq=($(jq -r '.[] | select(type == "object") | .[] | .phone_model' phone_case.json | tr -d '\r'))
 echo "Available phone models:" 
 echo $presets_jq
