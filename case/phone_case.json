@@ -453,7 +453,7 @@
       "mic_on_top": "false",
       "open_top": "false",
       "opener_top": "true",
-      "phone_model": "Universal Telescopic",
+      "phone_model": "Universal 2-piece",
       "rail_cut_tools": "false",
       "right_power_button": "false",
       "right_power_from_top": "38.2",
@@ -484,10 +484,12 @@
     "Universal Two-Piece": {
       "body_bottom_side_angle": "90",
       "body_bottom_side_radius": "0",
+      "body_chamfer": "false",
       "body_length": "65",
       "body_radius": "5.25",
       "body_radius_bottom": "2.1",
       "body_radius_top": "3.1",
+      "body_seam_width": "0.1",
       "body_thickness": "12.6",
       "body_width": "80",
       "bottom_speakers_left": "false",
@@ -531,7 +533,8 @@
       "mic_on_bottom": "false",
       "mic_on_top": "false",
       "open_top": "true",
-      "phone_model": "Universal 2-piece",
+      "opener_top": "false",
+      "phone_model": "Universal Two-piece",
       "rail_cut_tools": "false",
       "right_power_button": "false",
       "right_power_from_top": "38.2",
@@ -555,6 +558,8 @@
       "support_airgap": "0.2",
       "support_thickness": "0.4",
       "telescopic": "false",
+      "telescopic_clearance_thickness": "0.5",
+      "telescopic_clearance_width": "0.7",
       "test_mode": "none"
     }
   }
