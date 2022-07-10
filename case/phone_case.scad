@@ -50,6 +50,8 @@ test_mode = "none"; //[none, corners, right_edge, right_buttons, left_edge, bott
 //Is there a good way to measuring this on the phone? Print-out guide template?
 //rounding of the corners when viewed screen-up.
 body_radius = 5.25;
+//replaces the round radius with a 45-degree cut
+body_chamfer = false;
 body_length = 145.5;
 body_width = 70.1;
 body_thickness = 8.1;
@@ -124,8 +126,10 @@ fingerprint_diam = 13;
 /* [charge, headphone, and mic] */
 mic_on_top = false;
 mic_on_bottom = false;
-mic_from_right_edge = 14.0;
-mic_offset_up = 0.0;
+top_mic_from_right_edge = 14.0;
+bottom_mic_from_right_edge = 14.0;
+top_mic_offset_up = 0.0;
+bottom_mic_offset_up = 0.0;
 headphone_from_left_edge = 14.0;
 headphone_on_top = false;
 headphone_on_bottom = false;
@@ -148,7 +152,6 @@ upright_angle = rotate_upright ? -90 : 0;
 telescopic = false;
 telescopic_clearance_thickness = 0.5;
 telescopic_clearance_width = 0.7; //the body_width direction of the slider
-body_chamfer = false;
 
 //end customizer variables
 module end_customizer_variables(){}
@@ -285,7 +288,7 @@ module shell_cuts(){
     camera_cut();
     extra_camera_cut();
     fingerprint_cut();
-    mic_cut();
+    mic_cuts();
     top_headphone_cut();
     screen_cut();
     lanyard_cut();
@@ -1228,12 +1231,19 @@ module fingerprint_cut(){
     cylinder( fingerprint_cut_height, fingerprint_radius2, fingerprint_radius, true);
 }
 
-//mic_on_top=true; mic_cut();
-module mic_cut(){
-    top_or_bottom = mic_on_top?1:-1;
-    //can this be improved?
-    mic_diam = 2.0;
-    if (mic_on_top || mic_on_bottom) 
+//mic_on_top=true; mic_cuts();
+mic_diam = 2.0;
+module mic_cuts(){
+    if (mic_on_top) {
+        mic_cut(1, top_mic_from_right_edge, top_mic_offset_up);
+    }
+    if (mic_on_bottom) {
+        mic_cut(-1, bottom_mic_from_right_edge, bottom_mic_offset_up);
+    }
+
+}
+
+module mic_cut(top_or_bottom, mic_from_right_edge, mic_offset_up){
     color("red", 0.2)
     if (case_type2=="joycon" && case_material2=="hard") {
         //this cuts upward

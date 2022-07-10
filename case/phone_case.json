@@ -591,6 +591,8 @@
       "body_seam_width": "0.1",
       "body_thickness": "8.3",
       "body_width": "71.2",
+      "bottom_mic_from_right_edge": "54",
+      "bottom_mic_offset_up": "0",
       "bottom_speakers_left": "false",
       "bottom_speakers_right": "false",
       "buttons_vertical_fudge": "0.1",
@@ -617,7 +619,7 @@
       "fingerprint": "false",
       "fingerprint_center_from_top": "41",
       "fingerprint_diam": "13",
-      "headphone_from_left_edge": "14",
+      "headphone_from_left_edge": "10.7",
       "headphone_on_bottom": "false",
       "headphone_on_top": "true",
       "left_power_button": "false",
@@ -627,8 +629,6 @@
       "left_volume_from_top": "50.1",
       "left_volume_length": "20.1",
       "manual_supports": "with_gap",
-      "mic_from_right_edge": "14",
-      "mic_offset_up": "2",
       "mic_on_bottom": "true",
       "mic_on_top": "true",
       "open_top": "false",
@@ -659,7 +659,9 @@
       "telescopic": "false",
       "telescopic_clearance_thickness": "0.5",
       "telescopic_clearance_width": "0.7",
-      "test_mode": "none"
+      "test_mode": "none",
+      "top_mic_from_right_edge": "14",
+      "top_mic_offset_up": "2"
     }
   }
 }
