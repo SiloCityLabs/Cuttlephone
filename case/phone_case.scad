@@ -115,9 +115,15 @@ left_button_2_length = 10.1;
 right_hole_1 = false;
 right_hole_1_from_top = 89.1;
 right_hole_1_length = 10.1;
+right_hole_2 = false;
+right_hole_2_from_top = 89.1;
+right_hole_2_length = 10.1;
 left_hole_1 = false;
 left_hole_1_from_top = 89.1;
 left_hole_1_length = 10.1;
+left_hole_2 = false;
+left_hole_2_from_top = 89.1;
+left_hole_2_length = 10.1;
 
 /* [camera/fingerprint] */
 
@@ -1015,22 +1021,26 @@ module button_cuts(){
         if(left_button_2)
         soft_button_recess(false, left_button_2_length, left_button_2_from_top);
         if(right_hole_1)
-        soft_button_recess(true, right_hole_1_length, right_hole_1_from_top);
+        soft_button_recess(true, right_hole_1_length, right_hole_1_from_top, disable_supports=false);
+        if(right_hole_2)
+        soft_button_recess(true, right_hole_2_length, right_hole_2_from_top, disable_supports=false);
         if(left_hole_1)
-        soft_button_recess(false, left_hole_1_length, left_hole_1_from_top);
+        soft_button_recess(false, left_hole_1_length, left_hole_1_from_top, disable_supports=false);
+        if(left_hole_2)
+        soft_button_recess(false, left_hole_2_length, left_hole_2_from_top, disable_supports=false);
         
     }
     
 }
 
-module soft_button_recess(right, button_length, button_offset) {
+module soft_button_recess(right, button_length, button_offset, disable_supports=false) {
     right_or_left = right ? 1 : -1;
     translate( [ right_or_left*(body_width/2),
         body_length/2 - button_offset - button_length/2, 
         buttons_vertical_fudge
     ] )
     rotate([right_or_left*90,0,90])
-    soft_cut(button_length, disable_support=true, clearance=soft_buttons_clearance);
+    soft_cut(button_length, disable_support=disable_supports, clearance=soft_buttons_clearance);
 }
 
 button_cut_rounding = 2;
