@@ -58,7 +58,7 @@ body_thickness = 8.1;
 body_radius_top = 2.1;
 body_radius_bottom = 3.1;
 //for phones with different rounding on the sides, like Galaxy S9
-body_bottom_side_radius = 0.0;
+body_bottom_side_radius = 0.1;
 //decrease for shallow shallow curves like the S9
 body_bottom_side_angle = 90;
 
@@ -70,11 +70,11 @@ screen_length = body_length - screen_lip_length;
 screen_lip_width = 3.1;
 screen_width = body_width - screen_lip_width;
 //left/right curved screen radius
-screen_curve_radius = 0.0;
+screen_curve_radius = 0.1;
 //decrease for shallow shallow curves like the S9
 screen_curve_angle = 90;
 //cuts away the side of the case for curved screens
-screen_undercut = 0.01; //default is 0.01 because of Openscad precision bug
+screen_undercut = 0.1; //default is 0.01 because of Openscad precision bug
 //sticks up
 extra_lip = false;
 //NOT WORKING: if the corners are sharp, add some "ramp" to the sides
@@ -101,7 +101,7 @@ left_volume_length = 20.1;
 //moves the buttons toward the screen (positive) or toward the back panel (negative). Buttons are centered by default
 buttons_vertical_fudge = 0.1;
 //how much the buttons stick out
-button_recess = 1.6;
+button_recess = 1.8;
 
 /* [more buttons] */
 right_button_1 = false;
@@ -134,33 +134,33 @@ left_hole_2_length = 10.1;
 //camera cutout is a rectangle with rounded corners
 camera = true;
 camera_width = 20.5;
-camera_height = 9.0;
+camera_height = 9.1;
 //get a circle by setting camera_radius to half of height and width
 camera_radius = 4.5;
 camera_from_side = 8.5;
 camera_from_top = 8.7;
 // extra gap around camera. 0.5 - 1.0 recommended. 
-camera_clearance = 1.0;
+camera_clearance = 1.1;
 
 //for irregular shapes like Galaxy S9+
 camera_cut_2 = false;
 camera_width_2 = 20.5;
-camera_height_2 = 9.0;
+camera_height_2 = 9.1;
 camera_from_side_2 = 8.5;
 camera_from_top_2 = 8.7;
 
 fingerprint = false;
 fingerprint_center_from_top = 36.5;
-fingerprint_diam = 13;
+fingerprint_diam = 13.1;
 
 /* [charge, headphone, and mic] */
 mic_on_top = false;
 mic_on_bottom = false;
-top_mic_from_right_edge = 14.0;
-bottom_mic_from_right_edge = 14.0;
-top_mic_offset_up = 0.0;
-bottom_mic_offset_up = 0.0;
-headphone_from_left_edge = 14.0;
+top_mic_from_right_edge = 14.1;
+bottom_mic_from_right_edge = 14.1;
+top_mic_offset_up = 0.1;
+bottom_mic_offset_up = 0.1;
+headphone_from_left_edge = 14.1;
 headphone_on_top = false;
 headphone_on_bottom = false;
 
@@ -403,28 +403,33 @@ module body(disable_curved_screen=false){
 
 *body_extra_radius();
 module body_extra_radius(){
+
     debug = 1; //1.2;
-    //bottom curve right
-    color("Crimson", 0.4)
-    translate([body_width/2,0,-body_thickness/2])
-    rotate([90,0,180])
-    shallow_fillet(l=body_length*debug-body_radius, r=body_bottom_side_radius, ang=body_bottom_side_angle);
-    //bottom curve left
-    color("red", 0.4)
-    translate([-body_width/2,0,-body_thickness/2])
-    rotate([90,0,0])
-    shallow_fillet(l=body_length*debug-body_radius, r=body_bottom_side_radius, ang=body_bottom_side_angle);
+    if(body_bottom_side_radius>0.1){ //customizer precision workaround
+        //bottom curve right
+        color("Crimson", 0.4)
+        translate([body_width/2,0,-body_thickness/2])
+        rotate([90,0,180])
+        shallow_fillet(l=body_length*debug-body_radius, r=body_bottom_side_radius, ang=body_bottom_side_angle);
+        //bottom curve left
+        color("red", 0.4)
+        translate([-body_width/2,0,-body_thickness/2])
+        rotate([90,0,0])
+        shallow_fillet(l=body_length*debug-body_radius, r=body_bottom_side_radius, ang=body_bottom_side_angle);
+    }
    
-    //curved screen right
-    color("red", 0.4)
-    translate([body_width/2,0,body_thickness/2])
-    rotate([-90,0,180])
-    shallow_fillet(l=body_length*debug-body_radius, r=screen_curve_radius, ang=screen_curve_angle);
-    //curved screen left
-    color("red", 0.4)
-    translate([-body_width/2,0,body_thickness/2])
-    rotate([-90,0,0])
-    shallow_fillet(l=body_length*debug-body_radius, r=screen_curve_radius, ang=screen_curve_angle);
+    if(screen_curve_radius>0.1){
+        //curved screen right
+        color("red", 0.4)
+        translate([body_width/2,0,body_thickness/2])
+        rotate([-90,0,180])
+        shallow_fillet(l=body_length*debug-body_radius, r=screen_curve_radius, ang=screen_curve_angle);
+        //curved screen left
+        color("red", 0.4)
+        translate([-body_width/2,0,body_thickness/2])
+        rotate([-90,0,0])
+        shallow_fillet(l=body_length*debug-body_radius, r=screen_curve_radius, ang=screen_curve_angle);
+    }
 }
 
 //manual supports and stick-out buttons for soft TPU prints
@@ -927,8 +932,7 @@ module screen_cut(){
     rect([screen_width, screen_length], rounding=screen_radius);
     
     //low cut for curved screens
-    //screen_undercut
-    if(screen_undercut>0.01)
+    if(screen_undercut>0.1)
     color("orange", 0.8)
     translate([0, 0, body_thickness/2])
     prismoid( 
