@@ -26,15 +26,16 @@ rail_cut_tools = false;
 case_thickness = 1.6;
 //if the screen is curved and the case cutaway, you might want some extra grip
 shell_side_stickout = 0;
-//Set this to your nozzle diameter. In your slicer, enable thin wall support
+//Set this to your nozzle diameter, or a width it can handle in 1 path
 support_thickness = 0.4;
 
- //"no_gap" can be removed with a razor blade. Use "thin wall detection" in your slicer. "None" means you'll handle it yourself in your slicer. "with_gap" is experimental and still requires a blade
+ //"no_gap" can be removed with a razor blade. "None" means you'll handle it yourself in your slicer. "with_gap" is experimental and still requires a blade
 manual_supports = "no_gap"; // [no_gap, with_gap, none]
 //set this to your layer height
 support_airgap = 0.20; //TODO: test and tweak. This may depend on layer height.
 
 emboss_version_text = true;
+emboss_small_version_text = false;
 //this must match the name of the preset (or you'll break the build script)
 phone_model = "Pixel 3";
 
@@ -220,7 +221,7 @@ gamepad_shell_radius = 2;
 gamepad_peg_y_distance = 14;
 
 // joycon and junglecat shared variables
-max_rail_shell_radius = 4;
+max_rail_shell_radius = 2.5; //if too high it'll intersect with the rail
 max_rail_body_radius = 3; //sharper corner for looks
 rail_shell_radius_top = (body_radius_top<max_rail_shell_radius) ? body_radius_top : max_rail_shell_radius; //TODO: tweak this, make is softer to hold, ensure it doesn't conflict with body
 rail_shell_radius_bottom = (body_radius_bottom<max_rail_shell_radius) ? body_radius_bottom : max_rail_shell_radius; //TODO: tweak this, make is softer to hold, ensure it doesn't conflict with body
@@ -229,11 +230,12 @@ rail_body_radius = (body_radius<max_rail_body_radius) ? body_radius : max_rail_b
 // joycon variables
 joycon_inner_width = 10.2;
 joycon_lip_width = 7.8;
-joycon_lip_thickness = 0.4; //should be a multiple of nozzle width
+joycon_lip_thickness = 0.6;
 joycon_depth = 2.4;
 // shell is thickened to fit the joycon
 joycon_min_thickness = joycon_inner_width + 2*case_thickness2;
 joycon_thickness = (body_thickness < joycon_min_thickness) ? joycon_min_thickness:body_thickness;
+joycon_z_shift = body_thickness-joycon_thickness+case_thickness2;
 lock_notch_width = 3.8;
 lock_notch_offset = 7.8;
 
@@ -474,7 +476,7 @@ module gamepad_shell(){
 }
 
 module joycon_shell(){
-    translate([0,0,0])
+    translate([0,0,joycon_z_shift])
     minkowski() {
         //face shape
         cube(
@@ -665,7 +667,7 @@ module joycon_cuts(){
     lock_notch_depth = (joycon_inner_width-joycon_lip_width)/2;
     copy_mirror() {
         color("red", 0.2)
-        translate([0, -body_length/2-case_thickness2-joycon_depth/2, 0]) {
+        translate([0, -body_length/2-case_thickness2-joycon_depth/2, joycon_z_shift]) {
             //inner cutout
             cube([body_width+case_thickness2+2,joycon_depth,joycon_inner_width],center=true);
             //lip cutout
@@ -1364,7 +1366,7 @@ module version_info_emboss(){
     if(emboss_version_text) {
         emboss_font = "Orbitron"; //need a simple sans-serif font to come out good in the print
         font_size = 8;
-        version_font_size = 6;
+        small_font_size = 6;
         line_translate = 12;
         color("red")
         rotate([0,0,-90])
@@ -1372,9 +1374,26 @@ module version_info_emboss(){
             linear_extrude(height = case_thickness2/2, center = true) {
                 text(name, font=emboss_font, size=font_size);
                 translate([0,-line_translate,0])
-                text(version, font=emboss_font, size=version_font_size);
+                text(version, font=emboss_font, size=small_font_size);
                 translate([0,-line_translate*2,0])
                 text(phone_model, font=emboss_font, size=font_size);
+            }
+        }
+    }
+    if(emboss_small_version_text) {
+        emboss_font = "Orbitron"; //need a simple sans-serif font to come out good in the print
+        font_size = 4;
+        small_font_size = 3;
+        line_translate = font_size*2;
+        color("red")
+        rotate([0,0,0])
+        translate([-20,-body_length/2+font_size*5.5,-body_thickness/2]) {
+            linear_extrude(height = case_thickness2/2, center = true) {
+                text(name, font=emboss_font, size=font_size);
+                translate([0,-line_translate,0])
+                text(version, font=emboss_font, size=small_font_size);
+                translate([0,-line_translate*2,0])
+                text(phone_model, font=emboss_font, size=small_font_size);
             }
         }
     }
