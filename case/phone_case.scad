@@ -34,8 +34,7 @@ manual_supports = "no_gap"; // [no_gap, with_gap, none]
 //set this to your layer height
 support_airgap = 0.20; //TODO: test and tweak. This may depend on layer height.
 
-emboss_version_text = true;
-emboss_small_version_text = false;
+version_text = "large"; // [large, small, very_small]
 //this must match the name of the preset (or you'll break the build script)
 phone_model = "Pixel 3";
 
@@ -1402,10 +1401,11 @@ module top_headphone_cut(){
     }
 }
 
-//version_info_emboss();
+*version_info_emboss();
 module version_info_emboss(){
-    if(emboss_version_text) {
-        emboss_font = "Orbitron"; //need a simple sans-serif font to come out good in the print
+    emboss_font = "Orbitron"; //use a simple sans-serif font
+    emboss_spacing = 1.08;
+    if(version_text=="large") {
         font_size = 8;
         small_font_size = 6;
         line_translate = 12;
@@ -1413,7 +1413,7 @@ module version_info_emboss(){
         rotate([0,0,-90])
         translate([-10,10,-body_thickness/2]) {
             linear_extrude(height = case_thickness2/2, center = true) {
-                text(name, font=emboss_font, size=font_size);
+                text(name, font=emboss_font, size=font_size, spacing=emboss_spacing);
                 translate([0,-line_translate,0])
                 text(version, font=emboss_font, size=small_font_size);
                 translate([0,-line_translate*2,0])
@@ -1421,8 +1421,7 @@ module version_info_emboss(){
             }
         }
     }
-    if(emboss_small_version_text) {
-        emboss_font = "Orbitron"; //need a simple sans-serif font to come out good in the print
+    if(version_text=="small") {
         font_size = 4;
         small_font_size = 3;
         line_translate = font_size*2;
@@ -1430,11 +1429,27 @@ module version_info_emboss(){
         rotate([0,0,0])
         translate([-20,-body_length/2+font_size*5.5,-body_thickness/2]) {
             linear_extrude(height = case_thickness2/2, center = true) {
-                text(name, font=emboss_font, size=font_size);
+                text(name, font=emboss_font, size=font_size, spacing=emboss_spacing);
                 translate([0,-line_translate,0])
                 text(version, font=emboss_font, size=small_font_size);
                 translate([0,-line_translate*2,0])
                 text(phone_model, font=emboss_font, size=small_font_size);
+            }
+        }
+    }
+    if(version_text=="very_small") {
+        font_size = 4;
+        small_font_size = 3;
+        line_translate = font_size*2;
+        color("red")
+        rotate([0,0,-90])
+        translate([16,-body_width/2+font_size*5.5,-body_thickness/2]) {
+            linear_extrude(height = case_thickness2/2, center = true) {
+                text(name, font=emboss_font, size=font_size, spacing=emboss_spacing);
+                translate([0,-line_translate,0])
+                text(version, font=emboss_font, size=small_font_size);
+                //TODO: fix build script, change "phone_model" var to "display_name"
+                //TODO: show small display_name
             }
         }
     }

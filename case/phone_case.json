@@ -611,8 +611,6 @@
       "case_type": "joycon",
       "charge_on_bottom": "false",
       "clamp_top": "false",
-      "emboss_small_version_text": "true",
-      "emboss_version_text": "false",
       "extra_lip": "false",
       "extra_sides": "false",
       "fingerprint": "false",
@@ -686,7 +684,8 @@
       "telescopic_clearance_width": "0.7",
       "test_mode": "none",
       "top_mic_from_right_edge": "14.1",
-      "top_mic_offset_up": "0.1"
+      "top_mic_offset_up": "0.1",
+      "version_text": "small"
     },
     "Telescopic Junglecat": {
       "body_bottom_side_angle": "90",
@@ -722,8 +721,6 @@
       "case_type": "junglecat",
       "charge_on_bottom": "false",
       "clamp_top": "false",
-      "emboss_small_version_text": "true",
-      "emboss_version_text": "false",
       "extra_lip": "false",
       "extra_sides": "false",
       "fingerprint": "false",
@@ -797,7 +794,8 @@
       "telescopic_clearance_width": "0.7",
       "test_mode": "none",
       "top_mic_from_right_edge": "14.1",
-      "top_mic_offset_up": "0.1"
+      "top_mic_offset_up": "0.1",
+      "version_text": "small"
     },
     "Telescopic Junglecat Chop-Top": {
       "body_bottom_side_angle": "90",
@@ -807,7 +805,7 @@
       "body_radius": "5.25",
       "body_radius_bottom": "3.1",
       "body_radius_top": "5.1",
-      "body_seam_width": "40",
+      "body_seam_width": "30",
       "body_thickness": "16.6",
       "body_width": "72",
       "bottom_mic_from_right_edge": "14.1",
@@ -833,8 +831,6 @@
       "case_type": "junglecat",
       "charge_on_bottom": "false",
       "clamp_top": "false",
-      "emboss_small_version_text": "true",
-      "emboss_version_text": "false",
       "extra_lip": "false",
       "extra_sides": "false",
       "fingerprint": "false",
@@ -908,19 +904,20 @@
       "telescopic_clearance_width": "0.7",
       "test_mode": "none",
       "top_mic_from_right_edge": "14.1",
-      "top_mic_offset_up": "0.1"
+      "top_mic_offset_up": "0.1",
+      "version_text": "very_small"
     },
     "Telescopic Junglecat XL": {
       "body_bottom_side_angle": "90",
       "body_bottom_side_radius": "0",
       "body_chamfer": "true",
-      "body_length": "120",
+      "body_length": "140",
       "body_radius": "7.25",
       "body_radius_bottom": "3.1",
       "body_radius_top": "7.1",
       "body_seam_width": "40",
       "body_thickness": "20.1",
-      "body_width": "100",
+      "body_width": "90",
       "bottom_mic_from_right_edge": "14.1",
       "bottom_mic_offset_up": "0.1",
       "bottom_speakers_left": "false",
@@ -944,8 +941,6 @@
       "case_type": "junglecat",
       "charge_on_bottom": "false",
       "clamp_top": "false",
-      "emboss_small_version_text": "true",
-      "emboss_version_text": "false",
       "extra_lip": "false",
       "extra_sides": "false",
       "fingerprint": "false",
@@ -1019,7 +1014,8 @@
       "telescopic_clearance_width": "0.7",
       "test_mode": "none",
       "top_mic_from_right_edge": "14.1",
-      "top_mic_offset_up": "0.1"
+      "top_mic_offset_up": "0.1",
+      "version_text": "small"
     },
     "Xperia 1 III": {
       "body_bottom_side_angle": "90",
