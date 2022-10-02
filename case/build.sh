@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-version="v0.3"
+version="v0.4"
 git_commit=$(git rev-parse --short HEAD)
 
 #create build dir (ignored by git)
@@ -25,9 +25,10 @@ unset IFS
 declare -a case_types=( "phone case" "junglecat" "joycon" )
 declare -a case_materials=( "hard" "soft" )
 declare -A case_thicknesses
-#cases in PLA+ need to be 2.0mm thick or they'll crack on drop
+#cases made with PLA+ need to be at least 2.0mm thick to resist cracking
 case_thicknesses[hard]=2.0
-case_thicknesses[soft]=1.6
+#soft cases can be thin
+case_thicknesses[soft]=1.4
 
 filetype='3mf'
 echo "Building all configs"

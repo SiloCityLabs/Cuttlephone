@@ -260,7 +260,7 @@ junglecat_stickout = 4.2;
 //embossment text
 name = "Cuttlephone";
 author = "Maave";
-version = "v0.3";
+version = "v0.4";
 
 //unsupported features
 lanyard_loop = false;
@@ -445,7 +445,7 @@ module manual_supports_(){
         soft_buttons();
     }
     copy_mirror()
-    if(case_type=="joycon" && rotate_upright==true && manual_supports!="none"){
+    if(case_type2=="joycon" && rotate_upright==true && manual_supports!="none"){
         tower_peak_w = 1;
         tower_peak_l = 1;
         //support tower
@@ -660,7 +660,7 @@ module junglecat_cuts(universal_inside=false){
             //manual supports or just a cutout
             translate([(body_width-junglecat_rail_length)/2+case_thickness2,
             (-junglecat_depth/2-junglecat_lip_thickness/2)*universal_inside_negative, 0]) {
-                if(manual_supports=="with_gap"){ //TODO fixerize
+                if(manual_supports=="with_gap" && rotate_upright==false){ //TODO fixerize
                     //this adds a visible lip so you rip off the support and not the rail
                     removal_aid = 4;
                     rotate([90,0,0])
@@ -669,7 +669,7 @@ module junglecat_cuts(universal_inside=false){
                         isize=[junglecat_rail_length, junglecat_lip_width - support_airgap - 0.01 ], 
                         h=junglecat_depth,
                         anchor=CENTER);
-                } else if (manual_supports=="no_gap") {
+                } else if (manual_supports=="no_gap" && rotate_upright==false) {
                     //solid wall that you must cut with a craft knife
                     //the only cutout is a "hint" on one side
                     translate([-junglecat_rail_length/2,0,0])
@@ -1222,7 +1222,7 @@ module soft_button(right, button_length, button_from_top, volume_notch=false){
     right_or_left = right ? 1 : -1;
     button_protrusion2 = 0.8;
     //if the case is thin and the button sticks out a lot, extend the button
-    button_protrusion = (button_recess >  case_thickness2+button_protrusion2) ? button_recess+button_protrusion2 : case_thickness+button_protrusion2;
+    button_protrusion = (button_recess >  case_thickness2+button_protrusion2) ? button_recess+button_protrusion2 : case_thickness2+button_protrusion2;
     button_padding=2; //bonus to allow error in measuring
     
     color("SeaGreen", 0.8)
