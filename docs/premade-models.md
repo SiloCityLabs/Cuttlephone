@@ -21,8 +21,8 @@ permalink: /premade-models/
 {% for filetypes in site.data.filetypes %}
 
 <!-- test -->
-{{model[1]|inspect}}
-{% if model[1].case_type == "phone case" and model[1].build_phone == "true" %}
+{{ model[1] | inspect }}
+{% if type.model_type == "phone case" and model[1].build_phone == "true" %}
 blah blah
 {% endif %}
 
