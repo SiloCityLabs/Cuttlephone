@@ -22,10 +22,28 @@ Move the 2 halves of the Junglecat clamps. Then enable supports.
 ![](/images/print-guide/split2.png)
 ![](/images/print-guide/split3.png)
 
-# Joycon vertical supports
+# Manual vertical supports
 
-...
+Only the Joycon lock notch has a support in vertical mode.
 
-# Horizontal supports 
+... TODO
+
+# Manual horizontal supports 
+
+Manual supports are used for some overhangs to prevent sagging. Cut away with a craft knife or sharp box cutter.
+
+Phone overhang support
+![](/images/print-guide/manual-phone1.png)
+![](/images/print-guide/manual-phone2.png)
+
+Junglecat rail support
+![](/images/print-guide/manual-junglecat.png)
+
+Joycon rail support
+![](/images/print-guide/manual-joycon.png)
+
+You have to do the Junglecat and Joycon rails by hand. Good luck! Try printing the vertical versions with no cutting.
+
+![](/images/print-guide/cut-rail.jpg)
 
 ...
