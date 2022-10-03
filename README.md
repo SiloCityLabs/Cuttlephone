@@ -22,6 +22,7 @@ A prototype (0.x) is currently in development. Currently supports:
  - install Ruby, gem, and bundle
  - `bundle update`
  - `JEKYLL_GITHUB_TOKEN=tokenGoesHere123456789 bundle exec jekyll serve --incremental`
+ - watch the console for something like this: `Server address: http://127.0.0.1:4000/Cuttlephone/`
  
 There's also a [docker version](https://github.com/Starefossen/docker-github-pages) of Github Pages if you prefer
 

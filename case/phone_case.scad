@@ -22,15 +22,13 @@ case_type = "phone case"; // [phone case, gamepad, joycon, junglecat]
 //a plastic guide to help you cut out the Joycon or Junglecat rails
 rail_cut_tools = false;
 
-//this should be a multiple of nozzle diameter
 case_thickness = 1.6;
 //if the screen is curved and the case cutaway, you might want some extra grip
 shell_side_stickout = 0;
-//Set this to your nozzle diameter, or a width it can handle in 1 path
 support_thickness = 0.4;
 
- //"no_gap" can be removed with a razor blade. "None" means you'll handle it yourself in your slicer. "with_gap" is experimental and still requires a blade
-manual_supports = "no_gap"; // [no_gap, with_gap, none]
+//this will support the rail and some overhangs during a horizontal print, and support the Joycon lock notch on a vertical print
+manual_supports = true;
 //set this to your layer height
 support_airgap = 0.20; //TODO: test and tweak. This may depend on layer height.
 
@@ -41,9 +39,9 @@ phone_model = "Pixel 3";
 //test cuts
 test_mode = "none"; //[none, corners, right_edge, right_buttons, left_edge, bottom_edge, top_edge, left_button, top_half_pla, telescopic]
 
+//TODO: blank string does what I want but generates a warning
 //the blank option gives each part and cut a color
 //display_color = ""; //["", SeaGreen]
-//TODO: blank string does what I want but generates a warning
 
 /* [body] */
 
@@ -183,6 +181,14 @@ upright_angle = rotate_upright ? -90 : 0;
 telescopic = false;
 telescopic_clearance_thickness = 0.5;
 telescopic_clearance_width = 0.7; //the body_width direction of the slider
+
+/* [build vars] */
+//will this version be posted on the website?
+build_phone=true;
+build_junglecat=true;
+build_joycon=true;
+build_hard=true;
+build_soft=true;
 
 //end customizer variables
 module end_customizer_variables(){}
@@ -439,13 +445,14 @@ module body_extra_radius(){
     }
 }
 
-//manual supports and stick-out buttons for soft TPU prints
+//manual supports, and stick-out buttons for soft TPU prints
 module manual_supports_(){
     if(case_material2=="soft") {
         soft_buttons();
     }
+    //support the lock notch on vertical Joycon prints
     copy_mirror()
-    if(case_type2=="joycon" && rotate_upright==true && manual_supports!="none"){
+    if(case_type2=="joycon" && rotate_upright==true && manual_supports==true){
         tower_peak_w = 1;
         tower_peak_l = 1;
         //support tower
@@ -660,8 +667,8 @@ module junglecat_cuts(universal_inside=false){
             //manual supports or just a cutout
             translate([(body_width-junglecat_rail_length)/2+case_thickness2,
             (-junglecat_depth/2-junglecat_lip_thickness/2)*universal_inside_negative, 0]) {
-                if(manual_supports=="with_gap" && rotate_upright==false){ //TODO fixerize
-                    //this adds a visible lip so you rip off the support and not the rail
+                if(manual_supports==true && rotate_upright==false){
+                    //this adds a gap to aide removal. It'll probably still require a razor blade
                     removal_aid = 4;
                     rotate([90,0,0])
                     rect_tube(
@@ -669,13 +676,9 @@ module junglecat_cuts(universal_inside=false){
                         isize=[junglecat_rail_length, junglecat_lip_width - support_airgap - 0.01 ], 
                         h=junglecat_depth,
                         anchor=CENTER);
-                } else if (manual_supports=="no_gap" && rotate_upright==false) {
-                    //solid wall that you must cut with a craft knife
-                    //the only cutout is a "hint" on one side
-                    translate([-junglecat_rail_length/2,0,0])
-                    cuboid([0.5,0.5,junglecat_lip_width]);
                 }
-                else { //bring your own support
+                else {
+                    //cut out the rail slot. Bring your own support
                     cube([junglecat_rail_length + 0.5, junglecat_depth, junglecat_lip_width ], center=true);
                 }
             }
@@ -714,7 +717,7 @@ module joycon_cuts(){
             cuboid([joycon_length,joycon_depth,joycon_inner_width], anchor=RIGHT);
             //lip cutout
             translate([body_width/2+case_thickness2,-joycon_depth/2-joycon_lip_thickness/2,0]) {
-                if(manual_supports=="with_gap" && rotate_upright==false){
+                if(manual_supports==true && rotate_upright==false){
                     //this adds a visible lip so you rip off the support and not the rail
                     removal_aid = 4;
                     rotate([90,0,0])
@@ -1143,7 +1146,7 @@ module soft_cut( button_length, disable_support=false, disable_bevel=false, clea
         
         //manual supports
         color("blue", 0.2)
-        if(manual_supports=="no_gap" && !disable_support) {
+        if(manual_supports==true && !disable_support) {
             prismoid(
                 size1=[button_length+clearance*2 - button_cut_rounding*2, cut_height],
                 size2=[button_length+clearance*2 - button_cut_rounding*2, cut_height],
