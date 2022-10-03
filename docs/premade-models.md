@@ -15,7 +15,7 @@ permalink: /premade-models/
 <!-- for each case type (phone, joycon, junglecat) -->
 {% for type in site.data.model_types %}
 
-<!-- this is dumb but I don't know to do better conditionals in Jekyll/Liquid -->
+<!-- this is dumb but I don't know better conditionals in Jekyll/Liquid -->
 {% if type.model_type == "phone case" and model[1].build_phone == "true" %}
 {% include_relative premade-models-link.md %}
 {% elsif type.model_type == "joycon" and model[1].build_joycon == "true" %}

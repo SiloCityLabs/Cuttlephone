@@ -1,7 +1,7 @@
 # Cuttlephone
 Cuttlephone is a adaptable 3D printed phone case and USB-C gamepad. This is the source code.
 
-[Get premade 3MF files on the website](https://silocitylabs.github.io/Cuttlephone/)
+[Get premade 3MF files and print tutorials on the website](https://silocitylabs.github.io/Cuttlephone/)
 
 # Status
 A prototype (0.x) is currently in development. Currently supports:
