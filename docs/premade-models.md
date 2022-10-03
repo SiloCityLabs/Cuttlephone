@@ -11,26 +11,19 @@ permalink: /premade-models/
 {% for model in site.data.phone_case.parameterSets %}
 <!-- if I indent then Jekyll wraps it in a code block -->
 ## {{ model[0] }} 
+
+<!-- for each case type (phone, joycon, junglecat) -->
 {% for type in site.data.model_types %}
 
-<!-- hide gamepad. It's not ready -->
-{% if type.model_type != "gamepad" %}
-
-<label>{{type.model_type}}:</label>
-{% for material in site.data.case_materials %}
-{% for filetypes in site.data.filetypes %}
-
-<!-- test -->
-{{ model[1] | inspect }}
+<!-- this is dumb but I don't know to do better conditionals in Jekyll/Liquid -->
 {% if type.model_type == "phone case" and model[1].build_phone == "true" %}
-blah blah
+{% include_relative premade-models-link.md %}
+{% elsif type.model_type == "joycon" and model[1].build_joycon == "true" %}
+{% include_relative premade-models-link.md %}
+{% elsif type.model_type == "junglecat" and model[1].build_junglecat == "true" %}
+{% include_relative premade-models-link.md %}
 {% endif %}
 
-<a href="{{ model[0] }} {{ type.model_type}} {{ material.material}}.{{filetypes.filetype}}">{{ material.material}}  {{filetypes.filetype}} file</a>
 {% endfor %}
 
-{% endfor %}
-{% endif %}
-
-{% endfor %}
 {% endfor %}
