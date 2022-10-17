@@ -189,6 +189,7 @@ build_junglecat=true;
 build_joycon=true;
 build_hard=true;
 build_soft=true;
+in_development=false;
 
 //end customizer variables
 module end_customizer_variables(){}
@@ -240,7 +241,7 @@ joycon_inner_width = 10.2;
 joycon_lip_width = 7.3;
 joycon_lip_thickness = 0.6;
 joycon_depth = 2.4;
-//if you have a wide case, bottom-out to prevent overshoot
+//this will bottom-out the rail if the body is wide enough
 joycon_length = 91.5; 
 // shell is thickened to fit the joycon
 joycon_min_thickness = joycon_inner_width + 2*case_thickness2;
@@ -255,7 +256,7 @@ junglecat_rail_length = 61.0;
 junglecat_dimple_from_top = 63.5;
 junglecat_inner_width = 3.5;
 junglecat_lip_width = 2.0;
-junglecat_lip_thickness = 0.4; //should be a multiple of nozzle width
+junglecat_lip_thickness = 0.4;
 junglecat_depth = 3.3;
 //max joycon thickness. If the entire case is thicker than this, we must make stick-out junglecat rails
 junglecat_wing_thickness = 11.4;
@@ -466,7 +467,7 @@ module manual_supports_(){
             //wide base, shifted peak
             size1=[ tower_peak_l*4, tower_peak_w*4 ], 
             size2=[ tower_peak_l, tower_peak_w ],
-            shift=[ -tower_peak_l*1.5, tower_peak_w*1.5 ],
+            shift=[ -tower_peak_l*1.25, tower_peak_w*1.5 ],
             h=body_width+case_thickness2-lock_notch_width/2-lock_notch_depth/2-lock_notch_offset,
             anchor=BOTTOM+BACK+LEFT
         );
@@ -483,8 +484,8 @@ module manual_supports_(){
             //wide enough to tuck under the rail
             size2=[ lock_notch_depth-support_airgap, joycon_lip_thickness*2 ],
             //shift over so the base meets the support tower
-            shift=[ lock_notch_depth-tower_peak_l, joycon_lip_thickness*2-tower_peak_w ],
-            h=lock_notch_width-support_airgap,
+            shift=[ 0, joycon_lip_thickness*2-tower_peak_w ],
+            h=lock_notch_width,
             anchor=BACK
         );
     }

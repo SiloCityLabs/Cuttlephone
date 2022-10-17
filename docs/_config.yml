@@ -5,6 +5,7 @@ baseurl: /Cuttlephone
 repository: SiloCityLabs/Cuttlephone
 models_url: /Cuttlephone/premade-models/
 print_guide_url: /Cuttlephone/print-guide/
+generator_guide_url: /Cuttlephone/generator-guide/
 github: [metadata]
 github:
   repository_url: https://github.com/SiloCityLabs/Cuttlephone

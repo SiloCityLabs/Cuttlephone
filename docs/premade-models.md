@@ -9,7 +9,7 @@ permalink: /premade-models/
 
 <!-- loop through phone_case.json, copied over from build script -->
 {% for model in site.data.phone_case.parameterSets %}
-<!-- if I indent then Jekyll wraps it in a code block -->
+{% if model[1].in_development != "true" %}
 ## {{ model[0] }} 
 
 <!-- for each case type (phone, joycon, junglecat) -->
@@ -26,4 +26,5 @@ permalink: /premade-models/
 
 {% endfor %}
 
+{% endif %}
 {% endfor %}
