@@ -10,8 +10,7 @@ mkdir -p build
 #change split char to help jq parse the JSON
 IFS=""
 #fetch phone models from JSON. Strip \r from Windows JSON
-#TODO: get array name, not phone_model variable
-presets_jq=($(jq -r '.[] | select(type == "object") | .[] | .phone_model' phone_case.json | tr -d '\r'))
+presets_jq=$(jq -r '.[] | select(type == "object") | keys[]' phone_case.json | tr -d '\r')
 echo "Available phone models:" 
 echo $presets_jq
 echo
@@ -36,14 +35,25 @@ echo
 
 #loop through all case configs and build models
 for model in "${presets[@]}"; do
+    #TODO: skip building unneeded files
+    build_phone=$(jq -r --arg model "$model" '.[] | select(type == "object")[$model].build_phone' phone_case.json)
+    build_junglecat=$(jq -r --arg model "$model" '.[] | select(type == "object")[$model].build_junglecat' phone_case.json)
+    build_joycon=$(jq -r --arg model "$model" '.[] | select(type == "object")[$model].build_joycon' phone_case.json)
+    
+    echo "$model"
     for case_type in "${case_types[@]}"; do
+    
         for case_material in "${case_materials[@]}"; do
+        
             filename="${model} ${case_type} ${case_material}.${filetype}"
             case_thickness=${case_thicknesses[$case_material]}
+            
             echo "Building ${filename}"
-            openscad -o build/"${filename}" -D "case_type_override=\"$case_type\"; case_material_override=\"$case_material\"; case_thickness_override=\"$case_thickness\"; version=\"$version-$git_commit\";" -p phone_case.json -P "${model}" phone_case.scad
-            echo
+            #openscad -o build/"${filename}" -D "case_type_override=\"$case_type\"; case_material_override=\"$case_material\"; case_thickness_override=\"$case_thickness\"; version=\"$version-$git_commit\";" -p phone_case.json -P "${model}" phone_case.scad
+            #echo
+        
         done
+    
     done
 done
 

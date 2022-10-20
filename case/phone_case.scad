@@ -1452,6 +1452,8 @@ module version_info_emboss(){
                 text(name, font=emboss_font, size=font_size, spacing=emboss_spacing);
                 translate([0,-line_translate,0])
                 text(version, font=emboss_font, size=small_font_size);
+                translate([0,-line_translate*2,0])
+                text(phone_model, font=emboss_font, size=small_font_size);
                 //TODO: fix build script, change "phone_model" var to "display_name"
                 //TODO: show small display_name
             }
