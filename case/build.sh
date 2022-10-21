@@ -35,25 +35,32 @@ echo
 
 #loop through all case configs and build models
 for model in "${presets[@]}"; do
-    #TODO: skip building unneeded files
+    # choose which variants to build
     build_phone=$(jq -r --arg model "$model" '.[] | select(type == "object")[$model].build_phone' phone_case.json)
     build_junglecat=$(jq -r --arg model "$model" '.[] | select(type == "object")[$model].build_junglecat' phone_case.json)
     build_joycon=$(jq -r --arg model "$model" '.[] | select(type == "object")[$model].build_joycon' phone_case.json)
+    build_soft=$(jq -r --arg model "$model" '.[] | select(type == "object")[$model].build_soft' phone_case.json)
+    build_hard=$(jq -r --arg model "$model" '.[] | select(type == "object")[$model].build_hard' phone_case.json)
     
     echo "$model"
     for case_type in "${case_types[@]}"; do
-    
-        for case_material in "${case_materials[@]}"; do
+    # choose which variants to build
+    if { [ "$build_phone" = true ] && [ "$case_type" = "phone case" ]; } \
+        || { [ "$build_junglecat" = true ] && [ "$case_type" = "junglecat" ]; } \
+        || { [ "$build_joycon" = true ] && [ "$case_type" = "joycon" ]; }; then
         
+        for case_material in "${case_materials[@]}"; do
+        if { [ "$build_soft" = true ] && [ "$case_material" = "soft" ]; } \
+        || { [ "$build_hard" = true ] && [ "$case_material" = "hard" ]; }; then
             filename="${model} ${case_type} ${case_material}.${filetype}"
             case_thickness=${case_thicknesses[$case_material]}
             
             echo "Building ${filename}"
-            #openscad -o build/"${filename}" -D "case_type_override=\"$case_type\"; case_material_override=\"$case_material\"; case_thickness_override=\"$case_thickness\"; version=\"$version-$git_commit\";" -p phone_case.json -P "${model}" phone_case.scad
-            #echo
-        
+            openscad -o build/"${filename}" -D "case_type_override=\"$case_type\"; case_material_override=\"$case_material\"; case_thickness_override=\"$case_thickness\"; version=\"$version-$git_commit\";" -p phone_case.json -P "${model}" phone_case.scad
+            echo
+        fi
         done
-    
+    fi
     done
 done
 
