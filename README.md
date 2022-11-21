@@ -1,5 +1,5 @@
 # Cuttlephone
-Cuttlephone is a adaptable 3D printed phone case and USB-C gamepad. This is the source code.
+Cuttlephone is a adaptable 3D printed phone case and gamepad system. This is the source code.
 
 [Get premade 3MF files and print tutorials on the website](https://silocitylabs.github.io/Cuttlephone/)
 
@@ -11,9 +11,9 @@ A prototype (0.x) is currently in development. Currently supports:
  
  # How to use phone case generator
  - install [OpenSCAD](https://openscad.org/downloads.html)
- - clone the repo with `git clone https://github.com/SiloCityLabs/Cuttlephone.git` or use Code > Download ZIP
- - open the file "case/phone_case.scad" to use the GUI
- - in bash run `sh build.sh` to create all 3MF files for all phones
+ - clone the repo with `git clone https://github.com/SiloCityLabs/Cuttlephone.git` or use buttons Code > Download ZIP
+ - open the file "phone_case.scad" to use the GUI
+ - in bash run `sh build.sh` to create all variants for all phones
 
 # How to run blog locally (Windows)
  - generate a token at https://github.com/settings/tokens/new
