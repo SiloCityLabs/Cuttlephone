@@ -49,4 +49,4 @@ docs/vendor
 
 
 # 3d model build dir
-case/build/
+build/
