@@ -40,6 +40,7 @@
       "case_type": "phone case",
       "charge_on_bottom": "true",
       "clamp_top": "false",
+      "emboss_size": "large",
       "extra_lip": "false",
       "extra_sides": "false",
       "fingerprint": "false",
@@ -114,8 +115,7 @@
       "telescopic_clearance_width": "0.7",
       "test_mode": "none",
       "top_mic_from_right_edge": "11",
-      "top_mic_offset_up": "2",
-      "version_text": "large"
+      "top_mic_offset_up": "2"
     },
     "Pixel 3": {
       "body_bottom_side_angle": "90",
@@ -156,6 +156,7 @@
       "case_type": "phone case",
       "charge_on_bottom": "true",
       "clamp_top": "false",
+      "emboss_size": "large",
       "extra_lip": "false",
       "extra_sides": "false",
       "fingerprint": "true",
@@ -230,8 +231,7 @@
       "telescopic_clearance_width": "0.7",
       "test_mode": "none",
       "top_mic_from_right_edge": "14.1",
-      "top_mic_offset_up": "0.1",
-      "version_text": "large"
+      "top_mic_offset_up": "0.1"
     },
     "Pixel 3XL": {
       "body_bottom_side_angle": "90",
@@ -272,6 +272,7 @@
       "case_type": "phone case",
       "charge_on_bottom": "true",
       "clamp_top": "false",
+      "emboss_size": "large",
       "extra_lip": "false",
       "extra_sides": "false",
       "fingerprint": "true",
@@ -346,8 +347,7 @@
       "telescopic_clearance_width": "0.7",
       "test_mode": "none",
       "top_mic_from_right_edge": "14.1",
-      "top_mic_offset_up": "0.1",
-      "version_text": "large"
+      "top_mic_offset_up": "0.1"
     },
     "Pixel 3a": {
       "body_bottom_side_angle": "90",
@@ -388,6 +388,7 @@
       "case_type": "phone case",
       "charge_on_bottom": "true",
       "clamp_top": "false",
+      "emboss_size": "large",
       "extra_lip": "false",
       "extra_sides": "false",
       "fingerprint": "true",
@@ -462,8 +463,7 @@
       "telescopic_clearance_width": "0.7",
       "test_mode": "none",
       "top_mic_from_right_edge": "20",
-      "top_mic_offset_up": "0",
-      "version_text": "large"
+      "top_mic_offset_up": "0"
     },
     "Pixel 4a": {
       "body_bottom_side_angle": "90",
@@ -504,6 +504,7 @@
       "case_type": "phone case",
       "charge_on_bottom": "true",
       "clamp_top": "false",
+      "emboss_size": "large",
       "extra_lip": "false",
       "extra_sides": "false",
       "fingerprint": "true",
@@ -578,8 +579,7 @@
       "telescopic_clearance_width": "0.7",
       "test_mode": "none",
       "top_mic_from_right_edge": "17",
-      "top_mic_offset_up": "0",
-      "version_text": "large"
+      "top_mic_offset_up": "0"
     },
     "Pixel 6": {
       "body_bottom_side_angle": "90",
@@ -620,6 +620,7 @@
       "case_type": "phone case",
       "charge_on_bottom": "true",
       "clamp_top": "false",
+      "emboss_size": "large",
       "extra_lip": "false",
       "extra_sides": "false",
       "fingerprint": "false",
@@ -694,8 +695,7 @@
       "telescopic_clearance_width": "0.7",
       "test_mode": "none",
       "top_mic_from_right_edge": "60.3",
-      "top_mic_offset_up": "0.1",
-      "version_text": "large"
+      "top_mic_offset_up": "0.1"
     },
     "Telescopic Joycon": {
       "body_bottom_side_angle": "90",
@@ -736,6 +736,7 @@
       "case_type": "joycon",
       "charge_on_bottom": "false",
       "clamp_top": "false",
+      "emboss_size": "small",
       "extra_lip": "false",
       "extra_sides": "false",
       "fingerprint": "false",
@@ -810,8 +811,7 @@
       "telescopic_clearance_width": "0.7",
       "test_mode": "none",
       "top_mic_from_right_edge": "14.1",
-      "top_mic_offset_up": "0.1",
-      "version_text": "small"
+      "top_mic_offset_up": "0.1"
     },
     "Telescopic Joycon Chop-Top": {
       "body_bottom_side_angle": "90",
@@ -852,6 +852,7 @@
       "case_type": "joycon",
       "charge_on_bottom": "false",
       "clamp_top": "false",
+      "emboss_size": "very_small",
       "extra_lip": "false",
       "extra_sides": "false",
       "fingerprint": "false",
@@ -926,8 +927,7 @@
       "telescopic_clearance_width": "0.7",
       "test_mode": "none",
       "top_mic_from_right_edge": "14.1",
-      "top_mic_offset_up": "0.1",
-      "version_text": "very_small"
+      "top_mic_offset_up": "0.1"
     },
     "Telescopic Junglecat": {
       "body_bottom_side_angle": "90",
@@ -968,6 +968,7 @@
       "case_type": "junglecat",
       "charge_on_bottom": "false",
       "clamp_top": "false",
+      "emboss_size": "small",
       "extra_lip": "false",
       "extra_sides": "false",
       "fingerprint": "false",
@@ -1042,8 +1043,7 @@
       "telescopic_clearance_width": "0.7",
       "test_mode": "none",
       "top_mic_from_right_edge": "14.1",
-      "top_mic_offset_up": "0.1",
-      "version_text": "small"
+      "top_mic_offset_up": "0.1"
     },
     "Telescopic Junglecat Chop-Top": {
       "body_bottom_side_angle": "90",
@@ -1084,6 +1084,7 @@
       "case_type": "junglecat",
       "charge_on_bottom": "false",
       "clamp_top": "false",
+      "emboss_size": "very_small",
       "extra_lip": "false",
       "extra_sides": "false",
       "fingerprint": "false",
@@ -1158,8 +1159,7 @@
       "telescopic_clearance_width": "0.7",
       "test_mode": "none",
       "top_mic_from_right_edge": "14.1",
-      "top_mic_offset_up": "0.1",
-      "version_text": "very_small"
+      "top_mic_offset_up": "0.1"
     },
     "Telescopic Junglecat XL": {
       "body_bottom_side_angle": "90",
@@ -1200,6 +1200,7 @@
       "case_type": "junglecat",
       "charge_on_bottom": "false",
       "clamp_top": "false",
+      "emboss_size": "small",
       "extra_lip": "false",
       "extra_sides": "false",
       "fingerprint": "false",
@@ -1274,8 +1275,7 @@
       "telescopic_clearance_width": "0.7",
       "test_mode": "none",
       "top_mic_from_right_edge": "14.1",
-      "top_mic_offset_up": "0.1",
-      "version_text": "small"
+      "top_mic_offset_up": "0.1"
     },
     "Xperia 1 III": {
       "body_bottom_side_angle": "90",
@@ -1316,6 +1316,7 @@
       "case_type": "phone case",
       "charge_on_bottom": "true",
       "clamp_top": "false",
+      "emboss_size": "large",
       "extra_lip": "false",
       "extra_sides": "false",
       "fingerprint": "false",
@@ -1390,8 +1391,7 @@
       "telescopic_clearance_width": "0.7",
       "test_mode": "none",
       "top_mic_from_right_edge": "14.8",
-      "top_mic_offset_up": "1.4",
-      "version_text": "large"
+      "top_mic_offset_up": "1.4"
     }
   }
 }

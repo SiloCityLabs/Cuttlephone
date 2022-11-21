@@ -34,7 +34,7 @@ support_airgap = 0.20;
 
 //use a simple sans-serif font. I included a printer-friendly font. Check font names in OpenSCAD > Help > Font List.
 emboss_font = "Orbitron";
-version_text = "large"; // [large, small, very_small, none]
+emboss_size = "large"; // [large, small, very_small, none]
 phone_model = "Pixel 3";
 
 //test cuts
@@ -1409,7 +1409,7 @@ module top_headphone_cut(){
 *version_info_emboss();
 module version_info_emboss(){
     emboss_spacing = 1.08;
-    if(version_text=="large") {
+    if(emboss_size=="large") {
         font_size = 8;
         small_font_size = 6;
         line_translate = 12;
@@ -1425,7 +1425,7 @@ module version_info_emboss(){
             }
         }
     }
-    if(version_text=="small") {
+    if(emboss_size=="small") {
         font_size = 4;
         small_font_size = 3;
         line_translate = font_size*2;
@@ -1441,7 +1441,7 @@ module version_info_emboss(){
             }
         }
     }
-    if(version_text=="very_small") {
+    if(emboss_size=="very_small") {
         font_size = 4;
         small_font_size = 3;
         line_translate = font_size*2;
