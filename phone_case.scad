@@ -32,7 +32,7 @@ manual_supports = true;
 //set this to approx your layer height. Needs tuning.
 support_airgap = 0.20;
 
-//use a simple sans-serif font. Check font names in OpenSCAD > Help > Font List
+//use a simple sans-serif font. I included a printer-friendly font. Check font names in OpenSCAD > Help > Font List.
 emboss_font = "Orbitron";
 version_text = "large"; // [large, small, very_small, none]
 phone_model = "Pixel 3";
