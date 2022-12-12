@@ -9,10 +9,11 @@ Cuttlephone is phone case generator and gamepad system for 3D printing. This is 
 
 
 # Features
+ - hard plastic (PLA+, ABS, PETG) or flexible (TPU)
  - phone case mode
+ - universal phone clamp mode
  - Switch Joy-Con rails
  - Razer Junglecat rails
- - universal phone clamp mode
  
  # How to use phone case generator
  - install [OpenSCAD](https://openscad.org/downloads.html) version 2021.01 or greater
