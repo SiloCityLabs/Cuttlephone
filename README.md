@@ -1,30 +1,36 @@
 # Cuttlephone
-Cuttlephone is a adaptable 3D printed phone case and gamepad system. This is the source code.
+Cuttlephone is phone case generator and gamepad system for 3D printing. This is the source code. [Get premade 3MF files and print tutorials on the website](https://silocitylabs.github.io/Cuttlephone/)
 
-[Get premade 3MF files and print tutorials on the website](https://silocitylabs.github.io/Cuttlephone/)
 
-# Status
-A prototype (0.x) is currently in development. Currently supports:
- - phone case
+![phone case generator](https://user-images.githubusercontent.com/1850819/206940314-f19951e0-617c-4899-927e-68e9c816ef28.png)
+
+
+![3D printed phone case, in a 3D printed adapter for Razer Junglecat controllers](https://user-images.githubusercontent.com/1850819/206942057-afb94754-9d87-486d-a1a3-1d513d2f3c8f.png)
+
+
+# Features
+ - phone case mode
  - Switch Joy-Con rails
  - Razer Junglecat rails
+ - universal phone clamp mode
  
  # How to use phone case generator
- - install [OpenSCAD](https://openscad.org/downloads.html)
- - clone the repo with `git clone https://github.com/SiloCityLabs/Cuttlephone.git` or use buttons Code > Download ZIP
+ - install [OpenSCAD](https://openscad.org/downloads.html) version 2021.01 or greater
+ - Download the code above using Code > Download ZIP or use git command line: `git clone https://github.com/SiloCityLabs/Cuttlephone.git` 
  - open the file "phone_case.scad" to use the GUI
+ 
+ # Build and publish scripts
  - in bash run `sh build.sh` to create all variants for all phones
+ - in bash run `sh publish.sh` to copy the 3MF to the docs directory
 
-# How to run blog locally (Windows)
+# How to run the docs blog locally
  - generate a token at https://github.com/settings/tokens/new
  - select the scope *public_repository*
  - copy the token, save it in a password manager
- - install Ruby, gem, and bundle
+ - install Ruby, gem, and bundle (or figure out the [Docker image of Github Pages](https://github.com/Starefossen/docker-github-pages))
  - `bundle update`
  - `JEKYLL_GITHUB_TOKEN=tokenGoesHere123456789 bundle exec jekyll serve --incremental`
  - watch the console for something like this: `Server address: http://127.0.0.1:4000/Cuttlephone/`
- 
-There's also a [docker version](https://github.com/Starefossen/docker-github-pages) of Github Pages if you prefer
 
 # Build logs 
 
@@ -33,39 +39,10 @@ You can follow progress here:
  - [SiloCityLabs project blog / newsletter](https://silocitylabs.com/categories/projects/)
  - [SiloCityLabs Twitter](https://twitter.com/silocitylabs)
 
-[![](https://user-images.githubusercontent.com/1850819/73496293-3f021080-4386-11ea-9fc7-d2fafe343bc1.png)](https://hackaday.io/project/165606-cuttlephone-gamepad-phone-case)
-
-# To-do
- - Make a really good phone case
- - Finish gamepad prototype (write firmware, assemble PCB, 3D print case)
- - Demo and test prototype with friends
- - Community feedback, brainstorm v2
-
-# How it works
-The phone case uses OpenSCAD Customizer to support many phone models.
-
-The gamepad uses an ATmega32u4 which has built in USB support. The firmware will use the [LUFA library](https://github.com/abcminiuser/lufa) to implement a USB HID gamepad.
 
 # Roadmap
 
-####  Prototype
- - Be a functional gamepad that works with Android
- - Cases for the team's personal phones
- - Controls for 2D-era emulation: D-Pad, 4 face buttons, 2 shoulder buttons, Start/Select
-#### Public project
- - Ensure it's pocket-portable, make it easy to carry on a daily basis
- - Improve the button hardware, case design, etc based on testing
- - Cases for other phones (community help needed)
-#### Future goals
- - Controls for 3D-era emulation: 2 joysticks, 2 analog triggers, some kind of L3/R3
- - Charging pass through
- - 3.5mm headphone jack
- - USB-C hub for additional features and DIY
-#### Stretch goals
- - Analog face buttons for MGS1-3 compatibility
- - PCB art
-
-
+...
 
 
 Licensed under Creative Commons CC-BY-SA 4.0
