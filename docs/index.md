@@ -19,9 +19,9 @@ Cuttlephone is a 3D printed phone case and gamepad system. Download pre-made mod
 
 ![](/images/junglecat.png)
 
-### Universal rail adapter (beta)
+### Universal adapter
 
-![](/images/universal_beta.png)
+![](/images/universal.png)
 
 You can follow progress here:
  - [HackADay.io project log](https://hackaday.io/project/165606-cuttlephone-gamepad-phone-case)
