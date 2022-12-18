@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Print Guide"
-permalink: /print-guide/
+permalink: /guides/print-guide/
 ---
 
 # Slicer settings and tuning

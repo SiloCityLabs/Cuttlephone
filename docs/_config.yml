@@ -4,7 +4,7 @@ logo: https://user-images.githubusercontent.com/1850819/146625509-2912b6e2-4588-
 baseurl: /Cuttlephone
 repository: SiloCityLabs/Cuttlephone
 models_url: /Cuttlephone/premade-models/
-print_guide_url: /Cuttlephone/print-guide/
+guide_url: /Cuttlephone/guides/
 generator_guide_url: /Cuttlephone/generator-guide/
 github: [metadata]
 github:
