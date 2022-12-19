@@ -20,7 +20,7 @@ The soft cases can be made from TPU with a hardness of 90A or more. Overture Hig
 
 Print quality is essential for Joy-Con and Junglecat rails. Tune up your printer and tune your slicer for quality. Epsecially tune the **linear advance setting** to prevent blobbing. Tune the overhangs to prevent sagging.
 
-Set layer height to 0.10mm-0.15mm for quality or 0.2mm-0.3mm for test prints. Use at least 3 perimeters so that the case walls are solid.
+Set layer height to 0.10mm-0.15mm for quality or 0.2mm-0.3mm for faster test prints. Use at least 3 perimeters so that the case walls are solid.
 
 **Variable extrusion width** will make the rails much better. Cura 5.0 and PrusaSlicer 2.5 both have this feature. Some companies reskin Cura as their own slicer - use the latest version of regular Cura instead.
 
