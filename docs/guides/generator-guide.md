@@ -34,3 +34,9 @@ Look at the Customizer on the right side for customization. Click the section ti
 The "shell" section is where you can change the type of phone case.
 
 All the measurements are in millimeters.
+
+# Presets
+
+Custom presets can be saved to phone_case.json. Click the dropdown to view available configurations. Select one as a base config, then click the plus button **+** to make a new config.
+
+![](/Cuttlephone/images/generator-guide/presets.png)
