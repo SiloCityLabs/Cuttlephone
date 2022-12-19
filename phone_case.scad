@@ -19,8 +19,6 @@ include <libraries/BOSL2/shapes3d.scad>
 
 case_material = "hard"; // [hard, soft]
 case_type = "phone case"; // [phone case, gamepad, joycon, junglecat]
-//a plastic guide to help you cut out the Joycon or Junglecat rails
-rail_cut_tools = false;
 
 case_thickness = 1.6;
 //if the screen is curved and the case cutaway, you might want some extra grip
@@ -40,13 +38,11 @@ phone_model = "Pixel 3";
 //test cuts
 test_mode = "none"; //[none, corners, right_edge, right_buttons, left_edge, bottom_edge, top_edge, left_button, top_half_pla, telescopic]
 
-//TODO: blank string does what I want but generates a warning
-//the blank option gives each part and cut a color
-//display_color = ""; //["", SeaGreen]
+//NOT WORKING. A plastic guide to help you cut the support out of the Joycon or Junglecat rails
+rail_cut_tools = false;
 
 /* [body] */
 
-//Is there a good way to measuring this on the phone? Print-out guide template?
 //rounding of the corners when viewed screen-up.
 body_radius = 5.25;
 //replaces the round radius with a 45-degree cut
@@ -74,7 +70,7 @@ screen_curve_radius = 0.1;
 screen_curve_angle = 90;
 //cuts away the side of the case for curved screens
 screen_undercut = 0.1; //default is 0.01 because of Openscad precision bug
-//sticks up
+//sticks up so the screen is recessed
 extra_lip = false;
 //NOT WORKING: if the corners are sharp, add some "ramp" to the sides
 extra_sides = false;

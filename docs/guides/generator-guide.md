@@ -4,10 +4,33 @@ title: "Generator Guide"
 permalink: /guides/generator-guide/
 ---
 
-# How to use phone case generator
+# Getting the generator
 
- - install [OpenSCAD](https://openscad.org/downloads.html) version 2021.01 or greater
- - Download the code above using Code > Download ZIP or use git command line: `git clone https://github.com/SiloCityLabs/Cuttlephone.git` 
- - open the file "phone_case.scad" to use the GUI
+Install [OpenSCAD version 2021.01 or greater](https://openscad.org/downloads.html). 
 
-...
+Download the code from Github:
+
+[![Download code](/Cuttlephone/images/generator-guide/download-code.png)](https://github.com/SiloCityLabs/Cuttlephone)
+
+
+Open `phone_case.scad` ...
+
+# Using the generator
+
+Open `phone_case.scad`
+
+![](/Cuttlephone/images/generator-guide/openscad-1.png)
+
+Close the code editor on the left. Then get your phone case into view:
+
+ - Left mouse: rotate object
+ - Right mouse: pan camera
+ - Scroll wheel: zoom
+
+Look at the Customizer on the right side for customization. Click the section title to reveal variables.
+
+![](/Cuttlephone/images/generator-guide/openscad-2.png)
+
+The "shell" section is where you can change the type of phone case.
+
+All the measurements are in millimeters.
