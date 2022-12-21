@@ -23,19 +23,21 @@ case_type = "phone case"; // [phone case, gamepad, joycon, junglecat]
 case_thickness = 1.6;
 //if the screen is curved and the case cutaway, you might want some extra grip
 shell_side_stickout = 0;
-support_thickness = 0.4;
+
+phone_model = "Pixel 3";
+emboss_size = "large"; // [large, small, very_small, none]
+//Check font names in OpenSCAD > Help > Font List. Simple sans-serif fonts will print better
+emboss_font = "Orbitron";
+
+/* [3D print] */
 
 //this will support the rail and some overhangs during a horizontal print, and support the Joycon lock notch on a vertical print
 manual_supports = true;
-//set this to approx your layer height. Needs tuning.
+support_thickness = 0.4;
+//This will make a gap in between the supports and the object. Set this to approx your layer height. 
 support_airgap = 0.20;
 
-//use a simple sans-serif font. I included a printer-friendly font. Check font names in OpenSCAD > Help > Font List.
-emboss_font = "Orbitron";
-emboss_size = "large"; // [large, small, very_small, none]
-phone_model = "Pixel 3";
-
-//test cuts
+//test cuts. Print part of the case to see how it fits
 test_mode = "none"; //[none, corners, right_edge, right_buttons, left_edge, bottom_edge, top_edge, left_button, top_half_pla, telescopic]
 
 //NOT WORKING. A plastic guide to help you cut the support out of the Joycon or Junglecat rails
@@ -1136,7 +1138,7 @@ module hard_button_cut(right,  power_button, power_from_top, power_length, volum
 //simple cutout for mute switches
 module soft_cut( button_length, disable_support=false, disable_bevel=false, clearance, shallow_cut=false, junglecat_support=false, joycon_support=false, extra_tall=false ){
     cut_height = extra_tall ? soft_cut_height2 : soft_cut_height1;
-    cut_depth = shallow_cut ? 0 : 10;
+    cut_depth = shallow_cut ? 0 : 15;
     
     difference() {
         //cutout
@@ -1700,6 +1702,7 @@ module test_cuts(){
 module hard_cut(width=8, top_radius=4, bottom_radius=3.9){
     hard_cut_height = body_thickness + case_thickness2 + extra_lip_bonus;
     smaller_width = (width>hard_cut_height)? hard_cut_height : width;
+    hard_cut_depth = 25;
     
     if(bottom_radius >= width/2 || bottom_radius >=hard_cut_height/2){
         echo(width=width, top_radius=top_radius, bottom_radius=bottom_radius, hard_cut_height=hard_cut_height);
@@ -1716,7 +1719,7 @@ module hard_cut(width=8, top_radius=4, bottom_radius=3.9){
         echo(str("Called by: ", parent_module(1)));
     }
     
-    rectangle = square([width, 20],center=true);
+    rectangle = square([width, hard_cut_depth],center=true);
     round_rectangle = round_corners(rectangle, radius=bottom_radius,$fn=15);
     //round_rectangle = round_corners(rectangle, radius=bottom_radius,$fn=15);
     color("red", 0.2)
