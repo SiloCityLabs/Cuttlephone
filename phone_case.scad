@@ -5,6 +5,8 @@
  */
 
 use <fonts/orbitron/orbitron-light.otf>
+use <fonts/Baloo_2/Baloo2-VariableFont_wght.ttf>
+use <fonts/Audiowide/Audiowide-Regular.ttf>
 include <libraries/BOSL2/std.scad>
 include <libraries/BOSL2/hull.scad>
 include <libraries/BOSL2/rounding.scad>
@@ -25,9 +27,13 @@ case_thickness = 1.6;
 shell_side_stickout = 0;
 
 phone_model = "Pixel 3";
-emboss_size = "large"; // [large, small, very_small, none]
+emboss_size = "large"; // [logo, large, small, very_small, none]
 //Check font names in OpenSCAD > Help > Font List. Simple sans-serif fonts will print better
-emboss_font = "Orbitron";
+emboss_font = "Audiowide";
+font_size = 7.1;
+emboss_small_font = "Audiowide";
+small_font_size = 6.1;
+emboss_logo = "dude.png";
 
 /* [3D print] */
 
@@ -266,7 +272,7 @@ junglecat_stickout = 4.2;
 //embossment text
 name = "Cuttlephone";
 author = "Maave";
-version = "v0.4";
+version = "v 0.4";
 
 //unsupported features
 lanyard_loop = false;
@@ -1406,20 +1412,41 @@ module top_headphone_cut(){
 
 *version_info_emboss();
 module version_info_emboss(){
-    emboss_spacing = 1.08;
+    font_kerning = 1.08;
+    if(emboss_size=="logo") {
+        line_translate = 10.8;
+        logo_size_ratio = 0.85; //logo-to-body_width ratio
+        
+        //text
+        color("red")
+        rotate([0,0,0])
+        translate([-30,-body_length/2+30,-body_thickness/2])
+        linear_extrude(height = case_thickness2/2, center = true) {
+            text(name, font=emboss_font, size=font_size, spacing=font_kerning);
+            translate([0,-line_translate*2,0])
+            text(phone_model, font=emboss_small_font, size=small_font_size, spacing=font_kerning);
+            translate([0,-line_translate,0])
+            text(version, font=emboss_small_font, size=small_font_size, spacing=font_kerning);
+        }
+        
+        //logo
+        translate([0,-body_length/2+70,-body_thickness/2-case_thickness2/2])
+        color("red")
+        resize([body_width*logo_size_ratio, body_width*logo_size_ratio, case_thickness2/2])
+        linear_extrude(height=case_thickness2/2)
+        import("logos/dude.svg", center=true);
+    }
     if(emboss_size=="large") {
-        font_size = 8;
-        small_font_size = 6;
         line_translate = 12;
         color("red")
         rotate([0,0,-90])
         translate([-10,10,-body_thickness/2]) {
             linear_extrude(height = case_thickness2/2, center = true) {
-                text(name, font=emboss_font, size=font_size, spacing=emboss_spacing);
+                text(name, font=emboss_font, size=font_size, spacing=font_kerning);
                 translate([0,-line_translate,0])
                 text(version, font=emboss_font, size=small_font_size);
                 translate([0,-line_translate*2,0])
-                text(phone_model, font=emboss_font, size=font_size);
+                text(phone_model, font=emboss_font, size=small_font_size);
             }
         }
     }
@@ -1431,7 +1458,7 @@ module version_info_emboss(){
         rotate([0,0,0])
         translate([-20,-body_length/2+font_size*5.5,-body_thickness/2]) {
             linear_extrude(height = case_thickness2/2, center = true) {
-                text(name, font=emboss_font, size=font_size, spacing=emboss_spacing);
+                text(name, font=emboss_font, size=font_size, spacing=font_kerning);
                 translate([0,-line_translate,0])
                 text(version, font=emboss_font, size=small_font_size);
                 translate([0,-line_translate*2,0])
@@ -1447,7 +1474,7 @@ module version_info_emboss(){
         rotate([0,0,-90])
         translate([16,-body_width/2+font_size*5.5,-body_thickness/2]) {
             linear_extrude(height = case_thickness2/2, center = true) {
-                text(name, font=emboss_font, size=font_size, spacing=emboss_spacing);
+                text(name, font=emboss_font, size=font_size, spacing=font_kerning);
                 translate([0,-line_translate,0])
                 text(version, font=emboss_font, size=small_font_size);
                 translate([0,-line_translate*2,0])
@@ -1505,14 +1532,15 @@ module universal_clamp() {
 
 body_bottom = (case_type2=="joycon") ? body_thickness-joycon_z_shift-0.2 : body_thickness;
 tele_rounding=4;//2.5;
-thick_side_thickness=8;
-thin_side_thickness=3.5;
-thin_side_inset = 8.0;
-tele_seam = -body_length/2+12;
-tele_seam_width = 1;
+thick_side_thickness=8.2;
+thin_side_thickness=4.1;
+thin_side_inset = 2.0;
+tele_seam = -body_length/2+6;
+tele_seam_width = 0.2;
 module telescopic_clamp(){
-    telescopic_width = (opener_top_backchop) ? body_width/2 : body_width;
+    telescopic_width = (opener_top_backchop) ? body_width/2-body_radius : body_width-body_radius;
     telescopic_offset = (opener_top_backchop) ? body_width/4 : 0;
+    telescopic_length = body_length-body_radius;
     if(telescopic) {
         //thin part of the slider
         translate([-telescopic_offset,0,-body_bottom/2-case_thickness2-thick_side_thickness/2])
@@ -1541,7 +1569,7 @@ module telescopic_clamp(){
             translate([-telescopic_offset,0,-body_bottom/2-case_thickness2])
             minkowski() {
                 cuboid(
-                    [ telescopic_width-body_radius, body_length-body_radius, 0.01 ],
+                    [ telescopic_width, telescopic_length, 0.01 ],
                     anchor=TOP+CENTER
                 );
             
@@ -1560,7 +1588,7 @@ module telescopic_clamp(){
             color("red", 0.2)
             translate([0,tele_seam,0])
             cuboid([body_width*2,tele_seam_width,body_width*2], anchor=CENTER);
-            //viewing window
+            //viewing window in OpenSCAD only
             *color("red", 0.2)
             translate([0,body_width,0])
             cuboid([body_width/4,body_width*2,body_width*2], anchor=CENTER);
@@ -1578,12 +1606,12 @@ module telescopic_clamp(){
                 cuboid([body_width*body_length,body_width*body_length,body_width*body_length], anchor=FRONT);
             }
             
-            //separate the block from the phone-case so that each side is 2 closed objects
+            //disconnect the outer shell from the right side
             translate([0,tele_seam/2+body_seam_width/4,-body_bottom/2-case_thickness2+0.01])
-                cuboid(
-                    [ body_width*1.5, -tele_seam+body_seam_width/2, telescopic_clearance_thickness ],
-                    anchor=TOP //TODO: change to simplify translate
-                );
+            cuboid(
+                [ body_width*1.5, -tele_seam+body_seam_width/2, telescopic_clearance_thickness ],
+                anchor=TOP //TODO: change to simplify translate
+            );
             
         }
         

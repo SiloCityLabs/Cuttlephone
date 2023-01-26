@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-version="v0.4"
+version="v 0.4"
 git_commit=$(git rev-parse --short HEAD)
 
 #create build dir (ignored by git)
