@@ -26,6 +26,7 @@ case_thickness = 1.6;
 //if the screen is curved and the case cutaway, you might want some extra grip
 shell_side_stickout = 0;
 
+/* [emboss] */
 phone_model = "Pixel 3";
 emboss_size = "large"; // [logo, large, small, very_small, none]
 //Check font names in OpenSCAD > Help > Font List. Simple sans-serif fonts will print better
@@ -33,7 +34,9 @@ emboss_font = "Audiowide";
 font_size = 7.1;
 emboss_small_font = "Audiowide";
 small_font_size = 6.1;
-emboss_logo = "dude.png";
+emboss_logo = "logos/dude.svg";
+logo_x = 0.0;
+logo_y = 0.0;
 
 /* [3D print] */
 
@@ -173,13 +176,13 @@ bottom_speakers_left = false;
 
 /* [universal phone adapters] */
 split_in_half = false;
+telescopic_pocket = false;
 body_seam_width = 0.1;
-rubber_band_loops = false;
-//has a slight lip to grab phone at the top
+body_seam_offset = 0.1;
 open_top = false;
-//no lip, fully open top
-opener_top = false;
-opener_top_backchop = false;
+open_top_backchop = false;
+open_top_chop_ratio = 0.51;
+speaker_holes_bottom = false;
 clamp_top = false;
 rotate_upright = false;
 upright_angle = rotate_upright ? -90 : 0;
@@ -236,7 +239,7 @@ gamepad_peg_y_distance = 14;
 
 // joycon and junglecat shared variables
 max_rail_shell_radius = 2.5; //if too high it'll intersect with the rail
-max_rail_body_radius = 3; //sharper corner for looks
+max_rail_body_radius = 1.1; //sharper corner for looks
 rail_shell_radius_top = (body_radius_top<max_rail_shell_radius) ? body_radius_top : max_rail_shell_radius; //TODO: tweak this, make is softer to hold, ensure it doesn't conflict with body
 rail_shell_radius_bottom = (body_radius_bottom<max_rail_shell_radius) ? body_radius_bottom : max_rail_shell_radius; //TODO: tweak this, make is softer to hold, ensure it doesn't conflict with body
 rail_body_radius = (body_radius<max_rail_body_radius) ? body_radius : max_rail_body_radius; //sharper corner for looks
@@ -244,8 +247,8 @@ rail_body_radius = (body_radius<max_rail_body_radius) ? body_radius : max_rail_b
 // joycon variables
 joycon_inner_width = 10.2;
 joycon_lip_width = 7.3;
-joycon_lip_thickness = 0.6;
-joycon_depth = 2.4;
+joycon_lip_thickness = 0.7;
+joycon_depth = 2.34;
 //this will bottom-out the rail if the body is wide enough
 joycon_length = 91.5; 
 // shell is thickened to fit the joycon
@@ -283,29 +286,36 @@ bodyColor="SeaGreen";
 
 translate([0,0,upright_translate])
 rotate([0,upright_angle, 0])
-//main body
-difference(){
-    //color(display_color)
-    if(case_type2=="phone case") {
-        phone_case();
+main();
+
+
+module main() {
+    difference(){
+        
+        if(case_type2=="phone case") {
+            phone_case();
+        }
+        else if(case_type2=="gamepad") {
+            gamepad();
+        }
+        else if(case_type2=="joycon") {
+            joycon_rails();
+        }
+        else if(case_type2=="junglecat") {
+            junglecat_rails();
+        }
+        
+        test_cuts();
     }
-    else if(case_type2=="gamepad") {
-        gamepad();
-    }
-    else if(case_type2=="joycon") {
-        joycon_rails();
-        if(rail_cut_tools) {
+    
+    if(rail_cut_tools) {
+        if(case_type2=="joycon") {
             joycon_cut_guide();
         }
-    }
-    else if(case_type2=="junglecat") {
-        junglecat_rails();
-        if(rail_cut_tools) {
+        else if(case_type2=="junglecat") {
             junglecat_cut_guide();
         }
     }
-    
-    test_cuts();
 }
 
 module phone_case(){
@@ -316,7 +326,6 @@ module phone_case(){
         shell_cuts();
     }
     manual_supports_();
-    rubber_band_loops2();
     universal_clamp();
     telescopic_clamp();
 }
@@ -333,7 +342,6 @@ module gamepad(){
     gamepad_trigger();
     copy_mirror() gamepad_trigger();
     //gamepad_faceplates();
-    rubber_band_loops2();
     universal_clamp();
     telescopic_clamp();
 }
@@ -362,7 +370,6 @@ module joycon_rails(){
         joycon_cuts();
     }
     manual_supports_();
-    rubber_band_loops2();
     universal_clamp();
     telescopic_clamp();
 }
@@ -376,7 +383,6 @@ module junglecat_rails(){
         junglecat_cuts();
     }
     manual_supports_();
-    rubber_band_loops2();
     universal_clamp();
     telescopic_clamp();
 }
@@ -580,7 +586,6 @@ module junglecat_shell(){
         }
     }
     
-    rubber_band_loops2();
     universal_clamp();
     telescopic_clamp();
     
@@ -599,6 +604,8 @@ module junglecat_shell(){
 
 //junglecat_cut_guide();
 module junglecat_cut_guide(){
+    finger_tab_l = 40;
+    finger_tab_h = 40;
     copy_mirror() {
     translate([0,-body_length*0.6,0]) {
         difference() {
@@ -615,13 +622,20 @@ module junglecat_cut_guide(){
                     anchor=CENTER
                 );
                 //something to hold onto so you don't cut yourself
+                rotate([0,0,0])
                 translate([junglecat_rail_length/2,0,-6])
-                cuboid( [ 10, junglecat_inner_width, 15], 
+                cuboid( [ finger_tab_l, junglecat_inner_width, finger_tab_h], 
                     rounding=1, 
                     edges=[RIGHT,TOP,BOTTOM],
                     anchor=LEFT+CENTER
                 );
             }
+            
+            finger_r = 15;
+            //finger hole
+            translate([junglecat_rail_length/2+finger_tab_l-finger_r/2,0,-finger_tab_h/2])
+            rotate([90,0,0])
+            cyl(h=10, r=finger_r);
             
             //cutout lines
             translate([0,-junglecat_depth/2-junglecat_lip_thickness/2,0]) {
@@ -633,6 +647,8 @@ module junglecat_cut_guide(){
                     anchor=CENTER
                 );
             }
+            
+            
         }
 
     }
@@ -693,6 +709,7 @@ module junglecat_cuts(universal_inside=false){
 }
 
 
+*joycon_cut_guide();
 module joycon_cut_guide() {
     translate([0,-body_length*0.6,0]) {
         difference() {
@@ -1430,11 +1447,12 @@ module version_info_emboss(){
         }
         
         //logo
-        translate([0,-body_length/2+70,-body_thickness/2-case_thickness2/2])
+        translate([0+logo_x,-body_length/2+70+logo_y,-body_thickness/2-case_thickness2/2])
         color("red")
-        resize([body_width*logo_size_ratio, body_width*logo_size_ratio, case_thickness2/2])
+        resize([body_width*logo_size_ratio, 0, case_thickness2/2], auto=[false,true,false])
         linear_extrude(height=case_thickness2/2)
-        import("logos/dude.svg", center=true);
+        import(emboss_logo, center=true);
+        //scale() might have better performance than resize(). But resize() takes absolute size. scale() takes a ratio so I'd need to know the input size.
     }
     if(emboss_size=="large") {
         line_translate = 12;
@@ -1486,36 +1504,6 @@ module version_info_emboss(){
     }
 }
 
-band_radius = 8;
-band_height = 5;
-insetX = 10;
-insetY = 10;
-module rubber_band_loops2() {
-    xpos = body_width/2 - band_radius - insetY;
-    ypos = body_length/2 - band_radius - insetX;
-    body_bottom = (case_type2=="joycon") ? joycon_thickness : body_thickness;
-    zpos = -body_bottom/2-case_thickness2;
-
-    if(rubber_band_loops){
-        rubber_band_loops3(xpos, ypos, zpos);
-    }
-}
-module rubber_band_loops3(xpos, ypos, zpos){
-    translate([xpos, ypos, zpos])
-    rubber_band_loop();
-    
-    translate([xpos, -ypos, zpos])
-    rubber_band_loop();
-    
-    translate([-xpos, ypos, zpos])
-    rubber_band_loop();
-    
-    translate([-xpos, -ypos, zpos])
-    rubber_band_loop();
-}
-module rubber_band_loop() {
-    cyl(r1=band_radius, r2=band_radius*0.6, h=band_height, anchor=TOP+CENTER);
-}
 
 module universal_clamp() {
     if(clamp_top) {
@@ -1530,20 +1518,36 @@ module universal_clamp() {
     }
 }
 
+telescopic_width = body_width*open_top_chop_ratio-body_radius;
+// special telescopic with space for a charger or something
+//TODO: calculate this crap automatically instead of manual adjust
+telescopic_pocket_thick_ness = 15;
+telescopic_pocket_thin_ness = 5;
+telescopic_pocket_thin_offset = 2.5;
+pocket_depth = 5;
+pocket_padding = 0.5;
+usb_pocket_width = 10;
+usb_from_right = 12.5;
+pocket_width = telescopic_width - pocket_padding*2;
+//pocket_length = body_seam_width - pocket_padding*2;
+//this needs a usable default value to avoid errors
+pocket_length = (body_seam_width>pocket_padding*2) ? body_seam_width - pocket_padding*2 : 60 - pocket_padding*2;
+//pocket_depth = thick_side_thickness - thin_side_thickness - telescopic_clearance_thickness*2 - thin_side_inset - pocket_padding;
+
 body_bottom = (case_type2=="joycon") ? body_thickness-joycon_z_shift-0.2 : body_thickness;
-tele_rounding=4;//2.5;
-thick_side_thickness=8.2;
-thin_side_thickness=4.1;
+tele_rounding = 4;
+thick_side_thickness = telescopic_pocket ? telescopic_pocket_thick_ness : 8.2;
+thin_side_thickness = telescopic_pocket ? telescopic_pocket_thin_ness : 4.1;
+thin_side_z_offset = telescopic_pocket ? telescopic_pocket_thin_offset : 0;
 thin_side_inset = 2.0;
-tele_seam = -body_length/2+6;
+tele_seam = -body_length/2 + ( telescopic_pocket ? 10 : 6 ) ;
 tele_seam_width = 0.2;
 module telescopic_clamp(){
-    telescopic_width = (opener_top_backchop) ? body_width/2-body_radius : body_width-body_radius;
-    telescopic_offset = (opener_top_backchop) ? body_width/4 : 0;
+    telescopic_offset = body_width*(1-open_top_chop_ratio)/2;
     telescopic_length = body_length-body_radius;
     if(telescopic) {
         //thin part of the slider
-        translate([-telescopic_offset,0,-body_bottom/2-case_thickness2-thick_side_thickness/2])
+        translate([-telescopic_offset,0,-body_bottom/2-case_thickness2-thick_side_thickness/2 - thin_side_z_offset])
         minkowski(){
             cuboid([
                     telescopic_width-thin_side_inset-telescopic_clearance_width-tele_rounding*2, 
@@ -1596,7 +1600,7 @@ module telescopic_clamp(){
             //inner cutout
             intersection() {
                 //cutout
-                translate([-telescopic_offset,0,-body_bottom/2-case_thickness2-thick_side_thickness/2])
+                translate([-telescopic_offset,0,-body_bottom/2-case_thickness2-thick_side_thickness/2 - thin_side_z_offset])
                 cuboid([
                     telescopic_width-thin_side_inset, body_length-thin_side_inset, thin_side_thickness ],
                     anchor=CENTER);
@@ -1607,34 +1611,51 @@ module telescopic_clamp(){
             }
             
             //disconnect the outer shell from the right side
-            translate([0,tele_seam/2+body_seam_width/4,-body_bottom/2-case_thickness2+0.01])
+            translate([
+                0,
+                tele_seam/2 + body_seam_width/4 + body_seam_offset/2,
+                -body_bottom/2-case_thickness2+0.01
+            ])
             cuboid(
-                [ body_width*1.5, -tele_seam+body_seam_width/2, telescopic_clearance_thickness ],
+                [ body_width*1.5, -tele_seam+body_seam_width/2 + body_seam_offset, telescopic_clearance_thickness ],
                 anchor=TOP //TODO: change to simplify translate
             );
             
+
+            if(telescopic_pocket) {               
+                //pocket
+                translate([-telescopic_offset,0, -body_bottom/2 - case_thickness2])
+                cuboid(
+                    [pocket_width,pocket_length,pocket_depth],
+                    anchor=TOP
+                );
+                
+                //USB cut
+                color("red", 0.2)
+                translate([-telescopic_offset,pocket_length/2-usb_from_right, -body_bottom/2 - case_thickness2+0.01])
+                cuboid(
+                    [pocket_width,usb_pocket_width,pocket_depth],
+                    anchor=TOP+BACK+RIGHT
+                );
+                
+            }
+            
         }
-        
+
     }    
+        
 }
 
-*universal_cuts();
+
+
+universal_cuts();
 module universal_cuts(){
     if(split_in_half==true) {
         color("red", 0.2)
+        translate([0,body_seam_offset,0])
         cuboid([body_width*2,body_seam_width,100], anchor=CENTER);
     }
     if(open_top) {
-        color("red", 0.2)
-        translate([20,0,0]) {
-            scale([1, 0.95, 0.99])
-            body();
-            
-            scale([1, 0.95, 1])
-            screen_cut();
-        }
-    }
-    if(opener_top) {
         color("red", 0.2)
         translate([body_width/2,0,0]) {
             scale([1, 1, 0.99])
@@ -1644,9 +1665,9 @@ module universal_cuts(){
             screen_cut();
         }
         
-        if (opener_top_backchop)
+        if (open_top_backchop==true)
         color("red", 0.2)
-        translate([body_width/2,0,-body_thickness/2]) {
+        translate([body_width*open_top_chop_ratio,0,-body_thickness/2]) {
             scale([1, 1, 1])
             body();
             
@@ -1665,6 +1686,20 @@ module universal_cuts(){
         }
         
         junglecat_cuts(universal_inside=true);
+    }
+    if(speaker_holes_bottom) {
+        hole_sep = 10;
+        hole_rad = body_thickness/4;
+        for(i=[0:floor((body_length-body_radius)/hole_sep/2)]){
+            echo("i ",i);
+            echo("body seam ",body_seam_width);
+            echo("floor ",floor((body_length-body_radius)/hole_sep/2));
+            if(i*hole_sep>body_seam_width/2)
+            color("red", 0.2)
+            translate([-body_width/2,i*hole_sep,0])
+            rotate([0,90,0])
+            cyl(r=hole_rad, h=body_width/4, anchor=CENTER);
+        }
     }
 
 }
