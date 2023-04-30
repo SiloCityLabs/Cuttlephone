@@ -4,8 +4,8 @@ title: "Premade Models"
 permalink: /premade-models/
 ---
 
-# Premade models
-3MF files are made for all versions of a phone. {% for material in site.data.case_materials %} For {{ material.material }} print with {{material.example}}. {% endfor %}
+# Generated models
+Below you'll find models of every available phone case with every available variation. I generate a new batch with each significant revision of the program. {% for material in site.data.case_materials %} For {{ material.material }} print with {{material.example}}. {% endfor %}
 
 <!-- loop through phone_case.json, copied over from build script -->
 {% for model in site.data.phone_case.parameterSets %}

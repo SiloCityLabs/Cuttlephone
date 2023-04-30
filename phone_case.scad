@@ -1648,7 +1648,7 @@ module telescopic_clamp(){
 
 
 
-universal_cuts();
+*universal_cuts();
 module universal_cuts(){
     if(split_in_half==true) {
         color("red", 0.2)
@@ -1688,12 +1688,10 @@ module universal_cuts(){
         junglecat_cuts(universal_inside=true);
     }
     if(speaker_holes_bottom) {
-        hole_sep = 10;
+        hole_sep = body_thickness/1.7;
         hole_rad = body_thickness/4;
-        for(i=[0:floor((body_length-body_radius)/hole_sep/2)]){
-            echo("i ",i);
-            echo("body seam ",body_seam_width);
-            echo("floor ",floor((body_length-body_radius)/hole_sep/2));
+        copy_mirror()
+        for(i=[0:floor((body_length-body_radius*2)/hole_sep/2)]){
             if(i*hole_sep>body_seam_width/2)
             color("red", 0.2)
             translate([-body_width/2,i*hole_sep,0])
