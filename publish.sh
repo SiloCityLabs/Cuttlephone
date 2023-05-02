@@ -33,6 +33,7 @@ filetype='3mf'
 echo "Copying all models"
 
 #loop through all case configs and build models
+#TODO: use the build tags in build_vars. Only copy files we made already
 for model in "${presets[@]}"; do
     for case_type in "${case_types[@]}"; do
         for case_material in "${case_materials[@]}"; do
