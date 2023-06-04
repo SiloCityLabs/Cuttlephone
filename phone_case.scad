@@ -215,10 +215,10 @@ in_development=false;
 module end_customizer_variables(){}
 
 //alternate Fn values to speed up OpenSCAD. Turn this up during build
-$fn=20;
 //$fn= $preview ? 32 : 60;
 lowFn = 10;
 highFn = 25;
+$fn=highFn;
 
  /* I cannot override some variables via command line. Why? This works. */
 case_type_override="stupid_hack";
@@ -417,7 +417,7 @@ module body(disable_curved_screen=false){
                     r=body_radius,
                     chamfer1=body_radius_bottom, 
                     chamfer2=body_radius_top,
-                    $fn=15
+                    $fn=lowFn
                 );
             } else {
                 cyl( 
@@ -425,7 +425,7 @@ module body(disable_curved_screen=false){
                     r=body_radius,
                     rounding1=body_radius_bottom, 
                     rounding2=body_radius_top,
-                    $fn=15
+                    $fn=lowFn
                 );
             }
             
@@ -800,7 +800,7 @@ module gamepad_hole(){
         h=body_thickness+extra_height,
         rounding=gamepad_cut_radius,
         anchor=CENTER,
-        $fn=15
+        $fn=lowFn
     );
 }
 
@@ -832,7 +832,7 @@ module gamepad_trigger(){
             h=trigger_stickout,
             rounding=trigger_rounding_profile, 
             anchor=BOTTOM+CENTER,
-            $fn=10
+            $fn=lowFn
         );
         
         translate([0,0,-case_thickness2-gamepad_width_buffer]){
@@ -842,7 +842,7 @@ module gamepad_trigger(){
                 h=case_thickness2+gamepad_width_buffer,
                 rounding=trigger_rounding_profile, 
                 anchor=BOTTOM+CENTER,
-                $fn=10
+                $fn=lowFn
             );
             
             
@@ -853,7 +853,7 @@ module gamepad_trigger(){
                 h=min_trigger_inside_lip_thickness,
                 rounding=trigger_rounding_profile, 
                 anchor=BOTTOM+CENTER,
-                $fn=10
+                $fn=lowFn
             );
         }
     }
@@ -876,7 +876,7 @@ module gamepad_trigger_cut() {
         h=body_thickness*2,
         rounding=trigger_rounding_profile,
         anchor=RIGHT+CENTER,
-        $fn=10
+        $fn=lowFn
     );
 }
 //gamepad_ffc_cut();
@@ -1792,7 +1792,7 @@ module hard_cut(width=8, top_radius=4, bottom_radius=3.9){
     }
     
     rectangle = square([width, hard_cut_depth],center=true);
-    round_rectangle = round_corners(rectangle, radius=bottom_radius,$fn=15);
+    round_rectangle = round_corners(rectangle, radius=bottom_radius,$fn=lowFn);
     //round_rectangle = round_corners(rectangle, radius=bottom_radius,$fn=15);
     color("red", 0.2)
     translate( [0, 0, -body_thickness/2  +0.01] )
