@@ -55,6 +55,8 @@ test_mode = "none"; //[none, corners, right_edge, right_buttons, left_edge, bott
 //NOT WORKING. A plastic guide to help you cut the support out of the Joycon or Junglecat rails
 rail_cut_tools = false;
 
+render_quality="quick"; // [quick, export]
+
 /* [body] */
 
 //rounding of the corners when viewed screen-up.
@@ -210,15 +212,15 @@ build_joycon=true;
 build_hard=true;
 build_soft=true;
 in_development=false;
-
 //end customizer variables
 module end_customizer_variables(){}
 
 //alternate Fn values to speed up OpenSCAD. Turn this up during build
-//$fn= $preview ? 32 : 60;
-lowFn = 10;
-highFn = 25;
+lowFn = render_quality == "export" ? 100 : 10;
+highFn = render_quality == "export" ? 150 : 25;
 $fn=highFn;
+
+echo(render_quality,lowFn,highFn,$fn);
 
  /* I cannot override some variables via command line. Why? This works. */
 case_type_override="stupid_hack";
