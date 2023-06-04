@@ -94,7 +94,7 @@ screen_extra_top_right = 0;
 screen_extra_bottom_left = 0;
 screen_extra_bottom_right = 0;
 
-/* [buttons] */
+/* [buttons - on the phone's body] */
 right_power_button = false;
 right_power_from_top = 31.1;
 right_power_length = 10.1;
@@ -110,7 +110,13 @@ left_volume_length = 20.1;
 //moves the buttons toward the screen (positive) or toward the back panel (negative). Buttons are centered by default
 buttons_vertical_fudge = 0.1;
 //how much the buttons stick out
-button_recess = 1.8;
+button_recess = 0.5;
+
+/* [buttons - on the case] */
+// how much should the buttons protrude out of the case
+button_protrusion = 0.8;
+right_power_button_texture = "serrated"; //[none,serrated]
+left_power_button_texture = "serrated"; //[none,serrated]
 
 /* [more buttons] */
 right_button_1 = false;
@@ -125,6 +131,9 @@ right_button_2_length = 10.1;
 left_button_2 = false;
 left_button_2_from_top = 131.1;
 left_button_2_length = 10.1;
+
+/* [more holes] */
+
 right_hole_1 = false;
 right_hole_1_from_top = 89.1;
 right_hole_1_length = 10.1;
@@ -1222,18 +1231,18 @@ module soft_cut( button_length, disable_support=false, disable_bevel=false, clea
 module soft_buttons(){
     //left_button=true;
     if(left_power_button){
-        soft_button(false, left_power_length, left_power_from_top);
+        soft_button(false, left_power_length, left_power_from_top, button_protrusion = button_protrusion, texture=left_power_button_texture);
     }
     if(left_volume_buttons){
-        soft_button(false, left_volume_length, left_volume_from_top, volume_notch=true);
+        soft_button(false, left_volume_length, left_volume_from_top, button_protrusion = button_protrusion, rocker_notch=true);
     }
     
     //right_button_cut=true;
     if(right_power_button){
-        soft_button(true, right_power_length, right_power_from_top);
+        soft_button(true, right_power_length, right_power_from_top, texture=right_power_button_texture);
     }
     if(right_volume_buttons){
-        soft_button(true, right_volume_length, right_volume_from_top, volume_notch=true);
+        soft_button(true, right_volume_length, right_volume_from_top, rocker_notch=true);
     }
 
     //TODO: make soft_button more general
@@ -1247,11 +1256,10 @@ module soft_buttons(){
     soft_button(right=false, button_length=left_button_2_length, button_from_top=left_button_2_from_top);
 }
 
-module soft_button(right, button_length, button_from_top, volume_notch=false){
+module soft_button(right, button_length, button_from_top, button_protrusion = 0.8, rocker_notch=false, texture="none"){
     right_or_left = right ? 1 : -1;
-    button_protrusion2 = 0.8;
     //if the case is thin and the button sticks out a lot, extend the button
-    button_protrusion = (button_recess >  case_thickness2+button_protrusion2) ? button_recess+button_protrusion2 : case_thickness2+button_protrusion2;
+    button_protrusion_compensated = (button_recess >  case_thickness2+button_protrusion) ? button_recess+button_protrusion : case_thickness2+button_protrusion;
     button_padding=2; //bonus to allow error in measuring
     
     color("SeaGreen", 0.8)
@@ -1280,7 +1288,7 @@ module soft_button(right, button_length, button_from_top, volume_notch=false){
         prismoid(
             size1=[button_length+button_padding*2,soft_button_thickness1], 
             size2=[(button_length+button_padding*2)*0.9,soft_button_thickness2], 
-            h=button_protrusion, 
+            h=button_protrusion_compensated, 
             rounding=button_rounding, 
             anchor=CENTER+BOTTOM
         );
@@ -1297,18 +1305,18 @@ module soft_button(right, button_length, button_from_top, volume_notch=false){
                 anchor=CENTER
             );
             
-            if(volume_notch) {
+            if(rocker_notch) {
                 //a single cut in the middle of the button
-                translate([0,0,button_protrusion])
+                translate([0,0,button_protrusion_compensated])
                 rotate([0,45,0])
                 cuboid([2,2,2], anchor=CENTER);
             }
-            else {
+            else if (texture=="serrated") {
                 //a serrated texture
                 box=1;
                 sep=2;
                 for(i=[0:floor(button_length/sep)]){
-                    translate([-i*sep+button_length/2,0,button_protrusion])
+                    translate([-i*sep+button_length/2,0,button_protrusion_compensated])
                     rotate([0,45,0])
                     cuboid([2,2,2], 
                     anchor=CENTER);
