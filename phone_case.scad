@@ -1050,8 +1050,12 @@ module lanyard_cut(){
     ring(body_thickness/2, 9, 6, 0.1 );
 }
 
-usb_cut_width = 14;
-usb_cut_rounding = 2;
+// The USB Type C spec prescribes 12.35 x 6.5 for the overmold portion of a plug, but practice shows this is often taken as a suggestion by cable manufacturers.
+// Throw in manufacturing and printing tolerances in the mix and it is wiser to leave some room for error.
+usb_cut_width = 13;
+usb_cut_height = 7;
+usb_cut_rounding = 1;
+
 speaker_cut_width = body_width*0.2;
 speaker_hard_cut_width = body_width*0.65;
 charge_port_width = (bottom_speakers_left || bottom_speakers_right || case_type2=="gamepad") ? speaker_hard_cut_width : usb_cut_width;
@@ -1068,21 +1072,20 @@ module usb_cut(){
         //usb
         rotate([90,0,0])
         soft_cut(
-            usb_cut_width, 
-            clearance=0, 
+            width=usb_cut_width,
+            height=usb_cut_height,
+            horizontal_clearance=0,
             disable_bevel=(case_type2=="junglecat" || case_type2=="joycon" || case_type2=="gamepad"),
-            junglecat_support=true,
-            extra_tall=true
+            junglecat_support=(case_type2=="junglecat")
         );
         
         //speakers
         fudge=3; //avoid overlapping the USB's bevel cut
         if(bottom_speakers_right){
-            //calculate speaker cuts based on phone width
-            translate([usb_cut_width/2+fudge+speaker_cut_width/2,0,0])
+            translate([bottom_speaker_inner_edge_from_center+bottom_speaker_width/2,0,0])
             rotate([90,0,0])
             soft_cut(
-                speaker_cut_width, disable_bevel=true, clearance=0,
+                width=bottom_speaker_width, height=bottom_speaker_height, disable_bevel=true, horizontal_clearance=1, vertical_clearance=1,
                 shallow_cut=(case_type2=="junglecat" || case_type2=="joycon" || case_type2=="gamepad")
             );
         }
@@ -1090,7 +1093,7 @@ module usb_cut(){
             translate([-usb_cut_width/2-fudge-speaker_cut_width/2,0,0])
             rotate([90,0,0])
             soft_cut(
-                speaker_cut_width, disable_bevel=true, clearance=0, shallow_cut=(case_type2=="junglecat" || case_type2=="joycon" || case_type2=="gamepad")
+                width=bottom_speaker_width, height=bottom_speaker_height, disable_bevel=true, horizontal_clearance=1, vertical_clearance=1, shallow_cut=(case_type2=="junglecat" || case_type2=="joycon" || case_type2=="gamepad")
             );
         }
     }
@@ -1148,7 +1151,7 @@ module soft_button_recess(right, button_length, button_offset, disable_supports=
         buttons_vertical_fudge
     ] )
     rotate([right_or_left*90,0,90])
-    soft_cut(button_length, disable_support=disable_supports, clearance=soft_buttons_clearance);
+    soft_cut(width=button_length, height=soft_cut_height1, disable_support=disable_supports, horizontal_clearance=soft_buttons_clearance);
 }
 
 module hard_button_cut(right,  power_button, power_from_top, power_length, volume_buttons, volume_from_top, volume_length){
@@ -1184,8 +1187,8 @@ module hard_button_cut(right,  power_button, power_from_top, power_length, volum
 }
 
 //simple cutout for mute switches
-module soft_cut( button_length, disable_support=false, disable_bevel=false, clearance, shallow_cut=false, junglecat_support=false, joycon_support=false, extra_tall=false ){
-    cut_height = extra_tall ? soft_cut_height2 : soft_cut_height1;
+module soft_cut( width, height, disable_support=false, disable_bevel=false, horizontal_clearance = 0, vertical_clearance = 0, shallow_cut=false, junglecat_support=false, joycon_support=false){
+    cut_height = height;
     cut_depth = shallow_cut ? 0 : 15;
     
     difference() {
@@ -1196,19 +1199,15 @@ module soft_cut( button_length, disable_support=false, disable_bevel=false, clea
         color("blue", 0.2)
         if(manual_supports==true && !disable_support) {
             prismoid(
-                size1=[button_length+clearance*2 - button_cut_rounding*2, cut_height],
-                size2=[button_length+clearance*2 - button_cut_rounding*2, cut_height],
+                size1=[width+horizontal_clearance*2 - button_cut_rounding*2, cut_height+vertical_clearance*2 - button_cut_rounding*2],
+                size2=[width+horizontal_clearance*2 - button_cut_rounding*2, cut_height+vertical_clearance*2 - button_cut_rounding*2],
                 h=support_thickness, 
                 anchor=CENTER
             );
             //TODO: manual support for junglecat and joycon
             if(junglecat_support && ( case_type2=="junglecat" || case_type2=="joycon" ) ) {
-                //for(i=[0:floor(case_thickness2+junglecat_inner_width)]) {
-                //  translate([0,0,1*i])
-                //  prismoid(size1=[button_length+clearance*2-button_cut_rounding*2,body_thickness*0.6], size2=[button_length+clearance*2-button_cut_rounding*2,body_thickness*0.6], h=support_thickness, anchor=CENTER);
-                //}
                 translate([0,0,case_thickness2+junglecat_inner_width])
-                prismoid(size1=[button_length+clearance*2-button_cut_rounding*2,cut_height], size2=[button_length+clearance*2-button_cut_rounding*2,cut_height], h=support_thickness, anchor=CENTER);
+                prismoid(size1=[width+horizontal_clearance*2-button_cut_rounding*2,cut_height], size2=[width+horizontal_clearance*2-button_cut_rounding*2,cut_height], h=support_thickness, anchor=CENTER);
             }
         }
     }
@@ -1216,8 +1215,8 @@ module soft_cut( button_length, disable_support=false, disable_bevel=false, clea
     module soft_cut_submodule(){
         //straight-thru cut
         prismoid( 
-            size1=[ button_length+clearance*2, cut_height ], 
-            size2=[ button_length+clearance*2, cut_height ], 
+            size1=[ width+horizontal_clearance*2, cut_height+vertical_clearance*2 ], 
+            size2=[ width+horizontal_clearance*2, cut_height+vertical_clearance*2 ], 
             rounding=button_cut_rounding, 
             h=case_thickness2*3+cut_depth, 
             anchor=CENTER, 
@@ -1231,8 +1230,8 @@ module soft_cut( button_length, disable_support=false, disable_bevel=false, clea
         z_bonus = bevel_cut_height*tan(z_angle); //opposite side
         if(!disable_bevel)
         prismoid(
-            size1=[ button_length+clearance*2, cut_height ], 
-            size2=[ button_length+clearance*2+y_bonus, cut_height+z_bonus ], 
+            size1=[ width+horizontal_clearance*2, cut_height ], 
+            size2=[ width+horizontal_clearance*2+y_bonus, cut_height+z_bonus ], 
             rounding=button_cut_rounding, 
             h=bevel_cut_height, 
             anchor=CENTER+BOTTOM, 
