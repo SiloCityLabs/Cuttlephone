@@ -425,41 +425,46 @@ module junglecat_rails(){
     telescopic_clamp();
 }
 
-//body();
-module body(disable_curved_screen=false){
+*body();
+module body(disable_curved_screen=false, include_camera_block=true){
     color("orange", 0.6)
-    difference() {
-        minkowski() {
-            cube([ body_width - 2*body_radius, 
-                body_length - 2*body_radius, 
-                0.01 ], 
-                center=true
-            );
-            //edge profile
-            //this pill shape will spin around the cube
-            if(body_chamfer) {
-                cyl( 
-                    l=body_thickness, 
-                    r=body_radius,
-                    chamfer1=body_radius_bottom, 
-                    chamfer2=body_radius_top,
-                    $fn=lowFn
+    union() {
+        difference() {
+            minkowski() {
+                cube([ body_width - 2*body_radius, 
+                    body_length - 2*body_radius, 
+                    0.01 ], 
+                    center=true
                 );
-            } else {
-                cyl( 
-                    l=body_thickness, 
-                    r=body_radius,
-                    rounding1=body_radius_bottom, 
-                    rounding2=body_radius_top,
-                    $fn=lowFn
-                );
+                //edge profile
+                //this pill shape will spin around the cube
+                if(body_chamfer) {
+                    cyl( 
+                        l=body_thickness, 
+                        r=body_radius,
+                        chamfer1=body_radius_bottom, 
+                        chamfer2=body_radius_top,
+                        $fn=lowFn
+                    );
+                } else {
+                    cyl( 
+                        l=body_thickness, 
+                        r=body_radius,
+                        rounding1=body_radius_bottom, 
+                        rounding2=body_radius_top,
+                        $fn=lowFn
+                    );
+                }
+                
             }
-            
+            //for curved screens and irregular shapes like Galaxy S9+
+            //only for the phone shape, not the outside of the case. It causes a snag at the corner
+            if(!disable_curved_screen){
+                body_extra_radius();
+            }
         }
-        //for curved screens and irregular shapes like Galaxy S9+
-        //only for the phone shape, not the outside of the case. It causes a snag at the corner
-        if(!disable_curved_screen){
-            body_extra_radius();
+        if (camera_block_style == "bar" && include_camera_block) {
+            translate([0,body_length/2-camera_from_top-camera_height/2,-body_thickness/2]) body_camera_bar();
         }
     }
 }
@@ -492,6 +497,18 @@ module body_extra_radius(){
         translate([-body_width/2,0,body_thickness/2])
         rotate([-90,0,0])
         shallow_fillet(l=body_length*debug-body_radius, r=screen_curve_radius, ang=screen_curve_angle);
+    }
+}
+
+*body_camera_bar();
+module body_camera_bar(){
+    difference() {
+        intersection() {
+            translate([0,0,camera_block_fillet_radius-camera_protrusion])  cuboid([camera_width+camera_block_fillet_radius*2,camera_height,camera_block_fillet_radius*2], rounding = camera_block_fillet_radius, edges = [BOTTOM+LEFT,BOTTOM+RIGHT]);
+            translate([0,0,-camera_protrusion/2]) cube([body_width,camera_height,camera_protrusion*2], center = true);
+        }
+        translate([body_width/2-body_radius_bottom/2,0,camera_protrusion/2]) cube([body_radius_bottom/2,camera_height*2,camera_protrusion*2], center = true);
+        translate([-(body_width/2-body_radius_bottom/2),0,camera_protrusion/2]) cube([body_radius_bottom/2,camera_height*2,camera_protrusion*2], center = true);
     }
 }
 
@@ -540,17 +557,27 @@ module manual_supports_(){
     }
 }
 
-//phone_shell();
+*phone_shell();
 module phone_shell(){
     translate([0,0,extra_lip_bonus/2])
-    difference() {
-        resize(newsize=[
-            body_width + 2*case_thickness2 + 2*shell_side_stickout,
-            body_length + 2*case_thickness2,
-            body_thickness + 2*case_thickness2 + extra_lip_bonus
-        ])
-        body(disable_curved_screen=true);
-        
+    union() {
+        difference() {
+            resize(newsize=[
+                body_width + 2*case_thickness2 + 2*shell_side_stickout,
+                body_length + 2*case_thickness2,
+                body_thickness + 2*case_thickness2 + extra_lip_bonus
+            ])
+            body(disable_curved_screen=true, include_camera_block=false);
+        }
+        if (camera_block_style == "bar" && camera_protrusion > case_thickness2) {
+            translate([0,body_length/2-camera_from_top-camera_height/2,-body_thickness/2])
+            resize(newsize=[
+                body_width + 2*case_thickness2 + 2*shell_side_stickout - body_radius_bottom,
+                camera_height + 2*case_thickness2,
+                camera_protrusion + 2*case_thickness2
+            ])
+            body_camera_bar();
+        }
     }
 }
 
