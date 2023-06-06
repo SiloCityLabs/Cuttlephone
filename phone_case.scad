@@ -7,10 +7,13 @@
 use <fonts/orbitron/orbitron-light.otf>
 use <fonts/Baloo_2/Baloo2-VariableFont_wght.ttf>
 use <fonts/Audiowide/Audiowide-Regular.ttf>
-include <libraries/BOSL2/std.scad>
-include <libraries/BOSL2/hull.scad>
-include <libraries/BOSL2/rounding.scad>
-include <libraries/BOSL2/shapes3d.scad>
+
+// The Belfry OpenScad Library, v2
+// These have to be imported using an "include" statement because several variables for things like anchors are defined in here.
+include <libraries/BOSL2_submodule/std.scad>
+include <libraries/BOSL2_submodule/geometry.scad>
+include <libraries/BOSL2_submodule/rounding.scad>
+include <libraries/BOSL2_submodule/shapes3d.scad>
 
 /*  measurements from the phone
  *  all values are in mm
