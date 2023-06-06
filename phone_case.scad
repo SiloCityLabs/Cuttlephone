@@ -178,6 +178,9 @@ fingerprint = false;
 fingerprint_center_from_top = 36.5; // 0.1
 fingerprint_diam = 13.1; // 0.1
 
+// Combines the fingerprint sensor and camera opening into a single larger one. One example where this works well is a thicker soft case on the Pixel 5. (Using OpenSCAD hull() to be specific.)
+fingerprint_combine_with_camera = false;
+
 /* [charge, headphone, and mic] */
 mic_on_top = false;
 mic_on_bottom = false;
@@ -374,9 +377,19 @@ module gamepad(){
 module shell_cuts(){
     usb_cut();
     button_cuts();
-    camera_cut();
-    extra_camera_cut();
-    fingerprint_cut();
+
+    if (fingerprint_combine_with_camera) {
+        hull() {
+            camera_cut();
+            extra_camera_cut();
+            fingerprint_cut();
+        }
+    } else {
+        camera_cut();
+        extra_camera_cut();
+        fingerprint_cut();
+    }
+
     mic_cuts();
     top_headphone_cut();
     screen_cut();
