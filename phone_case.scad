@@ -1291,21 +1291,21 @@ module soft_buttons(){
     
     //right_button_cut=true;
     if(right_power_button){
-        soft_button(true, right_power_length, right_power_from_top, texture=right_power_button_texture);
+        soft_button(true, right_power_length, right_power_from_top, button_protrusion = button_protrusion, texture=right_power_button_texture);
     }
     if(right_volume_buttons){
-        soft_button(true, right_volume_length, right_volume_from_top, rocker_notch=true);
+        soft_button(true, right_volume_length, right_volume_from_top, button_protrusion = button_protrusion, rocker_notch=true);
     }
 
     //TODO: make soft_button more general
     if(right_button_1)
-    soft_button(right=true, button_length=right_button_1_length, button_from_top=right_button_1_from_top);
+    soft_button(right=true, button_length=right_button_1_length, button_protrusion = button_protrusion, button_from_top=right_button_1_from_top);
     if(left_button_1)
-    soft_button(right=false, button_length=left_button_1_length, button_from_top=left_button_1_from_top);
+    soft_button(right=false, button_length=left_button_1_length, button_protrusion = button_protrusion, button_from_top=left_button_1_from_top);
     if(right_button_2)
-    soft_button(right=true, button_length=right_button_2_length, button_from_top=right_button_2_from_top);
+    soft_button(right=true, button_length=right_button_2_length, button_protrusion = button_protrusion, button_from_top=right_button_2_from_top);
     if(left_button_2)
-    soft_button(right=false, button_length=left_button_2_length, button_from_top=left_button_2_from_top);
+    soft_button(right=false, button_length=left_button_2_length, button_protrusion = button_protrusion, button_from_top=left_button_2_from_top);
 }
 
 module soft_button(right, button_length, button_from_top, button_protrusion = 0.8, rocker_notch=false, texture="none"){
