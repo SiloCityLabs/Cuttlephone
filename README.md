@@ -17,7 +17,7 @@ Cuttlephone is phone case generator and gamepad system for 3D printing. This is 
  
  # How to use phone case generator
  - install [OpenSCAD](https://openscad.org/downloads.html) version 2021.01 or greater
- - Download the code above using Code > Download ZIP or use git command line: `git clone https://github.com/SiloCityLabs/Cuttlephone.git` 
+ - Download the code and its dependencies using the git command line: `git clone https://github.com/SiloCityLabs/Cuttlephone.git --recurse-submodules`
  - open the file "phone_case.scad" to use the GUI
  
  # Build and publish scripts
