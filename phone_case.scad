@@ -28,6 +28,12 @@ case_type = "phone case"; // [phone case, gamepad, joycon, junglecat]
 case_thickness = 1.6; // 0.1
 //if the screen is curved and the case cutaway, you might want some extra grip
 shell_side_stickout = 0; // 0.1
+// Thin the shell lips around the screen bezels, keeping full case thickness at the top and bottom
+shell_enable_angled_screen_bezels = false;
+// Thickest the lip should be on the outer edges (in practice - a little under that due to curves used)
+shell_screen_max_lip_outer = 2; // 0.1
+// Thinnest the lip should be on the inner edges
+shell_screen_min_lip_inner = 1; // 0.1
 
 /* [emboss] */
 phone_model = "Pixel 3";
@@ -262,8 +268,6 @@ module end_customizer_variables(){}
 lowFn = render_quality == "export" ? 100 : 10;
 highFn = render_quality == "export" ? 150 : 25;
 $fn=highFn;
-
-echo(render_quality,lowFn,highFn,$fn);
 
  /* I cannot override some variables via command line. Why? This works. */
 case_type_override="stupid_hack";
@@ -617,7 +621,6 @@ module phone_shell(){
         }
     }
 }
-
 
 module gamepad_shell(){
     minkowski() {
@@ -1066,11 +1069,10 @@ module gamepad_faceplates(){
 }
 
 
-*translate([0,0,10])
-screen_cut();
+*translate([0,0,10]) screen_cut();
 module screen_cut(){
     //TODO: this offset is janky. I cannot properly align "top face cut" 
-    screen_cut_height = case_thickness2+extra_lip_bonus+0.5;
+    screen_cut_height = case_thickness2+extra_lip_bonus;
     screen_corners = [
         screen_radius + screen_extra_bottom_right,
         screen_radius + screen_extra_bottom_left,
@@ -1114,8 +1116,171 @@ module screen_cut(){
         rounding=screen_radius,
         anchor=BOTTOM
     );
-    
+
+    // Screen lip "ramps" - slim the lip on the sides for easier gesture nav
+    if (shell_enable_angled_screen_bezels) {
+        screen_angled_bezels();
+    }
+
 }
+
+*screen_angled_bezels();
+module screen_angled_bezels(){
+
+    bezel_shapes();
+    mirror([1,0,0]) bezel_shapes();
+    mirror([0,1,0]) bezel_shapes();
+    mirror([1,0,0]) mirror([0,1,0]) bezel_shapes();
+
+    module bezel_shapes() {
+        screen_cut_height = case_thickness2+extra_lip_bonus;
+        smooth_edge_radius = (case_thickness2 < screen_cut_height/2) ? case_thickness2 : screen_cut_height/2 - 0.1;
+
+        x1 = -(body_width/2 + case_thickness2 + shell_side_stickout);
+        x2 = -(screen_width/2 + smooth_edge_radius); // front of the left lip
+        x3 = -(screen_width/2); // left edge of the screen
+        x4 = -(screen_width/2 - screen_radius);
+
+        y1 = -(screen_length/2 + smooth_edge_radius); // bottom edge of the case shell
+        y2 = -(screen_length/2 + (smooth_edge_radius - screen_radius)/2); // front of the bottom lip
+        y3 = -(screen_length/2 - screen_radius);
+        y4 = -(screen_length/2 - screen_radius*2);
+
+        z0 = body_thickness / 2; // screen surface
+        z1 = z0 + shell_screen_min_lip_inner;
+        z2 = z0 + (shell_screen_min_lip_inner + shell_screen_max_lip_outer)/2;
+        z3 = z0 + shell_screen_max_lip_outer;
+        z4 = z0 + case_thickness2 + extra_lip_bonus;
+
+        // Left edge
+        patch_left_edge = [
+            [[x1,0,z3], [x2,0,z2], [x3,0,z1]],
+            [[x1,y4,z3], [x2,y4,z2], [x3,y4,z1]]
+        ];
+        *debug_bezier_patches([patch_left_edge]);
+
+        patch_left_cap = [
+            [[x1,y4,z3], [x2,y4,z3], [x3,y4,z3]],
+            [[x1,0,z3], [x2,0,z3], [x3,0,z3]]
+        ];
+        *debug_bezier_patches([patch_left_cap]);
+
+        patch_left_bottom_end = [
+            [[x1,y4,z3], [x2,y4,z2], [x3,y4,z1]],
+            [[x1,y4,z3], [x2,y4,z3], [x3,y4,z3]]
+        ];
+        *debug_bezier_patches([patch_left_bottom_end]);
+
+        patch_left_side = [
+            [[x3,y4,z1], [x3,0,z1]],
+            [[x3,y4,z3], [x3,0,z3]]
+        ];
+        *debug_bezier_patches([patch_left_side]);
+
+        patch_left_top_end = [
+            [[x1,0,z3], [x2,0,z3], [x3,0,z3]],
+            [[x1,0,z3], [x2,0,z2], [x3,0,z1]]
+        ];
+        *debug_bezier_patches([patch_left_top_end]);
+
+        left_edge_patches = [patch_left_edge, patch_left_cap, patch_left_bottom_end, patch_left_side, patch_left_top_end];
+        *debug_bezier_patches(left_edge_patches);
+        left_edge_vnf = bezier_vnf(left_edge_patches, splinesteps=16);
+        *vnf_validate(left_edge_vnf);
+        vnf_polyhedron(left_edge_vnf);
+
+        translate([x1, y4, z3]) cube([-x1+x3, -y4, z4-z3+1]);
+        translate([x3, y4, z1]) cube([1, -y4, z4-z1+1]);
+
+        // Corner
+        patch_corner_back = [
+            [[x1,y4,z3], [x2,y4,z2], [x3,y4,z1]],
+            [[x1,y3,z3], [x2,y3,z2], [x3,y3,z1]],
+            [[x1,y2,z4], [x2,y2,z4], [x3,y2,z4]],
+            [[x1,y1,z4], [x2,y1,z4], [x3,y1,z4]]
+        ];
+        *debug_bezier_patches([patch_corner_back]);
+
+        patch_corner_top_end = [
+            [[x1,y4,z4], [x2,y4,z4], [x3,y4,z4]],
+            [[x1,y4,z3], [x2,y4,z2], [x3,y4,z1]]
+        ];
+        *debug_bezier_patches([patch_corner_top_end]);
+
+        patch_corner_left_side = [
+            [[x1,y1,z4], [x1,y2,z4], [x1,y3,z4],[x1,y4,z4]],
+            [[x1,y1,z4], [x1,y2,z4], [x1,y3,z3],[x1,y4,z3]]
+        ];
+        *debug_bezier_patches([patch_corner_left_side]);
+
+        patch_corner_right_side = [
+            [[x3,y1,z4], [x3,y2,z4], [x3,y3,z1],[x3,y4,z1]],
+            [[x3,y1,z4], [x3,y2,z4], [x3,y3,z4],[x3,y4,z4]]
+        ];
+        *debug_bezier_patches([patch_corner_right_side]);
+
+        patch_corner_front = [
+            [[x1,y1,z4], [x2,y1,z4], [x3,y1,z4]],
+            [[x1,y2,z4], [x2,y2,z4], [x3,y2,z4]],
+            [[x1,y3,z4], [x2,y3,z4], [x3,y3,z4]],
+            [[x1,y4,z4], [x2,y4,z4], [x3,y4,z4]]
+        ];
+        *debug_bezier_patches([patch_corner_front]);
+
+        corner_patches = [patch_corner_back, patch_corner_top_end, patch_corner_front, patch_corner_left_side, patch_corner_right_side];
+        *debug_bezier_patches(corner_patches);
+        corner_vnf = bezier_vnf(corner_patches, splinesteps=16);
+        *vnf_validate(corner_vnf);
+        vnf_polyhedron(corner_vnf);
+
+        translate([x1, y1, z4]) cube([-x1+x3, -y1+y4, 1]);
+
+        // Bottom
+        patch_bottom_back = [
+            [[x3,y4,z1], [0,y4,z1]],
+            [[x3,y3,z1], [0,y3,z1]],
+            [[x3,y2,z4], [0,y2,z4]],
+            [[x3,y1,z4], [0,y1,z4]]
+        ];
+        *debug_bezier_patches([patch_bottom_back]);
+
+        patch_bottom_left_side = [
+            [[x3,y1,z4], [x3,y2,z4], [x3,y3,z4],[x3,y4,z4]],
+            [[x3,y1,z4], [x3,y2,z4], [x3,y3,z1],[x3,y4,z1]]
+        ];
+        *debug_bezier_patches([patch_bottom_left_side]);
+
+        patch_bottom_right_side = [
+            [[0,y1,z4], [0,y2,z4], [0,y3,z1],[0,y4,z1]],
+            [[0,y1,z4], [0,y2,z4], [0,y3,z4],[0,y4,z4]]
+        ];
+        *debug_bezier_patches([patch_bottom_right_side]);
+
+        patch_bottom_top_side = [
+            [[x3,y4,z4], [0,y4,z4]],
+            [[x3,y4,z1], [0,y4,z1]]
+        ];
+        *debug_bezier_patches([patch_bottom_top_side]);
+
+        patch_bottom_front = [
+            [[x3,y1,z4], [0,y1,z4]],
+            [[x3,y2,z4], [0,y2,z4]],
+            [[x3,y3,z4], [0,y3,z4]],
+            [[x3,y4,z4], [0,y4,z4]]
+        ];
+        *debug_bezier_patches([patch_bottom_front]);
+
+        bottom_patches = [patch_bottom_back, patch_bottom_left_side, patch_bottom_right_side, patch_bottom_top_side, patch_bottom_front];
+        *debug_bezier_patches(bottom_patches);
+        bottom_vnf = bezier_vnf(bottom_patches, splinesteps=16);
+        *vnf_validate(bottom_vnf);
+        vnf_polyhedron(bottom_vnf);
+
+        translate([x3, y1, z4]) cube([-x3, -y1+y4, 1]);
+
+    }
+}
+
 
 *color("red", 0.2) lanyard_cut();
 module lanyard_cut(){
