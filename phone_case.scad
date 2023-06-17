@@ -25,21 +25,21 @@ include <libraries/BOSL2_submodule/shapes3d.scad>
 case_material = "hard"; // [hard, soft]
 case_type = "phone case"; // [phone case, gamepad, joycon, junglecat]
 
-case_thickness = 1.6;
+case_thickness = 1.6; // 0.1
 //if the screen is curved and the case cutaway, you might want some extra grip
-shell_side_stickout = 0;
+shell_side_stickout = 0; // 0.1
 
 /* [emboss] */
 phone_model = "Pixel 3";
 emboss_size = "large"; // [logo, large, small, very_small, none]
 //Check font names in OpenSCAD > Help > Font List. Simple sans-serif fonts will print better
 emboss_font = "Audiowide";
-font_size = 7.1;
+font_size = 7.1; // 0.1
 emboss_small_font = "Audiowide";
-small_font_size = 6.1;
+small_font_size = 6.1; // 0.1
 emboss_logo = "logos/dude.svg";
-logo_x = 0.0;
-logo_y = 0.0;
+logo_x = 0.0; // 0.1
+logo_y = 0.0; // 0.1
 
 /* [3D print] */
 
@@ -60,30 +60,30 @@ render_quality="quick"; // [quick, export]
 /* [body] */
 
 //rounding of the corners when viewed screen-up.
-body_radius = 5.25;
+body_radius = 5.25; // 0.01
 //replaces the round radius with a 45-degree cut
 body_chamfer = false;
-body_length = 145.5;
-body_width = 70.1;
-body_thickness = 8.1;
-body_radius_top = 2.1;
-body_radius_bottom = 3.1;
+body_length = 145.5; // 0.1
+body_width = 70.1; // 0.1
+body_thickness = 8.1; // 0.1
+body_radius_top = 2.1; // 0.01
+body_radius_bottom = 3.1; // 0.01
 //for phones with different rounding on the sides, like Galaxy S9
-body_bottom_side_radius = 0.1;
+body_bottom_side_radius = 0.1; // 0.01
 //decrease for shallow shallow curves like the S9
-body_bottom_side_angle = 90;
+body_bottom_side_angle = 90; // 0.1
 
 /* [screen] */
 
-screen_radius = 8.01;
-screen_lip_length = 3.1;
+screen_radius = 8.01; // 0.01
+screen_lip_length = 3.1; // 0.1
 screen_length = body_length - screen_lip_length;
-screen_lip_width = 3.1;
+screen_lip_width = 3.1; // 0.1
 screen_width = body_width - screen_lip_width;
 //left/right curved screen radius
-screen_curve_radius = 0.1;
+screen_curve_radius = 0.1; // 0.1
 //decrease for shallow shallow curves like the S9
-screen_curve_angle = 90;
+screen_curve_angle = 90; // 0.1
 //cuts away the side of the case for curved screens
 screen_undercut = 0.1; //default is 0.01 because of Openscad precision bug
 //sticks up so the screen is recessed
@@ -91,28 +91,28 @@ extra_lip = false;
 //NOT WORKING: if the corners are sharp, add some "ramp" to the sides
 extra_sides = false;
 //use these if one of the corners is particularly loose and you've already tuned the body tight
-screen_extra_top_left = 0;
-screen_extra_top_right = 0;
-screen_extra_bottom_left = 0;
-screen_extra_bottom_right = 0;
+screen_extra_top_left = 0; // 0.1
+screen_extra_top_right = 0; // 0.1
+screen_extra_bottom_left = 0; // 0.1
+screen_extra_bottom_right = 0; // 0.1
 
 /* [buttons - on the phone's body] */
 right_power_button = false;
-right_power_from_top = 31.1;
-right_power_length = 10.1;
+right_power_from_top = 31.1; // 0.1
+right_power_length = 10.1; // 0.1
 right_volume_buttons = false;
-right_volume_from_top = 50.1;
-right_volume_length = 20.1;
+right_volume_from_top = 50.1; // 0.1
+right_volume_length = 20.1; // 0.1
 left_power_button = false;
-left_power_from_top = 30.1;
-left_power_length = 10.1;
-left_volume_from_top = 50.1;
+left_power_from_top = 30.1; // 0.1
+left_power_length = 10.1; // 0.1
+left_volume_from_top = 50.1; // 0.1
 left_volume_buttons = false;
-left_volume_length = 20.1;
+left_volume_length = 20.1; // 0.1
 //moves the buttons toward the screen (positive) or toward the back panel (negative). Buttons are centered by default
-buttons_vertical_fudge = 0.1;
+buttons_vertical_fudge = 0.1; // 0.1
 //how much the buttons stick out
-button_recess = 0.5;
+button_recess = 0.5; // 0.1
 
 /* [buttons - on the case] */
 // how much should the buttons protrude out of the case
@@ -122,87 +122,93 @@ left_power_button_texture = "serrated"; //[none,serrated]
 
 /* [more buttons] */
 right_button_1 = false;
-right_button_1_from_top = 111.1;
-right_button_1_length = 10.1;
+right_button_1_from_top = 111.1; // 0.1
+right_button_1_length = 10.1; // 0.1
 left_button_1 = false;
-left_button_1_from_top = 111.1;
-left_button_1_length = 10.1;
+left_button_1_from_top = 111.1; // 0.1
+left_button_1_length = 10.1; // 0.1
 right_button_2 = false;
-right_button_2_from_top = 131.1;
-right_button_2_length = 10.1;
+right_button_2_from_top = 131.1; // 0.1
+right_button_2_length = 10.1; // 0.1
 left_button_2 = false;
-left_button_2_from_top = 131.1;
-left_button_2_length = 10.1;
+left_button_2_from_top = 131.1; // 0.1
+left_button_2_length = 10.1; // 0.1
 
 /* [more holes] */
 
 right_hole_1 = false;
-right_hole_1_from_top = 89.1;
-right_hole_1_length = 10.1;
+right_hole_1_from_top = 89.1; // 0.1
+right_hole_1_length = 10.1; // 0.1
 right_hole_2 = false;
-right_hole_2_from_top = 89.1;
-right_hole_2_length = 10.1;
+right_hole_2_from_top = 89.1; // 0.1
+right_hole_2_length = 10.1; // 0.1
 left_hole_1 = false;
-left_hole_1_from_top = 89.1;
-left_hole_1_length = 10.1;
+left_hole_1_from_top = 89.1; // 0.1
+left_hole_1_length = 10.1; // 0.1
 left_hole_2 = false;
-left_hole_2_from_top = 89.1;
-left_hole_2_length = 10.1;
+left_hole_2_from_top = 89.1; // 0.1
+left_hole_2_length = 10.1; // 0.1
 
 /* [camera/fingerprint] */
 
 //camera cutout is a rectangle with rounded corners
 camera = true;
-camera_width = 20.5;
-camera_height = 9.1;
+camera_width = 20.5; // 0.1
+camera_height = 9.1; // 0.1
 //get a circle by setting camera_radius to half of height and width
-camera_radius = 4.5;
-camera_from_side = 8.5;
-camera_from_top = 8.7;
+camera_radius = 4.5; // 0.1
+camera_from_side = 8.5; // 0.1
+camera_from_top = 8.7; // 0.1
 // extra gap around camera. 0.5 - 1.0 recommended. 
-camera_clearance = 1.1;
+camera_clearance = 1.1; // 0.1
 
 //for irregular shapes like Galaxy S9+
 camera_cut_2 = false;
-camera_width_2 = 20.5;
-camera_height_2 = 9.1;
-camera_from_side_2 = 8.5;
-camera_from_top_2 = 8.7;
+camera_width_2 = 20.5; // 0.1
+camera_height_2 = 9.1; // 0.1
+camera_from_side_2 = 8.5; // 0.1
+camera_from_top_2 = 8.7; // 0.1
 
 fingerprint = false;
-fingerprint_center_from_top = 36.5;
-fingerprint_diam = 13.1;
+fingerprint_center_from_top = 36.5; // 0.1
+fingerprint_diam = 13.1; // 0.1
 
 /* [charge, headphone, and mic] */
 mic_on_top = false;
 mic_on_bottom = false;
-top_mic_from_right_edge = 14.1;
-bottom_mic_from_right_edge = 14.1;
-top_mic_offset_up = 0.1;
-bottom_mic_offset_up = 0.1;
-headphone_from_left_edge = 14.1;
+top_mic_from_right_edge = 14.1; // 0.1
+bottom_mic_from_right_edge = 14.1; // 0.1
+top_mic_offset_up = 0.1; // 0.1
+bottom_mic_offset_up = 0.1; // 0.1
+headphone_from_left_edge = 14.1; // 0.1
 headphone_on_top = false;
 headphone_on_bottom = false;
 
 charge_on_bottom = true;
+
 bottom_speakers_right = false;
 bottom_speakers_left = false;
+bottom_speaker_inner_edge_from_center = 11.6; // 0.1
+bottom_speaker_vertical_offset_from_center = 0.0; // 0.1
+bottom_speaker_width = 10.5; // 0.1
+bottom_speaker_height = 1.2; // 0.1
 
 /* [universal phone adapters] */
 split_in_half = false;
 telescopic_pocket = false;
-body_seam_width = 0.1;
-body_seam_offset = 0.1;
+body_seam_width = 0.1; // 0.1
+body_seam_offset = 0.1; // 0.1
 open_top = false;
 open_top_backchop = false;
-open_top_chop_ratio = 0.51;
+open_top_chop_ratio = 0.51; // 0.01
 speaker_holes_bottom = false;
 clamp_top = false;
 rotate_upright = false;
 upright_angle = rotate_upright ? -90 : 0;
 telescopic = false;
-telescopic_clearance_thickness = 0.5;
-telescopic_clearance_width = 0.8; //the body_width direction of the slider, This often needs sanding
+telescopic_clearance_thickness = 0.5; // 0.1
+//the body_width direction of the slider, This often needs sanding
+telescopic_clearance_width = 0.8;  // 0.1
 
 /* [build vars] */
 //will this version be posted on the website?
