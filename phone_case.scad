@@ -161,6 +161,11 @@ camera_from_side = 8.5; // 0.1
 camera_from_top = 8.7; // 0.1
 // extra gap around camera. 0.5 - 1.0 recommended. 
 camera_clearance = 1.1; // 0.1
+// how much does the camera protrude from the body
+camera_protrusion = 0.0; // 0.1
+// Does the camera block interact with the edges of the phone - e.g. "island" does not: Pixel 1 to 5, all iPhones so far; "bar" protrudes from the phone back and joins on both sides: Pixel 6, 7; (unsupported) "right_corner" Galaxy S21
+camera_block_style = "island"; //[island,bar,right_corner]
+camera_block_fillet_radius = 0.5; // 0.1
 
 //for irregular shapes like Galaxy S9+
 camera_cut_2 = false;
