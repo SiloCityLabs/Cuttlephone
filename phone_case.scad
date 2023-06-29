@@ -36,7 +36,7 @@ shell_screen_max_lip_outer = 2; // 0.1
 shell_screen_min_lip_inner = 1; // 0.1
 
 /* [emboss] */
-phone_model = "Pixel 3";
+phone_model = "DO NOT USE";
 emboss_size = "large"; // [logo, large, small, very_small, none]
 //Check font names in OpenSCAD > Help > Font List. Simple sans-serif fonts will print better
 emboss_font = "Audiowide";
@@ -69,8 +69,8 @@ render_quality="quick"; // [quick, export]
 body_radius = 5.25; // 0.01
 //replaces the round radius with a 45-degree cut
 body_chamfer = false;
-body_length = 145.5; // 0.1
-body_width = 70.1; // 0.1
+body_length = 140.0; // 0.1
+body_width = 50.0; // 0.1
 body_thickness = 8.1; // 0.1
 body_radius_top = 2.1; // 0.01
 body_radius_bottom = 3.1; // 0.01
