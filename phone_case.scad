@@ -115,19 +115,30 @@ left_power_length = 10.1; // 0.1
 left_volume_from_top = 50.1; // 0.1
 left_volume_buttons = false;
 left_volume_length = 20.1; // 0.1
+
 //moves the buttons toward the screen (positive) or toward the back panel (negative). Buttons are centered by default
 buttons_vertical_fudge = 0.1; // 0.1
-//how much the buttons stick out
-button_recess = 0.5; // 0.1
-// how thick are the buttons?
+
+// Which style of soft button to use, the older 2022-11 makes some assumptions for which the newer 2023-06 requires measurements, the button shape and wall position are also different.
+soft_button_style = "2023-06"; //[2023-06,2022-11]
+
+// (2022-11 only) how much the buttons stick out
+button_recess = 1.8; // 0.1
+
+// (2023-06 only) how much to the buttons protrude from the device body's edge in the X or Y axis
+button_body_protrusion = 0.5; // 0.1
+
+// (2023-06 only) how thick are the buttons in the Z axis?
 button_case_thickness = 2; // 0.1
 
 /* [buttons - on the case] */
-// how much should the buttons protrude out of the case
+// (2023-06 only) how much should the buttons protrude out of the case in the X or Y axis
 button_protrusion = 0.8; // 0.1
-// wall thickness, impacts how stiff are the buttons going to be
+// (2023-06 only) wall thickness, impacts how stiff are the buttons going to be
 button_wall_thickness = 0.8; // 0.1
+// (2023-06 only) 
 right_power_button_texture = "serrated"; //[none,serrated]
+// (2023-06 only) 
 left_power_button_texture = "serrated"; //[none,serrated]
 // To allow error in measuring length
 button_padding = 2; // 0.1
@@ -137,8 +148,12 @@ buttons_clearance_hard_case = 5; // 0.1
 buttons_clearance_soft_case = 3; // 0.1
 // How thick should the button face be (zero uses hardcoded body_thickness ratios)
 buttons_outer_thickness = 0; // 0.1
-// Button prismoid angle
+// (2023-06 only) Button prismoid angle
 buttons_overhang_angle = 60; // 0.1
+// Include a notch in the volume rocker
+button_volume_rocker_notch = false;
+rocker_notch_length = 1; // 0.1
+
 /* [more buttons] */
 right_button_1 = false;
 right_button_1_from_top = 111.1; // 0.1
@@ -270,10 +285,9 @@ case_thickness2 = (case_thickness2_override!=undef && case_thickness2_override!=
 soft_button_thickness1 = abs(buttons_outer_thickness) < 0.1 ? body_thickness*0.55 : buttons_outer_thickness;
 button_cut_rounding = body_thickness*0.15;
 button_rounding=body_thickness*0.1;
-//peak of the button
+//peak of the button - ignored if using buttons_outer_thickness
 soft_button_thickness2 = body_thickness*0.22;
 soft_cut_height1=body_thickness*0.6;
-soft_cut_height2=body_thickness*0.8;
 extra_lip_bonus = extra_lip ? 1 : 0;
 anti_snag_radius = 3.8;
 upright_translate = rotate_upright ? body_width/2 + case_thickness2 : 0;
@@ -534,7 +548,12 @@ module body_camera_bar(){
 //manual supports, and stick-out buttons for soft TPU prints
 module manual_supports_(){
     if(case_material2=="soft") {
-        soft_buttons();
+        //soft_button_style = "2023-06"; //[2023-06,2022-11]
+        if (soft_button_style == "2023-06") {
+            soft_buttons();
+        } else if (soft_button_style == "2022-11") {
+            soft_buttons_2022_11();
+        }
     }
     //support the lock notch on vertical Joycon prints
     copy_mirror()
@@ -1458,9 +1477,9 @@ module soft_cut( width, height, disable_support=false, disable_bevel=false, beve
     }
 }
 
+// Newer style buttons - less assumptions, reworked wall and shape
 *soft_buttons();
 module soft_buttons(){
-    button_volume_rocker_notch = false;
     if(left_power_button){
         soft_button(false, left_power_length, left_power_from_top, button_protrusion = button_protrusion, texture=left_power_button_texture);
     }
@@ -1489,7 +1508,7 @@ module soft_buttons(){
 module soft_button(right, button_length, button_from_top, button_protrusion = 0.8, rocker_notch=false, texture="none"){
     right_or_left = right ? 1 : -1;
     //if the case is thin and the button sticks out a lot, extend the button
-    button_protrusion_compensated = (button_recess >  case_thickness2+button_protrusion) ? button_recess+button_protrusion : case_thickness2+button_protrusion;
+    button_protrusion_compensated = (button_body_protrusion >  case_thickness2+button_protrusion) ? button_body_protrusion+button_protrusion : case_thickness2+button_protrusion;
     
     color("SeaGreen", 0.8)
     translate( [ right_or_left*(body_width/2),
@@ -1528,7 +1547,7 @@ module soft_button(right, button_length, button_from_top, button_protrusion = 0.
                 );
             } else {
                 prismoid(
-                    size2=[button_length+button_padding*2,soft_button_thickness1], 
+                    size2=[button_length+button_padding*2,buttons_outer_thickness], 
                     xang=buttons_overhang_angle,
                     yang=buttons_overhang_angle,
                     h=button_protrusion_compensated-case_thickness2/2,
@@ -1539,11 +1558,11 @@ module soft_button(right, button_length, button_from_top, button_protrusion = 0.
         }
 
         // Plunger
-        translate([-button_from_top-button_length/2,0,button_recess]) {
+        translate([-button_from_top-button_length/2,0,button_body_protrusion]) {
             prismoid(
                 size1=[button_length,button_case_thickness], 
                 size2=[button_length,button_case_thickness*1.33], 
-                h=case_thickness2/2-button_recess, 
+                h=case_thickness2/2-button_body_protrusion, 
                 rounding=button_rounding, 
                 anchor=CENTER+BOTTOM
             );
@@ -1557,14 +1576,116 @@ module soft_button(right, button_length, button_from_top, button_protrusion = 0.
             prismoid(
                 size1=[button_length+button_padding*2,body_thickness*0.4], 
                 size2=[button_length,body_thickness*0.4], 
-                h=button_recess, 
+                h=button_body_protrusion, 
                 rounding=button_rounding, 
                 anchor=CENTER
             );
             
             if(rocker_notch) {
                 //a single cut in the middle of the button
-                translate([0,0,button_protrusion_compensated])
+                a = button_protrusion_compensated + 0.001;
+                b = button_protrusion_compensated-case_thickness2/2-button_wall_thickness/2;
+                translate([0,0,a])
+                rotate([0,180,0])
+                prismoid(size2=[rocker_notch_length,soft_cut_height1],h=b, yang=90, xang=60, anchor=BOTTOM+CENTER);
+            }
+            else if (texture=="serrated") {
+                //a serrated texture
+                box=1;
+                sep=2;
+                for(i=[0:floor(button_length/sep)]){
+                    translate([-i*sep+button_length/2,0,button_protrusion_compensated])
+                    rotate([0,45,0])
+                    cuboid([2,2,2], 
+                    anchor=CENTER);
+                }
+            }
+        }
+    }
+}
+
+// DEPRECATED - Older style buttons, made assumptions about their physical dimensions on the phone body.
+*soft_buttons_2022_11();
+module soft_buttons_2022_11(){
+    //left_button=true;
+    if(left_power_button){
+        soft_button_2022_11(false, left_power_length, left_power_from_top, texture=left_power_button_texture);
+    }
+    if(left_volume_buttons){
+        soft_button_2022_11(false, left_volume_length, left_volume_from_top, volume_notch=true);
+    }
+    
+    //right_button_cut=true;
+    if(right_power_button){
+        soft_button_2022_11(true, right_power_length, right_power_from_top, texture=right_power_button_texture);
+    }
+    if(right_volume_buttons){
+        soft_button_2022_11(true, right_volume_length, right_volume_from_top, volume_notch=true);
+    }
+
+    //TODO: make soft_button more general
+    if(right_button_1)
+    soft_button_2022_11(right=true, button_length=right_button_1_length, button_from_top=right_button_1_from_top);
+    if(left_button_1)
+    soft_button_2022_11(right=false, button_length=left_button_1_length, button_from_top=left_button_1_from_top);
+    if(right_button_2)
+    soft_button_2022_11(right=true, button_length=right_button_2_length, button_from_top=right_button_2_from_top);
+    if(left_button_2)
+    soft_button_2022_11(right=false, button_length=left_button_2_length, button_from_top=left_button_2_from_top);
+}
+
+module soft_button_2022_11(right, button_length, button_from_top, volume_notch=false, texture="none"){
+    right_or_left = right ? 1 : -1;
+    button_protrusion2 = 0.8;
+    //if the case is thin and the button sticks out a lot, extend the button
+    button_protrusion = (button_recess >  case_thickness2+button_protrusion2) ? button_recess+button_protrusion2 : case_thickness2+button_protrusion2;
+
+    color("SeaGreen", 0.8)
+    translate( [ right_or_left*(body_width/2),
+        body_length/2,
+        buttons_vertical_fudge
+    ] )
+    rotate([right_or_left*90,0,90]) {
+        difference(){
+            soft_button_positive_2022_11();
+            soft_button_negative_2022_11();
+        }
+    }
+    
+    module soft_button_positive_2022_11(){
+        //backing
+        translate([buttons_clearance_soft_case - button_from_top, 0, 0])
+        prismoid(
+            size1=[button_length+buttons_clearance_soft_case*2, body_thickness*0.8], 
+            size2=[button_length+buttons_clearance_soft_case*2, body_thickness*0.8], 
+            h=support_thickness, 
+            anchor=CENTER+RIGHT
+        );
+        if(test_mode!="top_half_pla")
+        translate([-button_from_top-button_length/2,0,0])
+        prismoid(
+            size1=[button_length+button_padding*2,soft_button_thickness1], 
+            size2=[(button_length+button_padding*2)*0.9,soft_button_thickness2], 
+            h=button_protrusion, 
+            rounding=button_rounding, 
+            anchor=CENTER+BOTTOM
+        );
+    }
+    module soft_button_negative_2022_11(){
+    
+        translate([-button_from_top-button_length/2,0,0]) {
+            //recess
+            prismoid(
+                size1=[button_length+button_padding*2,body_thickness*0.4], 
+                size2=[button_length,body_thickness*0.4], 
+                h=button_recess, 
+                rounding=button_rounding, 
+                anchor=CENTER
+            );
+            
+            if(volume_notch) {
+                //a single cut in the middle of the button
+                translate([0,0,button_protrusion])
                 rotate([0,45,0])
                 cuboid([2,2,2], anchor=CENTER);
             }
@@ -1573,7 +1694,7 @@ module soft_button(right, button_length, button_from_top, button_protrusion = 0.
                 box=1;
                 sep=2;
                 for(i=[0:floor(button_length/sep)]){
-                    translate([-i*sep+button_length/2,0,button_protrusion_compensated])
+                    translate([-i*sep+button_length/2,0,button_protrusion])
                     rotate([0,45,0])
                     cuboid([2,2,2], 
                     anchor=CENTER);
