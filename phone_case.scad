@@ -623,7 +623,7 @@ module junglecat_cut_guide(){
                 );
                 //something to hold onto so you don't cut yourself
                 rotate([0,0,0])
-                translate([junglecat_rail_length/2,0,-6])
+                translate([junglecat_rail_length/2,0.4,-6])
                 cuboid( [ finger_tab_l, junglecat_inner_width, finger_tab_h], 
                     rounding=1, 
                     edges=[RIGHT,TOP,BOTTOM],
