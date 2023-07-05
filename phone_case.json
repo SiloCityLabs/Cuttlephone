@@ -375,6 +375,7 @@
       "build_phone": "true",
       "build_soft": "true",
       "button_body_protrusion": "0.9",
+      "button_wall_offset_percentage": "40",
       "buttons_vertical_fudge": "0.1",
       "camera": "true",
       "camera_block_style": "island",
