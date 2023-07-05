@@ -149,7 +149,7 @@ left_hole_2 = false;
 left_hole_2_from_top = 89.1; // 0.1
 left_hole_2_length = 10.1; // 0.1
 
-/* [camera/fingerprint] */
+/* [camera / fingerprint] */
 
 //camera cutout is a rectangle with rounded corners
 camera = true;
@@ -167,6 +167,8 @@ camera_protrusion = 0.0; // 0.1
 camera_block_style = "island"; //[island,bar,right_corner]
 camera_block_fillet_radius = 0.5; // 0.1
 
+camera_cutout_chamfer_angle = 45.0; // [0.0:0.1:89.9]
+
 //for irregular shapes like Galaxy S9+
 camera_cut_2 = false;
 camera_width_2 = 20.5; // 0.1
@@ -177,6 +179,7 @@ camera_from_top_2 = 8.7; // 0.1
 fingerprint = false;
 fingerprint_center_from_top = 36.5; // 0.1
 fingerprint_diam = 13.1; // 0.1
+fingerprint_cutout_chamfer_angle = 45.0; // [0.0:0.1:89.9]
 
 // Combines the fingerprint sensor and camera opening into a single larger one. One example where this works well is a thicker soft case on the Pixel 5. (Using OpenSCAD hull() to be specific.)
 fingerprint_combine_with_camera = false;
@@ -193,6 +196,8 @@ headphone_on_top = false;
 headphone_on_bottom = false;
 
 charge_on_bottom = true;
+charge_cutout_bevel_angle_y = 20;
+charge_cutout_bevel_angle_z = 20;
 
 bottom_speakers_right = false;
 bottom_speakers_left = false;
@@ -1116,6 +1121,8 @@ module usb_cut(){
             height=usb_cut_height,
             horizontal_clearance=0,
             disable_bevel=(case_type2=="junglecat" || case_type2=="joycon" || case_type2=="gamepad"),
+            bevel_angle_y = charge_cutout_bevel_angle_y,
+            bevel_angle_z = charge_cutout_bevel_angle_z,
             junglecat_support=(case_type2=="junglecat")
         );
         
@@ -1227,7 +1234,7 @@ module hard_button_cut(right,  power_button, power_from_top, power_length, volum
 }
 
 //simple cutout for mute switches
-module soft_cut( width, height, disable_support=false, disable_bevel=false, horizontal_clearance = 0, vertical_clearance = 0, shallow_cut=false, junglecat_support=false, joycon_support=false){
+module soft_cut( width, height, disable_support=false, disable_bevel=false, bevel_angle_y = 60, bevel_angle_z = 45, horizontal_clearance = 0, vertical_clearance = 0, shallow_cut=false, junglecat_support=false, joycon_support=false){
     cut_height = height;
     cut_depth = shallow_cut ? 0 : 15;
     
@@ -1263,8 +1270,8 @@ module soft_cut( width, height, disable_support=false, disable_bevel=false, hori
             $fn=lowFn
         );
         //bevel
-        y_angle = 60;
-        z_angle = 45;
+        y_angle = bevel_angle_y;
+        z_angle = bevel_angle_z;
         bevel_cut_height = case_thickness2*3; //adjacent side
         y_bonus = bevel_cut_height*tan(y_angle); //opposite side
         z_bonus = bevel_cut_height*tan(z_angle); //opposite side
@@ -1378,18 +1385,18 @@ module soft_button(right, button_length, button_from_top, button_protrusion = 0.
     }
 }
 
-//camera_cut();
+*camera_cut();
 module camera_cut(){
     camera_radius_clearanced = camera_radius+camera_clearance;
-    height = (case_type2=="joycon") ? joycon_thickness : 5;
-    angle = (case_type2=="joycon") ? 12 : 8; //TODO: calculate this in degrees
+    height = (case_type2=="joycon") ? joycon_thickness : case_thickness2*10; // Times 10 is just an arbitrary choice, cleaner preview than having the surfaces overlap
+    chamfer_width = case_thickness2*10 * tan(camera_cutout_chamfer_angle);
     if(camera)
     color("red", 0.2)
     down(body_thickness/2)
     back(body_length/2-camera_from_top+camera_clearance)
     right(body_width/2-camera_from_side+camera_clearance)
     prismoid(
-        size1=[camera_width+camera_clearance*2+angle, camera_height+camera_clearance*2+angle], 
+        size1=[camera_width+camera_clearance*2+chamfer_width, camera_height+camera_clearance*2+(camera_block_style == "island" ? chamfer_width : 0)], 
         size2=[camera_width+camera_clearance*2, camera_height+camera_clearance*2], 
         h=height,
         rounding=camera_radius_clearanced,
@@ -1401,7 +1408,7 @@ module camera_cut(){
 module extra_camera_cut(){
     camera_radius_clearanced = camera_radius+camera_clearance;
     height = 5;
-    angle=8;
+    chamfer_width = case_thickness2*2 * tan(camera_cutout_chamfer_angle);
     if(camera_cut_2)
     color("red", 0.2)
     //viewed from above, this  object is anchored to the top-right and translated to the top-right of the phone
@@ -1411,7 +1418,7 @@ module extra_camera_cut(){
         -body_thickness/2
     ])
     prismoid(
-        size1=[camera_width_2+camera_clearance*2+angle, camera_height_2+camera_clearance*2+angle], 
+        size1=[camera_width_2+camera_clearance*2+chamfer_width, camera_height_2+camera_clearance*2+chamfer_width], 
         size2=[camera_width_2+camera_clearance*2, camera_height_2+camera_clearance*2], 
         h=height,
         rounding=camera_radius_clearanced,
@@ -1424,10 +1431,8 @@ module extra_camera_cut(){
 //fingerprint_cut();
 module fingerprint_cut(){
     fingerprint_radius = fingerprint_diam/2;
-    //wider on joycon-mode so you can fit your finger
-    //TODO: use an angle
-    fingerprint_radius2 = (case_type2=="joycon") ? fingerprint_radius*3 : fingerprint_radius*2;
-    fingerprint_cut_height = (case_type2=="joycon") ? joycon_thickness+2 : case_thickness2+6;
+    fingerprint_cut_height = case_thickness2*2;
+    fingerprint_radius2 = fingerprint_radius + fingerprint_cut_height * tan(fingerprint_cutout_chamfer_angle);
     if (fingerprint)
     color("red", 0.2)
     translate([ 
