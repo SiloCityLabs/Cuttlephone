@@ -7,10 +7,13 @@
 use <fonts/orbitron/orbitron-light.otf>
 use <fonts/Baloo_2/Baloo2-VariableFont_wght.ttf>
 use <fonts/Audiowide/Audiowide-Regular.ttf>
-include <libraries/BOSL2/std.scad>
-include <libraries/BOSL2/hull.scad>
-include <libraries/BOSL2/rounding.scad>
-include <libraries/BOSL2/shapes3d.scad>
+
+// The Belfry OpenScad Library, v2
+// These have to be imported using an "include" statement because several variables for things like anchors are defined in here.
+include <libraries/BOSL2_submodule/std.scad>
+include <libraries/BOSL2_submodule/geometry.scad>
+include <libraries/BOSL2_submodule/rounding.scad>
+include <libraries/BOSL2_submodule/shapes3d.scad>
 
 /*  measurements from the phone
  *  all values are in mm
@@ -22,21 +25,27 @@ include <libraries/BOSL2/shapes3d.scad>
 case_material = "hard"; // [hard, soft]
 case_type = "phone case"; // [phone case, gamepad, joycon, junglecat]
 
-case_thickness = 1.6;
+case_thickness = 1.6; // 0.1
 //if the screen is curved and the case cutaway, you might want some extra grip
-shell_side_stickout = 0;
+shell_side_stickout = 0; // 0.1
+// Thin the shell lips around the screen bezels, keeping full case thickness at the top and bottom
+shell_enable_angled_screen_bezels = false;
+// Thickest the lip should be on the outer edges (in practice - a little under that due to curves used)
+shell_screen_max_lip_outer = 2; // 0.1
+// Thinnest the lip should be on the inner edges
+shell_screen_min_lip_inner = 1; // 0.1
 
 /* [emboss] */
-phone_model = "Pixel 3";
+phone_model = "DO NOT USE";
 emboss_size = "large"; // [logo, large, small, very_small, none]
 //Check font names in OpenSCAD > Help > Font List. Simple sans-serif fonts will print better
 emboss_font = "Audiowide";
-font_size = 7.1;
+font_size = 7.1; // 0.1
 emboss_small_font = "Audiowide";
-small_font_size = 6.1;
+small_font_size = 6.1; // 0.1
 emboss_logo = "logos/dude.svg";
-logo_x = 0.0;
-logo_y = 0.0;
+logo_x = 0.0; // 0.1
+logo_y = 0.0; // 0.1
 
 /* [3D print] */
 
@@ -52,33 +61,35 @@ test_mode = "none"; //[none, corners, right_edge, right_buttons, left_edge, bott
 //NOT WORKING. A plastic guide to help you cut the support out of the Joycon or Junglecat rails
 rail_cut_tools = false;
 
+render_quality="quick"; // [quick, export]
+
 /* [body] */
 
 //rounding of the corners when viewed screen-up.
-body_radius = 5.25;
+body_radius = 5.25; // 0.01
 //replaces the round radius with a 45-degree cut
 body_chamfer = false;
-body_length = 145.5;
-body_width = 70.1;
-body_thickness = 8.1;
-body_radius_top = 2.1;
-body_radius_bottom = 3.1;
+body_length = 140.0; // 0.1
+body_width = 50.0; // 0.1
+body_thickness = 8.1; // 0.1
+body_radius_top = 2.1; // 0.01
+body_radius_bottom = 3.1; // 0.01
 //for phones with different rounding on the sides, like Galaxy S9
-body_bottom_side_radius = 0.1;
+body_bottom_side_radius = 0.1; // 0.01
 //decrease for shallow shallow curves like the S9
-body_bottom_side_angle = 90;
+body_bottom_side_angle = 90; // 0.1
 
 /* [screen] */
 
-screen_radius = 8.01;
-screen_lip_length = 3.1;
+screen_radius = 8.01; // 0.01
+screen_lip_length = 3.1; // 0.1
 screen_length = body_length - screen_lip_length;
-screen_lip_width = 3.1;
+screen_lip_width = 3.1; // 0.1
 screen_width = body_width - screen_lip_width;
 //left/right curved screen radius
-screen_curve_radius = 0.1;
+screen_curve_radius = 0.1; // 0.1
 //decrease for shallow shallow curves like the S9
-screen_curve_angle = 90;
+screen_curve_angle = 90; // 0.1
 //cuts away the side of the case for curved screens
 screen_undercut = 0.1; //default is 0.01 because of Openscad precision bug
 //sticks up so the screen is recessed
@@ -86,109 +97,161 @@ extra_lip = false;
 //NOT WORKING: if the corners are sharp, add some "ramp" to the sides
 extra_sides = false;
 //use these if one of the corners is particularly loose and you've already tuned the body tight
-screen_extra_top_left = 0;
-screen_extra_top_right = 0;
-screen_extra_bottom_left = 0;
-screen_extra_bottom_right = 0;
+screen_extra_top_left = 0; // 0.1
+screen_extra_top_right = 0; // 0.1
+screen_extra_bottom_left = 0; // 0.1
+screen_extra_bottom_right = 0; // 0.1
 
-/* [buttons] */
+/* [buttons - on the phone's body] */
 right_power_button = false;
-right_power_from_top = 31.1;
-right_power_length = 10.1;
+right_power_from_top = 31.1; // 0.1
+right_power_length = 10.1; // 0.1
 right_volume_buttons = false;
-right_volume_from_top = 50.1;
-right_volume_length = 20.1;
+right_volume_from_top = 50.1; // 0.1
+right_volume_length = 20.1; // 0.1
 left_power_button = false;
-left_power_from_top = 30.1;
-left_power_length = 10.1;
-left_volume_from_top = 50.1;
+left_power_from_top = 30.1; // 0.1
+left_power_length = 10.1; // 0.1
+left_volume_from_top = 50.1; // 0.1
 left_volume_buttons = false;
-left_volume_length = 20.1;
+left_volume_length = 20.1; // 0.1
+
 //moves the buttons toward the screen (positive) or toward the back panel (negative). Buttons are centered by default
-buttons_vertical_fudge = 0.1;
-//how much the buttons stick out
-button_recess = 1.8;
+buttons_vertical_fudge = 0.1; // 0.1
+
+// how much to the buttons protrude from the device body's edge in the X or Y axis
+button_body_protrusion = 0.5; // 0.01
+
+// how thick are the buttons in the Z axis?
+button_case_thickness = 2; // 0.1
+
+/* [buttons - on the case] */
+// how much should the buttons protrude out of the case in the X or Y axis
+button_shell_protrusion = 0.8; // 0.1
+
+// Button and wall position in the shell, 0 being right on the phone, 100 on the outer edge of the case. (Values further away from center may or may not work well depending on the case thickness and shape of the device.)
+button_wall_offset_percentage = 50; // [10.0:0.1:90.0]
+
+// wall thickness, impacts how stiff are the buttons going to be
+button_wall_thickness = 0.8; // 0.1
+right_power_button_texture = "serrated"; //[none,serrated]
+left_power_button_texture = "serrated"; //[none,serrated]
+// To allow error in measuring length
+button_padding = 2; // 0.1
+// Button clearance on hard cases
+buttons_clearance_hard_case = 5; // 0.1
+// Button clearance on soft cases
+buttons_clearance_soft_case = 3; // 0.1
+// How thick should the button face be (zero uses hardcoded body_thickness ratios)
+buttons_outer_thickness = 0; // 0.1
+// Button prismoid angle
+buttons_overhang_angle = 60; // 0.1
+// Include a notch in the volume rocker
+button_volume_rocker_notch = false;
+rocker_notch_length = 1; // 0.1
 
 /* [more buttons] */
 right_button_1 = false;
-right_button_1_from_top = 111.1;
-right_button_1_length = 10.1;
+right_button_1_from_top = 111.1; // 0.1
+right_button_1_length = 10.1; // 0.1
 left_button_1 = false;
-left_button_1_from_top = 111.1;
-left_button_1_length = 10.1;
+left_button_1_from_top = 111.1; // 0.1
+left_button_1_length = 10.1; // 0.1
 right_button_2 = false;
-right_button_2_from_top = 131.1;
-right_button_2_length = 10.1;
+right_button_2_from_top = 131.1; // 0.1
+right_button_2_length = 10.1; // 0.1
 left_button_2 = false;
-left_button_2_from_top = 131.1;
-left_button_2_length = 10.1;
-right_hole_1 = false;
-right_hole_1_from_top = 89.1;
-right_hole_1_length = 10.1;
-right_hole_2 = false;
-right_hole_2_from_top = 89.1;
-right_hole_2_length = 10.1;
-left_hole_1 = false;
-left_hole_1_from_top = 89.1;
-left_hole_1_length = 10.1;
-left_hole_2 = false;
-left_hole_2_from_top = 89.1;
-left_hole_2_length = 10.1;
+left_button_2_from_top = 131.1; // 0.1
+left_button_2_length = 10.1; // 0.1
 
-/* [camera/fingerprint] */
+/* [more holes] */
+
+right_hole_1 = false;
+right_hole_1_from_top = 89.1; // 0.1
+right_hole_1_length = 10.1; // 0.1
+right_hole_2 = false;
+right_hole_2_from_top = 89.1; // 0.1
+right_hole_2_length = 10.1; // 0.1
+left_hole_1 = false;
+left_hole_1_from_top = 89.1; // 0.1
+left_hole_1_length = 10.1; // 0.1
+left_hole_2 = false;
+left_hole_2_from_top = 89.1; // 0.1
+left_hole_2_length = 10.1; // 0.1
+
+/* [camera / fingerprint] */
 
 //camera cutout is a rectangle with rounded corners
 camera = true;
-camera_width = 20.5;
-camera_height = 9.1;
+camera_width = 20.5; // 0.1
+camera_height = 9.1; // 0.1
 //get a circle by setting camera_radius to half of height and width
-camera_radius = 4.5;
-camera_from_side = 8.5;
-camera_from_top = 8.7;
+camera_radius = 4.5; // 0.1
+camera_from_side = 8.5; // 0.1
+camera_from_top = 8.7; // 0.1
 // extra gap around camera. 0.5 - 1.0 recommended. 
-camera_clearance = 1.1;
+camera_clearance = 1.1; // 0.1
+// how much does the camera protrude from the body
+camera_protrusion = 0.0; // 0.1
+// Does the camera block interact with the edges of the phone - e.g. "island" does not: Pixel 1 to 5, all iPhones so far; "bar" protrudes from the phone back and joins on both sides: Pixel 6, 7; (unsupported) "right_corner" Galaxy S21
+camera_block_style = "island"; //[island,bar,right_corner]
+camera_block_fillet_radius = 0.5; // 0.1
+
+camera_cutout_chamfer_angle = 45.0; // [0.0:0.1:89.9]
 
 //for irregular shapes like Galaxy S9+
 camera_cut_2 = false;
-camera_width_2 = 20.5;
-camera_height_2 = 9.1;
-camera_from_side_2 = 8.5;
-camera_from_top_2 = 8.7;
+camera_width_2 = 20.5; // 0.1
+camera_height_2 = 9.1; // 0.1
+camera_from_side_2 = 8.5; // 0.1
+camera_from_top_2 = 8.7; // 0.1
 
 fingerprint = false;
-fingerprint_center_from_top = 36.5;
-fingerprint_diam = 13.1;
+fingerprint_center_from_top = 36.5; // 0.1
+fingerprint_diam = 13.1; // 0.1
+fingerprint_cutout_chamfer_angle = 45.0; // [0.0:0.1:89.9]
+
+// Combines the fingerprint sensor and camera opening into a single larger one. One example where this works well is a thicker soft case on the Pixel 5. (Using OpenSCAD hull() to be specific.)
+fingerprint_combine_with_camera = false;
 
 /* [charge, headphone, and mic] */
 mic_on_top = false;
 mic_on_bottom = false;
-top_mic_from_right_edge = 14.1;
-bottom_mic_from_right_edge = 14.1;
-top_mic_offset_up = 0.1;
-bottom_mic_offset_up = 0.1;
-headphone_from_left_edge = 14.1;
+top_mic_from_right_edge = 14.1; // 0.1
+bottom_mic_from_right_edge = 14.1; // 0.1
+top_mic_offset_up = 0.1; // 0.1
+bottom_mic_offset_up = 0.1; // 0.1
+headphone_from_left_edge = 14.1; // 0.1
 headphone_on_top = false;
 headphone_on_bottom = false;
 
 charge_on_bottom = true;
+charge_cutout_bevel_angle_y = 10;
+charge_cutout_bevel_angle_z = 10;
+
 bottom_speakers_right = false;
 bottom_speakers_left = false;
+bottom_speaker_inner_edge_from_center = 11.6; // 0.1
+bottom_speaker_vertical_offset_from_center = 0.0; // 0.1
+bottom_speaker_width = 10.5; // 0.1
+bottom_speaker_height = 1.2; // 0.1
 
 /* [universal phone adapters] */
 split_in_half = false;
 telescopic_pocket = false;
-body_seam_width = 0.1;
-body_seam_offset = 0.1;
+body_seam_width = 0.1; // 0.1
+body_seam_offset = 0.1; // 0.1
 open_top = false;
 open_top_backchop = false;
-open_top_chop_ratio = 0.51;
+open_top_chop_ratio = 0.51; // 0.01
 speaker_holes_bottom = false;
 clamp_top = false;
 rotate_upright = false;
 upright_angle = rotate_upright ? -90 : 0;
 telescopic = false;
-telescopic_clearance_thickness = 0.5;
-telescopic_clearance_width = 0.8; //the body_width direction of the slider, This often needs sanding
+telescopic_clearance_thickness = 0.5; // 0.1
+//the body_width direction of the slider, This often needs sanding
+telescopic_clearance_width = 0.8;  // 0.1
 
 /* [build vars] */
 //will this version be posted on the website?
@@ -198,15 +261,13 @@ build_joycon=true;
 build_hard=true;
 build_soft=true;
 in_development=false;
-
 //end customizer variables
 module end_customizer_variables(){}
 
 //alternate Fn values to speed up OpenSCAD. Turn this up during build
-$fn=20;
-//$fn= $preview ? 32 : 60;
-lowFn = 10;
-highFn = 25;
+lowFn = render_quality == "export" ? 100 : 10;
+highFn = render_quality == "export" ? 150 : 25;
+$fn=highFn;
 
  /* I cannot override some variables via command line. Why? This works. */
 case_type_override="stupid_hack";
@@ -216,17 +277,13 @@ case_material2 = (case_material_override!=undef && case_material_override!="stup
 case_thickness2_override="stupid_hack";
 case_thickness2 = (case_thickness2_override!=undef && case_thickness2_override!="stupid_hack") ? case_thickness2_override : case_thickness;
 
-// phone case / general variables
-buttons_clearance = 5;
-soft_buttons_clearance = 3;
 //the base near the phone
-soft_button_thickness1 = body_thickness*0.55;
+soft_button_thickness1 = abs(buttons_outer_thickness) < 0.1 ? body_thickness*0.55 : buttons_outer_thickness;
 button_cut_rounding = body_thickness*0.15;
 button_rounding=body_thickness*0.1;
-//peak of the button
+//peak of the button - ignored if using buttons_outer_thickness
 soft_button_thickness2 = body_thickness*0.22;
 soft_cut_height1=body_thickness*0.6;
-soft_cut_height2=body_thickness*0.8;
 extra_lip_bonus = extra_lip ? 1 : 0;
 anti_snag_radius = 3.8;
 upright_translate = rotate_upright ? body_width/2 + case_thickness2 : 0;
@@ -325,6 +382,11 @@ module phone_case(){
         body();
         shell_cuts();
     }
+
+    if (case_material2 == "soft") {
+        soft_buttons();
+    }
+
     manual_supports_();
     universal_clamp();
     telescopic_clamp();
@@ -349,9 +411,19 @@ module gamepad(){
 module shell_cuts(){
     usb_cut();
     button_cuts();
-    camera_cut();
-    extra_camera_cut();
-    fingerprint_cut();
+
+    if (fingerprint_combine_with_camera) {
+        hull() {
+            camera_cut();
+            extra_camera_cut();
+            fingerprint_cut();
+        }
+    } else {
+        camera_cut();
+        extra_camera_cut();
+        fingerprint_cut();
+    }
+
     mic_cuts();
     top_headphone_cut();
     screen_cut();
@@ -369,6 +441,11 @@ module joycon_rails(){
         shell_cuts();
         joycon_cuts();
     }
+
+    if (case_material2 == "soft") {
+        soft_buttons();
+    }
+
     manual_supports_();
     universal_clamp();
     telescopic_clamp();
@@ -382,46 +459,56 @@ module junglecat_rails(){
         shell_cuts();
         junglecat_cuts();
     }
+
+    if (case_material2 == "soft") {
+        soft_buttons();
+    }
+
     manual_supports_();
     universal_clamp();
     telescopic_clamp();
 }
 
-//body();
-module body(disable_curved_screen=false){
+*body();
+module body(disable_curved_screen=false, include_camera_block=true){
     color("orange", 0.6)
-    difference() {
-        minkowski() {
-            cube([ body_width - 2*body_radius, 
-                body_length - 2*body_radius, 
-                0.01 ], 
-                center=true
-            );
-            //edge profile
-            //this pill shape will spin around the cube
-            if(body_chamfer) {
-                cyl( 
-                    l=body_thickness, 
-                    r=body_radius,
-                    chamfer1=body_radius_bottom, 
-                    chamfer2=body_radius_top,
-                    $fn=15
+    union() {
+        difference() {
+            minkowski() {
+                cube([ body_width - 2*body_radius, 
+                    body_length - 2*body_radius, 
+                    0.01 ], 
+                    center=true
                 );
-            } else {
-                cyl( 
-                    l=body_thickness, 
-                    r=body_radius,
-                    rounding1=body_radius_bottom, 
-                    rounding2=body_radius_top,
-                    $fn=15
-                );
+                //edge profile
+                //this pill shape will spin around the cube
+                if(body_chamfer) {
+                    cyl( 
+                        l=body_thickness, 
+                        r=body_radius,
+                        chamfer1=body_radius_bottom, 
+                        chamfer2=body_radius_top,
+                        $fn=lowFn
+                    );
+                } else {
+                    cyl( 
+                        l=body_thickness, 
+                        r=body_radius,
+                        rounding1=body_radius_bottom, 
+                        rounding2=body_radius_top,
+                        $fn=lowFn
+                    );
+                }
+                
             }
-            
+            //for curved screens and irregular shapes like Galaxy S9+
+            //only for the phone shape, not the outside of the case. It causes a snag at the corner
+            if(!disable_curved_screen){
+                body_extra_radius();
+            }
         }
-        //for curved screens and irregular shapes like Galaxy S9+
-        //only for the phone shape, not the outside of the case. It causes a snag at the corner
-        if(!disable_curved_screen){
-            body_extra_radius();
+        if (camera_block_style == "bar" && include_camera_block) {
+            translate([0,body_length/2-camera_from_top-camera_height/2,-body_thickness/2]) body_camera_bar();
         }
     }
 }
@@ -457,11 +544,20 @@ module body_extra_radius(){
     }
 }
 
+*body_camera_bar();
+module body_camera_bar(){
+    difference() {
+        intersection() {
+            translate([0,0,camera_block_fillet_radius-camera_protrusion])  cuboid([camera_width+camera_block_fillet_radius*2,camera_height,camera_block_fillet_radius*2], rounding = camera_block_fillet_radius, edges = [BOTTOM+LEFT,BOTTOM+RIGHT]);
+            translate([0,0,-camera_protrusion/2]) cube([body_width,camera_height,camera_protrusion*2], center = true);
+        }
+        translate([body_width/2-body_radius_bottom/2,0,camera_protrusion/2]) cube([body_radius_bottom/2,camera_height*2,camera_protrusion*2], center = true);
+        translate([-(body_width/2-body_radius_bottom/2),0,camera_protrusion/2]) cube([body_radius_bottom/2,camera_height*2,camera_protrusion*2], center = true);
+    }
+}
+
 //manual supports, and stick-out buttons for soft TPU prints
 module manual_supports_(){
-    if(case_material2=="soft") {
-        soft_buttons();
-    }
     //support the lock notch on vertical Joycon prints
     copy_mirror()
     if(case_type2=="joycon" && rotate_upright==true && manual_supports==true){
@@ -502,20 +598,29 @@ module manual_supports_(){
     }
 }
 
-//phone_shell();
+*phone_shell();
 module phone_shell(){
     translate([0,0,extra_lip_bonus/2])
-    difference() {
-        resize(newsize=[
-            body_width + 2*case_thickness2 + 2*shell_side_stickout,
-            body_length + 2*case_thickness2,
-            body_thickness + 2*case_thickness2 + extra_lip_bonus
-        ])
-        body(disable_curved_screen=true);
-        
+    union() {
+        difference() {
+            resize(newsize=[
+                body_width + 2*case_thickness2 + 2*shell_side_stickout,
+                body_length + 2*case_thickness2,
+                body_thickness + 2*case_thickness2 + extra_lip_bonus
+            ])
+            body(disable_curved_screen=true, include_camera_block=false);
+        }
+        if (camera_block_style == "bar" && camera_protrusion > case_thickness2) {
+            translate([0,body_length/2-camera_from_top-camera_height/2,-body_thickness/2])
+            resize(newsize=[
+                body_width + 2*case_thickness2 + 2*shell_side_stickout - body_radius_bottom,
+                camera_height + 2*case_thickness2,
+                camera_protrusion + 2*case_thickness2
+            ])
+            body_camera_bar();
+        }
     }
 }
-
 
 module gamepad_shell(){
     minkowski() {
@@ -788,7 +893,7 @@ module gamepad_hole(){
         h=body_thickness+extra_height,
         rounding=gamepad_cut_radius,
         anchor=CENTER,
-        $fn=15
+        $fn=lowFn
     );
 }
 
@@ -820,7 +925,7 @@ module gamepad_trigger(){
             h=trigger_stickout,
             rounding=trigger_rounding_profile, 
             anchor=BOTTOM+CENTER,
-            $fn=10
+            $fn=lowFn
         );
         
         translate([0,0,-case_thickness2-gamepad_width_buffer]){
@@ -830,7 +935,7 @@ module gamepad_trigger(){
                 h=case_thickness2+gamepad_width_buffer,
                 rounding=trigger_rounding_profile, 
                 anchor=BOTTOM+CENTER,
-                $fn=10
+                $fn=lowFn
             );
             
             
@@ -841,7 +946,7 @@ module gamepad_trigger(){
                 h=min_trigger_inside_lip_thickness,
                 rounding=trigger_rounding_profile, 
                 anchor=BOTTOM+CENTER,
-                $fn=10
+                $fn=lowFn
             );
         }
     }
@@ -864,7 +969,7 @@ module gamepad_trigger_cut() {
         h=body_thickness*2,
         rounding=trigger_rounding_profile,
         anchor=RIGHT+CENTER,
-        $fn=10
+        $fn=lowFn
     );
 }
 //gamepad_ffc_cut();
@@ -964,11 +1069,10 @@ module gamepad_faceplates(){
 }
 
 
-*translate([0,0,10])
-screen_cut();
+*translate([0,0,10]) screen_cut();
 module screen_cut(){
     //TODO: this offset is janky. I cannot properly align "top face cut" 
-    screen_cut_height = case_thickness2+extra_lip_bonus+0.5;
+    screen_cut_height = case_thickness2+extra_lip_bonus;
     screen_corners = [
         screen_radius + screen_extra_bottom_right,
         screen_radius + screen_extra_bottom_left,
@@ -1012,8 +1116,171 @@ module screen_cut(){
         rounding=screen_radius,
         anchor=BOTTOM
     );
-    
+
+    // Screen lip "ramps" - slim the lip on the sides for easier gesture nav
+    if (shell_enable_angled_screen_bezels) {
+        screen_angled_bezels();
+    }
+
 }
+
+*screen_angled_bezels();
+module screen_angled_bezels(){
+
+    bezel_shapes();
+    mirror([1,0,0]) bezel_shapes();
+    mirror([0,1,0]) bezel_shapes();
+    mirror([1,0,0]) mirror([0,1,0]) bezel_shapes();
+
+    module bezel_shapes() {
+        screen_cut_height = case_thickness2+extra_lip_bonus;
+        smooth_edge_radius = (case_thickness2 < screen_cut_height/2) ? case_thickness2 : screen_cut_height/2 - 0.1;
+
+        x1 = -(body_width/2 + case_thickness2 + shell_side_stickout);
+        x2 = -(screen_width/2 + smooth_edge_radius); // front of the left lip
+        x3 = -(screen_width/2); // left edge of the screen
+        x4 = -(screen_width/2 - screen_radius);
+
+        y1 = -(screen_length/2 + smooth_edge_radius); // bottom edge of the case shell
+        y2 = -(screen_length/2 + (smooth_edge_radius - screen_radius)/2); // front of the bottom lip
+        y3 = -(screen_length/2 - screen_radius);
+        y4 = -(screen_length/2 - screen_radius*2);
+
+        z0 = body_thickness / 2; // screen surface
+        z1 = z0 + shell_screen_min_lip_inner;
+        z2 = z0 + (shell_screen_min_lip_inner + shell_screen_max_lip_outer)/2;
+        z3 = z0 + shell_screen_max_lip_outer;
+        z4 = z0 + case_thickness2 + extra_lip_bonus;
+
+        // Left edge
+        patch_left_edge = [
+            [[x1,0,z3], [x2,0,z2], [x3,0,z1]],
+            [[x1,y4,z3], [x2,y4,z2], [x3,y4,z1]]
+        ];
+        *debug_bezier_patches([patch_left_edge]);
+
+        patch_left_cap = [
+            [[x1,y4,z3], [x2,y4,z3], [x3,y4,z3]],
+            [[x1,0,z3], [x2,0,z3], [x3,0,z3]]
+        ];
+        *debug_bezier_patches([patch_left_cap]);
+
+        patch_left_bottom_end = [
+            [[x1,y4,z3], [x2,y4,z2], [x3,y4,z1]],
+            [[x1,y4,z3], [x2,y4,z3], [x3,y4,z3]]
+        ];
+        *debug_bezier_patches([patch_left_bottom_end]);
+
+        patch_left_side = [
+            [[x3,y4,z1], [x3,0,z1]],
+            [[x3,y4,z3], [x3,0,z3]]
+        ];
+        *debug_bezier_patches([patch_left_side]);
+
+        patch_left_top_end = [
+            [[x1,0,z3], [x2,0,z3], [x3,0,z3]],
+            [[x1,0,z3], [x2,0,z2], [x3,0,z1]]
+        ];
+        *debug_bezier_patches([patch_left_top_end]);
+
+        left_edge_patches = [patch_left_edge, patch_left_cap, patch_left_bottom_end, patch_left_side, patch_left_top_end];
+        *debug_bezier_patches(left_edge_patches);
+        left_edge_vnf = bezier_vnf(left_edge_patches, splinesteps=16);
+        *vnf_validate(left_edge_vnf);
+        vnf_polyhedron(left_edge_vnf);
+
+        translate([x1, y4, z3]) cube([-x1+x3, -y4, z4-z3+1]);
+        translate([x3, y4, z1]) cube([1, -y4, z4-z1+1]);
+
+        // Corner
+        patch_corner_back = [
+            [[x1,y4,z3], [x2,y4,z2], [x3,y4,z1]],
+            [[x1,y3,z3], [x2,y3,z2], [x3,y3,z1]],
+            [[x1,y2,z4], [x2,y2,z4], [x3,y2,z4]],
+            [[x1,y1,z4], [x2,y1,z4], [x3,y1,z4]]
+        ];
+        *debug_bezier_patches([patch_corner_back]);
+
+        patch_corner_top_end = [
+            [[x1,y4,z4], [x2,y4,z4], [x3,y4,z4]],
+            [[x1,y4,z3], [x2,y4,z2], [x3,y4,z1]]
+        ];
+        *debug_bezier_patches([patch_corner_top_end]);
+
+        patch_corner_left_side = [
+            [[x1,y1,z4], [x1,y2,z4], [x1,y3,z4],[x1,y4,z4]],
+            [[x1,y1,z4], [x1,y2,z4], [x1,y3,z3],[x1,y4,z3]]
+        ];
+        *debug_bezier_patches([patch_corner_left_side]);
+
+        patch_corner_right_side = [
+            [[x3,y1,z4], [x3,y2,z4], [x3,y3,z1],[x3,y4,z1]],
+            [[x3,y1,z4], [x3,y2,z4], [x3,y3,z4],[x3,y4,z4]]
+        ];
+        *debug_bezier_patches([patch_corner_right_side]);
+
+        patch_corner_front = [
+            [[x1,y1,z4], [x2,y1,z4], [x3,y1,z4]],
+            [[x1,y2,z4], [x2,y2,z4], [x3,y2,z4]],
+            [[x1,y3,z4], [x2,y3,z4], [x3,y3,z4]],
+            [[x1,y4,z4], [x2,y4,z4], [x3,y4,z4]]
+        ];
+        *debug_bezier_patches([patch_corner_front]);
+
+        corner_patches = [patch_corner_back, patch_corner_top_end, patch_corner_front, patch_corner_left_side, patch_corner_right_side];
+        *debug_bezier_patches(corner_patches);
+        corner_vnf = bezier_vnf(corner_patches, splinesteps=16);
+        *vnf_validate(corner_vnf);
+        vnf_polyhedron(corner_vnf);
+
+        translate([x1, y1, z4]) cube([-x1+x3, -y1+y4, 1]);
+
+        // Bottom
+        patch_bottom_back = [
+            [[x3,y4,z1], [0,y4,z1]],
+            [[x3,y3,z1], [0,y3,z1]],
+            [[x3,y2,z4], [0,y2,z4]],
+            [[x3,y1,z4], [0,y1,z4]]
+        ];
+        *debug_bezier_patches([patch_bottom_back]);
+
+        patch_bottom_left_side = [
+            [[x3,y1,z4], [x3,y2,z4], [x3,y3,z4],[x3,y4,z4]],
+            [[x3,y1,z4], [x3,y2,z4], [x3,y3,z1],[x3,y4,z1]]
+        ];
+        *debug_bezier_patches([patch_bottom_left_side]);
+
+        patch_bottom_right_side = [
+            [[0,y1,z4], [0,y2,z4], [0,y3,z1],[0,y4,z1]],
+            [[0,y1,z4], [0,y2,z4], [0,y3,z4],[0,y4,z4]]
+        ];
+        *debug_bezier_patches([patch_bottom_right_side]);
+
+        patch_bottom_top_side = [
+            [[x3,y4,z4], [0,y4,z4]],
+            [[x3,y4,z1], [0,y4,z1]]
+        ];
+        *debug_bezier_patches([patch_bottom_top_side]);
+
+        patch_bottom_front = [
+            [[x3,y1,z4], [0,y1,z4]],
+            [[x3,y2,z4], [0,y2,z4]],
+            [[x3,y3,z4], [0,y3,z4]],
+            [[x3,y4,z4], [0,y4,z4]]
+        ];
+        *debug_bezier_patches([patch_bottom_front]);
+
+        bottom_patches = [patch_bottom_back, patch_bottom_left_side, patch_bottom_right_side, patch_bottom_top_side, patch_bottom_front];
+        *debug_bezier_patches(bottom_patches);
+        bottom_vnf = bezier_vnf(bottom_patches, splinesteps=16);
+        *vnf_validate(bottom_vnf);
+        vnf_polyhedron(bottom_vnf);
+
+        translate([x3, y1, z4]) cube([-x3, -y1+y4, 1]);
+
+    }
+}
+
 
 *color("red", 0.2) lanyard_cut();
 module lanyard_cut(){
@@ -1025,8 +1292,12 @@ module lanyard_cut(){
     ring(body_thickness/2, 9, 6, 0.1 );
 }
 
-usb_cut_width = 14;
-usb_cut_rounding = 2;
+// The USB Type C spec prescribes 12.35 x 6.5 for the overmold portion of a plug, but practice shows this is often taken as a suggestion by cable manufacturers.
+// Throw in manufacturing and printing tolerances in the mix and it is wiser to leave some room for error.
+usb_cut_width = 13;
+usb_cut_height = 7;
+usb_cut_rounding = 1;
+
 speaker_cut_width = body_width*0.2;
 speaker_hard_cut_width = body_width*0.65;
 charge_port_width = (bottom_speakers_left || bottom_speakers_right || case_type2=="gamepad") ? speaker_hard_cut_width : usb_cut_width;
@@ -1043,29 +1314,29 @@ module usb_cut(){
         //usb
         rotate([90,0,0])
         soft_cut(
-            usb_cut_width, 
-            clearance=0, 
+            width=usb_cut_width,
+            height=usb_cut_height,
+            horizontal_clearance=0,
             disable_bevel=(case_type2=="junglecat" || case_type2=="joycon" || case_type2=="gamepad"),
-            junglecat_support=true,
-            extra_tall=true
+            bevel_angle_y = charge_cutout_bevel_angle_y,
+            bevel_angle_z = charge_cutout_bevel_angle_z,
+            junglecat_support=(case_type2=="junglecat")
         );
         
         //speakers
-        fudge=3; //avoid overlapping the USB's bevel cut
         if(bottom_speakers_right){
-            //calculate speaker cuts based on phone width
-            translate([usb_cut_width/2+fudge+speaker_cut_width/2,0,0])
+            translate([bottom_speaker_inner_edge_from_center+bottom_speaker_width/2,0,bottom_speaker_vertical_offset_from_center])
             rotate([90,0,0])
             soft_cut(
-                speaker_cut_width, disable_bevel=true, clearance=0,
+                width=bottom_speaker_width, height=bottom_speaker_height, disable_bevel=true, horizontal_clearance=1, vertical_clearance=1,
                 shallow_cut=(case_type2=="junglecat" || case_type2=="joycon" || case_type2=="gamepad")
             );
         }
         if(bottom_speakers_left){ 
-            translate([-usb_cut_width/2-fudge-speaker_cut_width/2,0,0])
+            translate([-(bottom_speaker_inner_edge_from_center+bottom_speaker_width/2),0,bottom_speaker_vertical_offset_from_center])
             rotate([90,0,0])
             soft_cut(
-                speaker_cut_width, disable_bevel=true, clearance=0, shallow_cut=(case_type2=="junglecat" || case_type2=="joycon" || case_type2=="gamepad")
+                width=bottom_speaker_width, height=bottom_speaker_height, disable_bevel=true, horizontal_clearance=1, vertical_clearance=1, shallow_cut=(case_type2=="junglecat" || case_type2=="joycon" || case_type2=="gamepad")
             );
         }
     }
@@ -1087,22 +1358,23 @@ module button_cuts(){
     //maybe needs an overlap detector but that's as complicated as the hard_button_cut
     else {
         if(right_power_button)
-        soft_button_recess(true, right_power_length, right_power_from_top);
+        soft_button_recess(true, right_power_length, right_power_from_top, disable_supports=true);
         if(right_volume_buttons)
-        soft_button_recess(true, right_volume_length, right_volume_from_top);
+        soft_button_recess(true, right_volume_length, right_volume_from_top, disable_supports=true);
         if(left_power_button)
-        soft_button_recess(false, left_power_length, left_power_from_top);
+        soft_button_recess(false, left_power_length, left_power_from_top, disable_supports=true);
         if(left_volume_buttons)
-        soft_button_recess(false, left_volume_length, left_volume_from_top);
+        soft_button_recess(false, left_volume_length, left_volume_from_top, disable_supports=true);
         
         if(right_button_1)
-        soft_button_recess(true, right_button_1_length, right_button_1_from_top);
+        soft_button_recess(true, right_button_1_length, right_button_1_from_top, disable_supports=true);
         if(left_button_1)
-        soft_button_recess(false, left_button_1_length, left_button_1_from_top);
+        soft_button_recess(false, left_button_1_length, left_button_1_from_top, disable_supports=true);
         if(right_button_2)
-        soft_button_recess(true, right_button_2_length, right_button_2_from_top);
+        soft_button_recess(true, right_button_2_length, right_button_2_from_top, disable_supports=true);
         if(left_button_2)
-        soft_button_recess(false, left_button_2_length, left_button_2_from_top);
+        soft_button_recess(false, left_button_2_length, left_button_2_from_top, disable_supports=true);
+
         if(right_hole_1)
         soft_button_recess(true, right_hole_1_length, right_hole_1_from_top, disable_supports=false);
         if(right_hole_2)
@@ -1123,7 +1395,7 @@ module soft_button_recess(right, button_length, button_offset, disable_supports=
         buttons_vertical_fudge
     ] )
     rotate([right_or_left*90,0,90])
-    soft_cut(button_length, disable_support=disable_supports, clearance=soft_buttons_clearance);
+    soft_cut(width=button_length, height=soft_cut_height1, disable_support=disable_supports, horizontal_clearance=buttons_clearance_soft_case, bevel_angle_y = 15, bevel_angle_z = 10);
 }
 
 module hard_button_cut(right,  power_button, power_from_top, power_length, volume_buttons, volume_from_top, volume_length){
@@ -1149,18 +1421,18 @@ module hard_button_cut(right,  power_button, power_from_top, power_length, volum
     translate([0,0,0])
     rotate([0,0,90]) {
         //button cut
-        cuboid([button_length+buttons_clearance*2, button_cut_thickness, 50], rounding=button_cut_rounding, $fn=lowFn);
+        cuboid([button_length+buttons_clearance_hard_case*2, button_cut_thickness, 50], rounding=button_cut_rounding, $fn=lowFn);
 
         //anti snag rounding
-        rectangle = square([button_length+buttons_clearance*2, case_thickness2*4+0.1],center=true);
+        rectangle = square([button_length+buttons_clearance_hard_case*2, case_thickness2*4+0.1],center=true);
         offset_sweep(rectangle, height=hard_cut_height,top=os_circle(r=-anti_snag_radius));
     }
     
 }
 
 //simple cutout for mute switches
-module soft_cut( button_length, disable_support=false, disable_bevel=false, clearance, shallow_cut=false, junglecat_support=false, joycon_support=false, extra_tall=false ){
-    cut_height = extra_tall ? soft_cut_height2 : soft_cut_height1;
+module soft_cut( width, height, disable_support=false, disable_bevel=false, bevel_angle_y = 30, bevel_angle_z = 22.5, horizontal_clearance = 0, vertical_clearance = 0, shallow_cut=false, junglecat_support=false, joycon_support=false){
+    cut_height = height;
     cut_depth = shallow_cut ? 0 : 15;
     
     difference() {
@@ -1171,19 +1443,15 @@ module soft_cut( button_length, disable_support=false, disable_bevel=false, clea
         color("blue", 0.2)
         if(manual_supports==true && !disable_support) {
             prismoid(
-                size1=[button_length+clearance*2 - button_cut_rounding*2, cut_height],
-                size2=[button_length+clearance*2 - button_cut_rounding*2, cut_height],
+                size1=[width+horizontal_clearance*2 - button_cut_rounding*2, cut_height+vertical_clearance*2],
+                size2=[width+horizontal_clearance*2 - button_cut_rounding*2, cut_height+vertical_clearance*2],
                 h=support_thickness, 
                 anchor=CENTER
             );
             //TODO: manual support for junglecat and joycon
             if(junglecat_support && ( case_type2=="junglecat" || case_type2=="joycon" ) ) {
-                //for(i=[0:floor(case_thickness2+junglecat_inner_width)]) {
-                //  translate([0,0,1*i])
-                //  prismoid(size1=[button_length+clearance*2-button_cut_rounding*2,body_thickness*0.6], size2=[button_length+clearance*2-button_cut_rounding*2,body_thickness*0.6], h=support_thickness, anchor=CENTER);
-                //}
                 translate([0,0,case_thickness2+junglecat_inner_width])
-                prismoid(size1=[button_length+clearance*2-button_cut_rounding*2,cut_height], size2=[button_length+clearance*2-button_cut_rounding*2,cut_height], h=support_thickness, anchor=CENTER);
+                prismoid(size1=[width+horizontal_clearance*2-button_cut_rounding*2,cut_height], size2=[width+horizontal_clearance*2-button_cut_rounding*2,cut_height], h=support_thickness, anchor=CENTER);
             }
         }
     }
@@ -1191,23 +1459,20 @@ module soft_cut( button_length, disable_support=false, disable_bevel=false, clea
     module soft_cut_submodule(){
         //straight-thru cut
         prismoid( 
-            size1=[ button_length+clearance*2, cut_height ], 
-            size2=[ button_length+clearance*2, cut_height ], 
+            size1=[ width+horizontal_clearance*2, cut_height+vertical_clearance*2 ], 
+            size2=[ width+horizontal_clearance*2, cut_height+vertical_clearance*2 ], 
             rounding=button_cut_rounding, 
             h=case_thickness2*3+cut_depth, 
             anchor=CENTER, 
             $fn=lowFn
         );
         //bevel
-        y_angle = 60;
-        z_angle = 45;
         bevel_cut_height = case_thickness2*3; //adjacent side
-        y_bonus = bevel_cut_height*tan(y_angle); //opposite side
-        z_bonus = bevel_cut_height*tan(z_angle); //opposite side
         if(!disable_bevel)
         prismoid(
-            size1=[ button_length+clearance*2, cut_height ], 
-            size2=[ button_length+clearance*2+y_bonus, cut_height+z_bonus ], 
+            size1=[ width+horizontal_clearance*2, cut_height ], 
+            xang=90+bevel_angle_y,
+            yang=90+bevel_angle_z,
             rounding=button_cut_rounding, 
             h=bevel_cut_height, 
             anchor=CENTER+BOTTOM, 
@@ -1216,41 +1481,52 @@ module soft_cut( button_length, disable_support=false, disable_bevel=false, clea
     }
 }
 
+*soft_buttons();
 module soft_buttons(){
-    //left_button=true;
-    if(left_power_button){
-        soft_button(false, left_power_length, left_power_from_top);
-    }
-    if(left_volume_buttons){
-        soft_button(false, left_volume_length, left_volume_from_top, volume_notch=true);
-    }
-    
-    //right_button_cut=true;
-    if(right_power_button){
-        soft_button(true, right_power_length, right_power_from_top);
-    }
-    if(right_volume_buttons){
-        soft_button(true, right_volume_length, right_volume_from_top, volume_notch=true);
-    }
 
-    //TODO: make soft_button more general
-    if(right_button_1)
-    soft_button(right=true, button_length=right_button_1_length, button_from_top=right_button_1_from_top);
-    if(left_button_1)
-    soft_button(right=false, button_length=left_button_1_length, button_from_top=left_button_1_from_top);
-    if(right_button_2)
-    soft_button(right=true, button_length=right_button_2_length, button_from_top=right_button_2_from_top);
-    if(left_button_2)
-    soft_button(right=false, button_length=left_button_2_length, button_from_top=left_button_2_from_top);
+    if (test_mode!="top_half_pla") {
+
+        if (left_power_button) {
+            soft_button(false, left_power_length, left_power_from_top, button_shell_protrusion = button_shell_protrusion, texture=left_power_button_texture);
+        }
+        if (left_volume_buttons) {
+            soft_button(false, left_volume_length, left_volume_from_top, button_shell_protrusion = button_shell_protrusion, rocker_notch=button_volume_rocker_notch);
+        }
+
+        if (right_power_button) {
+            soft_button(true, right_power_length, right_power_from_top, button_shell_protrusion = button_shell_protrusion, texture=right_power_button_texture);
+        }
+        if (right_volume_buttons) {
+            soft_button(true, right_volume_length, right_volume_from_top, button_shell_protrusion = button_shell_protrusion, rocker_notch=button_volume_rocker_notch);
+        }
+
+        //TODO: make soft_button more general
+        if (right_button_1) {
+            soft_button(right=true, button_length=right_button_1_length, button_shell_protrusion = button_shell_protrusion, button_from_top=right_button_1_from_top);
+        }
+        if (left_button_1) {
+            soft_button(right=false, button_length=left_button_1_length, button_shell_protrusion = button_shell_protrusion, button_from_top=left_button_1_from_top);
+        }
+        if (right_button_2) {
+            soft_button(right=true, button_length=right_button_2_length, button_shell_protrusion = button_shell_protrusion, button_from_top=right_button_2_from_top);
+        }
+        if (left_button_2) {
+            soft_button(right=false, button_length=left_button_2_length, button_shell_protrusion = button_shell_protrusion, button_from_top=left_button_2_from_top);
+        }
+
+    }
 }
 
-module soft_button(right, button_length, button_from_top, volume_notch=false){
+module soft_button(right, button_length, button_from_top, button_shell_protrusion = 0.8, rocker_notch=false, texture="none") {
     right_or_left = right ? 1 : -1;
-    button_protrusion2 = 0.8;
     //if the case is thin and the button sticks out a lot, extend the button
-    button_protrusion = (button_recess >  case_thickness2+button_protrusion2) ? button_recess+button_protrusion2 : case_thickness2+button_protrusion2;
-    button_padding=2; //bonus to allow error in measuring
-    
+    button_protrusion_compensated = (button_body_protrusion >  case_thickness2+button_shell_protrusion) ? button_body_protrusion+button_shell_protrusion : case_thickness2+button_shell_protrusion;
+    button_wall_offset = case_thickness2 * button_wall_offset_percentage/100;
+    button_plunger_width = (button_wall_offset - button_body_protrusion > 0) ? button_wall_offset - button_body_protrusion : 0;
+    button_outside_width = case_thickness2 * (100 - button_wall_offset_percentage)/100 + button_shell_protrusion;
+
+    assert(!(button_wall_offset - button_wall_thickness/2 < 0), "button wall is hitting the device body - either button_wall_offset_percentage is too small, button_wall_thickness is too big, or try a thicker case");
+
     color("SeaGreen", 0.8)
     translate( [ right_or_left*(body_width/2),
         body_length/2,
@@ -1258,75 +1534,120 @@ module soft_button(right, button_length, button_from_top, volume_notch=false){
     ] )
     rotate([right_or_left*90,0,90]) {
         difference(){
-            soft_button_positive2();
-            soft_button_negative2();
+            soft_button_positive();
+            soft_button_negative();
         }
     }
-    
-    module soft_button_positive2(){
-        //backing
-        translate([soft_buttons_clearance - button_from_top, 0, 0])
-        prismoid(
-            size1=[button_length+soft_buttons_clearance*2, body_thickness*0.8], 
-            size2=[button_length+soft_buttons_clearance*2, body_thickness*0.8], 
-            h=support_thickness, 
-            anchor=CENTER+RIGHT
-        );
-        if(test_mode!="top_half_pla")
-        translate([-button_from_top-button_length/2,0,0])
-        prismoid(
-            size1=[button_length+button_padding*2,soft_button_thickness1], 
-            size2=[(button_length+button_padding*2)*0.9,soft_button_thickness2], 
-            h=button_protrusion, 
-            rounding=button_rounding, 
-            anchor=CENTER+BOTTOM
-        );
+
+    // Wall fits in the recess and won't poke out of the shell
+    color("SeaGreen", 0.8) difference() {
+        intersection() {
+            soft_button_wall();
+            soft_button_recess(right, button_length, button_from_top, disable_supports=true);
+            phone_shell();
+        }
+        translate([ right_or_left*(body_width/2), body_length/2, buttons_vertical_fudge]) rotate([right_or_left*90,0,90]) soft_button_negative();
     }
-    module soft_button_negative2(){
-    
+
+    module soft_button_wall() {
+        button_wall_length_padding = 1; // To ensure the button walls merge well with the rest of the case regardless of bevel cutout chamfer angles
+        button_wall_length = button_length+buttons_clearance_soft_case*2+button_padding + button_wall_length_padding;
+        button_wall_height = body_thickness + case_thickness2*2;
+
+        translate( [ right_or_left*(body_width/2), body_length/2, buttons_vertical_fudge] ) {
+            rotate([right_or_left*90,0,90]) {
+                translate([buttons_clearance_soft_case + button_padding/2 + button_wall_length_padding/2 - button_from_top, 0, button_wall_offset]) {
+                    cube(
+                        size=[button_wall_length, button_wall_height, button_wall_thickness], 
+                        anchor=CENTER+RIGHT
+                    );
+                }
+            }
+        }
+    }
+
+    module soft_button_positive() {
+        // Button shape
+        translate([-button_from_top-button_length/2, 0, button_wall_offset])
+        {
+            if (abs(buttons_outer_thickness) < 0.1) {
+                prismoid(
+                    size1=[button_length+button_padding*2,soft_button_thickness1], 
+                    size2=[(button_length+button_padding*2)*0.9,soft_button_thickness2], 
+                    h=button_outside_width, 
+                    rounding=button_rounding, 
+                    anchor=CENTER+BOTTOM
+                );
+            } else {
+                prismoid(
+                    size2=[button_length+button_padding*2,buttons_outer_thickness], 
+                    xang=buttons_overhang_angle,
+                    yang=buttons_overhang_angle,
+                    h=button_outside_width,
+                    rounding=button_rounding,
+                    anchor=CENTER+BOTTOM
+                );
+            }
+        }
+
+        // Plunger
+        if (button_plunger_width > 0) {
+            translate([-button_from_top-button_length/2,0,button_body_protrusion]) {
+                prismoid(
+                    size1=[button_length,button_case_thickness], 
+                    size2=[button_length,button_case_thickness*1.33], 
+                    h=button_plunger_width, 
+                    rounding=button_rounding, 
+                    anchor=CENTER+BOTTOM
+                );
+            }
+        }
+    }
+
+    module soft_button_negative(){
         translate([-button_from_top-button_length/2,0,0]) {
-            //recess
+
+            // Carves out an area for the device button on (thin) cases where the wall is too close
             prismoid(
                 size1=[button_length+button_padding*2,body_thickness*0.4], 
                 size2=[button_length,body_thickness*0.4], 
-                h=button_recess, 
+                h=button_body_protrusion, 
                 rounding=button_rounding, 
-                anchor=CENTER
+                anchor=CENTER+BOTTOM
             );
-            
-            if(volume_notch) {
+
+            if(rocker_notch) {
                 //a single cut in the middle of the button
-                translate([0,0,button_protrusion])
-                rotate([0,45,0])
-                cuboid([2,2,2], anchor=CENTER);
+                translate([0,0,case_thickness2 + button_shell_protrusion + 0.001])
+                rotate([0,180,0])
+                prismoid(size2=[rocker_notch_length,soft_cut_height1],h=(button_outside_width-button_wall_thickness/2)/2, yang=90, xang=60, anchor=BOTTOM+CENTER);
             }
-            else {
+            else if (texture=="serrated") {
                 //a serrated texture
-                box=1;
                 sep=2;
-                for(i=[0:floor(button_length/sep)]){
-                    translate([-i*sep+button_length/2,0,button_protrusion])
+                // TODO: doesn't look quite right on all devices
+                for (i=[0:floor(button_length/sep)]) {
+                    translate([-i*sep+button_length/2, 0, case_thickness2 + button_shell_protrusion])
                     rotate([0,45,0])
-                    cuboid([2,2,2], 
-                    anchor=CENTER);
+                    cuboid(size=[sqrt(2*sep^2)/2,sep,sqrt(2*sep^2)/2], rounding=sep/10, anchor=CENTER);
                 }
             }
         }
     }
 }
 
-//camera_cut();
+*camera_cut();
 module camera_cut(){
     camera_radius_clearanced = camera_radius+camera_clearance;
-    height = (case_type2=="joycon") ? joycon_thickness : 5;
-    angle = (case_type2=="joycon") ? 12 : 8; //TODO: calculate this in degrees
+    height = (case_type2=="joycon") ? joycon_thickness : case_thickness2*10; // Times 10 is just an arbitrary choice, cleaner preview than having the surfaces overlap
+    chamfer_width = case_thickness2*10 * tan(camera_cutout_chamfer_angle);
     if(camera)
     color("red", 0.2)
     down(body_thickness/2)
     back(body_length/2-camera_from_top+camera_clearance)
     right(body_width/2-camera_from_side+camera_clearance)
     prismoid(
-        size1=[camera_width+camera_clearance*2+angle, camera_height+camera_clearance*2+angle], 
+        size1=[camera_width+camera_clearance*2+chamfer_width, camera_height+camera_clearance*2+(camera_block_style == "island" ? chamfer_width : 0)], 
         size2=[camera_width+camera_clearance*2, camera_height+camera_clearance*2], 
         h=height,
         rounding=camera_radius_clearanced,
@@ -1338,7 +1659,7 @@ module camera_cut(){
 module extra_camera_cut(){
     camera_radius_clearanced = camera_radius+camera_clearance;
     height = 5;
-    angle=8;
+    chamfer_width = case_thickness2*2 * tan(camera_cutout_chamfer_angle);
     if(camera_cut_2)
     color("red", 0.2)
     //viewed from above, this  object is anchored to the top-right and translated to the top-right of the phone
@@ -1348,7 +1669,7 @@ module extra_camera_cut(){
         -body_thickness/2
     ])
     prismoid(
-        size1=[camera_width_2+camera_clearance*2+angle, camera_height_2+camera_clearance*2+angle], 
+        size1=[camera_width_2+camera_clearance*2+chamfer_width, camera_height_2+camera_clearance*2+chamfer_width], 
         size2=[camera_width_2+camera_clearance*2, camera_height_2+camera_clearance*2], 
         h=height,
         rounding=camera_radius_clearanced,
@@ -1361,10 +1682,8 @@ module extra_camera_cut(){
 //fingerprint_cut();
 module fingerprint_cut(){
     fingerprint_radius = fingerprint_diam/2;
-    //wider on joycon-mode so you can fit your finger
-    //TODO: use an angle
-    fingerprint_radius2 = (case_type2=="joycon") ? fingerprint_radius*3 : fingerprint_radius*2;
-    fingerprint_cut_height = (case_type2=="joycon") ? joycon_thickness+2 : case_thickness2+6;
+    fingerprint_cut_height = case_thickness2*2;
+    fingerprint_radius2 = fingerprint_radius + fingerprint_cut_height * tan(fingerprint_cutout_chamfer_angle);
     if (fingerprint)
     color("red", 0.2)
     translate([ 
@@ -1781,7 +2100,7 @@ module hard_cut(width=8, top_radius=4, bottom_radius=3.9){
     }
     
     rectangle = square([width, hard_cut_depth],center=true);
-    round_rectangle = round_corners(rectangle, radius=bottom_radius,$fn=15);
+    round_rectangle = round_corners(rectangle, radius=bottom_radius,$fn=lowFn);
     //round_rectangle = round_corners(rectangle, radius=bottom_radius,$fn=15);
     color("red", 0.2)
     translate( [0, 0, -body_thickness/2  +0.01] )
