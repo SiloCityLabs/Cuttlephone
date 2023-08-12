@@ -36,7 +36,7 @@ shell_screen_max_lip_outer = 2; // 0.1
 shell_screen_min_lip_inner = 1; // 0.1
 
 /* [emboss] */
-phone_model = "DO NOT USE";
+phone_model = "Sample case";
 emboss_size = "large"; // [logo, large, small, very_small, none]
 //Check font names in OpenSCAD > Help > Font List. Simple sans-serif fonts will print better
 emboss_font = "Audiowide";
@@ -296,10 +296,10 @@ gamepad_peg_y_distance = 14;
 
 // joycon and junglecat shared variables
 max_rail_shell_radius = 2.5; //if too high it'll intersect with the rail
-max_rail_body_radius = 1.1; //sharper corner for looks
+max_rail_body_radius = 3.9; //if too high it'll intersect with the stop notch
 rail_shell_radius_top = (body_radius_top<max_rail_shell_radius) ? body_radius_top : max_rail_shell_radius; //TODO: tweak this, make is softer to hold, ensure it doesn't conflict with body
 rail_shell_radius_bottom = (body_radius_bottom<max_rail_shell_radius) ? body_radius_bottom : max_rail_shell_radius; //TODO: tweak this, make is softer to hold, ensure it doesn't conflict with body
-rail_body_radius = (body_radius<max_rail_body_radius) ? body_radius : max_rail_body_radius; //sharper corner for looks
+rail_body_radius = (body_radius<max_rail_body_radius) ? body_radius : max_rail_body_radius;
 
 // joycon variables
 joycon_inner_width = 10.2;
@@ -324,7 +324,7 @@ junglecat_lip_width = 2.0;
 junglecat_lip_thickness = 0.4;
 junglecat_depth = 3.3;
 //max joycon thickness. If the entire case is thicker than this, we must make stick-out junglecat rails
-junglecat_wing_thickness = 11.4;
+junglecat_wing_thickness = 11.7;
 junglecat_wing_radius = 1.3;
 junglecat_wings = body_thickness+case_thickness2*2 >= junglecat_wing_thickness;
 junglecat_stickout = 4.2;
@@ -1624,7 +1624,7 @@ module soft_button(right, button_length, button_from_top, button_shell_protrusio
             }
             else if (texture=="serrated") {
                 //a serrated texture
-                sep=2;
+                sep=1.8;
                 // TODO: doesn't look quite right on all devices
                 for (i=[0:floor(button_length/sep)]) {
                     translate([-i*sep+button_length/2, 0, case_thickness2 + button_shell_protrusion])
@@ -2028,7 +2028,7 @@ module test_cuts(){
         cuboid([100,200,50], anchor=CENTER+BOTTOM);
     }
     else if(test_mode=="bottom_edge") {
-        translate([0,-body_length/2+15,0])
+        translate([0,-body_length/2+35,0])
         cuboid([100,200,50], anchor=CENTER+FRONT);
     }
     else if(test_mode=="top_edge") {

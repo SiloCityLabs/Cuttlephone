@@ -14,7 +14,9 @@ The hard cases can be made using ductile materials like:
  
 Plain PLA is too brittle and it will crack. Any brand of PLA+ (PLA Pro) will work, like Polymaker or eSun or whatever.
 
-The soft cases can be made from TPU with a hardness of 90A or more. Overture High Speed TPU is the perfect stiffness for a phone case. I print on a Prusa i3 which is direct drive and good for printing flexibles, but this "high speed" TPU also works in bowden printers like the Ender 3.
+The soft cases can be made from TPU with a hardness of 90A or more. Overture High Speed TPU is the perfect stiffness for a phone case. I print on a Prusa i3 which is direct drive and good for printing flexibles, but this "high speed" TPU also works in bowden printers like the Ender 3. 
+
+Dehydrating filament improves print quality for all types of filament.
 
 # Slicer settings and tuning
 
@@ -25,6 +27,14 @@ I use a 0.4mm nozzle. For a quick test fit, set the layer heigh to 0.20-0.30mm. 
 **Variable extrusion width** will make the rails stronger and more accurate. Cura 5.0 and PrusaSlicer 2.5 both have this feature. Some companies reskin Cura as their own slicer - use the latest version of regular Cura instead.
 
 ![](/Cuttlephone/images/print-guide/arachne.png)
+
+Increasing the extrusion width a little may help print the thin rails in fewer stronger lines. Maybe. May reduce visual quality.
+
+![](/Cuttlephone/images/print-guide/extrusion-width.png)
+
+To reduce blobs on TPU cases, I enable "Avoid Crossing Perimeters" in PrusaSlicer.
+
+![](/Cuttlephone/images/print-guide/avoid-crossing.png)
 
 If you can print a pretty Benchy then you can print this phone case. This example is more than good enough - the corners are sharp and the overhangs barely droop.
 
