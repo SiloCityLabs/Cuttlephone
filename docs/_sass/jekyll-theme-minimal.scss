@@ -146,15 +146,16 @@ ul.downloads {
   width:calc(100% /4);
   border-right:none;
 }
+.downloads li:nth-last-child(2){
+  width:calc(100% /4);
+}
 
 .downloads li:first-child a {
   border-radius:5px 0 0 5px;
 }
-
 .downloads li:last-child a {
   border-radius:0 5px 5px 0;
 }
-
 
 .downloads a {
   line-height:1;
