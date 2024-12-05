@@ -119,7 +119,7 @@ kbd {
 }
 
 header {
-  width:270px;
+  width:320px;
   float:left;
   position:fixed;
   -webkit-font-smoothing:subpixel-antialiased;
@@ -132,15 +132,19 @@ ul.downloads {
   background: #f4f4f4;
   border-radius:5px;
   border:1px solid #e0e0e0;
-  width:270px;
+  width:320px;
   display: flex;
 }
 
 .downloads li {
-  width:calc(100% /2);
+  width:calc(100% /3);
   float:left;
   border-right:1px solid #e0e0e0;
   height:40px;
+}
+.downloads li:last-child {
+  width:calc(100% /4);
+  border-right:none;
 }
 
 .downloads li:first-child a {
@@ -150,6 +154,7 @@ ul.downloads {
 .downloads li:last-child a {
   border-radius:0 5px 5px 0;
 }
+
 
 .downloads a {
   line-height:1;
@@ -173,11 +178,6 @@ ul.downloads {
 strong {
   color:#222;
   font-weight:700;
-}
-
-.downloads li + li + li {
-  border-right:none;
-  width:89px;
 }
 
 .downloads a strong {
@@ -204,7 +204,7 @@ hr {
 }
 
 footer {
-  width:270px;
+  width:320px;
   float:left;
   position:fixed;
   bottom:50px;

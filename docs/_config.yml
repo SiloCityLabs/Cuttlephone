@@ -9,6 +9,7 @@ generator_guide_url: /Cuttlephone/generator-guide/
 github: [metadata]
 github:
   repository_url: https://github.com/SiloCityLabs/Cuttlephone
+shop_url: https://shop.silocitylabs.com/collections/3d-prints/cuttlephone
 
 #https://github.com/pages-themes/minimal
 remote_theme: pages-themes/minimal@v0.2.0
