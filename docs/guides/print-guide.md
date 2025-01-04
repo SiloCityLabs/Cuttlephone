@@ -2,6 +2,7 @@
 layout: default
 title: "Print Guide"
 permalink: /guides/print-guide/
+parent: Guides
 ---
 
 # Materials

@@ -31,7 +31,7 @@ Cuttlephone is phone case generator and gamepad system for 3D printing. This is 
  - install Ruby, gem, and bundle (or figure out the [Docker image of Github Pages](https://github.com/Starefossen/docker-github-pages))
  - `bundle update`
  - `JEKYLL_GITHUB_TOKEN=tokenGoesHere123456789 bundle exec jekyll serve --incremental`
- - watch the console for something like this: `Server address: http://127.0.0.1:4000/Cuttlephone/`
+ - watch the console for something like this: `Server address: http://127.0.0.1:4000/`
 
 # Build logs 
 

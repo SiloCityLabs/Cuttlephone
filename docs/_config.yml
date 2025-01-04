@@ -1,7 +1,7 @@
 title: Cuttlephone
 description: 3D printable phone cases
-logo: https://user-images.githubusercontent.com/1850819/146625509-2912b6e2-4588-4564-96ca-3bf1879dbf04.png
-baseurl: /
+logo: /images/website-logo.png
+baseurl: 
 repository: SiloCityLabs/Cuttlephone
 models_url: /premade-models/
 guide_url: /guides/
@@ -11,15 +11,24 @@ github:
   repository_url: https://github.com/SiloCityLabs/Cuttlephone
 shop_url: https://shop.silocitylabs.com/collections/3d-prints/cuttlephone
 
-#https://github.com/pages-themes/minimal
-remote_theme: pages-themes/minimal@v0.2.0
+# https://github.com/just-the-docs/just-the-docs
+remote_theme: just-the-docs/just-the-docs
+#color_scheme: "dark"
+search_enabled: true
+nav_external_links:
+  - title: Code on Github
+    url: https://github.com/SiloCityLabs/Cuttlephone
+  - title: Shop
+    url: https://shop.silocitylabs.com/collections/3d-prints/cuttlephone
+
 plugins:
-- jekyll-remote-theme
+- jekyll-default-layout
 - jekyll-github-metadata
 - jekyll-mentions
 - jekyll-redirect-from
 - jekyll-sitemap
 - jemoji
+- jekyll-remote-theme
 
 # Exclude from processing.
 # The following items will not be processed, by default.

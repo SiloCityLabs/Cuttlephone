@@ -2,6 +2,7 @@
 layout: default
 title: "Generator Guide"
 permalink: /guides/generator-guide/
+parent: Guides
 ---
 
 # Getting the generator
