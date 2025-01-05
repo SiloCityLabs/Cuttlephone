@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "Generator Guide"
+title: "Phone Case Customizer"
 permalink: /guides/generator-guide/
 parent: Guides
 ---

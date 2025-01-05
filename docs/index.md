@@ -1,3 +1,7 @@
+---
+nav_order: 1
+---
+
 # Cuttlephone
 Cuttlephone is a 3D printed phone case and gamepad system. Download pre-made models or create your own.
 

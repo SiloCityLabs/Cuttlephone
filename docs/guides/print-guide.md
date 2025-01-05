@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "Print Guide"
+title: "3D Printing"
 permalink: /guides/print-guide/
 parent: Guides
 ---
