@@ -7,13 +7,31 @@ parent: Guides
 
 # Getting the generator
 
-Install [OpenSCAD version 2021.01 or greater](https://openscad.org/downloads.html). 
+## 1\) Install [OpenSCAD version 2021.01 or greater](https://openscad.org/downloads.html). 
 
-Download and extract the code from Github:
+## 2\) Get the code
+
+You need phone_case.scad, phone_case.json, and the BOSL2 library. If you use Git, it will include the libraries.
+
+### Clone with Git command line
+
+Assuming you have the git command line installed:
+
+`git clone https://github.com/SiloCityLabs/Cuttlephone.git --recurse-submodules`
+
+Done
+
+### Download with Github Desktop:
+
+Use GitHub Desktop to automatically include the libraries.
 
 [![Download code](/images/generator-guide/download-code.png)](https://github.com/SiloCityLabs/Cuttlephone)
 
-Open phone_case.scad . . .
+### Download ZIP
+
+If you choose to download as a ZIP, you will also need BOSL2. Download [BOSL2 from GitHub](https://github.com/BelfrySCAD/BOSL2) and unzip to `Cuttlephone/libraries/BOSL2/`. It should look like this:
+
+![folder structure](/images/generator-guide/unzip-bosl2.png)
 
 # Using the generator
 
