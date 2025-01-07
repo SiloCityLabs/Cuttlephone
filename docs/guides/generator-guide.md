@@ -21,6 +21,7 @@ Assuming you have the git command line installed:
 
 Done
 
+<!-- There must be a way for users to download without command line. Maybe I should use releases ... -->
 ### Download with Github Desktop:
 
 Use GitHub Desktop to automatically include the libraries.
