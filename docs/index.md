@@ -9,23 +9,23 @@ Cuttlephone is a 3D printed phone case and gamepad system. Download pre-made mod
 
 ### Hard plastic (PLA+, ABS) or flexibles (TPU)
 
-![](/images/hard_buttons.png)  |  ![](/images/soft_buttons.png)
+![Hard - Cut out for buttons](/images/hard_buttons.png)  |  ![Soft - push-through buttons](/images/soft_buttons.png)
 
 ### Phone case
 
-![](/images/phone_case.png)
+![3D model of phone case](/images/phone_case.png)
 
 ### Switch Joy-Con rails
 
-![](/images/joycon.png)
+![phone case rail for Switch Joy-Con](/images/joycon.png)
 
 ### Razer Junglecat rails
 
-![](/images/junglecat.png)
+![phone case rail for Razer Junglecat rails](/images/junglecat.png)
 
-### Universal adapter
+### Universal controller adapter
 
-![](/images/universal.png)
+![universal clamp with rails](/images/universal.png)
 
 You can follow progress here:
  - [HackADay.io project log](https://hackaday.io/project/165606-cuttlephone-gamepad-phone-case)

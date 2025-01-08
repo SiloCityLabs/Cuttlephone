@@ -17,7 +17,7 @@ Cuttlephone version: v0.4
 
 My daily phone case with Junglecat rails and our first mascot. Print with TPU. Use the [rail cutting tool](#junglecat-rail-cutting-tool) below to remove the support material.
 
-[![](/images//best-models/pixel 4a junglecat logo.png)](/best-models/pixel 4a junglecat logo.stl)
+[![Pixel 4a phone case with Junglecat rails](/images//best-models/pixel 4a junglecat logo.png)](/best-models/pixel 4a junglecat logo.stl)
 
 [STL file](/best-models/pixel 4a junglecat logo.stl)
 
@@ -29,12 +29,12 @@ Universal phone adapter with Joy-Con rails. Use a rubber band to clamp the two p
 
 [Horizontal:](/best-models/joycon v0.4.stl)
 
-[![](/images//best-models/joycon horizontal.png)](/best-models/joycon v0.4.stl)
+[![Joy-Con horizontal phone adapter](/images//best-models/joycon horizontal.png)](/best-models/joycon v0.4.stl)
 
 
 [Vertical:](/best-models/joycon vertical v0.4.stl)
 
-[![](/images//best-models/joycon vertical.png)](/best-models/joycon vertical v0.4.stl)
+[![Joy-Con vertical phone adapter](/images//best-models/joycon vertical.png)](/best-models/joycon vertical v0.4.stl)
 
 
 ## Razer Junglecat controller adapters
@@ -43,12 +43,12 @@ Universal phone adapter with Junglecat rails. Use a rubber band to clamp the two
 
 [Horizontal:](/best-models/junglecat v0.4.stl)
 
-[![](/images//best-models/junglecat horizontal.png)](/best-models/junglecat v0.4.stl)
+[![Junglecat horizontal phone adapter](/images//best-models/junglecat horizontal.png)](/best-models/junglecat v0.4.stl)
 
 
 [Vertical:](/best-models/junglecat vertical v0.4.stl)
 
-[![](/images//best-models/junglecat vertical.png)](/best-models/junglecat vertical v0.4.stl)
+[![Junglecat vertical phone adapter](/images//best-models/junglecat vertical.png)](/best-models/junglecat vertical v0.4.stl)
 
 
 ## Junglecat rail cutting tool
@@ -57,4 +57,4 @@ A tool to help cut the support material from the Junglecat rails. For phone case
 
 [Rail cut tool:](/best-models/rail cut tool v0.4.stl)
 
-[![](/images//best-models/rail cut tool.png)](/best-models/rail cut tool v0.4.stl)
+[![Rail cutting tool](/images//best-models/rail cut tool.png)](/best-models/rail cut tool v0.4.stl)

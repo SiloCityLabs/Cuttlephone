@@ -34,7 +34,7 @@ If you choose to download as a ZIP, you will also need BOSL2. Download [BOSL2 fr
 
 ![folder structure](/images/generator-guide/unzip-bosl2.png)
 
-# Using the generator
+## 3\) Open `phone_case.scad`
 
 Open `phone_case.scad`
 
@@ -60,7 +60,7 @@ Try changing the "case type" to Junglecat - rails will get added to the side of 
 
 In the other sections you can change the size and features of the case. All the measurements are in millimeters. Measure a phone with calipers.
 
-# Presets
+### Presets
 
 Custom presets can be saved to phone_case.json. Click the dropdown to view available configurations. Select one as a base config, then click the plus button **+** to make a new config.
 
