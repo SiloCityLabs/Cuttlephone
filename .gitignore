@@ -39,7 +39,7 @@ pcb/intermediates/
 .idea/
 
 # local file server for Jekyll pages
-Gemfile
+#Gemfile
 Gemfile.lock
 docs/_site/
 docs/.jekyll-cache

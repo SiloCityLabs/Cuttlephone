@@ -1,5 +1,5 @@
 # Cuttlephone
-Cuttlephone is phone case generator and gamepad system for 3D printing. This is the source code. [Get premade 3MF files and print tutorials on the website](https://silocitylabs.github.io/Cuttlephone/)
+Cuttlephone is phone case generator and gamepad system for 3D printing. This is the source code. [Get premade 3D models and print tutorials on the website](https://cuttlephone.com/)
 
 
 ![phone case generator](https://user-images.githubusercontent.com/1850819/206940314-f19951e0-617c-4899-927e-68e9c816ef28.png)
@@ -22,7 +22,7 @@ Cuttlephone is phone case generator and gamepad system for 3D printing. This is 
  
  # Build and publish scripts
  - in bash run `sh build.sh` to create all variants for all phones
- - in bash run `sh publish.sh` to copy the 3MF to the docs directory
+ - in bash run `sh publish.sh` to copy the 3D models and model info to the docs directory
 
 # How to run the docs blog locally
  - generate a token at https://github.com/settings/tokens/new
