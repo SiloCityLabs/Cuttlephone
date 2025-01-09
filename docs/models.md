@@ -7,7 +7,7 @@ has_toc: false
 heading_anchors: false
 ---
 
-# [Hall of Fame](/models/hall-of-fame/)
+# [Featured Models](/models/featured-models/)
 
 The best phone cases and controller adapters, as tested by users.
 
