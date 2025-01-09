@@ -56,8 +56,12 @@ support_airgap = 0.20;
 
 //Chop the case in half for a test print to see how it fits. To check body_radius, use "top_half_pla".
 test_cut = "none"; //[none, corners, right_edge, right_buttons, left_edge, bottom_edge, top_edge, left_button, top_half_pla, telescopic]
-//test modes. Verify body shape
-test_mode = "none"; //[none, body_and_shell, body_and_cuts]
+
+// debug views
+show_phone_body=false;
+transparent_body=false;
+transparent_shell=false;
+//show_cuts=false;
 
 //A plastic guide to help you cut the support out of the Joycon or Junglecat rails
 rail_cut_tools = false;
@@ -349,22 +353,36 @@ lanyard_loop = false;
 
 //colors are only visual, and only in OpenSCAD
 //use hex values or https://en.wikipedia.org/wiki/Web_colors#X11_color_names
-bodyColor="SeaGreen";
+shellColor="SeaGreen";
+shellOpacity=1.0;
+transparentOpacity=0.15;
+negativeColor="red";
+negativeColor2="pink";
 
 translate([0,0,upright_translate])
 rotate([0,upright_angle, 0])
-test_modes();
+debug_views();
 
-//transparent_body=false;
-//transparent_shell=false;
-module test_modes(){
-    if(test_mode=="body_and_shell"){
-        //if(transparent_body){ % } // not working, I want %-transparency to be toggle-able
-        color("red", 0.9)
-        body();
-        
+module debug_views(){
+    if(show_phone_body) {
+        if(transparent_body){
+            %
+            color(negativeColor, transparentOpacity)
+            body();
+        } else {
+            color(negativeColor, shellOpacity)
+            body();
+        }
+    }
+
+    // if(show_cuts) {
+    //     //TODO
+    // }
+
+    if(transparent_shell) {
+        shellOpacity=transparentOpacity;
         %
-        color("SeaGreen", 0.4)
+        color(shellColor, shellOpacity)
         main();
     }
     else {
@@ -403,7 +421,7 @@ module main() {
 
 module phone_case(){
     difference(){
-        color(bodyColor)
+        color(shellColor, shellOpacity)
         phone_shell();
         body();
         shell_cuts();
@@ -419,7 +437,7 @@ module phone_case(){
 
 module gamepad(){
     difference(){
-        color(bodyColor)
+        color(shellColor, shellOpacity)
         gamepad_shell();
         body();
         shell_cuts();
@@ -459,7 +477,7 @@ module shell_cuts(){
 
 module joycon_rails(){
     difference(){
-        color(bodyColor)
+        color(shellColor, shellOpacity)
         joycon_shell();
         body();
         shell_cuts();
@@ -476,7 +494,7 @@ module joycon_rails(){
 
 module junglecat_rails(){
     difference(){
-        color(bodyColor)
+        color(shellColor, shellOpacity)
         junglecat_shell();
         body();
         shell_cuts();
@@ -493,7 +511,7 @@ module junglecat_rails(){
 
 *body();
 module body(disable_curved_screen=false, include_camera_block=true){
-    color("orange", 0.6)
+    color(negativeColor2)
     union() {
         difference() {
             minkowski() {
@@ -546,7 +564,7 @@ module body_extra_radius(){
         rotate([90,0,180])
         shallow_fillet(l=body_length*debug-body_radius, r=body_bottom_side_radius, ang=body_bottom_side_angle);
         //bottom curve left
-        color("red", 0.4)
+        color(negativeColor, 0.4)
         translate([-body_width/2,0,-body_thickness/2])
         rotate([90,0,0])
         shallow_fillet(l=body_length*debug-body_radius, r=body_bottom_side_radius, ang=body_bottom_side_angle);
@@ -554,12 +572,12 @@ module body_extra_radius(){
    
     if(screen_curve_radius>0.1){
         //curved screen right
-        color("red", 0.4)
+        color(negativeColor, 0.4)
         translate([body_width/2,0,body_thickness/2])
         rotate([-90,0,180])
         shallow_fillet(l=body_length*debug-body_radius, r=screen_curve_radius, ang=screen_curve_angle);
         //curved screen left
-        color("red", 0.4)
+        color(negativeColor, 0.4)
         translate([-body_width/2,0,body_thickness/2])
         rotate([-90,0,0])
         shallow_fillet(l=body_length*debug-body_radius, r=screen_curve_radius, ang=screen_curve_angle);
@@ -795,7 +813,7 @@ module junglecat_cuts(universal_inside=false){
     universal_inside_length = junglecat_rail_length * 1.2;
 
     copy_mirror() {
-        color("red", 0.4)
+        color(negativeColor, 0.4)
         translate([0, -body_length/2-case_thickness2*universal_inside_off-junglecat_depth/2 - junglecat_stickout_adjust, 0]) {
             //dimple
             if(!universal_inside){
@@ -861,7 +879,7 @@ module joycon_cut_guide() {
 *joycon_cuts();
 module joycon_cuts(){
     copy_mirror() {
-        color("red", 0.2)
+        color(negativeColor, 0.2)
         translate([0, -body_length/2-case_thickness2-joycon_depth/2, joycon_z_shift]) {
             //inner cutout
             translate([body_width/2+case_thickness2,0,0])
@@ -978,7 +996,7 @@ module gamepad_trigger(){
 module gamepad_trigger_cut() {
     gamepad_trigger(); //ensure it fits
     //refactor this so the translations are easier to keep track of. Prob means changing anchor
-    color("red", 0.2)
+    color(negativeColor, 0.2)
     translate([
         body_width/2,
         gamepad_cutout_translate,
@@ -1018,7 +1036,7 @@ module gamepad_cuts(){
 }
 //gamepad_faceplates();
 module gamepad_faceplates(){
-    //color("red", 0.2) peg_cuts();
+    //color(negativeColor, 0.2) peg_cuts();
     module peg_cuts() {
         translate([0,gamepad_cutout_translate,-body_thickness/2+case_thickness2 +2]) {
             cube( 
@@ -1108,7 +1126,7 @@ module screen_cut(){
     smooth_edge_radius = (case_thickness2 < screen_cut_height/2) ? case_thickness2 : screen_cut_height/2 - 0.1;
     
     //this cuts the screen hole and smooths the edge
-    color("red", 0.2)
+    color(negativeColor, 0.2)
     translate([0, 0, body_thickness/2 - screen_cut_height + case_thickness2 + extra_lip_bonus + 0.05])
     offset_sweep( 
         round_rectangle, 
@@ -1118,12 +1136,12 @@ module screen_cut(){
     
     //top face cut
     //disabled cus I can't align it
-    * color("red", 0.2)
+    * color(negativeColor, 0.2)
     translate([0, 0, body_thickness/2 + case_thickness2 + extra_lip_bonus + 0.401])
     cuboid([body_width+smooth_edge_radius, body_length+smooth_edge_radius, 10], anchor=BOTTOM);
     
     //vertical cut
-    color("red", 0.1)
+    color(negativeColor, 0.1)
     translate([0, 0, body_thickness/2 - screen_cut_height + case_thickness2 + extra_lip_bonus + 0.05])
     linear_extrude(height = body_thickness*1.5, center = true)
     rect([screen_width, screen_length], rounding=screen_radius);
@@ -1305,12 +1323,12 @@ module screen_angled_bezels(){
 }
 
 
-*color("red", 0.2) lanyard_cut();
+*color(negativeColor, 0.2) lanyard_cut();
 module lanyard_cut(){
     //unsupported
     //ring cutout makes 2 slots for thin string lanyards
     if(lanyard_loop)
-    color("red", 0.2) 
+    color(negativeColor, 0.2) 
     translate([body_width/3.5,-body_length/2,-body_thickness/3])
     ring(body_thickness/2, 9, 6, 0.1 );
 }
@@ -1328,7 +1346,7 @@ charge_port_width = (bottom_speakers_left || bottom_speakers_right || case_type2
 *usb_cut();
 module usb_cut(){
     if(charge_on_bottom)
-    color("red", 0.2)
+    color(negativeColor, 0.2)
     translate( [0, -body_length/2, 0] )
     if(case_material2=="hard"){
         hard_cut(charge_port_width);
@@ -1436,7 +1454,7 @@ module hard_button_cut(right,  power_button, power_from_top, power_length, volum
     button_cut_thickness = 6;
     hard_cut_height = body_thickness; //TODO: use joycon_thickness on joycon version
     
-    color("red", 0.2)
+    color(negativeColor, 0.2)
     translate( [ right_or_left*(body_width/2),
         body_length/2 - button_offset - button_length/2, 
         -body_thickness/2+case_thickness2+extra_lip_bonus+0.05
@@ -1551,7 +1569,7 @@ module soft_button(right, button_length, button_from_top, button_shell_protrusio
 
     assert(!(button_wall_offset - button_wall_thickness/2 < 0), "button wall is hitting the device body - either button_wall_offset_percentage is too small, button_wall_thickness is too big, or try a thicker case");
 
-    color("SeaGreen", 0.8)
+    color(shellColor, 0.8)
     translate( [ right_or_left*(body_width/2),
         body_length/2,
         buttons_vertical_fudge
@@ -1564,7 +1582,7 @@ module soft_button(right, button_length, button_from_top, button_shell_protrusio
     }
 
     // Wall fits in the recess and won't poke out of the shell
-    color("SeaGreen", 0.8) difference() {
+    color(shellColor, 0.8) difference() {
         intersection() {
             soft_button_wall();
             soft_button_recess(right, button_length, button_from_top, disable_supports=true);
@@ -1666,7 +1684,7 @@ module camera_cut(){
     height = (case_type2=="joycon") ? joycon_thickness : case_thickness2*10; // Times 10 is just an arbitrary choice, cleaner preview than having the surfaces overlap
     chamfer_width = case_thickness2*10 * tan(camera_cutout_chamfer_angle);
     if(camera)
-    color("red", 0.2)
+    color(negativeColor, 0.2)
     down(body_thickness/2)
     back(body_length/2-camera_from_top+camera_clearance)
     right(body_width/2-camera_from_side+camera_clearance)
@@ -1685,7 +1703,7 @@ module extra_camera_cut(){
     height = 5;
     chamfer_width = case_thickness2*2 * tan(camera_cutout_chamfer_angle);
     if(camera_cut_2)
-    color("red", 0.2)
+    color(negativeColor, 0.2)
     //viewed from above, this  object is anchored to the top-right and translated to the top-right of the phone
     translate([
         body_width/2-camera_from_side_2+camera_clearance,
@@ -1709,7 +1727,7 @@ module fingerprint_cut(){
     fingerprint_cut_height = case_thickness2*2;
     fingerprint_radius2 = fingerprint_radius + fingerprint_cut_height * tan(fingerprint_cutout_chamfer_angle);
     if (fingerprint)
-    color("red", 0.2)
+    color(negativeColor, 0.2)
     translate([ 
         0, 
         body_length/2-fingerprint_center_from_top, 
@@ -1731,7 +1749,7 @@ module mic_cuts(){
 }
 
 module mic_cut(top_or_bottom, mic_from_right_edge, mic_offset_up){
-    color("red", 0.2)
+    color(negativeColor, 0.2)
     if (case_type2=="joycon" && case_material2=="hard") {
         //this cuts upward
         translate( [ body_width/2-mic_from_right_edge, top_or_bottom*body_length/2, -2 ] )
@@ -1755,7 +1773,7 @@ module top_headphone_cut(){
     headphone_radius_hard = 5;
     headphone_radius_soft = 4;
     trans = [ -body_width/2+headphone_from_left_edge+1.7, top_or_bottom*body_length/2, 0 ];
-    color("red", 0.2)
+    color(negativeColor, 0.2)
     if (headphone_on_top || headphone_on_bottom) {
         if(case_material2=="hard"){
             //we measure from edge of phone to edge of the 3.5mm jack. +1.7 to center it
@@ -1778,20 +1796,20 @@ module version_info_emboss(){
         logo_size_ratio = 0.85; //logo-to-body_width ratio
         
         //text
-        color("red")
+        color(negativeColor)
         rotate([0,0,0])
         translate([-30,-body_length/2+30,-body_thickness/2])
         linear_extrude(height = case_thickness2/2, center = true) {
             text(name, font=emboss_font, size=font_size, spacing=font_kerning);
             translate([0,-line_translate*2,0])
-            text(phone_model, font=small_font, size=small_font_size, spacing=font_kerning);
+            text(phone_model, font=emboss_font, size=small_font_size, spacing=font_kerning);
             translate([0,-line_translate,0])
-            text(version, font=small_font, size=small_font_size, spacing=font_kerning);
+            text(version, font=emboss_font, size=small_font_size, spacing=font_kerning);
         }
         
         //logo
         translate([0+logo_x,-body_length/2+70+logo_y,-body_thickness/2-case_thickness2/2])
-        color("red")
+        color(negativeColor)
         resize([body_width*logo_size_ratio, 0, case_thickness2/2], auto=[false,true,false])
         linear_extrude(height=case_thickness2/2)
         import(emboss_logo, center=true);
@@ -1799,7 +1817,7 @@ module version_info_emboss(){
     }
     if(emboss_size=="large") {
         line_translate = 12;
-        color("red")
+        color(negativeColor)
         rotate([0,0,-90])
         translate([-10,10,-body_thickness/2]) {
             linear_extrude(height = case_thickness2/2, center = true) {
@@ -1815,7 +1833,7 @@ module version_info_emboss(){
         font_size = 4;
         small_font_size = 3;
         line_translate = font_size*2;
-        color("red")
+        color(negativeColor)
         rotate([0,0,0])
         translate([-20,-body_length/2+font_size*5.5,-body_thickness/2]) {
             linear_extrude(height = case_thickness2/2, center = true) {
@@ -1831,7 +1849,7 @@ module version_info_emboss(){
         font_size = 4;
         small_font_size = 3;
         line_translate = font_size*2;
-        color("red")
+        color(negativeColor)
         rotate([0,0,-90])
         translate([16,-body_width/2+font_size*5.5,-body_thickness/2]) {
             linear_extrude(height = case_thickness2/2, center = true) {
@@ -1849,7 +1867,7 @@ module version_info_emboss(){
         font_size = 6;
         small_font_size = 6;
         line_translate = font_size*2;
-        color("red")
+        color(negativeColor)
         rotate([0,0,-90])
         translate([16,-body_width/2+font_size*5.5,-body_thickness/2]) {
             linear_extrude(height = case_thickness2/2, center = true) {
@@ -1940,11 +1958,11 @@ module telescopic_clamp(){
             }
                 
             //split the block
-            color("red", 0.2)
+            color(negativeColor, 0.2)
             translate([0,tele_seam,0])
             cuboid([body_width*2,tele_seam_width,body_width*2], anchor=CENTER);
             //viewing window in OpenSCAD only
-            *color("red", 0.2)
+            *color(negativeColor, 0.2)
             translate([0,body_width,0])
             cuboid([body_width/4,body_width*2,body_width*2], anchor=CENTER);
             
@@ -1982,7 +2000,7 @@ module telescopic_clamp(){
                 );
                 
                 //USB cut
-                color("red", 0.2)
+                color(negativeColor, 0.2)
                 translate([-telescopic_offset,pocket_length/2-usb_from_right, -body_bottom/2 - case_thickness2+0.01])
                 cuboid(
                     [pocket_width,usb_pocket_width,pocket_depth],
@@ -2002,12 +2020,12 @@ module telescopic_clamp(){
 *universal_cuts();
 module universal_cuts(){
     if(split_in_half==true) {
-        color("red", 0.2)
+        color(negativeColor, 0.2)
         translate([0,body_seam_offset,0])
         cuboid([body_width*2,body_seam_width,100], anchor=CENTER);
     }
     if(open_top) {
-        color("red", 0.2)
+        color(negativeColor, 0.2)
         translate([body_width/2,0,0]) {
             scale([1, 1, 0.99])
             body();
@@ -2017,7 +2035,7 @@ module universal_cuts(){
         }
         
         if (open_top_backchop==true)
-        color("red", 0.2)
+        color(negativeColor, 0.2)
         translate([body_width*open_top_chop_ratio,0,-body_thickness/2]) {
             scale([1, 1, 1])
             body();
@@ -2027,7 +2045,7 @@ module universal_cuts(){
         }
     }
     if(clamp_top) {
-        color("red", 0.2)
+        color(negativeColor, 0.2)
         translate([20,0,0]) {
             //scale([1, 0.95, 0.99])
             body();
@@ -2045,7 +2063,7 @@ module universal_cuts(){
         copy_mirror()
         for(i=[0:hole_count]){
             if(i*hole_sep>body_seam_width/2)
-            color("red", 0.2)
+            color(negativeColor, 0.2)
             translate([-body_width/2,i*hole_sep,0])
             rotate([0,90,0])
             cyl(r=hole_rad, h=body_width/4, anchor=CENTER);
@@ -2062,7 +2080,7 @@ module universal_cuts(){
         copy_mirror()
         for(i=[0:hole_count]){
             if(i*hole_sep>body_seam_width/2+grill_seam_buffer)
-            color("red", 0.2)
+            color(negativeColor, 0.2)
             translate([-body_width/3, i*hole_sep, grill_z])
             rotate([0,90,0])
             cuboid(
@@ -2083,7 +2101,7 @@ module universal_cuts(){
         grill_seam_buffer = 8;
         copy_mirror()
         for(i=[0:hole_count]){
-            color("red", 0.2)
+            color(negativeColor, 0.2)
             // move to the corner
             // then for each slot, move across body width
             translate([-body_width/2+body_radius*2+i*hole_sep, -body_width/3, grill_z])
@@ -2106,7 +2124,7 @@ module universal_cuts(){
         copy_mirror()
         for(i=[0:hole_count]){
             if(i*hole_sep>body_seam_width/2+grill_seam_buffer)
-            color("red", 0.2)
+            color(negativeColor, 0.2)
             translate([-body_width/3, i*hole_sep, -grill_z])
             rotate([0,90,0])
             cuboid(
@@ -2200,7 +2218,7 @@ module hard_cut(width=8, top_radius=4, bottom_radius=3.9){
     rectangle = square([width, hard_cut_depth],center=true);
     round_rectangle = round_corners(rectangle, radius=bottom_radius,$fn=lowFn);
     //round_rectangle = round_corners(rectangle, radius=bottom_radius,$fn=15);
-    color("red", 0.2)
+    color(negativeColor, 0.2)
     translate( [0, 0, -body_thickness/2  +0.01] )
     offset_sweep(round_rectangle, height=hard_cut_height,top=os_circle(r=-top_radius),bottom=os_circle(r=bottom_radius));
 }

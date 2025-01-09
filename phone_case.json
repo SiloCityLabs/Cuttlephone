@@ -112,7 +112,6 @@
       "telescopic": "false",
       "telescopic_clearance_thickness": "0.5",
       "telescopic_clearance_width": "0.7",
-      "test_mode": "none",
       "top_mic_from_right_edge": "11",
       "top_mic_offset_up": "2"
     },
@@ -234,7 +233,6 @@
       "telescopic_clearance_thickness": "0.5",
       "telescopic_clearance_width": "0.7",
       "telescopic_pocket": "false",
-      "test_mode": "none",
       "top_mic_from_right_edge": "17",
       "top_mic_offset_up": "0"
     },
@@ -349,7 +347,6 @@
       "telescopic": "false",
       "telescopic_clearance_thickness": "0.5",
       "telescopic_clearance_width": "0.7",
-      "test_mode": "none",
       "top_mic_from_right_edge": "14.1",
       "top_mic_offset_up": "0.1"
     },
@@ -465,7 +462,6 @@
       "telescopic": "false",
       "telescopic_clearance_thickness": "0.5",
       "telescopic_clearance_width": "0.7",
-      "test_mode": "none",
       "top_mic_from_right_edge": "14.1",
       "top_mic_offset_up": "0.1"
     },
@@ -580,7 +576,6 @@
       "telescopic": "false",
       "telescopic_clearance_thickness": "0.5",
       "telescopic_clearance_width": "0.7",
-      "test_mode": "none",
       "top_mic_from_right_edge": "20",
       "top_mic_offset_up": "0"
     },
@@ -733,7 +728,6 @@
       "telescopic_clearance_thickness": "0.5",
       "telescopic_clearance_width": "0.7",
       "telescopic_pocket": "false",
-      "test_mode": "none",
       "top_mic_from_right_edge": "17",
       "top_mic_offset_up": "0"
     },
@@ -862,7 +856,6 @@
       "telescopic": "false",
       "telescopic_clearance_thickness": "0.5",
       "telescopic_clearance_width": "0.7",
-      "test_mode": "none",
       "top_mic_from_right_edge": "24.6",
       "top_mic_offset_up": "0"
     },
@@ -979,7 +972,6 @@
       "telescopic": "false",
       "telescopic_clearance_thickness": "0.5",
       "telescopic_clearance_width": "0.7",
-      "test_mode": "none",
       "top_mic_from_right_edge": "60.3",
       "top_mic_offset_up": "0.1"
     },
@@ -1114,7 +1106,6 @@
       "telescopic": "false",
       "telescopic_clearance_thickness": "0.5",
       "telescopic_clearance_width": "0.7",
-      "test_mode": "none",
       "top_mic_from_right_edge": "59.5",
       "top_mic_offset_up": "-0.7"
     },
@@ -1239,7 +1230,6 @@
       "telescopic_clearance_thickness": "0.5",
       "telescopic_clearance_width": "0.7",
       "telescopic_pocket": "false",
-      "test_mode": "none",
       "top_mic_from_right_edge": "14.1",
       "top_mic_offset_up": "0.1"
     },
@@ -1398,7 +1388,6 @@
       "telescopic_seam": "10",
       "telescopic_thick_side": "12.199999999999999",
       "telescopic_thin_side": "6.0999999999999996",
-      "test_mode": "none",
       "top_mic_from_right_edge": "14.1",
       "top_mic_offset_up": "0.10000000000000001"
     },
@@ -1679,7 +1668,6 @@
       "telescopic_clearance_thickness": "0.5",
       "telescopic_clearance_width": "0.7",
       "telescopic_pocket": "false",
-      "test_mode": "none",
       "top_mic_from_right_edge": "14.1",
       "top_mic_offset_up": "0.1"
     },
@@ -1803,7 +1791,6 @@
       "telescopic_clearance_thickness": "0.5",
       "telescopic_clearance_width": "0.7",
       "telescopic_pocket": "false",
-      "test_mode": "none",
       "top_mic_from_right_edge": "14.1",
       "top_mic_offset_up": "0.1"
     },
@@ -1927,7 +1914,6 @@
       "telescopic_clearance_thickness": "0.5",
       "telescopic_clearance_width": "0.7",
       "telescopic_pocket": "true",
-      "test_mode": "none",
       "top_mic_from_right_edge": "14.1",
       "top_mic_offset_up": "0.1"
     },
@@ -2083,7 +2069,6 @@
       "telescopic_pocket": "false",
       "telescopic_thick_side": "8.1999999999999993",
       "telescopic_thin_side": "4.0999999999999996",
-      "test_mode": "none",
       "top_mic_from_right_edge": "14.1",
       "top_mic_offset_up": "0.10000000000000001"
     },
@@ -2207,7 +2192,6 @@
       "telescopic_clearance_thickness": "0.5",
       "telescopic_clearance_width": "0.7",
       "telescopic_pocket": "false",
-      "test_mode": "none",
       "top_mic_from_right_edge": "14.1",
       "top_mic_offset_up": "0.1"
     },
@@ -2331,7 +2315,6 @@
       "telescopic_clearance_thickness": "0.5",
       "telescopic_clearance_width": "0.7",
       "telescopic_pocket": "false",
-      "test_mode": "none",
       "top_mic_from_right_edge": "14.1",
       "top_mic_offset_up": "0.1"
     },
@@ -2455,7 +2438,6 @@
       "telescopic_clearance_thickness": "0.5",
       "telescopic_clearance_width": "0.7",
       "telescopic_pocket": "true",
-      "test_mode": "none",
       "top_mic_from_right_edge": "14.1",
       "top_mic_offset_up": "0.1"
     },
@@ -2568,7 +2550,6 @@
       "telescopic": "false",
       "telescopic_clearance_thickness": "0.5",
       "telescopic_clearance_width": "0.7",
-      "test_mode": "none",
       "top_mic_from_right_edge": "14.8",
       "top_mic_offset_up": "1.4"
     }
