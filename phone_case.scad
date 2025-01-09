@@ -57,16 +57,17 @@ support_airgap = 0.20;
 //Chop the case in half for a test print to see how it fits. To check body_radius, use "top_half_pla".
 test_cut = "none"; //[none, corners, right_edge, right_buttons, left_edge, bottom_edge, top_edge, left_button, top_half_pla, telescopic]
 
-// debug views
-show_phone_body=false;
-transparent_body=false;
-transparent_shell=false;
-//show_cuts=false;
-
 //A plastic guide to help you cut the support out of the Joycon or Junglecat rails
 rail_cut_tools = false;
 
 render_quality="quick"; // [quick, export]
+
+/* [debug view] */
+show_phone_body=false;
+transparent_body=false;
+transparent_shell=false;
+show_cuts=false;
+transparent_cuts=false;
 
 /* [body] */
 
@@ -354,20 +355,22 @@ lanyard_loop = false;
 //colors are only visual, and only in OpenSCAD
 //use hex values or https://en.wikipedia.org/wiki/Web_colors#X11_color_names
 shellColor="SeaGreen";
-shellOpacity=1.0;
 transparentOpacity=0.15;
+shellOpacity= transparent_shell ? transparentOpacity : 1.0;
 negativeColor="red";
 negativeColor2="pink";
 
 translate([0,0,upright_translate])
 rotate([0,upright_angle, 0])
 debug_views();
+//main();
 
+/* shows hidden shapes that are used for cutting
+*/
 module debug_views(){
     if(show_phone_body) {
         if(transparent_body){
-            %
-            color(negativeColor, transparentOpacity)
+            % color(negativeColor, transparentOpacity)
             body();
         } else {
             color(negativeColor, shellOpacity)
@@ -375,24 +378,30 @@ module debug_views(){
         }
     }
 
-    // if(show_cuts) {
-    //     //TODO
-    // }
+    if(show_cuts) {
+        if(transparent_cuts) {
+            % color(negativeColor, transparentOpacity)
+            cuts();
+        }
+        else {
+            color(negativeColor, shellOpacity)
+            cuts();
+        }
+    }
 
     if(transparent_shell) {
-        shellOpacity=transparentOpacity;
-        %
-        color(shellColor, shellOpacity)
+        % color(shellColor, transparentOpacity)
         main();
     }
     else {
         main();
     }
+
+
 }
 
 module main() {
     difference(){
-        
         if(case_type2=="phone case") {
             phone_case();
         }
@@ -440,8 +449,7 @@ module gamepad(){
         color(shellColor, shellOpacity)
         gamepad_shell();
         body();
-        shell_cuts();
-        gamepad_cuts();
+        cuts();
     }
     
     gamepad_trigger();
@@ -480,8 +488,7 @@ module joycon_rails(){
         color(shellColor, shellOpacity)
         joycon_shell();
         body();
-        shell_cuts();
-        joycon_cuts();
+        cuts();
     }
 
     if (case_material2 == "soft") {
@@ -497,8 +504,7 @@ module junglecat_rails(){
         color(shellColor, shellOpacity)
         junglecat_shell();
         body();
-        shell_cuts();
-        junglecat_cuts();
+        cuts();
     }
 
     if (case_material2 == "soft") {
@@ -507,6 +513,19 @@ module junglecat_rails(){
 
     manual_supports_();
     telescopic_clamp();
+}
+
+module cuts() {
+    shell_cuts();
+    if(case_type2=="gamepad") {
+        gamepad_cuts();
+    }
+    else if(case_type2=="joycon") {
+        joycon_cuts();
+    }
+    else if(case_type2=="junglecat") {
+        junglecat_cuts();
+    }
 }
 
 *body();
