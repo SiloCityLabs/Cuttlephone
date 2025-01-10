@@ -45,7 +45,7 @@ If you can print a pretty Benchy then you can print this phone case. This exampl
 
 The clamps are made of two parts. They must be separated before printing.
 
-Import the model into your slicer. Split the model and separate the 2 halves. Enable supports on the build plate. Don't support the inside of the sliding slot.
+Import the model into your slicer. Split the model and then move one of them. Then enable supports on the build plate only - don't fill the telescoping slot with supports.
 
 ![](/images/print-guide/split1.png)
 ![](/images/print-guide/split2.png)
@@ -53,13 +53,13 @@ Import the model into your slicer. Split the model and separate the 2 halves. En
 
 # Separate clamps before printing - Joycon
 
-The Joy-Con rails have manual supports. In your slicer there should be 4 objects. Move them along with the clamp. 
+The Joy-Con rails have manual supports for the locking notch. In your slicer there should be 4 objects. Multi-select (Ctrl+Click) and move the supports in unison with the clamp. Then enable supports on the build plate only - don't fill the telescoping slot.
 
 ![](/images/print-guide/split4.png)
 
 # Manual horizontal supports 
 
-Manual supports are used for some overhangs to prevent sagging. Cut away with a craft knife or sharp box cutter.
+Manual supports are used for some overhangs to prevent sagging. Cut away with a craft knife or sharp box cutter. Theses are shown as thin translucent walls in OpenSCAD:
 
 Phone overhang support
 ![](/images/print-guide/manual-phone1.png)
@@ -76,3 +76,13 @@ There is a "support airgap" to help separate these rail supports ... but it only
 ![](/images/print-guide/cut-rail.jpg)
 
 ...
+
+### Rail cut tool
+
+Actually there is a tool to help cut the support. This guide slides into the Junglecat rail and has a channel for your blade. You need to print one for each side. 
+
+Be warned, this is a work-in-progress and it's rather dangerous to cut this rail while holding the phoen case. The tool grip isn't a useful shape. This needs a remake to protect the hand and sit flush on a table.
+
+![](/images/print-guide/rail-tool-1.jpg)
+
+![](/images/print-guide/rail-tool-2.jpg)
