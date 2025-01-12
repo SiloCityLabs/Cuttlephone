@@ -17,7 +17,7 @@ include <libraries/BOSL2_submodule/shapes3d.scad>
 
 /*  measurements from the phone
  *  all values are in mm
- *  Customizer's UI precision (0.1, 0.01, etc) depends on the precision of the variable.
+ *  Customizer UI precision (0.1, 0.01) is based on the comments
  */
 
 /* [shell] */
@@ -38,7 +38,7 @@ shell_screen_min_lip_inner = 1; // 0.1
 /* [emboss] */
 phone_model = "Sample case";
 emboss_size = "large"; // [logo, large, small, very_small, medium_rotated, none]
-//Check font names in OpenSCAD > Help > Font List. Simple sans-serif fonts will print better
+//Check available fonts in the menu Help > Font List. Simple sans-serif fonts will print better.
 emboss_font = "Audiowide";
 font_size = 7.1; // 0.1
 small_font_size = 6.1; // 0.1
