@@ -994,7 +994,7 @@ module joycon_cuts(){
 *joycon2_cuts();
 module joycon2_cuts(){
     copy_mirror() {
-        //color(negativeColor, 0.2)
+        color(negativeColor, 0.2)
         translate([body_width/2-rail_body_radius, -body_length/2-case_thickness2-joycon2_depth/2-magnet_depth, joycon2_z_shift]) {
             //inner cutout
             //translate([body_width/2+case_thickness2,0,0])
@@ -1007,12 +1007,12 @@ module joycon2_cuts(){
 
             // magnet holes
             //copy_mirror([1,0,0]) //couldn't mirror properly because my X positioning is whack???
-            color("blue", 0.4)
+            //color("blue", 0.4)
             translate([-rail_body_radius-magnet_top_offset,magnet_depth,0])
             rotate([-90,0,0])
             cyl(h = magnet_depth, r = magnet_radius, anchor=CENTER);
 
-            color("blue", 0.4)
+            //color("blue", 0.4)
             translate([-joycon2_length+rail_body_radius+magnet_top_offset,magnet_depth,0])
             rotate([-90,0,0])
             cyl(h = magnet_depth, r = magnet_radius, anchor=CENTER);
