@@ -268,13 +268,15 @@ telescopic_thin_side = 4.1;
 telescopic_thick_side = 8.2;
 
 /* [build vars] */
-//will this version be posted on the website?
+// enable auto build of variants
 build_phone=true;
 build_junglecat=true;
 build_joycon=true;
 build_hard=true;
 build_soft=true;
+// will this phone model be posted on the website?
 in_development=false;
+notes="";
 
 //end customizer variables
 module end_customizer_variables(){}
