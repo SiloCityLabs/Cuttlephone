@@ -28,19 +28,19 @@ I use a 0.4mm nozzle. For a quick test fit, set the layer heigh to 0.20-0.30mm. 
 
 **Variable extrusion width** will make the rails stronger and more accurate. Cura 5.0 and PrusaSlicer 2.5 both have this feature. Some companies reskin Cura as their own slicer - use the latest version of regular Cura instead.
 
-![](/images/print-guide/arachne.png)
+![Prusa 2.5.0 with thick rails printed as a single extrusion](/images/print-guide/arachne.png)
 
 Increasing the extrusion width a little may help print the thin rails in fewer stronger lines. Maybe. May reduce visual quality.
 
-![](/images/print-guide/extrusion-width.png)
+![extrusion width setting in PrusaSlicer](/images/print-guide/extrusion-width.png)
 
 To reduce blobs on TPU cases, I enable "Avoid Crossing Perimeters" in PrusaSlicer.
 
-![](/images/print-guide/avoid-crossing.png)
+![Avoid Crossing Perimeters settings in PrusaSlicer](/images/print-guide/avoid-crossing.png)
 
 If you can print a pretty Benchy then you can print this phone case. This example is more than good enough - the corners are sharp and the overhangs barely droop.
 
-![](/images/print-guide/benchy.jpg)
+![a crispy benchy](/images/print-guide/benchy.jpg)
 
 # Separate clamps before printing - Junglecat
 
@@ -48,33 +48,37 @@ The clamps are made of two parts. They must be separated before printing.
 
 Import the model into your slicer. Split the model and then move one of them. Then enable supports on the build plate only - don't fill the telescoping slot with supports.
 
-![](/images/print-guide/split1.png)
-![](/images/print-guide/split2.png)
-![](/images/print-guide/split3.png)
+![separating the left half and right half in PrusaSlicer 1](/images/print-guide/split1.png)
+![separating the left half and right half in PrusaSlicer 2](/images/print-guide/split2.png)
+![separating the left half and right half in PrusaSlicer 3](/images/print-guide/split3.png)
 
 # Separate clamps before printing - Joycon
 
 The Joy-Con rails have manual supports for the locking notch. In your slicer there should be 4 objects. Multi-select (Ctrl+Click) and move the supports in unison with the clamp. Then enable supports on the build plate only - don't fill the telescoping slot.
 
-![](/images/print-guide/split4.png)
+![separating the left half and right half, including manual supports on joycon rail](/images/print-guide/split4.png)
 
 # Manual horizontal supports 
 
 Manual supports are used for some overhangs to prevent sagging. Cut away with a craft knife or sharp box cutter. Theses are shown as thin translucent walls in OpenSCAD:
 
 Phone overhang support
-![](/images/print-guide/manual-phone1.png)
-![](/images/print-guide/manual-phone2.png)
+
+![orthographic view of phone case](/images/print-guide/manual-phone1.png)
+
+![manual support on the USB port and speaker ports](/images/print-guide/manual-phone2.png)
 
 Junglecat rail support
-![](/images/print-guide/manual-junglecat.png)
+
+![manual support on the junglecat rail](/images/print-guide/manual-junglecat.png)
 
 Joycon rail support
-![](/images/print-guide/manual-joycon.png)
+
+![manual support on the joycon rail](/images/print-guide/manual-joycon.png)
 
 There is a "support airgap" to help separate these rail supports ... but it only works well on the top line. You must cut the Junglecat and Joycon rails by hand. Good luck!
 
-![](/images/print-guide/cut-rail.jpg)
+![manual support cut away with an exacto blade](/images/print-guide/cut-rail.jpg)
 
 ...
 
