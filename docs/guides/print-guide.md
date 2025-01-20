@@ -3,6 +3,11 @@ layout: default
 title: "3D Printing"
 permalink: /guides/print-guide/
 parent: Guides
+callouts:
+  warning:
+    title: Warning
+    color: red
+
 ---
 
 # Materials
@@ -81,7 +86,8 @@ There is a "support airgap" to help separate these rail supports ... but it only
 
 Actually there is a tool to help cut the support. This guide slides into the Junglecat rail and has a channel for your blade. You need to print one for each side. 
 
-Be warned, this is a work-in-progress and it's rather dangerous to cut this rail while holding the phoen case. The tool grip isn't a useful shape. This needs a remake to protect the hand and sit flush on a table.
+{: .warning }
+This is a work-in-progress. It's rather dangerous to cut this rail while holding the phoen case. The tool grip isn't a useful shape. This needs a remake to protect the hand and sit flush on a table.
 
 ![](/images/print-guide/rail-tool-1.jpg)
 
