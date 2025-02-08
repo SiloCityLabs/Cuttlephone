@@ -35,6 +35,9 @@ shell_screen_max_lip_outer = 2; // 0.1
 // Thinnest the lip should be on the inner edges
 shell_screen_min_lip_inner = 1; // 0.1
 
+lanyard_loop = false;
+lanyard_reinforcement = false;
+
 /* [emboss] */
 phone_model = "Sample case";
 emboss_size = "large"; // [logo, large, small, very_small, medium_rotated, none]
@@ -50,9 +53,9 @@ logo_y = 0.0; // 0.1
 
 //this will support the rail and some overhangs during a horizontal print, and support the Joycon lock notch on a vertical print
 manual_supports = true;
-support_thickness = 0.4;
+support_thickness = 0.4; // [0.1:1 : 0.01]
 //This will make a gap in between the supports and the object. Set this to approx your layer height. 
-support_airgap = 0.20;
+support_airgap = 0.20;  // [0.0:0.4 : 0.01]
 
 //Chop the case in half for a test print to see how it fits. To check body_radius, use "top_half_pla".
 test_cut = "none"; //[none, corners, right_edge, right_buttons, left_edge, bottom_edge, top_edge, left_button, top_half_pla, telescopic]
@@ -350,9 +353,6 @@ junglecat_stickout = 4.2;
 name = "Cuttlephone";
 author = "Maave";
 version = "v 0.4";
-
-//unsupported features
-lanyard_loop = false;
 
 //colors are only visual, and only in OpenSCAD
 //use hex values or https://en.wikipedia.org/wiki/Web_colors#X11_color_names
@@ -1346,12 +1346,17 @@ module screen_angled_bezels(){
 
 *color(negativeColor, 0.2) lanyard_cut();
 module lanyard_cut(){
+    
     //unsupported
     //ring cutout makes 2 slots for thin string lanyards
     if(lanyard_loop)
     color(negativeColor, 0.2) 
     translate([body_width/3.5,-body_length/2,-body_thickness/3])
     ring(body_thickness/2, 9, 6, 0.1 );
+
+    if(lanyard_reinforcement) {
+        //thicken the case around the lanyard holes
+    }
 }
 
 // The USB Type C spec prescribes 12.35 x 6.5 for the overmold portion of a plug, but practice shows this is often taken as a suggestion by cable manufacturers.
