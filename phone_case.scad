@@ -192,7 +192,7 @@ left_hole_2_from_top = 89.1; // 0.1
 left_hole_2_length = 10.1; // 0.1
 left_hole_2_bevel = false;
 
-/* [camera / fingerprint] */
+/* [camera / rear fingerprint] */
 
 //camera cutout is a rectangle with rounded corners
 camera = true;
@@ -202,8 +202,8 @@ camera_height = 9.1; // 0.1
 camera_radius = 4.5; // 0.1
 camera_from_side = 8.5; // 0.1
 camera_from_top = 8.7; // 0.1
-// extra gap around camera. 0.5 - 1.0 recommended. 
-camera_clearance = 1.1; // 0.1
+// extra gap around camera. 
+camera_clearance = 1.1; // [ 0:0.1:2 ]
 // how much does the camera protrude from the body
 camera_protrusion = 0.0; // 0.1
 // Does the camera block interact with the edges of the phone - e.g. "island" does not: Pixel 1 to 5, all iPhones so far; "bar" protrudes from the phone back and joins on both sides: Pixel 6, 7; (unsupported) "right_corner" Galaxy S21
@@ -1463,8 +1463,8 @@ module button_cuts(){
 
 module soft_button_recess(right, button_length, button_offset, disable_supports=false, more_bevel=false) {
     right_or_left = right ? 1 : -1;
-    bevel_angle_y = more_bevel ? 65 : 25;
-    bevel_angle_z = more_bevel ? 75: 15;
+    bevel_angle_y = more_bevel ? 69 : 25;
+    bevel_angle_z = more_bevel ? 80: 15;
     translate( [ right_or_left*(body_width/2),
         body_length/2 - button_offset - button_length/2, 
         buttons_vertical_fudge
