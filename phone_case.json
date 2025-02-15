@@ -2719,7 +2719,7 @@
       "body_thickness": "9.3",
       "body_width": "71.900000000000006",
       "bottom_mic_from_right_edge": "45.2",
-      "bottom_mic_offset_up": "0",
+      "bottom_mic_offset_up": "0.80000000000000004",
       "bottom_speaker_height": "1.2",
       "bottom_speaker_inner_edge_from_center": "11.6",
       "bottom_speaker_vertical_offset_from_center": "0",
