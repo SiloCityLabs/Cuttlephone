@@ -178,15 +178,19 @@ left_button_2_length = 10.1; // 0.1
 right_hole_1 = false;
 right_hole_1_from_top = 89.1; // 0.1
 right_hole_1_length = 10.1; // 0.1
+right_hole_1_bevel = false;
 right_hole_2 = false;
 right_hole_2_from_top = 89.1; // 0.1
 right_hole_2_length = 10.1; // 0.1
+right_hole_2_bevel = false;
 left_hole_1 = false;
 left_hole_1_from_top = 89.1; // 0.1
 left_hole_1_length = 10.1; // 0.1
+left_hole_1_bevel = false;
 left_hole_2 = false;
 left_hole_2_from_top = 89.1; // 0.1
 left_hole_2_length = 10.1; // 0.1
+left_hole_2_bevel = false;
 
 /* [camera / fingerprint] */
 
@@ -215,6 +219,7 @@ camera_height_2 = 9.1; // 0.1
 camera_from_side_2 = 8.5; // 0.1
 camera_from_top_2 = 8.7; // 0.1
 
+// fingerprint hole on the back
 fingerprint = false;
 fingerprint_center_from_top = 36.5; // 0.1
 fingerprint_diam = 13.1; // 0.1
@@ -1412,6 +1417,7 @@ module usb_cut(){
 *button_cuts();
 module button_cuts(){
     //hard buttons have a single cutout
+    //power and volume cutouts are combined
     if(case_material2=="hard"){
         if(left_power_button || left_volume_buttons){
             hard_button_cut(false, left_power_button, left_power_from_top, left_power_length, left_volume_buttons, left_volume_from_top, left_volume_length);
@@ -1421,9 +1427,8 @@ module button_cuts(){
             hard_button_cut(true, right_power_button, right_power_from_top, right_power_length, right_volume_buttons, right_volume_from_top, right_volume_length);
         }
     }
-    //soft buttons have their own recesses, not joined
-    //maybe needs an overlap detector but that's as complicated as the hard_button_cut
-    else {
+    //soft buttons recess. The rest of the button will be added later
+    else if (case_material2=="soft") {
         if(right_power_button)
         soft_button_recess(true, right_power_length, right_power_from_top, disable_supports=true);
         if(right_volume_buttons)
@@ -1442,27 +1447,30 @@ module button_cuts(){
         if(left_button_2)
         soft_button_recess(false, left_button_2_length, left_button_2_from_top, disable_supports=true);
 
+        // holes
         if(right_hole_1)
-        soft_button_recess(true, right_hole_1_length, right_hole_1_from_top, disable_supports=false);
+        soft_button_recess(true, right_hole_1_length, right_hole_1_from_top, disable_supports=false, more_bevel=right_hole_1_bevel);
         if(right_hole_2)
-        soft_button_recess(true, right_hole_2_length, right_hole_2_from_top, disable_supports=false);
+        soft_button_recess(true, right_hole_2_length, right_hole_2_from_top, disable_supports=false, more_bevel=right_hole_2_bevel);
         if(left_hole_1)
-        soft_button_recess(false, left_hole_1_length, left_hole_1_from_top, disable_supports=false);
+        soft_button_recess(false, left_hole_1_length, left_hole_1_from_top, disable_supports=false, more_bevel=left_hole_1_bevel);
         if(left_hole_2)
-        soft_button_recess(false, left_hole_2_length, left_hole_2_from_top, disable_supports=false);
+        soft_button_recess(false, left_hole_2_length, left_hole_2_from_top, disable_supports=false, more_bevel=left_hole_2_bevel);
         
     }
     
 }
 
-module soft_button_recess(right, button_length, button_offset, disable_supports=false) {
+module soft_button_recess(right, button_length, button_offset, disable_supports=false, more_bevel=false) {
     right_or_left = right ? 1 : -1;
+    bevel_angle_y = more_bevel ? 65 : 25;
+    bevel_angle_z = more_bevel ? 75: 15;
     translate( [ right_or_left*(body_width/2),
         body_length/2 - button_offset - button_length/2, 
         buttons_vertical_fudge
     ] )
     rotate([right_or_left*90,0,90])
-    soft_cut(width=button_length, height=soft_cut_height1, disable_support=disable_supports, horizontal_clearance=buttons_clearance_soft_case, bevel_angle_y = 15, bevel_angle_z = 10);
+    soft_cut(width=button_length, height=soft_cut_height1, disable_support=disable_supports, horizontal_clearance=buttons_clearance_soft_case, bevel_angle_y = bevel_angle_y, bevel_angle_z = bevel_angle_z);
 }
 
 module hard_button_cut(right,  power_button, power_from_top, power_length, volume_buttons, volume_from_top, volume_length){
