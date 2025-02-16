@@ -238,6 +238,8 @@ bottom_mic_offset_up = 0.1; // 0.1
 headphone_from_left_edge = 14.1; // 0.1
 headphone_on_top = false;
 headphone_on_bottom = false;
+// vertical offset
+headphone_z_offset = 0; // [-3 : 0.1 : 3]
 
 charge_on_bottom = true;
 charge_cutout_bevel_angle_y = 10;
@@ -1807,7 +1809,7 @@ module top_headphone_cut(){
     top_or_bottom = headphone_on_top? 1:-1;
     headphone_radius_hard = 5;
     headphone_radius_soft = 4;
-    trans = [ -body_width/2+headphone_from_left_edge+1.7, top_or_bottom*body_length/2, 0 ];
+    trans = [ -body_width/2+headphone_from_left_edge+1.7, top_or_bottom*body_length/2, headphone_z_offset ];
     color(negativeColor, 0.2)
     if (headphone_on_top || headphone_on_bottom) {
         if(case_material2=="hard"){
