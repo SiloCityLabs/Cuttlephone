@@ -2813,7 +2813,7 @@
       "open_top_chop_ratio": "0.51",
       "phone_model": "Xperia 1 V",
       "rail_cut_tools": "false",
-      "render_quality": "quick",
+      "render_quality": "export",
       "right_button_1": "false",
       "right_button_1_from_top": "134.2",
       "right_button_1_length": "8.1",
