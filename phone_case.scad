@@ -192,6 +192,9 @@ left_hole_2_from_top = 89.1; // 0.1
 left_hole_2_length = 10.1; // 0.1
 left_hole_2_bevel = false;
 
+more_hole_bevel_z = 88; // [0:1:90]
+more_hole_bevel_y = 70; // [0:1:86]
+
 /* [camera / rear fingerprint] */
 
 //camera cutout is a rectangle with rounded corners
@@ -1466,8 +1469,8 @@ module button_cuts(){
 
 module soft_button_recess(right, button_length, button_offset, disable_supports=false, more_bevel=false) {
     right_or_left = right ? 1 : -1;
-    bevel_angle_y = more_bevel ? 69 : 25;
-    bevel_angle_z = more_bevel ? 80: 15;
+    bevel_angle_y = more_bevel ? more_hole_bevel_y : 25;
+    bevel_angle_z = more_bevel ? more_hole_bevel_z : 15;
     translate( [ right_or_left*(body_width/2),
         body_length/2 - button_offset - button_length/2, 
         buttons_vertical_fudge
