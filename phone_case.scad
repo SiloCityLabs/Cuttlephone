@@ -56,6 +56,8 @@ manual_supports = true;
 support_thickness = 0.4; // [0.1:1 : 0.01]
 //This will make a gap in between the supports and the object. Set this to approx your layer height. 
 support_airgap = 0.20;  // [0.0:0.4 : 0.01]
+//for soft case cutouts, don't support on the curved part 
+manual_support_retract = 2; // [0:1:2]
 
 //Chop the case in half for a test print to see how it fits. To check body_radius, use "top_half_pla".
 test_cut = "none"; //[none, corners, right_edge, right_buttons, left_edge, bottom_edge, top_edge, left_button, top_half_pla, telescopic]
@@ -192,8 +194,10 @@ left_hole_2_from_top = 89.1; // 0.1
 left_hole_2_length = 10.1; // 0.1
 left_hole_2_bevel = false;
 
-more_hole_bevel_z = 88; // [0:1:90]
+//increase bevel around fingerprint scanners
+more_hole_bevel_z = 88; // [0:0.1:89.9]
 more_hole_bevel_y = 70; // [0:1:86]
+more_hole_bevel_inset = 0; // [0:0.1:2]
 
 /* [camera / rear fingerprint] */
 
@@ -1516,24 +1520,26 @@ module soft_cut( width, height, disable_support=false, disable_bevel=false, beve
     cut_height = height;
     cut_depth = shallow_cut ? 0 : 15;
     cut_rounding = (button_cut_rounding>width)? width/2 : button_cut_rounding; //breaks at high body_width values
+    cut_width = cut_rounding * manual_support_retract;
     
     difference() {
         //cutout
+        translate([-more_hole_bevel_inset,0,0]) 
         soft_cut_submodule();
         
         //manual supports
         color("blue", 0.2)
         if(manual_supports==true && !disable_support) {
             prismoid(
-                size1=[width+horizontal_clearance*2 - cut_rounding*2, cut_height+vertical_clearance*2],
-                size2=[width+horizontal_clearance*2 - cut_rounding*2, cut_height+vertical_clearance*2],
+                size1=[width+horizontal_clearance*2 - cut_width, cut_height+vertical_clearance*2],
+                size2=[width+horizontal_clearance*2 - cut_width, cut_height+vertical_clearance*2],
                 h=support_thickness, 
                 anchor=CENTER
             );
             //TODO: manual support for junglecat and joycon
             if(junglecat_support && ( case_type2=="junglecat" || case_type2=="joycon" ) ) {
                 translate([0,0,case_thickness2+junglecat_inner_width])
-                prismoid(size1=[width+horizontal_clearance*2-cut_rounding*2,cut_height], size2=[width+horizontal_clearance*2-cut_rounding*2,cut_height], h=support_thickness, anchor=CENTER);
+                prismoid(size1=[width+horizontal_clearance*2-cut_width,cut_height], size2=[width+horizontal_clearance*2-cut_width,cut_height], h=support_thickness, anchor=CENTER);
             }
         }
     }
