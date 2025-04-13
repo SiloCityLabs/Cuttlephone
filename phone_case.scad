@@ -76,15 +76,17 @@ transparent_cuts=false;
 
 /* [body] */
 
-//rounding of the corners when viewed screen-up.
-body_radius = 5.25; // 0.01
-//replaces the round radius with a 45-degree cut
-body_chamfer = false;
 body_length = 140.0; // 0.1
 body_width = 50.0; // 0.1
 body_thickness = 8.1; // 0.1
+//rounding of the corners when viewed screen-up.
+body_radius = 5.25; // 0.01
 body_radius_top = 2.1; // 0.01
 body_radius_bottom = 3.1; // 0.01
+//replaces the round radius with a 45-degree cut
+body_chamfer = false;
+body_chamfer_angle_top = 45; // [1:1:89]
+body_chamfer_angle_bottom = 45;// [1:1:89]
 //for phones with different rounding on the sides, like Galaxy S9
 body_bottom_side_radius = 0.1; // 0.01
 //decrease for shallow shallow curves like the S9
@@ -492,7 +494,7 @@ module shell_cuts(){
     }
 
     mic_cuts();
-    top_headphone_cut();
+    headphone_cut();
     screen_cut();
     lanyard_cut();
     universal_cuts();
@@ -564,6 +566,8 @@ module body(disable_curved_screen=false, include_camera_block=true){
                         r=body_radius,
                         chamfer1=body_radius_bottom, 
                         chamfer2=body_radius_top,
+                        chamfang1=body_chamfer_angle_top,
+                        chamfang2=body_chamfer_angle_bottom,
                         $fn=lowFn
                     );
                 } else {
@@ -1376,9 +1380,9 @@ module lanyard_cut(){
 
 // The USB Type C spec prescribes 12.35 x 6.5 for the overmold portion of a plug, but practice shows this is often taken as a suggestion by cable manufacturers.
 // Throw in manufacturing and printing tolerances in the mix and it is wiser to leave some room for error.
-usb_cut_width = 13;
-usb_cut_height = 7;
-usb_cut_rounding = 1;
+usb_cut_width = 13.0;
+usb_cut_height = 7.2;
+usb_cut_rounding = 1.0;
 
 speaker_cut_width = body_width*0.2;
 speaker_hard_cut_width = body_width*0.65;
@@ -1399,7 +1403,7 @@ module usb_cut(){
             width=usb_cut_width,
             height=usb_cut_height,
             horizontal_clearance=0,
-            disable_bevel=(case_type2=="junglecat" || case_type2=="joycon" || case_type2=="gamepad"),
+            disable_bevel=( case_type2=="joycon" || case_type2=="gamepad"),
             bevel_angle_y = charge_cutout_bevel_angle_y,
             bevel_angle_z = charge_cutout_bevel_angle_z,
             junglecat_support=(case_type2=="junglecat")
@@ -1555,7 +1559,8 @@ module soft_cut( width, height, disable_support=false, disable_bevel=false, beve
             $fn=lowFn
         );
         //bevel
-        bevel_cut_height = case_thickness2*3; //adjacent side
+        // on gamepad mode, bevel will cut into body if made too large
+        bevel_cut_height = (case_type2!="gamepad")  ? case_thickness2*2+junglecat_stickout+joycon_depth : case_thickness2*3;
         if(!disable_bevel)
         prismoid(
             size1=[ width+horizontal_clearance*2, cut_height ], 
@@ -1813,8 +1818,8 @@ module mic_cut(top_or_bottom, mic_from_right_edge, mic_offset_up){
     }   
 }
 
-//headphone_on_top=true; top_headphone_cut();
-module top_headphone_cut(){
+*headphone_cut();
+module headphone_cut(){
     top_or_bottom = headphone_on_top? 1:-1;
     headphone_radius_hard = 5;
     headphone_radius_soft = 4;
@@ -1829,7 +1834,7 @@ module top_headphone_cut(){
             // a slightly beveled hole
             translate(trans)
             rotate([90*top_or_bottom,0,0])
-            cylinder(15, headphone_radius_soft*1.2, headphone_radius_soft*0.9, center=true);
+            cylinder(15, headphone_radius_soft*1.4, headphone_radius_soft*0.9, center=true);
         }
     }
 }
