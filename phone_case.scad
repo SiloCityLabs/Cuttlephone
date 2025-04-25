@@ -199,6 +199,7 @@ left_hole_2_bevel = false;
 //increase bevel around fingerprint scanners
 more_hole_bevel_z = 88; // [0:0.1:89.9]
 more_hole_bevel_y = 70; // [0:1:86]
+// pushes the cut into the phone case
 more_hole_bevel_inset = 0; // [0:0.1:2]
 
 /* [camera / rear fingerprint] */
@@ -676,6 +677,45 @@ module manual_supports_(){
             h=lock_notch_width,
             anchor=BACK
         );
+    }
+
+    //manual support inner of telescoping slider. The long part will warp enough to peel off of supports
+    if(case_type2=="joycon" && rotate_upright==true && manual_supports==true){
+            difference() {
+                support_brick_width = thick_side_thickness*0.2;
+                support_brick_offset = thick_side_thickness*0.4;
+                //support brick
+                translate([
+                    -body_width/2-case_thickness2, 
+                    tele_seam+tele_seam_width/2, 
+                    -body_bottom/2-case_thickness2-support_brick_offset
+                    ])
+                cuboid(
+                    [5,2,support_brick_width],
+                    anchor=LEFT+FRONT+TOP
+                );
+
+                //main thick block (duplicate code)
+                //chop excess so it doesn't cut into the real part
+                translate([-telescopic_offset,0,-body_bottom/2-case_thickness2])
+                minkowski() {
+                    cuboid(
+                        [ telescopic_width, telescopic_length, 0.01 ],
+                        anchor=TOP+CENTER
+                    );
+                
+                    //edge profile. Tapered so that it holds a rubber band
+                    cyl( 
+                        l=thick_side_thickness,
+                        r1=tele_rounding,
+                        r2=tele_rounding/3,
+                        rounding1=tele_rounding*0.7,
+                        anchor=TOP+CENTER
+                    );
+                }
+
+            }
+
     }
 }
 
@@ -1540,10 +1580,23 @@ module soft_cut( width, height, disable_support=false, disable_bevel=false, beve
                 h=support_thickness, 
                 anchor=CENTER
             );
-            //TODO: manual support for junglecat and joycon
+            // for junglecat/joycon, support the outside of the USB cut
             if(junglecat_support && ( case_type2=="junglecat" || case_type2=="joycon" ) ) {
+                case_depth = case_thickness2 + ( (case_type2=="junglecat")? junglecat_inner_width : 0 ) + ( (case_type2=="joycon")? joycon_depth+joycon_lip_thickness : 0 ) ;
+                // adjacent * tan(bevel) = opposite
+                beveled_support_width = 2*(case_depth * tan(bevel_angle_y)) + cut_width;
+                beveled_support_height = 2*(case_depth * tan(bevel_angle_z)) + cut_depth;
+                // echo(width);
+                // echo(beveled_support_width);
+                // echo(height);
+                // echo(beveled_support_height);
+                
                 translate([0,0,case_thickness2+junglecat_inner_width])
-                prismoid(size1=[width+horizontal_clearance*2-cut_width,cut_height], size2=[width+horizontal_clearance*2-cut_width,cut_height], h=support_thickness, anchor=CENTER);
+                prismoid(
+                    size1=[width+horizontal_clearance*2-cut_width,beveled_support_height], 
+                    size2=[width+horizontal_clearance*2-cut_width,beveled_support_height], 
+                    h=support_thickness, anchor=CENTER
+                );
             }
         }
     }
@@ -1962,9 +2015,9 @@ thin_side_inset = 2.0;
 telescopic_pocket_seam = 10; // [4:0.1:16]
 tele_seam = -body_length/2 + ( telescopic_pocket ? telescopic_pocket_seam : telescopic_seam ) ;
 tele_seam_width = 0.2;
+telescopic_offset = body_width*(1-open_top_chop_ratio)/2;
+telescopic_length = body_length-body_radius;
 module telescopic_clamp(){
-    telescopic_offset = body_width*(1-open_top_chop_ratio)/2;
-    telescopic_length = body_length-body_radius;
     if(telescopic) {
         //thin part of the slider
         translate([-telescopic_offset,0,-body_bottom/2-case_thickness2-thick_side_thickness/2 - thin_side_z_offset])
