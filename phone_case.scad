@@ -280,6 +280,8 @@ speaker_grill = false;
 clamp_top = false;
 rotate_upright = false;
 upright_angle = rotate_upright ? -90 : 0;
+// moves the "body" cutout up (towards the screen), reducing the front lip and thickening the back plate
+joycon_body_z_shimmy = 0; // [0 : 0.1 : 1]
 telescopic = false;
 telescopic_clearance_thickness = 0.5; // 0.1
 //the body_width direction of the slider, This often needs sanding
@@ -349,7 +351,7 @@ joycon_length = 91.5;
 // shell is thickened to fit the joycon
 joycon_min_thickness = joycon_inner_width + 2*case_thickness2;
 joycon_thickness = (body_thickness < joycon_min_thickness) ? joycon_min_thickness:body_thickness;
-joycon_z_shift = body_thickness-joycon_thickness+case_thickness2/2;
+joycon_z_shift = body_thickness-joycon_thickness - case_thickness2*joycon_body_z_shimmy;
 lock_notch_width = 3.8;
 lock_notch_offset = 9.5; //how far from the top
 lock_notch_depth = (joycon_inner_width-joycon_lip_width)/2;
@@ -682,8 +684,8 @@ module manual_supports_(){
     //manual support inner of telescoping slider. The long part will warp enough to peel off of supports
     if(case_type2=="joycon" && rotate_upright==true && manual_supports==true){
             difference() {
-                support_brick_width = thick_side_thickness*0.2;
-                support_brick_offset = thick_side_thickness*0.4;
+                support_brick_width = thick_side_thickness*0.4;
+                support_brick_offset = thick_side_thickness*0.3;
                 //support brick
                 translate([
                     -body_width/2-case_thickness2, 
