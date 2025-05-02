@@ -105,6 +105,11 @@ screen_curve_radius = 0.1; // 0.1
 screen_curve_angle = 90; // 0.1
 //cuts away the side of the case for curved screens
 screen_undercut = 0.1; //default is 0.01 because of Openscad precision bug
+//TODO: represent this better, like a single variable for screen lip. And find a better name than "shimmy"
+// move the "body" cutout up (towards the screen), reducing the front lip and thickening the back plate. 0=body centered in shell (screen lip). 1=(no screen lip).
+body_z_shimmy = 0; // [0 : 0.1 : 1]
+// if shimmying, keep case thickness consistent. If false, the back panel gets thicker as the body moves up
+shimmy_consistent_thickness = true;
 //sticks up so the screen is recessed
 extra_lip = false;
 //NOT WORKING: if the corners are sharp, add some "ramp" to the sides
@@ -280,8 +285,6 @@ speaker_grill = false;
 clamp_top = false;
 rotate_upright = false;
 upright_angle = rotate_upright ? -90 : 0;
-// moves the "body" cutout up (towards the screen), reducing the front lip and thickening the back plate
-joycon_body_z_shimmy = 0; // [0 : 0.1 : 1]
 telescopic = false;
 telescopic_clearance_thickness = 0.5; // 0.1
 //the body_width direction of the slider, This often needs sanding
@@ -317,6 +320,11 @@ case_material2 = (case_material_override!=undef && case_material_override!="stup
 case_thickness2_override="stupid_hack";
 case_thickness2 = (case_thickness2_override!=undef && case_thickness2_override!="stupid_hack") ? case_thickness2_override : case_thickness;
 
+// reduce the overall thickness of the case to compensate for thicker back panel
+shimmy_thickness = (shimmy_consistent_thickness) ? case_thickness2/2*body_z_shimmy : 0 ;
+//move shell down, relative to body
+shimmy_translate=-case_thickness2*body_z_shimmy+shimmy_thickness;
+
 //the base near the phone
 soft_button_thickness1 = abs(buttons_outer_thickness) < 0.1 ? body_thickness*0.55 : buttons_outer_thickness;
 button_cut_rounding = body_thickness*0.15;
@@ -351,7 +359,7 @@ joycon_length = 91.5;
 // shell is thickened to fit the joycon
 joycon_min_thickness = joycon_inner_width + 2*case_thickness2;
 joycon_thickness = (body_thickness < joycon_min_thickness) ? joycon_min_thickness:body_thickness;
-joycon_z_shift = body_thickness-joycon_thickness - case_thickness2*joycon_body_z_shimmy;
+joycon_z_shift = body_thickness-joycon_thickness - case_thickness2*body_z_shimmy;
 lock_notch_width = 3.8;
 lock_notch_offset = 9.5; //how far from the top
 lock_notch_depth = (joycon_inner_width-joycon_lip_width)/2;
@@ -381,6 +389,8 @@ transparentOpacity=0.15;
 shellOpacity= transparent_shell ? transparentOpacity : 1.0;
 negativeColor="red";
 negativeColor2="pink";
+additionColor="DeepSkyBlue";
+additionColor2="SeaGreen";
 
 translate([0,0,upright_translate])
 rotate([0,upright_angle, 0])
@@ -391,7 +401,7 @@ debug_views();
 */
 module debug_views(){
     if(show_phone_body) {
-        if(transparent_body){
+        if(transparent_body){ // I wish I could make % (Background modifier) conditional
             % color(negativeColor, transparentOpacity)
             body();
         } else {
@@ -569,8 +579,8 @@ module body(disable_curved_screen=false, include_camera_block=true){
                         r=body_radius,
                         chamfer1=body_radius_bottom, 
                         chamfer2=body_radius_top,
-                        chamfang1=body_chamfer_angle_top,
-                        chamfang2=body_chamfer_angle_bottom,
+                        chamfang1=body_chamfer_angle_bottom,
+                        chamfang2=body_chamfer_angle_top,
                         $fn=lowFn
                     );
                 } else {
@@ -602,7 +612,7 @@ module body_extra_radius(){
     debug = 1; //1.2;
     if(body_bottom_side_radius>0.1){ //customizer precision workaround
         //bottom curve right
-        color("Crimson", 0.4)
+        color(additionColor, 0.4)
         translate([body_width/2,0,-body_thickness/2])
         rotate([90,0,180])
         shallow_fillet(l=body_length*debug-body_radius, r=body_bottom_side_radius, ang=body_bottom_side_angle);
@@ -642,6 +652,7 @@ module body_camera_bar(){
 //manual supports, and stick-out buttons for soft TPU prints
 module manual_supports_(){
     //support the lock notch on vertical Joycon prints
+    color(additionColor)
     copy_mirror()
     if(case_type2=="joycon" && rotate_upright==true && manual_supports==true){
         // all these numbers are BS that I tweaked until I worked
@@ -683,53 +694,71 @@ module manual_supports_(){
 
     //manual support inner of telescoping slider. The long part will warp enough to peel off of supports
     if(case_type2=="joycon" && rotate_upright==true && manual_supports==true){
-            difference() {
-                support_brick_width = thick_side_thickness*0.4;
-                support_brick_offset = thick_side_thickness*0.3;
-                //support brick
-                translate([
-                    -body_width/2-case_thickness2, 
-                    tele_seam+tele_seam_width/2, 
-                    -body_bottom/2-case_thickness2-support_brick_offset
-                    ])
-                cuboid(
-                    [5,2,support_brick_width],
+        color(additionColor)
+        difference() {
+            support_brick_width = thick_side_thickness*0.8;
+            support_brick_offset = thick_side_thickness*0.1;
+            support_brick_length = 6;
+            //support brick
+            translate([
+                -body_width/2-case_thickness2, 
+                tele_seam+tele_seam_width/2, 
+                -body_bottom/2-case_thickness2-support_brick_offset
+            ]) {
+                *cuboid(
+                    [5,support_brick_length,support_brick_width],
                     anchor=LEFT+FRONT+TOP
                 );
 
-                //main thick block (duplicate code)
-                //chop excess so it doesn't cut into the real part
-                translate([-telescopic_offset,0,-body_bottom/2-case_thickness2])
-                minkowski() {
-                    cuboid(
-                        [ telescopic_width, telescopic_length, 0.01 ],
-                        anchor=TOP+CENTER
-                    );
-                
-                    //edge profile. Tapered so that it holds a rubber band
-                    cyl( 
-                        l=thick_side_thickness,
-                        r1=tele_rounding,
-                        r2=tele_rounding/3,
-                        rounding1=tele_rounding*0.7,
-                        anchor=TOP+CENTER
-                    );
-                }
+                brick_x = 5;
+                brick_y = 0.5;
+                brick_bottom_x = 12;
+                brick_bottom_y = 1.5;
+                translate([0,-(brick_bottom_y-brick_y)/3,0])
+                color(additionColor)
+                rotate([0,-90,0])
+                prismoid(
+                    size1=[brick_x,brick_y], 
+                    size2=[brick_bottom_x,brick_bottom_y],
+                    h=1,
+                    anchor=RIGHT+FRONT+TOP
+                    //,shift=[0, (brick_bottom_y-brick_y)/2]
+                );
 
             }
 
+            //main thick block of telescoping slider (duplicate code)
+            //chop excess so it doesn't cut into the real part
+            translate([-telescopic_offset,0,-body_bottom/2-case_thickness2])
+            minkowski() {
+                cuboid(
+                    [ telescopic_width, telescopic_length, 0.01 ],
+                    anchor=TOP+CENTER
+                );
+            
+                //edge profile. Tapered so that it holds a rubber band
+                cyl( 
+                    l=thick_side_thickness,
+                    r1=tele_rounding,
+                    r2=tele_rounding/3,
+                    rounding1=tele_rounding*0.7,
+                    anchor=TOP+CENTER
+                );
+            }
+
+        }
     }
 }
 
 *phone_shell();
 module phone_shell(){
-    translate([0,0,extra_lip_bonus/2])
+    translate([0,0,extra_lip_bonus/2+shimmy_translate])
     union() {
         difference() {
             resize(newsize=[
                 body_width + 2*case_thickness2 + 2*shell_side_stickout,
                 body_length + 2*case_thickness2,
-                body_thickness + 2*case_thickness2 + extra_lip_bonus
+                body_thickness + 2*case_thickness2 + extra_lip_bonus - shimmy_thickness
             ])
             body(disable_curved_screen=true, include_camera_block=false);
         }
@@ -738,7 +767,7 @@ module phone_shell(){
             resize(newsize=[
                 body_width + 2*case_thickness2 + 2*shell_side_stickout - body_radius_bottom,
                 camera_height + 2*case_thickness2,
-                camera_protrusion + 2*case_thickness2
+                camera_protrusion + 2*case_thickness2 - shimmy_thickness
             ])
             body_camera_bar();
         }
@@ -746,6 +775,7 @@ module phone_shell(){
 }
 
 module gamepad_shell(){
+    translate([0,0,extra_lip_bonus/2+shimmy_translate])
     minkowski() {
         //face shape
         cube(
@@ -754,9 +784,8 @@ module gamepad_shell(){
             0.01 ], 
             center=true);
         //edge shape and thickness
-        translate([0,0,extra_lip_bonus/2])
         cyl( 
-            l=body_thickness + 2*case_thickness2 + extra_lip_bonus, 
+            l=body_thickness + 2*case_thickness2 + extra_lip_bonus - shimmy_thickness, 
             r=gamepad_body_radius+case_thickness2,
             rounding1=gamepad_shell_radius, 
             rounding2=gamepad_shell_radius
@@ -765,7 +794,7 @@ module gamepad_shell(){
 }
 
 module joycon_shell(){
-    translate([0,0,joycon_z_shift])
+    translate([0,0,joycon_z_shift+extra_lip_bonus+shimmy_translate])
     minkowski() {
         //face shape
         cube(
@@ -774,9 +803,8 @@ module joycon_shell(){
             0.01 ],
             center=true);
         //edge shape and thickness
-        translate([0,0,extra_lip_bonus/2])
         cyl( 
-            l=joycon_thickness + 2*case_thickness2 + extra_lip_bonus, 
+            l=joycon_thickness + 2*case_thickness2 + extra_lip_bonus - shimmy_thickness, 
             r=rail_body_radius+case_thickness2,
             rounding1=rail_shell_radius_bottom, 
             rounding2=rail_shell_radius_top
@@ -784,7 +812,10 @@ module joycon_shell(){
     }
 }
 
+
 module junglecat_shell(){
+
+    translate([0,0,shimmy_translate])
     minkowski() {
         //face shape
         cube(
@@ -800,6 +831,7 @@ module junglecat_shell(){
     //the case is too thick. The junglecat rail needs to stick out
     if(junglecat_wings) {
         echo("case too thick. Extending for junglecat rails");
+        translate([0,0,shimmy_translate])
         minkowski(){
             wing_length_margin = 8;
             translate([body_width/2-junglecat_dimple_from_top/2-wing_length_margin/2,0,0])
@@ -821,7 +853,7 @@ module junglecat_shell(){
         //edge shape and thickness
         translate([0,0,extra_lip_bonus/2])
         cyl( 
-            l=body_thickness + 2*case_thickness2 + extra_lip_bonus, 
+            l=body_thickness + 2*case_thickness2 + extra_lip_bonus - shimmy_thickness, 
             r=rail_body_radius+case_thickness2,
             rounding1=rail_shell_radius_bottom, 
             rounding2=rail_shell_radius_top
@@ -1230,7 +1262,7 @@ module screen_cut(){
     
     //low cut for curved screens
     if(screen_undercut>0.1)
-    color("orange", 0.8)
+    color(negativeColor2, 0.8)
     translate([0, 0, body_thickness/2])
     prismoid( 
         size1=[screen_width+smooth_edge_radius+10, screen_length+smooth_edge_radius-case_thickness2],
@@ -1423,7 +1455,7 @@ module lanyard_cut(){
 // The USB Type C spec prescribes 12.35 x 6.5 for the overmold portion of a plug, but practice shows this is often taken as a suggestion by cable manufacturers.
 // Throw in manufacturing and printing tolerances in the mix and it is wiser to leave some room for error.
 usb_cut_width = 13.0;
-usb_cut_height = 7.2;
+usb_cut_height = 7.0;
 usb_cut_rounding = 1.0;
 
 speaker_cut_width = body_width*0.2;
@@ -1574,7 +1606,7 @@ module soft_cut( width, height, disable_support=false, disable_bevel=false, beve
         soft_cut_submodule();
         
         //manual supports
-        color("blue", 0.2)
+        color(additionColor, 0.2)
         if(manual_supports==true && !disable_support) {
             prismoid(
                 size1=[width+horizontal_clearance*2 - cut_width, cut_height+vertical_clearance*2],
@@ -2042,7 +2074,7 @@ module telescopic_clamp(){
         }
     
         //thick parts of the telescoping rail & cutout
-        color("yellow", 0.2)
+        color(additionColor2, 0.2)
         difference(){
             //main thick block
             translate([-telescopic_offset,0,-body_bottom/2-case_thickness2])
