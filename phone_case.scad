@@ -58,6 +58,8 @@ support_thickness = 0.4; // [0.1:1 : 0.01]
 support_airgap = 0.20;  // [0.0:0.4 : 0.01]
 //for soft case cutouts, don't support on the curved part 
 manual_support_retract = 2; // [0:1:2]
+//the telescoping back can warp, hold it onto the bed
+telescopic_back_support = false;
 
 //Chop the case in half for a test print to see how it fits. To check body_radius, use "top_half_pla".
 test_cut = "none"; //[none, corners, right_edge, right_buttons, left_edge, bottom_edge, top_edge, left_button, top_half_pla, telescopic]
@@ -278,7 +280,6 @@ telescopic_seam = 10; // [4:0.1:16]
 open_top = false;
 open_top_backchop = false;
 open_top_chop_ratio = 0.51; // 0.01
-speaker_holes_bottom = false;
 speaker_slots_bottom = false;
 speaker_slots_side=false;
 speaker_grill = false;
@@ -693,7 +694,7 @@ module manual_supports_(){
     }
 
     //manual support inner of telescoping slider. The long part will warp enough to peel off of supports
-    if(case_type2=="joycon" && rotate_upright==true && manual_supports==true){
+    if(rotate_upright==true && manual_supports==true && telescopic_back_support==true){
         color(additionColor)
         difference() {
             support_brick_width = thick_side_thickness*0.8;
@@ -729,7 +730,7 @@ module manual_supports_(){
 
             //main thick block of telescoping slider (duplicate code)
             //chop excess so it doesn't cut into the real part
-            translate([-telescopic_offset,0,-body_bottom/2-case_thickness2])
+            *translate([-telescopic_offset,0,-body_bottom/2-case_thickness2])
             minkowski() {
                 cuboid(
                     [ telescopic_width, telescopic_length, 0.01 ],
@@ -2155,7 +2156,7 @@ module telescopic_clamp(){
 
 
 
-*universal_cuts();
+universal_cuts();
 module universal_cuts(){
     if(split_in_half==true) {
         color(negativeColor, 0.2)
@@ -2194,35 +2195,22 @@ module universal_cuts(){
         
         junglecat_cuts(universal_inside=true);
     }
-    if(speaker_holes_bottom) {
-        hole_sep = body_thickness/1.7;
-        hole_rad = body_thickness/4;
-        hole_count = floor((body_length-body_radius*2)/hole_sep/2);
-        copy_mirror()
-        for(i=[0:hole_count]){
-            if(i*hole_sep>body_seam_width/2)
-            color(negativeColor, 0.2)
-            translate([-body_width/2,i*hole_sep,0])
-            rotate([0,90,0])
-            cyl(r=hole_rad, h=body_width/4, anchor=CENTER);
-        }
-    }
     if(speaker_slots_bottom) {
-        slot_length = body_thickness * 0.8;
+        slot_length = body_thickness-body_radius;
         slot_width = 3;
         slot_rounding = slot_width * 0.4;
         hole_sep = 6;
         hole_count = floor((body_length-body_radius*2)/hole_sep/2);
-        grill_z = 0;
+        grill_z = (case_type2=="joycon") ? joycon_z_shift+shimmy_translate : shimmy_translate;
         grill_seam_buffer = 8;
         copy_mirror()
         for(i=[0:hole_count]){
             if(i*hole_sep>body_seam_width/2+grill_seam_buffer)
             color(negativeColor, 0.2)
             translate([-body_width/3, i*hole_sep, grill_z])
-            rotate([0,90,0])
+            rotate([0,0,0])
             cuboid(
-                [slot_length, slot_width, body_width],
+                [body_width, slot_width, slot_length],
                 rounding=slot_rounding,
                 anchor=CENTER
             );
