@@ -58,8 +58,10 @@ support_thickness = 0.4; // [0.1:1 : 0.01]
 support_airgap = 0.20;  // [0.0:0.4 : 0.01]
 //for soft case cutouts, don't support on the curved part 
 manual_support_retract = 2; // [0:1:2]
+rotate_upright = false;
 //the telescoping back can warp, hold it onto the bed
 telescopic_back_support = false;
+
 
 //Chop the case in half for a test print to see how it fits. To check body_radius, use "top_half_pla".
 test_cut = "none"; //[none, corners, right_edge, right_buttons, left_edge, bottom_edge, top_edge, left_button, top_half_pla, telescopic]
@@ -284,7 +286,6 @@ speaker_slots_bottom = false;
 speaker_slots_side=false;
 speaker_grill = false;
 clamp_top = false;
-rotate_upright = false;
 upright_angle = rotate_upright ? -90 : 0;
 telescopic = false;
 telescopic_clearance_thickness = 0.5; // 0.1
@@ -2156,7 +2157,7 @@ module telescopic_clamp(){
 
 
 
-universal_cuts();
+*universal_cuts();
 module universal_cuts(){
     if(split_in_half==true) {
         color(negativeColor, 0.2)
