@@ -114,8 +114,11 @@ screen_undercut = 0.1; //default is 0.01 because of Openscad precision bug
 body_z_shimmy = 0; // [0 : 0.1 : 1]
 // if shimmying, keep case thickness consistent. If false, the back panel gets thicker as the body moves up
 shimmy_consistent_thickness = true;
-//sticks up so the screen is recessed
-extra_lip = false;
+// replaces extra_lip and body_z_shimmy
+// how much the case sticks up, so the screen is recessed. 0=flush. 0.1-0.4 for screen protectors.
+screen_lip = 0.1; // [0 : 0.1 : 2]
+// make the back surface thicker (for sturdier universal adapters)
+back_thickness_bonus = 0; // [0 : 0.1 : 2]
 //NOT WORKING: if the corners are sharp, add some "ramp" to the sides
 extra_sides = false;
 //use these if one of the corners is particularly loose and you've already tuned the body tight
@@ -327,6 +330,10 @@ shimmy_thickness = (shimmy_consistent_thickness) ? case_thickness2/2*body_z_shim
 //move shell down, relative to body
 shimmy_translate=-case_thickness2*body_z_shimmy+shimmy_thickness;
 
+// make the case thicker on screen face or back
+shell_z_translate = -case_thickness2/2+screen_lip/2-back_thickness_bonus/2;
+shell_z_thickness = case_thickness2 + screen_lip + back_thickness_bonus;
+
 //the base near the phone
 soft_button_thickness1 = abs(buttons_outer_thickness) < 0.1 ? body_thickness*0.55 : buttons_outer_thickness;
 button_cut_rounding = body_thickness*0.15;
@@ -374,10 +381,10 @@ junglecat_lip_width = 2.0;
 junglecat_lip_thickness = 0.4;
 junglecat_depth = 3.3;
 //max joycon thickness. If the entire case is thicker than this, we must make stick-out junglecat rails
-junglecat_wing_thickness = 11.7;
+junglecat_wing_thickness = 11.5;
 junglecat_wing_radius = 1.3;
-junglecat_wings = body_thickness+case_thickness2*2 >= junglecat_wing_thickness;
 junglecat_stickout = 4.2;
+junglecat_wings = body_thickness+shell_z_thickness > junglecat_wing_thickness;
 
 //embossment text
 name = "Cuttlephone";
@@ -698,6 +705,7 @@ module manual_supports_(){
     if(rotate_upright==true && manual_supports==true && telescopic_back_support==true){
         color(additionColor)
         difference() {
+            support_brick_height = 1.5;
             support_brick_width = thick_side_thickness*0.8;
             support_brick_offset = thick_side_thickness*0.1;
             support_brick_length = 6;
@@ -715,14 +723,14 @@ module manual_supports_(){
                 brick_x = 5;
                 brick_y = 0.5;
                 brick_bottom_x = 12;
-                brick_bottom_y = 1.5;
+                brick_bottom_y = 1.8;
                 translate([0,-(brick_bottom_y-brick_y)/3,0])
                 color(additionColor)
                 rotate([0,-90,0])
                 prismoid(
                     size1=[brick_x,brick_y], 
                     size2=[brick_bottom_x,brick_bottom_y],
-                    h=1,
+                    h=support_brick_height,
                     anchor=RIGHT+FRONT+TOP
                     //,shift=[0, (brick_bottom_y-brick_y)/2]
                 );
@@ -754,13 +762,14 @@ module manual_supports_(){
 
 *phone_shell();
 module phone_shell(){
-    translate([0,0,extra_lip_bonus/2+shimmy_translate])
+    translate([0,0,shell_z_translate])
     union() {
         difference() {
             resize(newsize=[
                 body_width + 2*case_thickness2 + 2*shell_side_stickout,
                 body_length + 2*case_thickness2,
-                body_thickness + 2*case_thickness2 + extra_lip_bonus - shimmy_thickness
+                body_thickness + shell_z_thickness
+                //body_thickness + 2*case_thickness2 + extra_lip_bonus - shimmy_thickness
             ])
             body(disable_curved_screen=true, include_camera_block=false);
         }
@@ -769,7 +778,7 @@ module phone_shell(){
             resize(newsize=[
                 body_width + 2*case_thickness2 + 2*shell_side_stickout - body_radius_bottom,
                 camera_height + 2*case_thickness2,
-                camera_protrusion + 2*case_thickness2 - shimmy_thickness
+                camera_protrusion + case_thickness2 + screen_lip + back_thickness_bonus
             ])
             body_camera_bar();
         }
@@ -777,7 +786,7 @@ module phone_shell(){
 }
 
 module gamepad_shell(){
-    translate([0,0,extra_lip_bonus/2+shimmy_translate])
+    translate([0,0,shell_z_translate])
     minkowski() {
         //face shape
         cube(
@@ -787,7 +796,7 @@ module gamepad_shell(){
             center=true);
         //edge shape and thickness
         cyl( 
-            l=body_thickness + 2*case_thickness2 + extra_lip_bonus - shimmy_thickness, 
+            l=body_thickness + shell_z_thickness, 
             r=gamepad_body_radius+case_thickness2,
             rounding1=gamepad_shell_radius, 
             rounding2=gamepad_shell_radius
@@ -814,10 +823,13 @@ module joycon_shell(){
     }
 }
 
+//shell_z_translate = -case_thickness2/2+screen_lip/2-back_thickness_bonus/2;
+//shell_z_thickness = case_thickness2 + screen_lip + back_thickness_bonus;
+//
 
 module junglecat_shell(){
 
-    translate([0,0,shimmy_translate])
+    translate([0,0,shell_z_translate])
     minkowski() {
         //face shape
         cube(
@@ -833,10 +845,10 @@ module junglecat_shell(){
     //the case is too thick. The junglecat rail needs to stick out
     if(junglecat_wings) {
         echo("case too thick. Extending for junglecat rails");
-        translate([0,0,shimmy_translate])
+        translate([0,0,shell_z_translate])
         minkowski(){
             wing_length_margin = 8;
-            translate([body_width/2-junglecat_dimple_from_top/2-wing_length_margin/2,0,0])
+            translate([body_width/2-junglecat_dimple_from_top/2-wing_length_margin/2,0,shell_z_translate])
             cuboid(
                 [ junglecat_dimple_from_top+wing_length_margin,
                 body_length + 2*junglecat_depth + 2*junglecat_lip_thickness+ junglecat_stickout*2+case_thickness2*2,
@@ -853,9 +865,9 @@ module junglecat_shell(){
     
     module junglecat_edge_shape(){
         //edge shape and thickness
-        translate([0,0,extra_lip_bonus/2])
+        translate([0,0,shell_z_translate])
         cyl( 
-            l=body_thickness + 2*case_thickness2 + extra_lip_bonus - shimmy_thickness, 
+            l=body_thickness + shell_z_thickness, 
             r=rail_body_radius+case_thickness2,
             rounding1=rail_shell_radius_bottom, 
             rounding2=rail_shell_radius_top
@@ -930,7 +942,10 @@ module junglecat_cuts(universal_inside=false){
 
     copy_mirror() {
         color(negativeColor, 0.4)
-        translate([0, -body_length/2-case_thickness2*universal_inside_off-junglecat_depth/2 - junglecat_stickout_adjust, 0]) {
+        translate([0, 
+                -body_length/2-case_thickness2*universal_inside_off-junglecat_depth/2 - junglecat_stickout_adjust,
+                -screen_lip/2-back_thickness_bonus/2
+            ]) {
             //dimple
             if(!universal_inside){
             translate([body_width/2-junglecat_dimple_from_top,
