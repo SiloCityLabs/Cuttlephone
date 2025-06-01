@@ -61,6 +61,12 @@ manual_support_retract = 2; // [0:1:2]
 rotate_upright = false;
 //the telescoping back can warp, hold it onto the bed
 telescopic_back_support = false;
+// I didn't calculate this, tune it yourself
+brick_z = 1.0; // 0.1
+brick_x = 5;
+brick_y = 0.5;
+brick_bottom_x = brick_x*2;
+brick_bottom_y = brick_y*3;
 
 
 //Chop the case in half for a test print to see how it fits. To check body_radius, use "top_half_pla".
@@ -374,7 +380,7 @@ junglecat_lip_width = 2.0;
 junglecat_lip_thickness = 0.4;
 junglecat_depth = 3.3;
 //max joycon thickness. If the entire case is thicker than this, we must make stick-out junglecat rails
-junglecat_wing_thickness = 11.7;
+junglecat_wing_thickness = 11.5;
 junglecat_wing_radius = 1.3;
 junglecat_wings = body_thickness+case_thickness2*2 >= junglecat_wing_thickness;
 junglecat_stickout = 4.2;
@@ -712,17 +718,13 @@ module manual_supports_(){
                     anchor=LEFT+FRONT+TOP
                 );
 
-                brick_x = 5;
-                brick_y = 0.5;
-                brick_bottom_x = 12;
-                brick_bottom_y = 1.5;
                 translate([0,-(brick_bottom_y-brick_y)/3,0])
                 color(additionColor)
                 rotate([0,-90,0])
                 prismoid(
                     size1=[brick_x,brick_y], 
                     size2=[brick_bottom_x,brick_bottom_y],
-                    h=1,
+                    h=brick_z,
                     anchor=RIGHT+FRONT+TOP
                     //,shift=[0, (brick_bottom_y-brick_y)/2]
                 );
@@ -930,7 +932,7 @@ module junglecat_cuts(universal_inside=false){
 
     copy_mirror() {
         color(negativeColor, 0.4)
-        translate([0, -body_length/2-case_thickness2*universal_inside_off-junglecat_depth/2 - junglecat_stickout_adjust, 0]) {
+        translate([0, -body_length/2-case_thickness2*universal_inside_off-junglecat_depth/2 - junglecat_stickout_adjust, shimmy_translate]) {
             //dimple
             if(!universal_inside){
             translate([body_width/2-junglecat_dimple_from_top,
