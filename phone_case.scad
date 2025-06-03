@@ -61,6 +61,12 @@ manual_support_retract = 2; // [0:1:2]
 rotate_upright = false;
 //the telescoping back can warp, hold it onto the bed
 telescopic_back_support = false;
+// I didn't calculate this, tune it yourself
+brick_z = 1.0; // 0.1
+brick_x = 5;
+brick_y = 0.5;
+brick_bottom_x = brick_x*2;
+brick_bottom_y = brick_y*3;
 
 
 //Chop the case in half for a test print to see how it fits. To check body_radius, use "top_half_pla".
@@ -720,17 +726,13 @@ module manual_supports_(){
                     anchor=LEFT+FRONT+TOP
                 );
 
-                brick_x = 5;
-                brick_y = 0.5;
-                brick_bottom_x = 12;
-                brick_bottom_y = 1.8;
                 translate([0,-(brick_bottom_y-brick_y)/3,0])
                 color(additionColor)
                 rotate([0,-90,0])
                 prismoid(
                     size1=[brick_x,brick_y], 
                     size2=[brick_bottom_x,brick_bottom_y],
-                    h=support_brick_height,
+                    h=brick_z,
                     anchor=RIGHT+FRONT+TOP
                     //,shift=[0, (brick_bottom_y-brick_y)/2]
                 );
