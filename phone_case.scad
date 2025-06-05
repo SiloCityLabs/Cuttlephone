@@ -336,11 +336,7 @@ shimmy_thickness = (shimmy_consistent_thickness) ? case_thickness2/2*body_z_shim
 //move shell down, relative to body
 shimmy_translate=-case_thickness2*body_z_shimmy+shimmy_thickness;
 
-// make the case thicker on screen face or back
-shell_z_thickness = case_thickness2 + screen_lip + back_thickness_bonus;
-shell_z_translate = -case_thickness2/2+screen_lip/2-back_thickness_bonus/2;
-// shell centerline for controller cuts
-shell_centerline_translate = -case_thickness/2+screen_lip-back_thickness_bonus;
+
 
 //the base near the phone
 soft_button_thickness1 = abs(buttons_outer_thickness) < 0.1 ? body_thickness*0.55 : buttons_outer_thickness;
@@ -361,7 +357,7 @@ gamepad_peg_y_distance = 14;
 
 // joycon and junglecat shared variables
 max_rail_shell_radius = 2.5; //if too high it'll intersect with the rail
-max_rail_body_radius = 3.9; //if too high it'll intersect with the stop notch
+max_rail_body_radius = 3.1; //if too high it'll intersect with the stop notch
 rail_shell_radius_top = (body_radius_top<max_rail_shell_radius) ? body_radius_top : max_rail_shell_radius; //TODO: tweak this, make is softer to hold, ensure it doesn't conflict with body
 rail_shell_radius_bottom = (body_radius_bottom<max_rail_shell_radius) ? body_radius_bottom : max_rail_shell_radius; //TODO: tweak this, make is softer to hold, ensure it doesn't conflict with body
 rail_body_radius = (body_radius<max_rail_body_radius) ? body_radius : max_rail_body_radius;
@@ -372,14 +368,36 @@ joycon_lip_thickness = 0.7; //how thick the lip is
 joycon_inner_width = 10.1;
 joycon_depth = 2.3;
 //this will bottom-out the rail if the body is wide enough
-joycon_length = 91.5; 
-// shell is thickened to fit the joycon
-joycon_min_thickness = joycon_inner_width + 2*case_thickness2;
-joycon_thickness = (body_thickness < joycon_min_thickness) ? joycon_min_thickness:body_thickness;
-joycon_z_shift = body_thickness-joycon_thickness - case_thickness2*body_z_shimmy;
+joycon_length = 91.5;
 lock_notch_width = 3.8;
 lock_notch_offset = 9.5; //how far from the top
 lock_notch_depth = (joycon_inner_width-joycon_lip_width)/2;
+
+// calculate shell thickness
+joycon_slot_min_thickness = 2.2;
+// new joycon shell size calc and translation
+is_joycon = (case_type2=="joycon");
+joycon_body_min_thickness = joycon_inner_width + joycon_slot_min_thickness;
+// thicken shell to meet min size
+joycon_back_bonus = (is_joycon && (body_thickness < joycon_body_min_thickness)) ? joycon_body_min_thickness-body_thickness : 0;
+
+// make the case thicker on screen face or back
+shell_z_thickness = case_thickness2 + screen_lip + back_thickness_bonus + joycon_back_bonus;
+shell_z_translate = -case_thickness2/2+screen_lip/2-back_thickness_bonus/2 - joycon_back_bonus/2;
+// shell centerline for controller cuts
+shell_centerline_translate = -case_thickness2/2+screen_lip-back_thickness_bonus-joycon_back_bonus/2;
+
+
+//TODO: delete these
+
+// shell is thickened to fit the joycon
+joycon_min_thickness = joycon_inner_width + case_thickness2*2;
+// if phone body is thin, make shell thicker
+joycon_thickness = (body_thickness < joycon_min_thickness) ? joycon_min_thickness:body_thickness;
+joycon_z_shift = body_thickness-joycon_thickness - shell_z_translate;
+
+
+
 
 //junglecat variables
 junglecat_rail_length = 61.0;
@@ -782,7 +800,7 @@ module phone_shell(){
             resize(newsize=[
                 body_width + 2*case_thickness2 + 2*shell_side_stickout - body_radius_bottom,
                 camera_height + 2*case_thickness2,
-                camera_protrusion + case_thickness2 + screen_lip + back_thickness_bonus
+                camera_protrusion + shell_z_thickness
             ])
             body_camera_bar();
         }
@@ -809,7 +827,7 @@ module gamepad_shell(){
 }
 
 module joycon_shell(){
-    translate([0,0,joycon_z_shift+extra_lip_bonus+shimmy_translate])
+    translate([0,0,shell_z_translate])
     minkowski() {
         //face shape
         cube(
@@ -819,7 +837,7 @@ module joycon_shell(){
             center=true);
         //edge shape and thickness
         cyl( 
-            l=joycon_thickness + 2*case_thickness2 + extra_lip_bonus - shimmy_thickness, 
+            l= body_thickness + shell_z_thickness, //shell_z_thickness includes extra thickness for joycon
             r=rail_body_radius+case_thickness2,
             rounding1=rail_shell_radius_bottom, 
             rounding2=rail_shell_radius_top
@@ -827,15 +845,7 @@ module joycon_shell(){
     }
 }
 
-//shell_z_translate = -case_thickness2/2+screen_lip/2-back_thickness_bonus/2;
-//shell_z_thickness = case_thickness2 + screen_lip + back_thickness_bonus;
-//
-
 module junglecat_shell(){
-
-    translate([0,0,shell_z_translate])
-            color("blue", 0.4)
-        cuboid([body_width+10,body_length*2, 0.2], anchor=CENTER);
 
     translate([0,0,shell_z_translate])
     minkowski() {
@@ -938,7 +948,7 @@ module junglecat_cut_guide(){
     
 }
 
-junglecat_cuts();
+*junglecat_cuts();
 module junglecat_cuts(universal_inside=false){
     //adding the universal cut has janked this up
     //TODO: make a single shape and then mirror/translate to desired position
@@ -947,9 +957,6 @@ module junglecat_cuts(universal_inside=false){
     universal_inside_off = universal_inside ? 0 : 1;
     universal_inside_on = universal_inside ? 1 : 0;
     universal_inside_length = junglecat_rail_length * 1.2;
-    
-        *color(negativeColor, 0.4)
-        cuboid([body_width+10,body_length*2, 0.2], anchor=CENTER);
 
     copy_mirror() {
         color(negativeColor, 0.4)
@@ -958,7 +965,7 @@ module junglecat_cuts(universal_inside=false){
                 shell_centerline_translate
             ]) {
                 
-            cuboid([body_width+10,body_length*2, 0.2], anchor=CENTER);
+            //cuboid([body_width+10,body_length*2, 0.2], anchor=CENTER); //centerline check
             //dimple
             if(!universal_inside){
             translate([body_width/2-junglecat_dimple_from_top,
@@ -1024,7 +1031,7 @@ module joycon_cut_guide() {
 module joycon_cuts(){
     copy_mirror() {
         color(negativeColor, 0.2)
-        translate([0, -body_length/2-case_thickness2-joycon_depth/2, joycon_z_shift]) {
+        translate([0, -body_length/2-case_thickness2-joycon_depth/2, shell_centerline_translate]) {
             //inner cutout
             translate([body_width/2+case_thickness2,0,0])
             cuboid([joycon_length,joycon_depth,joycon_inner_width], anchor=RIGHT);
@@ -1604,7 +1611,7 @@ module hard_button_cut(right,  power_button, power_from_top, power_length, volum
     button_offset = has_space ? min(power_from_top*has_power_button, volume_from_top*has_volume_buttons) : power_from_top*has_power_button + volume_from_top*has_volume_buttons;
 
     button_cut_thickness = 6;
-    hard_cut_height = body_thickness; //TODO: use joycon_thickness on joycon version
+    hard_cut_height = body_thickness;
     
     color(negativeColor, 0.2)
     translate( [ right_or_left*(body_width/2),
@@ -1849,7 +1856,7 @@ module soft_button(right, button_length, button_from_top, button_shell_protrusio
 *camera_cut();
 module camera_cut(){
     camera_radius_clearanced = camera_radius+camera_clearance;
-    height = (case_type2=="joycon") ? joycon_thickness : case_thickness2*10; // Times 10 is just an arbitrary choice, cleaner preview than having the surfaces overlap
+    height = shell_z_thickness*5; // oversize
     chamfer_width = case_thickness2*10 * tan(camera_cutout_chamfer_angle);
     if(camera)
     color(negativeColor, 0.2)
