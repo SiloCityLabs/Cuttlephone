@@ -337,8 +337,10 @@ shimmy_thickness = (shimmy_consistent_thickness) ? case_thickness2/2*body_z_shim
 shimmy_translate=-case_thickness2*body_z_shimmy+shimmy_thickness;
 
 // make the case thicker on screen face or back
-shell_z_translate = -case_thickness2/2+screen_lip/2-back_thickness_bonus/2;
 shell_z_thickness = case_thickness2 + screen_lip + back_thickness_bonus;
+shell_z_translate = -case_thickness2/2+screen_lip/2-back_thickness_bonus/2;
+// shell centerline for controller cuts
+shell_centerline_translate = -case_thickness/2+screen_lip-back_thickness_bonus;
 
 //the base near the phone
 soft_button_thickness1 = abs(buttons_outer_thickness) < 0.1 ? body_thickness*0.55 : buttons_outer_thickness;
@@ -832,6 +834,10 @@ module joycon_shell(){
 module junglecat_shell(){
 
     translate([0,0,shell_z_translate])
+            color("blue", 0.4)
+        cuboid([body_width+10,body_length*2, 0.2], anchor=CENTER);
+
+    translate([0,0,shell_z_translate])
     minkowski() {
         //face shape
         cube(
@@ -932,7 +938,7 @@ module junglecat_cut_guide(){
     
 }
 
-//junglecat_cuts();
+junglecat_cuts();
 module junglecat_cuts(universal_inside=false){
     //adding the universal cut has janked this up
     //TODO: make a single shape and then mirror/translate to desired position
@@ -941,13 +947,18 @@ module junglecat_cuts(universal_inside=false){
     universal_inside_off = universal_inside ? 0 : 1;
     universal_inside_on = universal_inside ? 1 : 0;
     universal_inside_length = junglecat_rail_length * 1.2;
+    
+        *color(negativeColor, 0.4)
+        cuboid([body_width+10,body_length*2, 0.2], anchor=CENTER);
 
     copy_mirror() {
         color(negativeColor, 0.4)
         translate([0, 
                 -body_length/2-case_thickness2*universal_inside_off-junglecat_depth/2 - junglecat_stickout_adjust,
-                -screen_lip/2-back_thickness_bonus/2
+                shell_centerline_translate
             ]) {
+                
+            cuboid([body_width+10,body_length*2, 0.2], anchor=CENTER);
             //dimple
             if(!universal_inside){
             translate([body_width/2-junglecat_dimple_from_top,
