@@ -387,18 +387,6 @@ shell_z_translate = -case_thickness2/2+screen_lip/2-back_thickness_bonus/2 - joy
 // shell centerline for controller cuts
 shell_centerline_translate = -case_thickness2/2+screen_lip/2-back_thickness_bonus/2-joycon_back_bonus/2;
 
-
-//TODO: delete these
-
-// shell is thickened to fit the joycon
-joycon_min_thickness = joycon_inner_width + case_thickness2*2;
-// if phone body is thin, make shell thicker
-joycon_thickness = (body_thickness < joycon_min_thickness) ? joycon_min_thickness:body_thickness;
-joycon_z_shift = body_thickness-joycon_thickness - shell_z_translate;
-
-
-
-
 //junglecat variables
 junglecat_rail_length = 61.0;
 junglecat_dimple_from_top = 63.5;
@@ -618,6 +606,7 @@ module body(disable_curved_screen=false, include_camera_block=true){
                         chamfang2=body_chamfer_angle_top,
                         $fn=lowFn
                     );
+                    //TODO: find conditions that break chamfer/chamfang, warn user
                 } else {
                     cyl( 
                         l=body_thickness, 
@@ -697,7 +686,7 @@ module manual_supports_(){
         translate([
             -body_width/2-case_thickness2,
             -body_length/2-case_thickness2-joycon_depth-joycon_lip_thickness-support_airgap,
-            joycon_z_shift-joycon_lip_width/2
+            shell_centerline_translate-joycon_lip_width/2
         ])
         rotate([0,90,0])
         prismoid(
@@ -713,7 +702,7 @@ module manual_supports_(){
         translate([
             body_width/2-lock_notch_depth/2-lock_notch_offset-support_airgap/2, 
             -body_length/2-case_thickness2-joycon_depth-joycon_lip_thickness, 
-            joycon_z_shift-joycon_lip_width/2-lock_notch_depth/2
+            shell_centerline_translate-joycon_lip_width/2-lock_notch_depth/2
         ])
         rotate([0,90,0])
         prismoid(
@@ -1339,14 +1328,7 @@ module screen_cut(){
 }
 
 /*
-TODO: check angled bezel.
-
-CORRECT
-z0 = body_thickness / 2; // screen surface
-
-NEED UPDATE, I think it's just "screen_lip" now
-screen_cut_height = case_thickness2+screen_lip;
-
+TODO: check with louisrousseau, ensure this feature is still working as intended. I've re-algined it with the screen at least.
 */
 *screen_angled_bezels();
 module screen_angled_bezels(){
@@ -1357,8 +1339,8 @@ module screen_angled_bezels(){
     mirror([1,0,0]) mirror([0,1,0]) bezel_shapes();
 
     module bezel_shapes() {
-        screen_cut_height = case_thickness2+screen_lip;
-        smooth_edge_radius = (case_thickness2 < screen_cut_height/2) ? case_thickness2 : screen_cut_height/2 - 0.1;
+        screen_cut_height = screen_lip;
+        smooth_edge_radius = screen_cut_height/2 - 0.1;
 
         x1 = -(body_width/2 + case_thickness2 + shell_side_stickout);
         x2 = -(screen_width/2 + smooth_edge_radius); // front of the left lip
@@ -1374,7 +1356,7 @@ module screen_angled_bezels(){
         z1 = z0 + shell_screen_min_lip_inner;
         z2 = z0 + (shell_screen_min_lip_inner + shell_screen_max_lip_outer)/2;
         z3 = z0 + shell_screen_max_lip_outer;
-        z4 = z0 + case_thickness2 + screen_lip;
+        z4 = z0 + screen_lip;
 
         // Left edge
         patch_left_edge = [
@@ -2107,6 +2089,8 @@ pocket_width = telescopic_width - pocket_padding*2;
 pocket_length = (body_seam_width>pocket_padding*2) ? body_seam_width - pocket_padding*2 : 60 - pocket_padding*2;
 //pocket_depth = thick_side_thickness - thin_side_thickness - telescopic_clearance_thickness*2 - thin_side_inset - pocket_padding;
 
+//TODO: check this shit
+joycon_z_shift = shell_centerline_translate;
 //why is this -joycon_z_shift*2, why *2
 body_bottom = (case_type2=="joycon") ? body_thickness-joycon_z_shift*2 : body_thickness;
 tele_rounding = 4;
@@ -2269,7 +2253,7 @@ module universal_cuts(){
         slot_rounding = slot_width * 0.4;
         hole_sep = 6;
         hole_count = floor((body_length-body_radius*2)/hole_sep/2);
-        grill_z = (case_type2=="joycon") ? joycon_z_shift+shimmy_translate : shimmy_translate;
+        grill_z = 0;
         grill_seam_buffer = 8;
         copy_mirror()
         for(i=[0:hole_count]){
