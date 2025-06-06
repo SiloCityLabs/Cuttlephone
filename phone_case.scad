@@ -83,6 +83,7 @@ transparent_body=false;
 transparent_shell=false;
 show_cuts=false;
 transparent_cuts=false;
+show_shell_centerline=false;
 
 /* [body] */
 
@@ -345,7 +346,6 @@ button_rounding=body_thickness*0.1;
 //peak of the button - ignored if using buttons_outer_thickness
 soft_button_thickness2 = body_thickness*0.22;
 soft_cut_height1=body_thickness*0.6;
-extra_lip_bonus = extra_lip ? 1 : 0;
 anti_snag_radius = 3.8;
 upright_translate = rotate_upright ? body_width/2 + case_thickness2 : 0;
 
@@ -385,7 +385,7 @@ joycon_back_bonus = (is_joycon && (body_thickness < joycon_body_min_thickness)) 
 shell_z_thickness = case_thickness2 + screen_lip + back_thickness_bonus + joycon_back_bonus;
 shell_z_translate = -case_thickness2/2+screen_lip/2-back_thickness_bonus/2 - joycon_back_bonus/2;
 // shell centerline for controller cuts
-shell_centerline_translate = -case_thickness2/2+screen_lip-back_thickness_bonus-joycon_back_bonus/2;
+shell_centerline_translate = -case_thickness2/2+screen_lip/2-back_thickness_bonus/2-joycon_back_bonus/2;
 
 
 //TODO: delete these
@@ -791,7 +791,6 @@ module phone_shell(){
                 body_width + 2*case_thickness2 + 2*shell_side_stickout,
                 body_length + 2*case_thickness2,
                 body_thickness + shell_z_thickness
-                //body_thickness + 2*case_thickness2 + extra_lip_bonus - shimmy_thickness
             ])
             body(disable_curved_screen=true, include_camera_block=false);
         }
@@ -827,6 +826,12 @@ module gamepad_shell(){
 }
 
 module joycon_shell(){
+    
+    //centerline debug
+    if(show_shell_centerline)
+    translate([0,0,shell_centerline_translate])
+    cuboid([body_width*1.2,body_length*1.3, 0.1], anchor=CENTER);
+
     translate([0,0,shell_z_translate])
     minkowski() {
         //face shape
@@ -848,8 +853,9 @@ module joycon_shell(){
 module junglecat_shell(){
 
     //centerline debug
-    *translate([0,0,shell_z_translate])
-    cuboid([body_width*1.2, body_length*1.5, 0.1], anchor=CENTER);
+    if(show_shell_centerline)
+    translate([0,0,shell_z_translate])
+    cuboid([body_width*1.8, body_length*1.8, 0.1], anchor=CENTER);
 
     translate([0,0,shell_z_translate])
     minkowski() {
@@ -867,10 +873,9 @@ module junglecat_shell(){
     //the case is too thick. The junglecat rail needs to stick out
     if(junglecat_wings) {
         echo("case too thick. Extending for junglecat rails");
-        translate([0,0,shell_z_translate])
-        minkowski(){
+        translate([0,0,shell_centerline_translate]) {
             wing_length_margin = 8;
-            translate([body_width/2-junglecat_dimple_from_top/2-wing_length_margin/2,0,shell_z_translate])
+            translate([body_width/2-junglecat_dimple_from_top/2-wing_length_margin/2, 0, 0])
             cuboid(
                 [ junglecat_dimple_from_top+wing_length_margin,
                 body_length + 2*junglecat_depth + 2*junglecat_lip_thickness+ junglecat_stickout*2+case_thickness2*2,
@@ -878,9 +883,10 @@ module junglecat_shell(){
                 rounding=junglecat_wing_radius,
                 anchor=CENTER
             );
-            //junglecat_edge_shape();
         }
     }
+    //TODO: if case is too thin, make wings
+    //find a range of acceptable thicknesses
     
     
     telescopic_clamp();
@@ -962,9 +968,10 @@ module junglecat_cuts(universal_inside=false){
     universal_inside_on = universal_inside ? 1 : 0;
     universal_inside_length = junglecat_rail_length * 1.2;
 
-    //debugging centerline
-    *translate([0,0,shell_centerline_translate])
-    cuboid([body_width*1.2,body_length*1.5, 0.1], anchor=CENTER);
+    //centerline debug
+    if(show_shell_centerline)
+    translate([0,0,shell_centerline_translate])
+    cuboid([body_width*1.2,body_length*1.3, 0.1], anchor=CENTER);
 
     copy_mirror() {
         color(negativeColor, 0.4)
@@ -973,7 +980,6 @@ module junglecat_cuts(universal_inside=false){
                 shell_centerline_translate
             ]) {
                 
-            //cuboid([body_width+10,body_length*2, 0.2], anchor=CENTER); //centerline check
             //dimple
             if(!universal_inside){
             translate([body_width/2-junglecat_dimple_from_top,
@@ -1037,6 +1043,12 @@ module joycon_cut_guide() {
 
 *joycon_cuts();
 module joycon_cuts(){
+    
+    //centerline debug
+    if(show_shell_centerline)
+    translate([0,0,shell_centerline_translate])
+    cuboid([body_width*1.2,body_length*1.3, 0.1], anchor=CENTER);
+
     copy_mirror() {
         color(negativeColor, 0.2)
         translate([0, -body_length/2-case_thickness2-joycon_depth/2, shell_centerline_translate]) {
@@ -1290,6 +1302,7 @@ module screen_cut(){
     buffer = 0.05;
     smooth_edge_radius = 0.5;
     smooth_edge_height = 0.1 + screen_lip;
+    // minimum size so function doesn't break, we could also simply disable
     smooth_edge_height2 = (smooth_edge_height>smooth_edge_radius)?smooth_edge_height:smooth_edge_radius+buffer;
     //smooths the edge
     color(negativeColor, 0.5)
@@ -1325,6 +1338,16 @@ module screen_cut(){
 
 }
 
+/*
+TODO: check angled bezel.
+
+CORRECT
+z0 = body_thickness / 2; // screen surface
+
+NEED UPDATE, I think it's just "screen_lip" now
+screen_cut_height = case_thickness2+screen_lip;
+
+*/
 *screen_angled_bezels();
 module screen_angled_bezels(){
 
@@ -1334,7 +1357,7 @@ module screen_angled_bezels(){
     mirror([1,0,0]) mirror([0,1,0]) bezel_shapes();
 
     module bezel_shapes() {
-        screen_cut_height = case_thickness2+extra_lip_bonus;
+        screen_cut_height = case_thickness2+screen_lip;
         smooth_edge_radius = (case_thickness2 < screen_cut_height/2) ? case_thickness2 : screen_cut_height/2 - 0.1;
 
         x1 = -(body_width/2 + case_thickness2 + shell_side_stickout);
@@ -1351,7 +1374,7 @@ module screen_angled_bezels(){
         z1 = z0 + shell_screen_min_lip_inner;
         z2 = z0 + (shell_screen_min_lip_inner + shell_screen_max_lip_outer)/2;
         z3 = z0 + shell_screen_max_lip_outer;
-        z4 = z0 + case_thickness2 + extra_lip_bonus;
+        z4 = z0 + case_thickness2 + screen_lip;
 
         // Left edge
         patch_left_edge = [
@@ -1625,7 +1648,7 @@ module hard_button_cut(right,  power_button, power_from_top, power_length, volum
     color(negativeColor, 0.2)
     translate( [ right_or_left*(body_width/2),
         body_length/2 - button_offset - button_length/2, 
-        -body_thickness/2+case_thickness2+extra_lip_bonus+0.05
+        -body_thickness/2+case_thickness2+screen_lip+0.05
     ] )
     translate([0,0,0])
     rotate([0,0,90]) {
@@ -2367,7 +2390,7 @@ module test_cuts(){
 */
 //hard_cut(8);
 module hard_cut(width=8, top_radius=4, bottom_radius=3.9){
-    hard_cut_height = body_thickness + case_thickness2 + extra_lip_bonus;
+    hard_cut_height = body_thickness + case_thickness2 + screen_lip;
     smaller_width = (width>hard_cut_height)? hard_cut_height : width;
     hard_cut_depth = 25;
     
