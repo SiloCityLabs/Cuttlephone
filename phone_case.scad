@@ -386,6 +386,8 @@ shell_z_thickness = case_thickness2 + screen_lip + back_thickness_bonus + joycon
 shell_z_translate = -case_thickness2/2+screen_lip/2-back_thickness_bonus/2 - joycon_back_bonus/2;
 // shell centerline for controller cuts
 shell_centerline_translate = -case_thickness2/2+screen_lip/2-back_thickness_bonus/2-joycon_back_bonus/2;
+// back face of the shell
+shell_bottom = -body_thickness/2-case_thickness2-back_thickness_bonus;
 
 //junglecat variables
 junglecat_rail_length = 61.0;
@@ -728,7 +730,7 @@ module manual_supports_(){
             translate([
                 -body_width/2-case_thickness2, 
                 tele_seam+tele_seam_width/2, 
-                -body_bottom/2-case_thickness2-support_brick_offset
+                shell_bottom-support_brick_offset
             ]) {
                 *cuboid(
                     [5,support_brick_length,support_brick_width],
@@ -750,7 +752,7 @@ module manual_supports_(){
 
             //main thick block of telescoping slider (duplicate code)
             //chop excess so it doesn't cut into the real part
-            *translate([-telescopic_offset,0,-body_bottom/2-case_thickness2])
+            *translate([-telescopic_offset,0,shell_bottom])
             minkowski() {
                 cuboid(
                     [ telescopic_width, telescopic_length, 0.01 ],
@@ -2089,10 +2091,6 @@ pocket_width = telescopic_width - pocket_padding*2;
 pocket_length = (body_seam_width>pocket_padding*2) ? body_seam_width - pocket_padding*2 : 60 - pocket_padding*2;
 //pocket_depth = thick_side_thickness - thin_side_thickness - telescopic_clearance_thickness*2 - thin_side_inset - pocket_padding;
 
-//TODO: check this shit
-joycon_z_shift = shell_centerline_translate;
-//why is this -joycon_z_shift*2, why *2
-body_bottom = (case_type2=="joycon") ? body_thickness-joycon_z_shift*2 : body_thickness;
 tele_rounding = 4;
 thick_side_thickness = telescopic_pocket ? telescopic_pocket_thick_ness : telescopic_thick_side;
 thin_side_thickness = telescopic_pocket ? telescopic_pocket_thin_ness : telescopic_thin_side;
@@ -2107,7 +2105,7 @@ telescopic_length = body_length-body_radius;
 module telescopic_clamp(){
     if(telescopic) {
         //thin part of the slider
-        translate([-telescopic_offset,0,-body_bottom/2-case_thickness2-thick_side_thickness/2 - thin_side_z_offset])
+        translate([-telescopic_offset,0,shell_bottom-thick_side_thickness/2 - thin_side_z_offset])
         minkowski(){
             cuboid([
                     telescopic_width-thin_side_inset-telescopic_clearance_width-tele_rounding*2, 
@@ -2130,7 +2128,7 @@ module telescopic_clamp(){
         color(additionColor2, 0.2)
         difference(){
             //main thick block
-            translate([-telescopic_offset,0,-body_bottom/2-case_thickness2])
+            translate([-telescopic_offset,0,shell_bottom])
             minkowski() {
                 cuboid(
                     [ telescopic_width, telescopic_length, 0.01 ],
@@ -2160,7 +2158,7 @@ module telescopic_clamp(){
             //inner cutout
             intersection() {
                 //cutout
-                translate([-telescopic_offset,0,-body_bottom/2-case_thickness2-thick_side_thickness/2 - thin_side_z_offset])
+                translate([-telescopic_offset,0,shell_bottom-thick_side_thickness/2 - thin_side_z_offset])
                 cuboid([
                     telescopic_width-thin_side_inset, body_length-thin_side_inset, thin_side_thickness ],
                     anchor=CENTER);
@@ -2174,7 +2172,7 @@ module telescopic_clamp(){
             translate([
                 0,
                 tele_seam/2 + body_seam_width/4 + body_seam_offset/2,
-                -body_bottom/2-case_thickness2+0.01
+                shell_bottom+0.01
             ])
             cuboid(
                 [ body_width*1.5, -tele_seam+body_seam_width/2 + body_seam_offset, telescopic_clearance_thickness ],
@@ -2184,7 +2182,7 @@ module telescopic_clamp(){
 
             if(telescopic_pocket) {               
                 //pocket
-                translate([-telescopic_offset,0, -body_bottom/2 - case_thickness2])
+                translate([-telescopic_offset,0, shell_bottom])
                 cuboid(
                     [pocket_width,pocket_length,pocket_depth],
                     anchor=TOP
@@ -2192,7 +2190,7 @@ module telescopic_clamp(){
                 
                 //USB cut
                 color(negativeColor, 0.2)
-                translate([-telescopic_offset,pocket_length/2-usb_from_right, -body_bottom/2 - case_thickness2+0.01])
+                translate([-telescopic_offset,pocket_length/2-usb_from_right, shell_bottom+0.01])
                 cuboid(
                     [pocket_width,usb_pocket_width,pocket_depth],
                     anchor=TOP+BACK+RIGHT
