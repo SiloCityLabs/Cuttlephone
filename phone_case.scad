@@ -847,6 +847,10 @@ module joycon_shell(){
 
 module junglecat_shell(){
 
+    //centerline debug
+    *translate([0,0,shell_z_translate])
+    cuboid([body_width*1.2, body_length*1.5, 0.1], anchor=CENTER);
+
     translate([0,0,shell_z_translate])
     minkowski() {
         //face shape
@@ -883,7 +887,7 @@ module junglecat_shell(){
     
     module junglecat_edge_shape(){
         //edge shape and thickness
-        translate([0,0,shell_z_translate])
+        translate([0,0,0])
         cyl( 
             l=body_thickness + shell_z_thickness, 
             r=rail_body_radius+case_thickness2,
@@ -957,6 +961,10 @@ module junglecat_cuts(universal_inside=false){
     universal_inside_off = universal_inside ? 0 : 1;
     universal_inside_on = universal_inside ? 1 : 0;
     universal_inside_length = junglecat_rail_length * 1.2;
+
+    //debugging centerline
+    *translate([0,0,shell_centerline_translate])
+    cuboid([body_width*1.2,body_length*1.5, 0.1], anchor=CENTER);
 
     copy_mirror() {
         color(negativeColor, 0.4)
@@ -1261,10 +1269,10 @@ module gamepad_faceplates(){
 }
 
 
-*translate([0,0,10]) screen_cut();
+//translate([0,0,7]) screen_cut();
 module screen_cut(){
-    //TODO: this offset is janky. I cannot properly align "top face cut" 
-    screen_cut_height = case_thickness2+extra_lip_bonus;
+    screen_cut_height_new = screen_lip;
+    screen_cut_height = case_thickness2;
     screen_corners = [
         screen_radius + screen_extra_bottom_right,
         screen_radius + screen_extra_bottom_left,
@@ -1273,28 +1281,29 @@ module screen_cut(){
     ];
     rectangle = square([screen_width, screen_length],center=true);
     round_rectangle = round_corners(rectangle, radius=screen_corners,$fn=highFn);
+
+    //top of screen debugging
+    *translate([0,0,body_thickness/2])
+    cuboid([body_width*1.2, body_length*1.2, 0.1], anchor=CENTER);
     
-    smooth_edge_radius = (case_thickness2 < screen_cut_height/2) ? case_thickness2 : screen_cut_height/2 - 0.1;
-    
-    //this cuts the screen hole and smooths the edge
-    color(negativeColor, 0.2)
-    translate([0, 0, body_thickness/2 - screen_cut_height + case_thickness2 + extra_lip_bonus + 0.05])
+    //TODO: auto adjust smooth_edge_radius
+    buffer = 0.05;
+    smooth_edge_radius = 0.5;
+    smooth_edge_height = 0.1 + screen_lip;
+    smooth_edge_height2 = (smooth_edge_height>smooth_edge_radius)?smooth_edge_height:smooth_edge_radius+buffer;
+    //smooths the edge
+    color(negativeColor, 0.5)
+    translate([0, 0, body_thickness/2 - smooth_edge_height2 + screen_lip + buffer])
     offset_sweep( 
         round_rectangle, 
-        height=screen_cut_height,
+        height=smooth_edge_height2,
         top=os_circle(r=-smooth_edge_radius) //negative radius
      );
     
-    //top face cut
-    //disabled cus I can't align it
-    * color(negativeColor, 0.2)
-    translate([0, 0, body_thickness/2 + case_thickness2 + extra_lip_bonus + 0.401])
-    cuboid([body_width+smooth_edge_radius, body_length+smooth_edge_radius, 10], anchor=BOTTOM);
-    
     //vertical cut
     color(negativeColor, 0.1)
-    translate([0, 0, body_thickness/2 - screen_cut_height + case_thickness2 + extra_lip_bonus + 0.05])
-    linear_extrude(height = body_thickness*1.5, center = true)
+    translate([0, 0, body_thickness/2 - 0.05])
+    linear_extrude(height = screen_lip+body_thickness, center = true)
     rect([screen_width, screen_length], rounding=screen_radius);
     
     //low cut for curved screens
@@ -1813,8 +1822,8 @@ module soft_button(right, button_length, button_from_top, button_shell_protrusio
                 prismoid(
                     size1=[button_length,button_case_thickness], 
                     size2=[button_length,button_case_thickness*1.33], 
-                    h=button_plunger_width, 
-                    rounding=button_rounding, 
+                    h=button_plunger_width,
+                    rounding=button_case_thickness/3, 
                     anchor=CENTER+BOTTOM
                 );
             }
