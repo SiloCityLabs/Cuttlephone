@@ -11,15 +11,29 @@ github:
   repository_url: https://github.com/SiloCityLabs/Cuttlephone
 shop_url: https://shop.silocitylabs.com/collections/3d-prints/cuttlephone
 
+# theme and theme configuration
 # https://github.com/just-the-docs/just-the-docs
 remote_theme: just-the-docs/just-the-docs
+#theme: just-the-docs
 #color_scheme: "dark"
 search_enabled: true
+aux_links_new_tab: true
 nav_external_links:
   - title: Code on Github
     url: https://github.com/SiloCityLabs/Cuttlephone
   - title: Shop
     url: https://shop.silocitylabs.com/collections/3d-prints/cuttlephone
+callouts:
+  warning:
+    title: Warning
+    color: red
+
+# need for block attributes: https://kramdown.gettalong.org/quickref.html#block-attributes
+markdown: kramdown
+kramdown:
+  #input: GFM
+  input: Kramdown
+  syntax_highlighter: rouge
 
 plugins:
 - jekyll-default-layout

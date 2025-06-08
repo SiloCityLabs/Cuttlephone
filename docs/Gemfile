@@ -19,6 +19,7 @@ group :jekyll_plugins do
   gem "jekyll-redirect-from"
   gem "jekyll-sitemap"
   gem "jemoji"
+  gem "kramdown-parser-gfm", "~> 1.1"
 end
 
 #https://github.com/gjtorikian/html-pipeline#dependencies
@@ -33,6 +34,7 @@ group :htmlpipeline do
 
   gem 'escape_utils', '~> 1.0', require: false
   #gem 'rouge', '~> 3.1', require: false
+  gem 'rouge'
   gem 'minitest-focus', '~> 1.1'
 end
 
