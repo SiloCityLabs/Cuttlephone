@@ -23,7 +23,7 @@ include <libraries/BOSL2_submodule/shapes3d.scad>
 /* [shell] */
 
 case_material = "hard"; // [hard, soft]
-case_type = "phone case"; // [phone case, gamepad, joycon, junglecat]
+case_type = "phone case"; // [phone case, gamepad, joycon, joycon2, junglecat]
 
 case_thickness = 1.6; // 0.1
 //if the screen is curved and the case cutaway, you might want some extra grip
@@ -304,6 +304,7 @@ telescopic_thick_side = 8.2;
 build_phone=true;
 build_junglecat=true;
 build_joycon=true;
+build_joycon2=true;
 build_hard=true;
 build_soft=true;
 // will this phone model be posted on the website?
@@ -355,10 +356,26 @@ joycon_lip_thickness = 0.7; //how thick the lip is
 joycon_inner_width = 10.1;
 joycon_depth = 2.3;
 //this will bottom-out the rail if the body is wide enough
-joycon_length = 91.5;
+joycon_length = 91.5; 
+// shell is thickened to fit the joycon
+joycon_min_thickness = joycon_inner_width + 2*case_thickness2;
+joycon_thickness = (body_thickness < joycon_min_thickness) ? joycon_min_thickness:body_thickness;
 lock_notch_width = 3.8;
 lock_notch_offset = 9.5; //how far from the top
 lock_notch_depth = (joycon_inner_width-joycon_lip_width)/2;
+
+//switch 2 / joycon 2 variables
+joycon2_depth = 2.3;
+joycon2_length = 91.5;
+joycon2_width = 10.1;
+joycon2_radius = joycon2_width/2.1;
+joycon2_min_thickness = joycon2_width + 2*case_thickness2;
+joycon2_thickness = (body_thickness < joycon2_min_thickness) ? joycon2_min_thickness:body_thickness;
+joycon2_z_shift = body_thickness-joycon2_thickness+case_thickness2/2; // move the shell down (z) relative to the body & screen
+magnet_radius = 4.0; // maybe these two magnet vars should be customizable
+magnet_depth = 2.0;
+magnet_top_offset = 5;
+magnet_bottom_offset = 5;
 
 // calculate shell thickness
 joycon_slot_min_thickness = 2.2;
@@ -455,6 +472,9 @@ module main() {
         else if(case_type2=="joycon") {
             joycon_rails();
         }
+        else if(case_type2=="joycon2") {
+            joycon2_rails();
+        }
         else if(case_type2=="junglecat") {
             junglecat_rails();
         }
@@ -543,6 +563,22 @@ module joycon_rails(){
     telescopic_clamp();
 }
 
+module joycon2_rails(){
+    difference(){
+        color(shellColor, shellOpacity)
+        joycon2_shell();
+        body();
+        cuts();
+    }
+
+    if (case_material2 == "soft") {
+        soft_buttons();
+    }
+
+    manual_supports_();
+    telescopic_clamp();
+}
+
 module junglecat_rails(){
     difference(){
         color(shellColor, shellOpacity)
@@ -566,6 +602,9 @@ module cuts() {
     }
     else if(case_type2=="joycon") {
         joycon_cuts();
+    }
+    else if(case_type2=="joycon2") {
+        joycon2_cuts();
     }
     else if(case_type2=="junglecat") {
         junglecat_cuts();
@@ -828,6 +867,26 @@ module joycon_shell(){
     }
 }
 
+module joycon2_shell(){
+    translate([0,0,joycon2_z_shift])
+    minkowski() {
+        //face shape
+        cube(
+            [ body_width - 2*rail_body_radius,
+            body_length + 2*joycon2_depth + 2*magnet_depth - 2*rail_body_radius,
+            0.01 ],
+            center=true);
+        //edge shape and thickness
+        translate([0,0,extra_lip_bonus/2])
+        cyl( 
+            l=joycon2_thickness + 2*case_thickness2 + extra_lip_bonus, 
+            r=rail_body_radius+case_thickness2,
+            rounding1=rail_shell_radius_bottom, 
+            rounding2=rail_shell_radius_top
+        );
+    }
+}
+
 module junglecat_shell(){
 
     //centerline debug
@@ -1060,6 +1119,35 @@ module joycon_cuts(){
                 lock_notch_depth], 
                 center=true
             );
+        }
+    }
+}
+
+*joycon2_cuts();
+module joycon2_cuts(){
+    copy_mirror() {
+        color(negativeColor, 0.2)
+        translate([body_width/2-rail_body_radius, -body_length/2-case_thickness2-joycon2_depth/2-magnet_depth, joycon2_z_shift]) {
+            //inner cutout
+            //translate([body_width/2+case_thickness2,0,0])
+            cuboid(
+                [joycon2_length,joycon2_depth,joycon2_width], 
+                anchor=RIGHT,
+                rounding=joycon2_radius,
+                edges=[TOP+RIGHT, BOTTOM+RIGHT, TOP+LEFT, BOTTOM+LEFT]
+                );
+
+            // magnet holes
+            //copy_mirror([1,0,0]) //couldn't mirror properly because my X positioning is whack???
+            //color("blue", 0.4)
+            translate([-rail_body_radius-magnet_top_offset,magnet_depth,0])
+            rotate([-90,0,0])
+            cyl(h = magnet_depth, r = magnet_radius, anchor=CENTER);
+
+            //color("blue", 0.4)
+            translate([-joycon2_length+rail_body_radius+magnet_top_offset,magnet_depth,0])
+            rotate([-90,0,0])
+            cyl(h = magnet_depth, r = magnet_radius, anchor=CENTER);
         }
     }
 }
