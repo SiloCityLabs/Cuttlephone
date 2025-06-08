@@ -116,12 +116,6 @@ screen_curve_radius = 0.1; // 0.1
 screen_curve_angle = 90; // 0.1
 //cuts away the side of the case for curved screens
 screen_undercut = 0.1; //default is 0.01 because of Openscad precision bug
-//TODO: represent this better, like a single variable for screen lip. And find a better name than "shimmy"
-// move the "body" cutout up (towards the screen), reducing the front lip and thickening the back plate. 0=body centered in shell (screen lip). 1=(no screen lip).
-body_z_shimmy = 0; // [0 : 0.1 : 1]
-// if shimmying, keep case thickness consistent. If false, the back panel gets thicker as the body moves up
-shimmy_consistent_thickness = true;
-// replaces extra_lip and body_z_shimmy
 // how much the case sticks up, so the screen is recessed. 0=flush. 0.1-0.4 for screen protectors.
 screen_lip = 0.1; // [0 : 0.1 : 2]
 // make the back surface thicker (for sturdier universal adapters)
@@ -331,13 +325,6 @@ case_material_override="stupid_hack";
 case_material2 = (case_material_override!=undef && case_material_override!="stupid_hack") ? case_material_override : case_material;
 case_thickness2_override="stupid_hack";
 case_thickness2 = (case_thickness2_override!=undef && case_thickness2_override!="stupid_hack") ? case_thickness2_override : case_thickness;
-
-// reduce the overall thickness of the case to compensate for thicker back panel
-shimmy_thickness = (shimmy_consistent_thickness) ? case_thickness2/2*body_z_shimmy : 0 ;
-//move shell down, relative to body
-shimmy_translate=-case_thickness2*body_z_shimmy+shimmy_thickness;
-
-
 
 //the base near the phone
 soft_button_thickness1 = abs(buttons_outer_thickness) < 0.1 ? body_thickness*0.55 : buttons_outer_thickness;
@@ -1329,9 +1316,6 @@ module screen_cut(){
 
 }
 
-/*
-TODO: check with louisrousseau, ensure this feature is still working as intended. I've re-algined it with the screen at least.
-*/
 *screen_angled_bezels();
 module screen_angled_bezels(){
 
