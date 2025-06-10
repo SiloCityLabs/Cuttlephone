@@ -377,8 +377,10 @@ magnet_depth = 2.0;
 magnet_top_offset = 5;
 magnet_bottom_offset = 5;
 
+//joycon2_back_bonus = joycon2_width
+
 // calculate shell thickness
-joycon_slot_min_thickness = 2.2;
+joycon_slot_min_thickness = 2.3;
 // new joycon shell size calc and translation
 is_joycon = (case_type2=="joycon");
 joycon_body_min_thickness = joycon_inner_width + joycon_slot_min_thickness;
@@ -868,7 +870,7 @@ module joycon_shell(){
 }
 
 module joycon2_shell(){
-    translate([0,0,joycon2_z_shift])
+    translate([0,0,shell_z_translate])
     minkowski() {
         //face shape
         cube(
@@ -879,7 +881,7 @@ module joycon2_shell(){
         //edge shape and thickness
         translate([0,0,extra_lip_bonus/2])
         cyl( 
-            l=joycon2_thickness + 2*case_thickness2 + extra_lip_bonus, 
+            l=body_thickness + shell_z_thickness, //shell_z_thickness includes extra thickness for joycon2
             r=rail_body_radius+case_thickness2,
             rounding1=rail_shell_radius_bottom, 
             rounding2=rail_shell_radius_top
@@ -1127,7 +1129,7 @@ module joycon_cuts(){
 module joycon2_cuts(){
     copy_mirror() {
         color(negativeColor, 0.2)
-        translate([body_width/2-rail_body_radius, -body_length/2-case_thickness2-joycon2_depth/2-magnet_depth, joycon2_z_shift]) {
+        translate([body_width/2-rail_body_radius, -body_length/2-case_thickness2-joycon2_depth/2-magnet_depth, shell_centerline_translate]) {
             //inner cutout
             //translate([body_width/2+case_thickness2,0,0])
             cuboid(
