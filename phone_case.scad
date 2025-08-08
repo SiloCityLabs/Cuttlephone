@@ -325,8 +325,9 @@ module end_customizer_variables(){}
 lowFn = render_quality == "nice" ? 25 : ( render_quality == "export" ? 100 : 10 );
 highFn = render_quality == "nice" ? 50 : ( render_quality == "export" ? 150 : 25 );
 $fn=highFn;
+//echo(render_quality);
 
- /* I cannot override some variables via command line. Why? This works. */
+ /* if a variable is defined in JSON, I can't override it by command line */
 case_type_override="stupid_hack";
 case_type2 = (case_type_override!=undef && case_type_override!="stupid_hack") ? case_type_override : case_type;
 case_material_override="stupid_hack";
@@ -1033,6 +1034,7 @@ module junglecat_cuts(){
                     -case_thickness2-junglecat_lip_thickness,
                     0])
             sphere( d=2.0, $fn=lowFn );
+            //echo(render_quality);
             //inside channels
             translate([ (body_width-junglecat_rail_length)/2+case_thickness2, 0, 0 ])
             rotate([0,90,0])
