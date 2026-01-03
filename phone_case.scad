@@ -23,9 +23,11 @@ include <libraries/BOSL2_submodule/shapes3d.scad>
 /* [shell] */
 
 case_material = "hard"; // [hard, soft]
-case_type = "phone case"; // [phone case, gamepad, joycon, junglecat]
+case_type = "phone case"; // [phone case, gamepad, joycon, joycon2, junglecat]
 
-case_thickness = 1.6; // 0.1
+case_thickness = 1.6; // [0 : 0.1 : 4]
+// make the back surface thicker (for sturdier universal adapters)
+back_thickness_bonus = 0; // [0 : 0.1 : 2]
 //if the screen is curved and the case cutaway, you might want some extra grip
 shell_side_stickout = 0; // 0.1
 // Thin the shell lips around the screen bezels, keeping full case thickness at the top and bottom
@@ -67,7 +69,13 @@ brick_x = 5;
 brick_y = 0.5;
 brick_bottom_x = brick_x*2;
 brick_bottom_y = brick_y*3;
-
+//joycon 2 magnet
+magnet_width = 7.05; // measured 6.97
+magnet_depth = 3.45; // measured 2.97
+round_magnet=true;
+double_magnet=true;
+// for bar magnets
+magnet_length = 15.2; // measured 14.89
 
 //Chop the case in half for a test print to see how it fits. To check body_radius, use "top_half_pla".
 test_cut = "none"; //[none, corners, right_edge, right_buttons, left_edge, bottom_edge, top_edge, left_button, top_half_pla, telescopic]
@@ -75,7 +83,7 @@ test_cut = "none"; //[none, corners, right_edge, right_buttons, left_edge, botto
 //A plastic guide to help you cut the support out of the Joycon or Junglecat rails
 rail_cut_tools = false;
 
-render_quality="quick"; // [quick, export]
+render_quality="quick"; // [quick, nice, export]
 
 /* [debug view] */
 show_phone_body=false;
@@ -118,8 +126,6 @@ screen_curve_angle = 90; // 0.1
 screen_undercut = 0.1; //default is 0.01 because of Openscad precision bug
 // how much the case sticks up, so the screen is recessed. 0=flush. 0.1-0.4 for screen protectors.
 screen_lip = 0.1; // [0 : 0.1 : 2]
-// make the back surface thicker (for sturdier universal adapters)
-back_thickness_bonus = 0; // [0 : 0.1 : 2]
 //NOT WORKING: if the corners are sharp, add some "ramp" to the sides
 extra_sides = false;
 //use these if one of the corners is particularly loose and you've already tuned the body tight
@@ -285,10 +291,11 @@ body_seam_offset = 0.1; // 0.1
 telescopic_seam = 10; // [4:0.1:16]
 open_top = false;
 open_top_backchop = false;
-open_top_chop_ratio = 0.51; // 0.01
+open_top_chop_ratio = 0.51; // [0.1:0.01:1]
 speaker_slots_bottom = false;
 speaker_slots_side=false;
 speaker_grill = false;
+skeletonize_slider=false;
 clamp_top = false;
 upright_angle = rotate_upright ? -90 : 0;
 telescopic = false;
@@ -304,6 +311,7 @@ telescopic_thick_side = 8.2;
 build_phone=true;
 build_junglecat=true;
 build_joycon=true;
+build_joycon2=true;
 build_hard=true;
 build_soft=true;
 // will this phone model be posted on the website?
@@ -314,11 +322,12 @@ notes="";
 module end_customizer_variables(){}
 
 //alternate Fn values to speed up OpenSCAD. Turn this up during build
-lowFn = render_quality == "export" ? 100 : 10;
-highFn = render_quality == "export" ? 150 : 25;
+lowFn = render_quality == "nice" ? 25 : ( render_quality == "export" ? 100 : 10 );
+highFn = render_quality == "nice" ? 50 : ( render_quality == "export" ? 150 : 25 );
 $fn=highFn;
+//echo(render_quality);
 
- /* I cannot override some variables via command line. Why? This works. */
+ /* if a variable is defined in JSON, I can't override it by command line */
 case_type_override="stupid_hack";
 case_type2 = (case_type_override!=undef && case_type_override!="stupid_hack") ? case_type_override : case_type;
 case_material_override="stupid_hack";
@@ -343,8 +352,8 @@ gamepad_shell_radius = 2;
 gamepad_peg_y_distance = 14;
 
 // joycon and junglecat shared variables
-max_rail_shell_radius = 2.5; //if too high it'll intersect with the rail
-max_rail_body_radius = 3.1; //if too high it'll intersect with the stop notch
+max_rail_shell_radius = 2.0; //if too high it'll intersect with the rail
+max_rail_body_radius = 2.0; //if too high it'll intersect with the stop notch
 rail_shell_radius_top = (body_radius_top<max_rail_shell_radius) ? body_radius_top : max_rail_shell_radius; //TODO: tweak this, make is softer to hold, ensure it doesn't conflict with body
 rail_shell_radius_bottom = (body_radius_bottom<max_rail_shell_radius) ? body_radius_bottom : max_rail_shell_radius; //TODO: tweak this, make is softer to hold, ensure it doesn't conflict with body
 rail_body_radius = (body_radius<max_rail_body_radius) ? body_radius : max_rail_body_radius;
@@ -353,28 +362,60 @@ rail_body_radius = (body_radius<max_rail_body_radius) ? body_radius : max_rail_b
 joycon_lip_width = 7.1; //how far apart the thin rail/lip is
 joycon_lip_thickness = 0.7; //how thick the lip is
 joycon_inner_width = 10.1;
-joycon_depth = 2.3;
+joycon_depth = 2.4; // tightness of joycon. I've set this as low as 2.3
 //this will bottom-out the rail if the body is wide enough
 joycon_length = 91.5;
 lock_notch_width = 3.8;
-lock_notch_offset = 9.5; //how far from the top
+lock_notch_offset = 9.4; //how far from the top
 lock_notch_depth = (joycon_inner_width-joycon_lip_width)/2;
 
-// calculate shell thickness
-joycon_slot_min_thickness = 2.2;
-// new joycon shell size calc and translation
+//switch 2 / joycon 2 variables
+// tried 6.65, but magnets are weak, and I can shim up to ~0.55mm. Shims >=0.7mm were too thick
+joycon2_depth = 6.50; //measured: 6.60
+joycon2_length = 102.75;//measured: 102.39
+joycon2_width_bottom = 8.57; //measured: 8.59
+joycon2_width_top = 8.63;
+// long direction gets angles so you can rock it in
+joycon2_v_flare = 0.3;
+/*
+// slight wobble, the joycon can tilt in this direction
+joycon2_width = 8.60; //measured: 8.59
+joycon2_w_flare = 0.08;
+
+// less wobble
+joycon2_width = 8.50;
+joycon2_w_flare = 0.2;
+*/
+// debur
+joycon2_chamfer = 0.9;
+joycon2_dimple = 2.3; //prevent drooping when vertical
+joycon2_magnet_dimple = true; //true for cutout, false for none / exessess plastic so the magnet is press-fit
+joycon2_min_thickness = joycon2_width_bottom + 2*case_thickness2;
+joycon2_thickness = (body_thickness < joycon2_min_thickness) ? joycon2_min_thickness:body_thickness;
+magnet_top_offset = 19.0;
+magnet_bottom_offset = 18.0;
+
+// extra shell thickness. Competes with rail_body_radius. Maybe should be user-tuned
+joycon2_width_padding = 0.4;
+// joycon2 shell size calc and translation
+is_joycon2 = (case_type2=="joycon2");
+joycon2_body_min_thickness = joycon2_width_bottom + joycon2_width_padding;
+// thicken shell to meet min size
+joycon2_back_bonus = (is_joycon2 && (body_thickness < joycon2_body_min_thickness)) ? joycon2_body_min_thickness-body_thickness : 0;
+
+// joycon shell size calc and translation
 is_joycon = (case_type2=="joycon");
-joycon_body_min_thickness = joycon_inner_width + joycon_slot_min_thickness;
+joycon_body_min_thickness = joycon_inner_width;
 // thicken shell to meet min size
 joycon_back_bonus = (is_joycon && (body_thickness < joycon_body_min_thickness)) ? joycon_body_min_thickness-body_thickness : 0;
 
 // make the case thicker on screen face or back
-shell_z_thickness = case_thickness2 + screen_lip + back_thickness_bonus + joycon_back_bonus;
-shell_z_translate = -case_thickness2/2+screen_lip/2-back_thickness_bonus/2 - joycon_back_bonus/2;
+shell_z_thickness = case_thickness2 + screen_lip + back_thickness_bonus + joycon_back_bonus + joycon2_back_bonus;
+shell_z_translate = -case_thickness2/2+screen_lip/2-back_thickness_bonus/2 - joycon_back_bonus/2 - joycon2_back_bonus/2;
 // shell centerline for controller cuts
-shell_centerline_translate = -case_thickness2/2+screen_lip/2-back_thickness_bonus/2-joycon_back_bonus/2;
+shell_centerline_translate = -case_thickness2/2+screen_lip/2-back_thickness_bonus/2-joycon_back_bonus/2 - joycon2_back_bonus/2;
 // back face of the shell
-shell_bottom = -body_thickness/2-case_thickness2-back_thickness_bonus;
+shell_bottom = -body_thickness/2-case_thickness2-back_thickness_bonus-joycon_back_bonus-joycon2_back_bonus;
 
 //junglecat variables
 junglecat_rail_length = 61.0;
@@ -389,12 +430,16 @@ junglecat_wing_radius = 1.3;
 junglecat_stickout = 4.2;
 junglecat_wings = body_thickness+shell_z_thickness > junglecat_wing_thickness;
 
+// util
+smidge = 0.01; // avoid z-fighting
+wafer_thin = 0.01; // thin plane for minkowski sum
+
 //embossment text
 name = "Cuttlephone";
 author = "Maave";
-version = "v 0.4";
+version = "v 0.5";
 
-//colors are only visual, and only in OpenSCAD
+//colors are only in OpenSCAD
 //use hex values or https://en.wikipedia.org/wiki/Web_colors#X11_color_names
 shellColor="SeaGreen";
 transparentOpacity=0.15;
@@ -455,6 +500,9 @@ module main() {
         else if(case_type2=="joycon") {
             joycon_rails();
         }
+        else if(case_type2=="joycon2") {
+            joycon2_rails();
+        }
         else if(case_type2=="junglecat") {
             junglecat_rails();
         }
@@ -468,6 +516,9 @@ module main() {
         }
         else if(case_type2=="junglecat") {
             junglecat_cut_guide();
+        }
+        else if(case_type2=="joycon2") {
+            joycon2_slot_scraper();
         }
     }
 }
@@ -543,6 +594,22 @@ module joycon_rails(){
     telescopic_clamp();
 }
 
+module joycon2_rails(){
+    difference(){
+        color(shellColor, shellOpacity)
+        joycon2_shell();
+        body();
+        cuts();
+    }
+
+    if (case_material2 == "soft") {
+        soft_buttons();
+    }
+
+    manual_supports_();
+    telescopic_clamp();
+}
+
 module junglecat_rails(){
     difference(){
         color(shellColor, shellOpacity)
@@ -567,6 +634,9 @@ module cuts() {
     else if(case_type2=="joycon") {
         joycon_cuts();
     }
+    else if(case_type2=="joycon2") {
+        joycon2_cuts();
+    }
     else if(case_type2=="junglecat") {
         junglecat_cuts();
     }
@@ -580,7 +650,7 @@ module body(disable_curved_screen=false, include_camera_block=true){
             minkowski() {
                 cube([ body_width - 2*body_radius, 
                     body_length - 2*body_radius, 
-                    0.01 ], 
+                    wafer_thin ], 
                     center=true
                 );
                 //edge profile
@@ -593,7 +663,7 @@ module body(disable_curved_screen=false, include_camera_block=true){
                         chamfer2=body_radius_top,
                         chamfang1=body_chamfer_angle_bottom,
                         chamfang2=body_chamfer_angle_top,
-                        $fn=lowFn
+                        $fn=highFn
                     );
                     //TODO: find conditions that break chamfer/chamfang, warn user
                 } else {
@@ -602,7 +672,7 @@ module body(disable_curved_screen=false, include_camera_block=true){
                         r=body_radius,
                         rounding1=body_radius_bottom, 
                         rounding2=body_radius_top,
-                        $fn=lowFn
+                        $fn=highFn
                     );
                 }
                 
@@ -674,7 +744,7 @@ module manual_supports_(){
         //support tower
         translate([
             -body_width/2-case_thickness2,
-            -body_length/2-case_thickness2-joycon_depth-joycon_lip_thickness-support_airgap,
+            -body_length/2-case_thickness2-joycon_depth-joycon_lip_thickness-support_airgap*2,
             shell_centerline_translate-joycon_lip_width/2
         ])
         rotate([0,90,0])
@@ -742,7 +812,7 @@ module manual_supports_(){
             *translate([-telescopic_offset,0,shell_bottom])
             minkowski() {
                 cuboid(
-                    [ telescopic_width, telescopic_length, 0.01 ],
+                    [ telescopic_width, telescopic_length, wafer_thin ],
                     anchor=TOP+CENTER
                 );
             
@@ -791,7 +861,7 @@ module gamepad_shell(){
         cube(
             [ body_width - 2*gamepad_body_radius,
             body_length + gamepad_wing_length*2 - 2*gamepad_body_radius,
-            0.01 ], 
+            wafer_thin ], 
             center=true);
         //edge shape and thickness
         cyl( 
@@ -804,7 +874,7 @@ module gamepad_shell(){
 }
 
 module joycon_shell(){
-    
+    //TODO move this elsewhere
     //centerline debug
     if(show_shell_centerline)
     translate([0,0,shell_centerline_translate])
@@ -816,11 +886,30 @@ module joycon_shell(){
         cube(
             [ body_width - 2*rail_body_radius,
             body_length + 2*joycon_depth + 2*joycon_lip_thickness - 2*rail_body_radius,
-            0.01 ],
+            wafer_thin ],
             center=true);
         //edge shape and thickness
         cyl( 
             l= body_thickness + shell_z_thickness, //shell_z_thickness includes extra thickness for joycon
+            r=rail_body_radius+case_thickness2,
+            rounding1=rail_shell_radius_bottom, 
+            rounding2=rail_shell_radius_top
+        );
+    }
+}
+
+module joycon2_shell(){
+    translate([0,0,shell_z_translate])
+    minkowski() {
+        //face shape
+        cube(
+            [ body_width - 2*rail_body_radius,
+            body_length + 2*joycon2_depth + 2*magnet_depth - 2*rail_body_radius,
+            wafer_thin ],
+            center=true);
+        //edge shape and thickness
+        cyl( 
+            l=body_thickness + shell_z_thickness, //shell_z_thickness includes extra thickness for joycon2
             r=rail_body_radius+case_thickness2,
             rounding1=rail_shell_radius_bottom, 
             rounding2=rail_shell_radius_top
@@ -841,7 +930,7 @@ module junglecat_shell(){
         cube(
             [ body_width - 2*rail_body_radius,
             body_length + 2*junglecat_depth + 2*junglecat_lip_thickness - 2*rail_body_radius,
-            0.01 ],
+            wafer_thin ],
             center=true
         );
             
@@ -860,6 +949,7 @@ module junglecat_shell(){
                 junglecat_wing_thickness ],
                 rounding=junglecat_wing_radius,
                 anchor=CENTER
+                //,$fn=lowFn
             );
         }
     }
@@ -937,13 +1027,8 @@ module junglecat_cut_guide(){
 }
 
 *junglecat_cuts();
-module junglecat_cuts(universal_inside=false){
-    //adding the universal cut has janked this up
-    //TODO: make a single shape and then mirror/translate to desired position
-    junglecat_stickout_adjust = junglecat_wings && !universal_inside ? junglecat_stickout : 0;
-    universal_inside_negative = universal_inside ? -1 : 1;
-    universal_inside_off = universal_inside ? 0 : 1;
-    universal_inside_on = universal_inside ? 1 : 0;
+module junglecat_cuts(){
+    junglecat_stickout_adjust = junglecat_wings ? junglecat_stickout : 0;
     universal_inside_length = junglecat_rail_length * 1.2;
 
     //centerline debug
@@ -954,18 +1039,18 @@ module junglecat_cuts(universal_inside=false){
     copy_mirror() {
         color(negativeColor, 0.4)
         translate([0, 
-                -body_length/2-case_thickness2*universal_inside_off-junglecat_depth/2 - junglecat_stickout_adjust,
+                -body_length/2-case_thickness2-junglecat_depth/2 - junglecat_stickout_adjust,
                 shell_centerline_translate
             ]) {
                 
             //dimple
-            if(!universal_inside){
             translate([body_width/2-junglecat_dimple_from_top,
-            -case_thickness2-junglecat_lip_thickness,
-            0])
-            sphere(d=2.0);}
+                    -case_thickness2-junglecat_lip_thickness,
+                    0])
+            sphere( d=2.0, $fn=lowFn );
+            //echo(render_quality);
             //inside channels
-            translate([(body_width-junglecat_rail_length)/2+case_thickness2,-junglecat_lip_thickness*universal_inside_on,0])
+            translate([ (body_width-junglecat_rail_length)/2+case_thickness2, 0, 0 ])
             rotate([0,90,0])
             prismoid(
                 size1=[junglecat_inner_width, junglecat_depth], 
@@ -976,15 +1061,17 @@ module junglecat_cuts(universal_inside=false){
                 anchor=CENTER
             );
             //manual supports or just a cutout
-            translate([(body_width-junglecat_rail_length)/2+case_thickness2,
-            (-junglecat_depth/2-junglecat_lip_thickness/2)*universal_inside_negative, 0]) {
+            translate([ (body_width-junglecat_rail_length)/2+case_thickness2,
+                     -junglecat_depth/2-junglecat_lip_thickness/2, 
+                     0 ]
+            ) {
                 if(manual_supports==true && rotate_upright==false){
                     //this adds a gap to aide removal. It'll probably still require a razor blade
                     removal_aid = 4;
                     rotate([90,0,0])
                     rect_tube(
                         size=[ junglecat_rail_length + 0.5, junglecat_lip_width ],
-                        isize=[junglecat_rail_length, junglecat_lip_width - support_airgap - 0.01 ], 
+                        isize=[junglecat_rail_length, junglecat_lip_width - support_airgap - smidge ], 
                         h=junglecat_depth,
                         anchor=CENTER);
                 }
@@ -1021,12 +1108,6 @@ module joycon_cut_guide() {
 
 *joycon_cuts();
 module joycon_cuts(){
-    
-    //centerline debug
-    if(show_shell_centerline)
-    translate([0,0,shell_centerline_translate])
-    cuboid([body_width*1.2,body_length*1.3, 0.1], anchor=CENTER);
-
     copy_mirror() {
         color(negativeColor, 0.2)
         translate([0, -body_length/2-case_thickness2-joycon_depth/2, shell_centerline_translate]) {
@@ -1061,6 +1142,199 @@ module joycon_cuts(){
                 center=true
             );
         }
+    }
+
+    //centerline debug
+    if(show_shell_centerline)
+    translate([0,0,shell_centerline_translate])
+    cuboid([body_width*1.2,body_length*1.3, 0.1], anchor=CENTER);
+}
+
+
+
+//joycon2_slot_scraper();
+module joycon2_slot_scraper() {
+    color(additionColor)
+    scale([0.99, 1, 0.99])
+    translate([0,-body_length/2,0])
+    joycon2_cuts(mirror_cuts=false, scraper_mode=true);
+}
+
+//joycon2_cuts();
+module joycon2_cuts(mirror_cuts=true, scraper_mode=false){
+    mirror_vec = mirror_cuts ? [0,1,0] : undef;
+
+    copy_mirror(mirror_vec) {
+        translate([body_width/2-rail_body_radius+smidge, -body_length/2-case_thickness2-joycon2_depth/2-magnet_depth, shell_centerline_translate]) {
+            //inner cutout
+            rotate([90,0,0])
+            color(negativeColor, 0.2)
+            prismoid(
+                [joycon2_length,joycon2_width_bottom], 
+                // slight taper to the entry slot
+                [joycon2_length+joycon2_v_flare,joycon2_width_top], 
+                h=joycon2_depth+smidge,
+                anchor=RIGHT,
+                rounding=joycon2_width_bottom/2.2 // give the radius corners a little space, instead of /2.0
+                //,$fn=lowFn
+            );
+
+            // only chamfer the back edge
+            // clone inner cutout, squash vertically, shorten by radius
+            joycon2_chamfer_depth=0.4;
+            //joycon2_chamfer_ang = 55;
+            test_width_mult=1;
+            chamfer_h=joycon2_depth * 0.4;
+            joycon2_chamfer_width = joycon2_width_top/2;
+            translate([-joycon2_chamfer_width,-joycon2_depth/2+chamfer_h/2,-joycon2_chamfer_width/2])
+            rotate([90,0,0])
+            color(negativeColor, 0.2)
+            prismoid(
+                [joycon2_length-joycon2_width_top,joycon2_chamfer_width*test_width_mult], 
+                // slight taper to the entry slot
+                [joycon2_length-joycon2_width_top+joycon2_v_flare,(joycon2_chamfer_width+joycon2_chamfer_depth)*test_width_mult], 
+                h=chamfer_h,
+                anchor=RIGHT,
+                rounding=joycon2_chamfer_width/2.2 // give the radius corners a little space, instead of /2.0
+                //,$fn=lowFn
+            );
+
+
+
+            //more clearance on bottom of inner cutout to avoid plastic blobs / printing artifacts
+            joycon2_bottom_clearance = 0.5;
+            if(!scraper_mode)
+            color(negativeColor, 0.6)
+            minkowski(){
+                translate([0,joycon2_depth/2-joycon2_bottom_clearance/2,0])
+                rotate([90,0,0])
+                prismoid(
+                    [joycon2_length+joycon2_bottom_clearance,joycon2_width_bottom+joycon2_bottom_clearance], 
+                    [joycon2_length+joycon2_bottom_clearance,joycon2_width_bottom+joycon2_bottom_clearance], 
+                    h=wafer_thin,
+                    anchor=RIGHT,
+                    rounding=joycon2_width_bottom/2 // give the radius corners a little space, instead of /2.0
+                    ,$fn=lowFn
+                );
+
+                sphere(r=joycon2_bottom_clearance/2, $fn=lowFn);
+            }
+            
+            // magnet holes
+            if(!scraper_mode){
+                translate([-rail_body_radius-magnet_top_offset,joycon2_depth/2+magnet_depth/2-smidge,0])
+                magnet_slot(round=round_magnet, double=double_magnet);
+                translate([-joycon2_length+rail_body_radius+magnet_bottom_offset,joycon2_depth/2+magnet_depth/2-smidge,0])
+                magnet_slot(round=round_magnet, double=double_magnet);
+            }
+
+            // if printed vertical, the arch will droop, so cut it out
+            // if printed as a test slice with hole facing up, place z-seam in this slot
+            //if(rotate_upright==true) {
+            if(joycon2_dimple > 0.1 && !scraper_mode) {
+                color(negativeColor, 0.6)
+                translate([0 - joycon2_dimple/3,0,0])
+                rotate([90,0,0])
+                cyl( 
+                    r1=joycon2_dimple/2, 
+                    r2=joycon2_dimple, 
+                    h=joycon2_depth+smidge,
+                    anchor=CENTER,
+                    $fn=highFn
+                );
+                
+            }
+
+            //scraper handle tab
+            if(scraper_mode) {
+                l=joycon2_length/1.05;
+                tab_out=joycon2_depth * 1.2; // * 3.5;
+                h=joycon2_width_bottom/2;
+                translate([-joycon2_length/2,0,0]) 
+                cuboid(
+                    [ l, tab_out, h ], 
+                    rounding=h/2,
+                    edges="Y",
+                    anchor=BACK,
+                    $fn=lowFn
+                );
+
+                // more to grab
+                grab_h=h/1.5;
+                *translate([-joycon2_length/2,-tab_out-grab_h,0]) 
+                rotate([-90,0,0])
+                minkowski() {
+                    prismoid(
+                        size2=[ l, grab_h ],
+                        xang=60,
+                        yang=60,
+                        h=grab_h,
+                        rounding=grab_h/2,
+                        anchor=BOTTOM,
+                        $fn=lowFn
+                    );
+
+                    sphere(r=grab_h/4, $fn=lowFn);
+                }
+                
+            }
+        }
+    }
+}
+
+module magnet_slot(round=false, double=false) {
+    module subcyl(){
+            rotate([90,0,0])
+            cyl(h=magnet_depth, d=magnet_width);
+
+            if(joycon2_magnet_dimple && joycon2_dimple > 0.1) {
+                //joycon2_dimple = 0.8
+                xscale = 1.5;
+                dimple_d = magnet_width/4;
+                dimple_x = magnet_width/2 - dimple_d/4;
+
+                //teardrop shape for the magnet
+                translate([dimple_x,0,0])
+                rotate([90,0,0])
+                scale([xscale,1,1])
+                cyl(h=magnet_depth, d=dimple_d);
+            }
+    }
+
+    module gap(){
+        // cut to avoid thin wall between circles
+        cuboid([magnet_width,magnet_depth,1], $fn=lowFn);
+
+        // cut a little more to avoid stick-up touching the joycon2
+        translate([0,-magnet_depth,0])
+        sphere(r = magnet_depth, $fn=lowFn);
+    }
+
+    color(negativeColor, 0.6)
+    if(round) {
+        if(double) {
+            mag_move=magnet_width*1.05; // space slightly because holes are undersizes and squeezing them together
+            //mag 1
+            translate([mag_move/2,0,0])
+            subcyl();
+            //cut in between
+            gap();
+            //mag 2
+            translate([-mag_move/2,0,0])
+            subcyl();
+        } else {
+            subcyl();
+        }
+    } else {
+        rotate([90,0,0])
+        prismoid(
+            size2=[magnet_length, magnet_width],
+            //trapezoid cutout holds the magnets and has some room for glue
+            xang=75, yang=75,
+            h=magnet_depth,
+            anchor=CENTER,
+            $fn=lowFn
+        );
     }
 }
 
@@ -1965,8 +2239,9 @@ module headphone_cut(){
 
 *version_info_emboss();
 module version_info_emboss(){
+    draw_logo = !(speaker_grill); // if cuts interrupt the back plane, don't draw text/logo
     font_kerning = 1.08;
-    if(emboss_size=="logo") {
+    if(emboss_size=="logo" && draw_logo) {
         line_translate = 10.8;
         logo_size_ratio = 0.85; //logo-to-body_width ratio
         
@@ -1990,7 +2265,7 @@ module version_info_emboss(){
         import(emboss_logo, center=true);
         //scale() might have better performance than resize(). But resize() takes absolute size. scale() takes a ratio so I'd need to know the input size.
     }
-    if(emboss_size=="large") {
+    if(emboss_size=="large" && draw_logo) {
         line_translate = 12;
         color(negativeColor)
         rotate([0,0,-90])
@@ -2004,7 +2279,7 @@ module version_info_emboss(){
             }
         }
     }
-    if(emboss_size=="small") {
+    if(emboss_size=="small" && draw_logo) {
         font_size = 4;
         small_font_size = 3;
         line_translate = font_size*2;
@@ -2020,7 +2295,7 @@ module version_info_emboss(){
             }
         }
     }
-    if(emboss_size=="very_small") {
+    if(emboss_size=="very_small" && draw_logo) {
         font_size = 4;
         small_font_size = 3;
         line_translate = font_size*2;
@@ -2038,7 +2313,7 @@ module version_info_emboss(){
             }
         }
     }
-    if(emboss_size=="medium_rotated") {
+    if(emboss_size=="medium_rotated" && draw_logo) {
         font_size = 6;
         small_font_size = 6;
         line_translate = font_size*2;
@@ -2088,24 +2363,41 @@ telescopic_offset = body_width*(1-open_top_chop_ratio)/2;
 telescopic_length = body_length-body_radius;
 module telescopic_clamp(){
     if(telescopic) {
-        //thin part of the slider
-        translate([-telescopic_offset,0,shell_bottom-thick_side_thickness/2 - thin_side_z_offset])
-        minkowski(){
-            cuboid([
-                    telescopic_width-thin_side_inset-telescopic_clearance_width-tele_rounding*2, 
-                    body_length-thin_side_inset-telescopic_clearance_width-tele_rounding*2, 
-                    0.01 ],
-                    edges=[BACK+RIGHT,BACK+LEFT, FRONT+RIGHT, FRONT+LEFT],
+        difference() {
+            //thin part of the slider
+            translate([-telescopic_offset,0,shell_bottom-thick_side_thickness/2 - thin_side_z_offset])
+            minkowski(){
+                cuboid([
+                        telescopic_width-thin_side_inset-telescopic_clearance_width-tele_rounding*2, 
+                        body_length-thin_side_inset-telescopic_clearance_width-tele_rounding*2, 
+                        wafer_thin ],
+                        edges=[BACK+RIGHT,BACK+LEFT, FRONT+RIGHT, FRONT+LEFT],
+                        anchor=CENTER
+                );
+                
+                //edge profile. Big rounding on the flat face
+                cyl( 
+                    l=thin_side_thickness-telescopic_clearance_thickness,
+                    r=tele_rounding,
+                    rounding=(thin_side_thickness-telescopic_clearance_thickness)/2-0.1,
                     anchor=CENTER
-            );
-            
-            //edge profile. Big rounding on the flat face
-            cyl( 
-                l=thin_side_thickness-telescopic_clearance_thickness,
-                r=tele_rounding,
-                rounding=(thin_side_thickness-telescopic_clearance_thickness)/2-0.1,
-                anchor=CENTER
-            );
+                );
+            }
+
+            // slider cuts
+
+            skeleton_width = (body_length-thin_side_inset)*0.8;
+            // skeletonize the telescoping slider
+            if(skeletonize_slider) {
+                move_down_ratio = open_top ? open_top_chop_ratio:0;
+                translate([-body_width*(1-move_down_ratio)/2,0,0])
+                cuboid(
+                    [body_width*open_top_chop_ratio*0.7,skeleton_width,100],
+                    rounding=10,
+                    anchor=CENTER
+                );
+            }
+
         }
     
         //thick parts of the telescoping rail & cutout
@@ -2115,7 +2407,7 @@ module telescopic_clamp(){
             translate([-telescopic_offset,0,shell_bottom])
             minkowski() {
                 cuboid(
-                    [ telescopic_width, telescopic_length, 0.01 ],
+                    [ telescopic_width, telescopic_length, wafer_thin ],
                     anchor=TOP+CENTER
                 );
             
@@ -2156,7 +2448,7 @@ module telescopic_clamp(){
             translate([
                 0,
                 tele_seam/2 + body_seam_width/4 + body_seam_offset/2,
-                shell_bottom+0.01
+                shell_bottom + smidge
             ])
             cuboid(
                 [ body_width*1.5, -tele_seam+body_seam_width/2 + body_seam_offset, telescopic_clearance_thickness ],
@@ -2174,12 +2466,23 @@ module telescopic_clamp(){
                 
                 //USB cut
                 color(negativeColor, 0.2)
-                translate([-telescopic_offset,pocket_length/2-usb_from_right, shell_bottom+0.01])
+                translate([-telescopic_offset,pocket_length/2-usb_from_right, shell_bottom+smidge])
                 cuboid(
                     [pocket_width,usb_pocket_width,pocket_depth],
                     anchor=TOP+BACK+RIGHT
                 );
                 
+            }
+
+            // skeletonize the telescoping slider
+            if(skeletonize_slider) {
+                move_down_ratio = open_top ? open_top_chop_ratio:0;
+                translate([-body_width*(1-move_down_ratio)/2,0,0])
+                cuboid(
+                    [body_width*open_top_chop_ratio*0.8,body_seam_width*0.85,100],
+                    rounding=10,
+                    anchor=CENTER
+                );
             }
             
         }
@@ -2200,34 +2503,23 @@ module universal_cuts(){
     if(open_top) {
         color(negativeColor, 0.2)
         translate([body_width/2,0,0]) {
-            scale([1, 1, 0.99])
+            // use the same body and screen profile to cut the top outs
             body();
-            
-            scale([1, 1, 1])
             screen_cut();
         }
         
         if (open_top_backchop==true)
-        color(negativeColor, 0.2)
-        translate([body_width*open_top_chop_ratio,0,-body_thickness/2]) {
-            scale([1, 1, 1])
-            body();
-            
-            scale([1, 1, 1])
-            screen_cut();
+        if(open_top_chop_ratio<0.99) {
+            color(negativeColor, 0.2)
+            translate([body_width*open_top_chop_ratio,0,-body_thickness/2]) {
+                // cut back
+                cuboid([body_width, body_length, body_thickness+shell_z_thickness],
+                    rounding=body_radius,
+                    anchor=CENTER
+                    ,$fn=lowFn
+                );
+            }
         }
-    }
-    if(clamp_top) {
-        color(negativeColor, 0.2)
-        translate([20,0,0]) {
-            //scale([1, 0.95, 0.99])
-            body();
-            
-            //scale([1, 0.95, 1])
-            screen_cut();
-        }
-        
-        junglecat_cuts(universal_inside=true);
     }
     if(speaker_slots_bottom) {
         slot_length = body_thickness-body_radius;
@@ -2247,6 +2539,7 @@ module universal_cuts(){
                 [body_width, slot_width, slot_length],
                 rounding=slot_rounding,
                 anchor=CENTER
+                ,$fn=lowFn
             );
         }
     }
@@ -2270,30 +2563,35 @@ module universal_cuts(){
                 [slot_length, slot_width, body_width],
                 rounding=slot_rounding,
                 anchor=CENTER
+                ,$fn=lowFn
             );
         }
     }
    
     // speaker and airflow on back
     if(speaker_grill) {
-        hole_sep = 6;
-        hole_width = 3;
+        // how far it cuts into the back of the case
+        grill_depth = case_thickness2/2+back_thickness_bonus/2;
+        hole_sep = 6; // space between each slot, center-to-center
+        slot_width = 3;
+        slot_length = body_thickness-body_radius_top;
+        slot_rounding = slot_width * 0.4;
         hole_count = floor((body_length-body_radius*2)/hole_sep/2);
-        grill_z = case_thickness/2;
-        grill_seam_buffer = 10;
+        grill_z = -grill_depth-body_thickness/2+slot_length/2;
+        // don't make slots too close to the center cutout
+        grill_seam_buffer = slot_width*1.5;
         copy_mirror()
         for(i=[0:hole_count]){
-            if(i*hole_sep>body_seam_width/2+grill_seam_buffer)
+            if( i*hole_sep>body_seam_width/2+grill_seam_buffer && i*hole_sep<body_length/2-body_radius_bottom-slot_width/2 )
             color(negativeColor, 0.2)
-            translate([-body_width/3, i*hole_sep, -grill_z])
-            rotate([0,90,0])
+            translate([-body_width/3, i*hole_sep, grill_z])
             cuboid(
-                [body_thickness, hole_width, body_width], 
+                [body_width*2, slot_width, slot_length],
+                rounding=slot_rounding,
                 anchor=CENTER
             );
         }
     }
-
 }
 
 //test_cuts();
@@ -2379,7 +2677,7 @@ module hard_cut(width=8, top_radius=4, bottom_radius=3.9){
     round_rectangle = round_corners(rectangle, radius=bottom_radius,$fn=lowFn);
     //round_rectangle = round_corners(rectangle, radius=bottom_radius,$fn=15);
     color(negativeColor, 0.2)
-    translate( [0, 0, -body_thickness/2  +0.01] )
+    translate( [0, 0, -body_thickness/2 + smidge] )
     offset_sweep(round_rectangle, height=hard_cut_height,top=os_circle(r=-top_radius),bottom=os_circle(r=bottom_radius));
 }
 
@@ -2409,8 +2707,18 @@ module ring(h=8, od = body_thickness+case_thickness2*2, id = 7, de = 0.1 ) {
     }
 }
 
-//copy and mirror and object
+//copy and mirror an object
 module copy_mirror(vec=[0,1,0]){
     children();
-    mirror(vec) children();
+    if (vec!=undef && vec!=[0,0,0]) {
+        mirror(vec) children();
+    }
+}
+
+//copy and move an object
+module copy_move(move=[0,0,0]) {
+    children();
+    translate(move) {
+        children();
+    }
 }
