@@ -274,6 +274,7 @@ charge_on_bottom = true;
 charge_cutout_bevel_angle_y = 10;
 charge_cutout_bevel_angle_z = 10;
 charge_z_offset = 0; // [-5 : 0.1 : 5]
+charge_x_offset = 0; // [-40 : 0.1 : 40]
 
 bottom_speakers_right = false;
 bottom_speakers_left = false;
@@ -1777,7 +1778,7 @@ charge_port_width = (bottom_speakers_left || bottom_speakers_right || case_type2
 module usb_cut(){
     if(charge_on_bottom)
     color(negativeColor, 0.2)
-    translate( [0, -body_length/2, charge_z_offset] )
+    translate( [charge_x_offset, -body_length/2, charge_z_offset] )
     if(case_material2=="hard"){
         hard_cut(charge_port_width);
     }
