@@ -1,0 +1,26 @@
+{
+    "fileFormatVersion": "1",
+    "parameterSets": {
+        "design default values": {
+            "$fn": "30",
+            "hex_diam": "6.35",
+            "hex_length": "12",
+            "magnet_depth": "1.7000000000000002",
+            "magnet_width": "7.1",
+            "screw_hole_diam": "2.6",
+            "smidge": "0.01",
+            "taper_width": "0.1"
+        },
+        "pusher": {
+            "$fn": "35",
+            "hex_diam": "6.3499999999999996",
+            "hex_length": "12",
+            "magnet_depth": "0.30000000000000004",
+            "magnet_width": "6.0999999999999996",
+            "screw_hole_diam": "2.6000000000000001",
+            "slot_width": "6.7000000000000002",
+            "smidge": "0.01",
+            "taper_width": "0.10000000000000001"
+        }
+    }
+}

@@ -70,8 +70,8 @@ brick_y = 0.5;
 brick_bottom_x = brick_x*2;
 brick_bottom_y = brick_y*3;
 //joycon 2 magnet
-magnet_width = 7.0; // measured 6.97
-magnet_depth = 3.4; // measured 2.97
+magnet_width = 7.05; // measured 6.97
+magnet_depth = 3.45; // measured 2.97
 round_magnet=true;
 double_magnet=true;
 // for bar magnets
@@ -370,14 +370,13 @@ lock_notch_offset = 9.4; //how far from the top
 lock_notch_depth = (joycon_inner_width-joycon_lip_width)/2;
 
 //switch 2 / joycon 2 variables
-// tried 6.65, but magnets are weak, and I can shim up to ~0.55mm. Shims >=0.7mm were too thick.
-// 7.15 works but loose
-joycon2_depth = 6.59; //measured: 6.60
+// tried 6.65, but magnets are weak, and I can shim up to ~0.55mm. Shims >=0.7mm were too thick
+joycon2_depth = 6.50; //measured: 6.60
 joycon2_length = 102.75;//measured: 102.39
 joycon2_width_bottom = 8.57; //measured: 8.59
 joycon2_width_top = 8.63;
 // long direction gets angles so you can rock it in
-joycon2_v_flare = 0.2;
+joycon2_v_flare = 0.3;
 /*
 // slight wobble, the joycon can tilt in this direction
 joycon2_width = 8.60; //measured: 8.59
@@ -389,7 +388,7 @@ joycon2_w_flare = 0.2;
 */
 // debur
 joycon2_chamfer = 0.9;
-joycon2_dimple = 1.1; //prevent drooping when vertical
+joycon2_dimple = 2.3; //prevent drooping when vertical
 joycon2_magnet_dimple = true; //true for cutout, false for none / exessess plastic so the magnet is press-fit
 joycon2_min_thickness = joycon2_width_bottom + 2*case_thickness2;
 joycon2_thickness = (body_thickness < joycon2_min_thickness) ? joycon2_min_thickness:body_thickness;
@@ -406,7 +405,7 @@ joycon2_back_bonus = (is_joycon2 && (body_thickness < joycon2_body_min_thickness
 
 // joycon shell size calc and translation
 is_joycon = (case_type2=="joycon");
-joycon_body_min_thickness = joycon_inner_width + joycon_width_padding;
+joycon_body_min_thickness = joycon_inner_width;
 // thicken shell to meet min size
 joycon_back_bonus = (is_joycon && (body_thickness < joycon_body_min_thickness)) ? joycon_body_min_thickness-body_thickness : 0;
 
@@ -1153,7 +1152,7 @@ module joycon_cuts(){
 
 
 
-joycon2_slot_scraper();
+//joycon2_slot_scraper();
 module joycon2_slot_scraper() {
     color(additionColor)
     scale([0.99, 1, 0.99])
@@ -1161,7 +1160,7 @@ module joycon2_slot_scraper() {
     joycon2_cuts(mirror_cuts=false, scraper_mode=true);
 }
 
-*joycon2_cuts();
+//joycon2_cuts();
 module joycon2_cuts(mirror_cuts=true, scraper_mode=false){
     mirror_vec = mirror_cuts ? [0,1,0] : undef;
 
@@ -1234,19 +1233,22 @@ module joycon2_cuts(mirror_cuts=true, scraper_mode=false){
             //if(rotate_upright==true) {
             if(joycon2_dimple > 0.1 && !scraper_mode) {
                 color(negativeColor, 0.6)
-                translate([0,0,0])
+                translate([0 - joycon2_dimple/3,0,0])
                 rotate([90,0,0])
-                cyl( r=joycon2_dimple, 
+                cyl( 
+                    r1=joycon2_dimple/2, 
+                    r2=joycon2_dimple, 
                     h=joycon2_depth+smidge,
                     anchor=CENTER,
-                    $fn=lowFn
+                    $fn=highFn
                 );
+                
             }
 
             //scraper handle tab
             if(scraper_mode) {
-                l=joycon2_length/1.5;
-                tab_out=joycon2_depth*3.5;
+                l=joycon2_length/1.05;
+                tab_out=joycon2_depth * 1.2; // * 3.5;
                 h=joycon2_width_bottom/2;
                 translate([-joycon2_length/2,0,0]) 
                 cuboid(
@@ -1259,7 +1261,7 @@ module joycon2_cuts(mirror_cuts=true, scraper_mode=false){
 
                 // more to grab
                 grab_h=h/1.5;
-                translate([-joycon2_length/2,-tab_out-grab_h,0]) 
+                *translate([-joycon2_length/2,-tab_out-grab_h,0]) 
                 rotate([-90,0,0])
                 minkowski() {
                     prismoid(
@@ -1311,7 +1313,7 @@ module magnet_slot(round=false, double=false) {
     color(negativeColor, 0.6)
     if(round) {
         if(double) {
-            mag_move=magnet_width;
+            mag_move=magnet_width*1.05; // space slightly because holes are undersizes and squeezing them together
             //mag 1
             translate([mag_move/2,0,0])
             subcyl();
