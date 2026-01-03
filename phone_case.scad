@@ -2281,18 +2281,20 @@ module version_info_emboss(){
         }
     }
     if(emboss_size=="small" && draw_logo) {
-        font_size = 4;
-        small_font_size = 3;
+        font_size = 5;
+        small_font_size = 4;
         line_translate = font_size*2;
         color(negativeColor)
-        rotate([0,0,0])
-        translate([-20,-body_length/2+font_size*5.5,-body_thickness/2]) {
+        rotate([0,0,-90])
+        translate([-body_length/4,-body_width/2+font_size*5.5,-body_thickness/2]) {
             linear_extrude(height = case_thickness2/2, center = true) {
                 text(name, font=emboss_font, size=font_size, spacing=font_kerning);
                 translate([0,-line_translate,0])
                 text(version, font=emboss_font, size=small_font_size);
                 translate([0,-line_translate*2,0])
                 text(phone_model, font=emboss_font, size=small_font_size);
+                //TODO: fix build script, change "phone_model" var to "display_name"
+                //TODO: show small display_name
             }
         }
     }
