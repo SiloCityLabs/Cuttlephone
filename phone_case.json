@@ -4649,7 +4649,7 @@
       "top_mic_offset_up": "1.4"
     },
     "Xperia 1 V": {
-      "back_thickness_bonus": "0",
+      "back_thickness_bonus": "-0.6",
       "body_bottom_side_angle": "90",
       "body_bottom_side_radius": "0",
       "body_chamfer": "true",
