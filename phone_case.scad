@@ -306,6 +306,10 @@ telescopic_clearance_width = 0.8;  // 0.1
 telescopic_thin_side = 4.1;
 telescopic_thick_side = 8.2;
 
+enable_hinges = false;
+hinge_from_center = 60;
+hinge_mirror = false; // left side
+
 /* [build vars] */
 // enable auto build of variants
 build_phone=true;
@@ -525,8 +529,12 @@ module main() {
 
 module phone_case(){
     difference(){
-        color(shellColor, shellOpacity)
-        phone_shell();
+        union() {
+            color(shellColor, shellOpacity)
+            phone_shell();
+            // hinge shape intrudes inside the case. We must generate it early so it's cut using the body
+            hinges();
+        }
         body();
         shell_cuts();
     }
@@ -542,7 +550,10 @@ module phone_case(){
 module gamepad(){
     difference(){
         color(shellColor, shellOpacity)
-        gamepad_shell();
+        union(){
+            gamepad_shell();
+            hinges();
+        }
         body();
         cuts();
     }
@@ -581,7 +592,10 @@ module shell_cuts(){
 module joycon_rails(){
     difference(){
         color(shellColor, shellOpacity)
-        joycon_shell();
+        union() {
+            joycon_shell();
+            hinges();
+        }
         body();
         cuts();
     }
@@ -597,7 +611,10 @@ module joycon_rails(){
 module joycon2_rails(){
     difference(){
         color(shellColor, shellOpacity)
-        joycon2_shell();
+        union(){
+            joycon2_shell();
+            hinges();
+        }
         body();
         cuts();
     }
@@ -613,7 +630,10 @@ module joycon2_rails(){
 module junglecat_rails(){
     difference(){
         color(shellColor, shellOpacity)
-        junglecat_shell();
+        union() {
+            junglecat_shell();
+            hinges();
+        }
         body();
         cuts();
     }
@@ -2491,7 +2511,87 @@ module telescopic_clamp(){
         
 }
 
+hinge_pin_diam = 1.75; // filament pin
+hinge_diam = hinge_pin_diam * 3.0; // about 3x pin_diam
+hinge_length = 8; // arbitrary thickness. Used for hinge and joint
 
+module hinges(){
+    if (enable_hinges) {
+        // set positioning
+        if(hinge_mirror) {
+            mirror()
+            hinge();
+
+        }
+        else {
+            copy_mirror([0,1,0])
+            hinge();
+        }
+
+        
+        hinge_joint();
+        translate([19,0,0])
+        hinge_joint();
+    }
+}
+
+module hinge() {
+    hinge_piece();
+    translate([0,hinge_length*2,0])
+    hinge_piece();
+}
+module hinge_piece(){
+    difference() {
+        translate([body_width/2 + case_thickness2, hinge_from_center, -shell_z_thickness/2])
+        rotate([0,90,90])
+        hull(){
+            // hinge sticking out
+            cyl(
+                r=hinge_diam,
+                l=hinge_length,
+                anchor=BACK
+            );
+            // connects hinge to body
+            cyl(
+                r=hinge_diam,
+                l=hinge_length,
+                anchor=FRONT
+            );
+        }
+
+        translate([body_width/2 + hinge_diam + case_thickness2,0, -shell_z_thickness/2])
+        rotate([0,90,90])
+        cyl(r=hinge_pin_diam,l=body_length);
+    }
+
+}
+
+// phones need to meet face-to-face
+// pin starts in the center, hinge joint length (pin center-to-center) should be body_thickness/2 + other_body_thickness/2
+module hinge_joint( joint_length = body_thickness ){
+    
+    hinge_diam_ratio = 0.95; // slight shrink for clearance
+    translate([body_width/1.5 + hinge_diam + case_thickness2,0, -shell_z_thickness/2])
+    difference() {
+        hull(){
+            cyl(
+                r=hinge_diam * hinge_diam_ratio,
+                l=hinge_length,
+                anchor=CENTER
+            );
+            translate([0,joint_length,0])
+            cyl(
+                r=hinge_diam * hinge_diam_ratio,
+                l=hinge_length,
+                anchor=CENTER
+            );
+        }
+
+        cyl(r=hinge_pin_diam,l=body_length);
+        translate([0,joint_length,0])
+        cyl(r=hinge_pin_diam,l=body_length);
+    }
+}
 
 *universal_cuts();
 module universal_cuts(){
