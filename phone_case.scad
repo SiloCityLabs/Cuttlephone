@@ -306,9 +306,18 @@ telescopic_clearance_width = 0.8;  // 0.1
 telescopic_thin_side = 4.1;
 telescopic_thick_side = 8.2;
 
+/* [hinges] */
+
 enable_hinges = false;
 hinge_from_center = 60;
 hinge_mirror = false; // left side
+
+// filament pin, 1.75mm filament
+hinge_pin_diam = 2.10; // [ 1.75 : 0.05 : 2.25 ] 
+// extra space for the joint
+hinge_x_space = 0.2; 
+// arbitrary thickness. Used for hinge and joint
+hinge_length = 4; 
 
 /* [build vars] */
 // enable auto build of variants
@@ -433,6 +442,10 @@ junglecat_wing_thickness = 11.5;
 junglecat_wing_radius = 1.3;
 junglecat_stickout = 4.2;
 junglecat_wings = body_thickness+shell_z_thickness > junglecat_wing_thickness;
+
+// hinge
+hinge_diam = hinge_pin_diam * 2.6; // about 3x pin_diam
+teardrop_angle = 55; // [ 45:1:65 ]
 
 // util
 smidge = 0.01; // avoid z-fighting
@@ -2511,15 +2524,12 @@ module telescopic_clamp(){
         
 }
 
-hinge_pin_diam = 1.75; // filament pin
-hinge_diam = hinge_pin_diam * 3.0; // about 3x pin_diam
-hinge_length = 8; // arbitrary thickness. Used for hinge and joint
-
 module hinges(){
     if (enable_hinges) {
         // set positioning
         if(hinge_mirror) {
-            mirror()
+            copy_mirror([0,1,0])
+            mirror([1,0,0])
             hinge();
 
         }
@@ -2537,59 +2547,71 @@ module hinges(){
 
 module hinge() {
     hinge_piece();
-    translate([0,hinge_length*2,0])
+    translate([0,hinge_length*2 + support_airgap,0])
     hinge_piece();
 }
+// connects to body
 module hinge_piece(){
     difference() {
         translate([body_width/2 + case_thickness2, hinge_from_center, -shell_z_thickness/2])
         rotate([0,90,90])
         hull(){
             // hinge sticking out
+            translate([0,-hinge_x_space,0])
             cyl(
-                r=hinge_diam,
+                d=hinge_diam,
                 l=hinge_length,
                 anchor=BACK
             );
             // connects hinge to body
             cyl(
-                r=hinge_diam,
+                d=hinge_diam * 1.25,
                 l=hinge_length,
                 anchor=FRONT
             );
         }
 
-        translate([body_width/2 + hinge_diam + case_thickness2,0, -shell_z_thickness/2])
+        translate([body_width/2 + hinge_diam/2 + case_thickness2 + hinge_x_space, 0, -shell_z_thickness/2])
         rotate([0,90,90])
-        cyl(r=hinge_pin_diam,l=body_length);
+        hinge_hole();
     }
+}
 
+module hinge_hole(teardrop=true) {
+    color(negativeColor, 0.6)
+    if(teardrop) {
+        rotate([0,0,90])
+        linear_extrude( height=body_length )
+        teardrop2d( d=hinge_pin_diam, ang=teardrop_angle, $fn=lowFn );
+    } else {
+        cyl(d=hinge_pin_diam,l=body_length, $fn=lowFn);
+    }
 }
 
 // phones need to meet face-to-face
 // pin starts in the center, hinge joint length (pin center-to-center) should be body_thickness/2 + other_body_thickness/2
 module hinge_joint( joint_length = body_thickness ){
-    
     hinge_diam_ratio = 0.95; // slight shrink for clearance
     translate([body_width/1.5 + hinge_diam + case_thickness2,0, -shell_z_thickness/2])
     difference() {
         hull(){
             cyl(
-                r=hinge_diam * hinge_diam_ratio,
+                d=hinge_diam * hinge_diam_ratio,
                 l=hinge_length,
                 anchor=CENTER
             );
             translate([0,joint_length,0])
             cyl(
-                r=hinge_diam * hinge_diam_ratio,
+                d=hinge_diam * hinge_diam_ratio,
                 l=hinge_length,
                 anchor=CENTER
             );
         }
 
-        cyl(r=hinge_pin_diam,l=body_length);
+        // pin holes
+        hinge_hole(teardrop=false);
         translate([0,joint_length,0])
-        cyl(r=hinge_pin_diam,l=body_length);
+        hinge_hole(teardrop=false);
     }
 }
 
