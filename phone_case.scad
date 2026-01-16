@@ -308,16 +308,18 @@ telescopic_thick_side = 8.2;
 
 /* [hinges] */
 
-enable_hinges = false;
+enable_hinges = false; 
 hinge_from_center = 60;
-hinge_mirror = false; // left side
+hinge_mirror = true; // default left side, less likely to have buttons
 
 // filament pin, 1.75mm filament
 hinge_pin_diam = 2.10; // [ 1.75 : 0.05 : 2.25 ] 
+// pin size for the joint, which is printed in diff direction so printer tolerances are diff
+hing_pin_diam2 = 2.20; // [1.75 : 0.05 : 2.35 ]
 // extra space for the joint
 hinge_x_space = 0.2; 
 // arbitrary thickness. Used for hinge and joint
-hinge_length = 4; 
+hinge_width = 4; 
 
 /* [build vars] */
 // enable auto build of variants
@@ -1578,16 +1580,12 @@ module screen_cut(){
     ];
     rectangle = square([screen_width, screen_length],center=true);
     round_rectangle = round_corners(rectangle, radius=screen_corners,$fn=highFn);
-
-    //top of screen debugging
-    *translate([0,0,body_thickness/2])
-    cuboid([body_width*1.2, body_length*1.2, 0.1], anchor=CENTER);
     
-    //TODO: auto adjust smooth_edge_radius
+    // thicken 2D to 3D and apply rounding
     buffer = 0.05;
-    smooth_edge_radius = 0.5;
+    smooth_edge_radius = 0.5; //TODO: auto adjust smooth_edge_radius
     smooth_edge_height = 0.1 + screen_lip;
-    // minimum size so function doesn't break, we could also simply disable
+    // set minimum size so function doesn't break, we could also simply disable
     smooth_edge_height2 = (smooth_edge_height>smooth_edge_radius)?smooth_edge_height:smooth_edge_radius+buffer;
     //smooths the edge
     color(negativeColor, 0.5)
@@ -1920,7 +1918,7 @@ module hard_button_cut(right,  power_button, power_from_top, power_length, volum
     button_cut_thickness = 6;
     hard_cut_height = body_thickness;
     
-    color(negativeColor, 0.2)
+    color(negativeColor, 0.6)
     translate( [ right_or_left*(body_width/2),
         body_length/2 - button_offset - button_length/2, 
         -body_thickness/2+case_thickness2+screen_lip+0.05
@@ -2547,7 +2545,7 @@ module hinges(){
 
 module hinge() {
     hinge_piece();
-    translate([0,hinge_length*2 + support_airgap,0])
+    translate([0,hinge_width*2 + support_airgap,0])
     hinge_piece();
 }
 // connects to body
@@ -2560,13 +2558,13 @@ module hinge_piece(){
             translate([0,-hinge_x_space,0])
             cyl(
                 d=hinge_diam,
-                l=hinge_length,
+                l=hinge_width,
                 anchor=BACK
             );
             // connects hinge to body
             cyl(
                 d=hinge_diam * 1.25,
-                l=hinge_length,
+                l=hinge_width,
                 anchor=FRONT
             );
         }
@@ -2577,42 +2575,50 @@ module hinge_piece(){
     }
 }
 
-module hinge_hole(teardrop=true) {
+module hinge_hole(teardrop=true, d=hinge_pin_diam) {
     color(negativeColor, 0.6)
     if(teardrop) {
         rotate([0,0,90])
         linear_extrude( height=body_length )
-        teardrop2d( d=hinge_pin_diam, ang=teardrop_angle, $fn=lowFn );
+        teardrop2d( d=d, ang=teardrop_angle, $fn=lowFn );
     } else {
-        cyl(d=hinge_pin_diam,l=body_length, $fn=lowFn);
+        cyl(d=d,l=body_length, $fn=lowFn);
     }
 }
 
+hinge_joint_bonus = 1.2;//0.8;
 // phones need to meet face-to-face
 // pin starts in the center, hinge joint length (pin center-to-center) should be body_thickness/2 + other_body_thickness/2
-module hinge_joint( joint_length = body_thickness ){
-    hinge_diam_ratio = 0.95; // slight shrink for clearance
+module hinge_joint( joint_length = body_thickness + case_thickness2*2 + hinge_joint_bonus){
     translate([body_width/1.5 + hinge_diam + case_thickness2,0, -shell_z_thickness/2])
     difference() {
         hull(){
             cyl(
-                d=hinge_diam * hinge_diam_ratio,
-                l=hinge_length,
+                d=hinge_diam,
+                l=hinge_width,
                 anchor=CENTER
             );
             translate([0,joint_length,0])
             cyl(
-                d=hinge_diam * hinge_diam_ratio,
-                l=hinge_length,
+                d=hinge_diam,
+                l=hinge_width,
                 anchor=CENTER
             );
         }
 
         // pin holes
-        hinge_hole(teardrop=false);
+        hing_hole_tapered(d=hing_pin_diam2);
         translate([0,joint_length,0])
-        hinge_hole(teardrop=false);
+        hing_hole_tapered(d=hing_pin_diam2);
     }
+}
+
+module hing_hole_tapered(d=hing_pin_diam2, l=hinge_width+smidge) {
+    cyl(
+        d=d, l=l, 
+        chamfer=-hing_pin_diam2/6
+        //,$fn=lowFn
+    );
 }
 
 *universal_cuts();
