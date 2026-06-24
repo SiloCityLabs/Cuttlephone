@@ -51,6 +51,15 @@ emboss_logo = "logos/dude.svg";
 logo_x = 0.0; // 0.1
 logo_y = 0.0; // 0.1
 
+// Magnetic Power Profile / MagSafe
+magsafe_ring = false;
+magsafe_ring_thickness = 0.50; // [0.30 : 0.05 : 1.60] 
+magsafe_ring_inner_diam = 46.0; // [44 : 0.1 : 49]
+magsafe_ring_outer_diam = 49.0; // [46 : 0.1 : 51]
+// Qi wireless charger location. If you don't have wireless charging then magsafe can go anywhere
+magsafe_offset_from_center = -7.5; // [ -15 : 0.1 : 5 ]  // TODO: measuring "offset from center" sucks, find a hard reference point
+
+
 /* [3D print] */
 
 //this will support the rail and some overhangs during a horizontal print, and support the Joycon lock notch on a vertical print
@@ -575,6 +584,7 @@ module shell_cuts(){
     lanyard_cut();
     universal_cuts();
     version_info_emboss();
+    backface_emboss();
 }
 
 
@@ -2330,6 +2340,19 @@ module version_info_emboss(){
                 //TODO: show small display_name
             }
         }
+    }
+}
+
+//backface_emboss();
+// backface emboss is intended for magsafe rings (steel or magnetic)
+// this is the first layer of the print, and TPU supports are not feasible. The gaps will bridge so complex art or text is not recommended 
+module backface_emboss(){
+    if(magsafe_ring) {
+        //magsafe ring recess
+        color(negativeColor)
+        rotate([0,0,0])
+        translate([0,magsafe_offset_from_center,-body_thickness/2-case_thickness2-smidge])
+        tube(id=magsafe_ring_inner_diam, od=magsafe_ring_outer_diam, h=magsafe_ring_thickness, anchor=BOTTOM);
     }
 }
 
