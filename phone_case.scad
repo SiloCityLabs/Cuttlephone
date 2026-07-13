@@ -27,7 +27,7 @@ case_type = "phone case"; // [phone case, gamepad, joycon, joycon2, junglecat]
 
 case_thickness = 1.6; // [0 : 0.1 : 4]
 // make the back surface thicker (for sturdier universal adapters)
-back_thickness_bonus = 0; // [0 : 0.1 : 2]
+back_thickness_bonus = 0; // [0 : 0.1 : 4]
 //if the screen is curved and the case cutaway, you might want some extra grip
 shell_side_stickout = 0; // 0.1
 // Thin the shell lips around the screen bezels, keeping full case thickness at the top and bottom
