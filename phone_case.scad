@@ -53,9 +53,10 @@ logo_y = 0.0; // 0.1
 
 // Magnetic Power Profile / MagSafe
 magsafe_ring = false;
-magsafe_ring_thickness = 0.50; // [0.30 : 0.05 : 1.60] 
-magsafe_ring_inner_diam = 46.0; // [44 : 0.1 : 49]
-magsafe_ring_outer_diam = 49.0; // [46 : 0.1 : 51]
+deep_emboss = false; // cut the emboss deeper, leaving 1 layer of material
+magsafe_ring_thickness = 0.75; // [0.30 : 0.05 : 1.60] 
+magsafe_ring_inner_diam = 44.9; // [42 : 0.1 : 47]
+magsafe_ring_outer_diam = 55.1; // [48 : 0.1 : 59]
 // Qi wireless charger location. If you don't have wireless charging then magsafe can go anywhere
 magsafe_offset_from_center = -7.5; // [ -15 : 0.1 : 5 ]  // TODO: measuring "offset from center" sucks, find a hard reference point
 
@@ -584,7 +585,8 @@ module shell_cuts(){
     lanyard_cut();
     universal_cuts();
     version_info_emboss();
-    backface_emboss();
+    //backface_emboss();
+    magsafe_emboss();
 }
 
 
@@ -2249,6 +2251,7 @@ module headphone_cut(){
 
 *version_info_emboss();
 module version_info_emboss(){
+    // unfortunately I can't easily check for collision in OpenSCAD. Geometry generation is separate from evaluation. Can't check if intersection() is blank or produces a result
     draw_logo = !(speaker_grill); // if cuts interrupt the back plane, don't draw text/logo
     font_kerning = 1.08;
     if(emboss_size=="logo" && draw_logo) {
@@ -2323,6 +2326,7 @@ module version_info_emboss(){
             }
         }
     }
+    // TODO: separate size and rotation
     if(emboss_size=="medium_rotated" && draw_logo) {
         font_size = 6;
         small_font_size = 6;
@@ -2336,23 +2340,45 @@ module version_info_emboss(){
                 text(version, font=emboss_font, size=small_font_size);
                 translate([0,-line_translate*2,0])
                 text(phone_model, font=emboss_font, size=small_font_size);
-                //TODO: fix build script, change "phone_model" var to "display_name"
-                //TODO: show small display_name
             }
         }
     }
 }
 
 //backface_emboss();
-// backface emboss is intended for magsafe rings (steel or magnetic)
-// this is the first layer of the print, and TPU supports are not feasible. The gaps will bridge so complex art or text is not recommended 
+// backface emboss is cutouts on the first layer of the print
+// intended for magsafe rings (steel or magnetic)
+// Printing this without multi-material support is difficult. 
+// TPU supports stick super hard, not feasible.
+// The gaps will bridge - complex art or text is not recommended
+// Bridges don't automatically take the shortest path - https://github.com/OrcaSlicer/OrcaSlicer/issues/8276
 module backface_emboss(){
     if(magsafe_ring) {
         //magsafe ring recess
         color(negativeColor)
-        rotate([0,0,0])
         translate([0,magsafe_offset_from_center,-body_thickness/2-case_thickness2-smidge])
         tube(id=magsafe_ring_inner_diam, od=magsafe_ring_outer_diam, h=magsafe_ring_thickness, anchor=BOTTOM);
+        // full cut
+        //cyl(d=magsafe_ring_outer_diam, h=body_thickness*2, anchor=BOTTOM);
+    }
+}
+
+// top face emboss, like the version text
+module magsafe_emboss(){
+    // how much material will be left after cutting the emboss. 1 layer.
+    deepest_emboss = 0.2;
+    if(magsafe_ring) {
+        if(deep_emboss) {
+            color(negativeColor)
+            // cut through most of the case, almost to the back face
+            translate([0,magsafe_offset_from_center,-body_thickness/2-case_thickness2+deepest_emboss+smidge])
+            tube(id=magsafe_ring_inner_diam, od=magsafe_ring_outer_diam, h=case_thickness2, anchor=BOTTOM);
+        } else {
+            //magsafe ring recess
+            color(negativeColor)
+            translate([0,magsafe_offset_from_center,-body_thickness/2+smidge])
+            tube(id=magsafe_ring_inner_diam, od=magsafe_ring_outer_diam, h=magsafe_ring_thickness, anchor=TOP);
+        }
     }
 }
 
