@@ -51,12 +51,16 @@ emboss_logo = "logos/dude.svg";
 logo_x = 0.0; // 0.1
 logo_y = 0.0; // 0.1
 
+// cut the emboss deeper
+deep_emboss = false; 
+// leave 2 layer of material
+deepest_emboss = 0.3;
+
 // Magnetic Power Profile / MagSafe
 magsafe_ring = false;
-deep_emboss = false; // cut the emboss deeper, leaving 1 layer of material
 magsafe_ring_thickness = 0.75; // [0.30 : 0.05 : 1.60] 
-magsafe_ring_inner_diam = 44.9; // [42 : 0.1 : 47]
-magsafe_ring_outer_diam = 55.1; // [48 : 0.1 : 59]
+magsafe_ring_inner_diam = 45.4; // [42 : 0.1 : 47]
+magsafe_ring_outer_diam = 55.8; // [48 : 0.1 : 59]
 // Qi wireless charger location. If you don't have wireless charging then magsafe can go anywhere
 magsafe_offset_from_center = -7.5; // [ -15 : 0.1 : 5 ]  // TODO: measuring "offset from center" sucks, find a hard reference point
 
@@ -2357,7 +2361,7 @@ module backface_emboss(){
         //magsafe ring recess
         color(negativeColor)
         translate([0,magsafe_offset_from_center,-body_thickness/2-case_thickness2-smidge])
-        tube(id=magsafe_ring_inner_diam, od=magsafe_ring_outer_diam, h=magsafe_ring_thickness, anchor=BOTTOM);
+        tube(id=magsafe_ring_inner_diam, od=magsafe_ring_outer_diam, h=magsafe_ring_thickness, anchor=BOTTOM, $fn=highFn);
         // full cut
         //cyl(d=magsafe_ring_outer_diam, h=body_thickness*2, anchor=BOTTOM);
     }
@@ -2365,19 +2369,17 @@ module backface_emboss(){
 
 // top face emboss, like the version text
 module magsafe_emboss(){
-    // how much material will be left after cutting the emboss. 1 layer.
-    deepest_emboss = 0.2;
     if(magsafe_ring) {
         if(deep_emboss) {
             color(negativeColor)
             // cut through most of the case, almost to the back face
             translate([0,magsafe_offset_from_center,-body_thickness/2-case_thickness2+deepest_emboss+smidge])
-            tube(id=magsafe_ring_inner_diam, od=magsafe_ring_outer_diam, h=case_thickness2, anchor=BOTTOM);
+            tube(id=magsafe_ring_inner_diam, od=magsafe_ring_outer_diam, h=case_thickness2, anchor=BOTTOM, $fn=highFn*1.8);
         } else {
             //magsafe ring recess
             color(negativeColor)
             translate([0,magsafe_offset_from_center,-body_thickness/2+smidge])
-            tube(id=magsafe_ring_inner_diam, od=magsafe_ring_outer_diam, h=magsafe_ring_thickness, anchor=TOP);
+            tube(id=magsafe_ring_inner_diam, od=magsafe_ring_outer_diam, h=magsafe_ring_thickness, anchor=TOP, $fn=highFn*1.8);
         }
     }
 }
