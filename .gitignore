@@ -37,6 +37,7 @@ pcb/intermediates/
 
 # IDE files
 .idea/
+.cursor/
 
 # local file server for Jekyll pages
 #Gemfile
