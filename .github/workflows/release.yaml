@@ -94,6 +94,7 @@ jobs:
         run: ls -lh build/
 
       - name: Create GitHub Release
+        id: gh_release
         uses: softprops/action-gh-release@v3
         with:
           files: build/*.3mf
@@ -101,3 +102,14 @@ jobs:
           name: Cuttlephone ${{ steps.get_version.outputs.version }}
           draft: true
           generate_release_notes: true
+
+      - name: Summary
+        run: |
+          {
+            echo "## Draft release"
+            echo "**Version:** \`${{ steps.get_version.outputs.version }}\`"
+            echo "**Open draft:** ${{ steps.gh_release.outputs.url }}"
+            echo ""
+            echo "Edit the description. Description is LLM generated."
+            echo "Publish it from the Releases page when ready."
+          } >> "$GITHUB_STEP_SUMMARY"
