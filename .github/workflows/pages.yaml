@@ -1,0 +1,71 @@
+name: Deploy docs site
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - docs/**
+      - .github/workflows/pages.yaml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# don't cancel a running deploy
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          working-directory: docs
+          bundler-cache: true
+
+      - name: Build site
+        working-directory: docs
+        env:
+          # remote_theme fetches the theme via the GitHub API
+          JEKYLL_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JEKYLL_ENV: production
+        run: bundle exec jekyll build --source . --destination _site
+
+      - name: Verify build output
+        run: |
+          ls -lh docs/_site/
+          if [ ! -f docs/_site/index.html ]; then
+            echo "Error: docs/_site/index.html was not generated" >&2
+            exit 1
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs/_site
+
+  deploy:
+    # other branches build as a check only, master is the one that publishes
+    if: github.ref == 'refs/heads/master'
+    needs: build
+    runs-on: ubuntu-24.04
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
