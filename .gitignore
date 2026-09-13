@@ -39,6 +39,9 @@ pcb/intermediates/
 .idea/
 .cursor/
 
+# local secrets, see docs/.env.example
+.env
+
 # local file server for Jekyll pages
 #Gemfile
 Gemfile.lock

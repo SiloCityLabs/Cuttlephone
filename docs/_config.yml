@@ -6,14 +6,13 @@ repository: SiloCityLabs/Cuttlephone
 models_url: /premade-models/
 guide_url: /guides/
 generator_guide_url: /generator-guide/
-github: [metadata]
 github:
   repository_url: https://github.com/SiloCityLabs/Cuttlephone
 shop_url: https://shop.silocitylabs.com/collections/3d-prints/cuttlephone
 
 # theme and theme configuration
 # https://github.com/just-the-docs/just-the-docs
-remote_theme: just-the-docs/just-the-docs
+remote_theme: just-the-docs/just-the-docs@v0.12.0
 #theme: just-the-docs
 #color_scheme: "dark"
 search_enabled: true
@@ -28,6 +27,11 @@ callouts:
     title: Warning
     color: red
 
+sass:
+  quiet_deps: true # hide SASS deprecation warnings from the remote theme
+  sourcemap: never # only output the built CSS
+  # style: compressed # breaks docs/assets/css/just-the-docs-head-nav.css
+
 # need for block attributes: https://kramdown.gettalong.org/quickref.html#block-attributes
 markdown: kramdown
 kramdown:
@@ -37,7 +41,6 @@ kramdown:
 
 plugins:
 - jekyll-default-layout
-- jekyll-github-metadata
 - jekyll-mentions
 - jekyll-redirect-from
 - jekyll-sitemap
