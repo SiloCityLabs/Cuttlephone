@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-version="v 0.5"
+version="v0.5"
 git_commit=$(git rev-parse --short HEAD)
 
 #create build dir (ignored by git)
@@ -41,8 +41,14 @@ for model in "${presets[@]}"; do
     build_joycon=$(jq -r --arg model "$model" '.[] | select(type == "object")[$model].build_joycon' phone_case.json)
     build_soft=$(jq -r --arg model "$model" '.[] | select(type == "object")[$model].build_soft' phone_case.json)
     build_hard=$(jq -r --arg model "$model" '.[] | select(type == "object")[$model].build_hard' phone_case.json)
-    
+    in_development=$(jq -r --arg model "$model" '.[] | select(type == "object")[$model].in_development' phone_case.json)
+
     echo "$model"
+    if [ "$in_development" = true ]; then
+        echo "skip (in_development)"
+        echo
+        continue
+    fi
     for case_type in "${case_types[@]}"; do
     # choose which variants to build
     if { [ "$build_phone" = true ] && [ "$case_type" = "phone case" ]; } \

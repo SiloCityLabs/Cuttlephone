@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-version="v 0.5"
+version="v0.5"
 git_commit=$(git rev-parse --short HEAD)
 filetype='3mf'
 
