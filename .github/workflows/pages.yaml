@@ -7,6 +7,8 @@ on:
     paths:
       - docs/**
       - .github/workflows/pages.yaml
+  release:
+    types: [published]
   workflow_dispatch:
 
 permissions:
@@ -56,8 +58,9 @@ jobs:
           path: docs/_site
 
   deploy:
-    # other branches build as a check only, master is the one that publishes
-    if: github.ref == 'refs/heads/master'
+    # deploy from master branch, or from release events
+    # other branches build as a check only
+    if: github.ref == 'refs/heads/master' || github.event_name == 'release'
     needs: build
     runs-on: ubuntu-24.04
 

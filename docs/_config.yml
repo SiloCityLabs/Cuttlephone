@@ -3,7 +3,6 @@ description: 3D printable phone cases
 logo: /images/website-logo.png
 baseurl: 
 repository: SiloCityLabs/Cuttlephone
-models_url: /premade-models/
 guide_url: /guides/
 generator_guide_url: /generator-guide/
 github:

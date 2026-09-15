@@ -17,9 +17,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
       - name: Find latest successful build
         if: ${{ github.event.inputs.run_id == '' }}
         id: latest_run
@@ -60,17 +57,41 @@ jobs:
               return;
             }
 
-            core.info(`Using workflow run ${selected.id}`);
-            core.setOutput("run_id", selected.id);
+            core.info(`Using workflow run ${selected.id} @ ${selected.head_sha}`);
+            core.setOutput("run_id", String(selected.id));
+            core.setOutput("head_sha", selected.head_sha);
 
-      - name: Select run ID
+      - name: Get commit head_sha from pipeline run_id
+        if: ${{ github.event.inputs.run_id != '' }}
+        id: input_run
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const run = await github.rest.actions.getWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: Number("${{ github.event.inputs.run_id }}")
+            });
+            core.info(`Using workflow run ${run.data.id} @ ${run.data.head_sha}`);
+            core.setOutput("run_id", String(run.data.id));
+            core.setOutput("head_sha", run.data.head_sha);
+
+      - name: Select run
         id: run
         run: |
           if [ -n "${{ github.event.inputs.run_id }}" ]; then
-            echo "run_id=${{ github.event.inputs.run_id }}" >> "$GITHUB_OUTPUT"
+            echo "run_id=${{ steps.input_run.outputs.run_id }}" >> "$GITHUB_OUTPUT"
+            echo "head_sha=${{ steps.input_run.outputs.head_sha }}" >> "$GITHUB_OUTPUT"
           else
             echo "run_id=${{ steps.latest_run.outputs.run_id }}" >> "$GITHUB_OUTPUT"
+            echo "head_sha=${{ steps.latest_run.outputs.head_sha }}" >> "$GITHUB_OUTPUT"
           fi
+
+      # Pin version to the commit that produced the artifacts
+      - name: Checkout build commit
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.run.outputs.head_sha }}
 
       - name: Download model artifacts
         uses: actions/download-artifact@v8
@@ -108,6 +129,7 @@ jobs:
           {
             echo "## Draft release"
             echo "**Version:** \`${{ steps.get_version.outputs.version }}\`"
+            echo "**Build SHA:** \`${{ steps.run.outputs.head_sha }}\`"
             echo "**Open draft:** ${{ steps.gh_release.outputs.url }}"
             echo ""
             echo "Edit the description. Description is LLM generated."
