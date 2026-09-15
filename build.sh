@@ -4,7 +4,6 @@ version="v0.5"
 git_commit=$(git rev-parse --short HEAD)
 
 #create build dir (ignored by git)
-#TODO: should I skip this dir and put the files directly in premade_models_path?
 mkdir -p build
 
 #change split char to help jq parse the JSON

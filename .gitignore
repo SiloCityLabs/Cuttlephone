@@ -51,6 +51,8 @@ docs/.sass-cache/
 docs/.jekyll-metadata
 docs/vendor
 
+# old release path. We use GitHub Releases now
+docs/premade-models/
 
 # 3d model build dir
 build/

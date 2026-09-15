@@ -20,9 +20,9 @@ Cuttlephone is phone case generator and gamepad system for 3D printing. This is 
  - Download the code and its dependencies using the git command line: `git clone https://github.com/SiloCityLabs/Cuttlephone.git --recurse-submodules`
  - open the file "phone_case.scad" to use the GUI
  
- # Build and publish scripts
+ # Build scripts
  - in bash run `sh build.sh` to create all variants for all phones
- - in bash run `sh publish.sh` to copy the 3D models and model info to the docs directory
+ - GitHub Actions uploads those files to a [GitHub Release](https://github.com/SiloCityLabs/Cuttlephone/releases)
 
 # How to run the docs blog locally
 
