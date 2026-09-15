@@ -30,8 +30,28 @@ case_thicknesses[hard]=2.0
 case_thicknesses[soft]=1.4
 
 filetype='3mf'
+
+# GitHub-safe filename. "Release" will rename assets, ex: converts spaces to period.
+# space ` ` -> `_`, `+` -> `plus``, any other fancy char fails the build
+safe_filename() {
+    local name="$1"
+    name="${name// /_}"
+    name="${name//+/plus}"
+    # regex filter: alphanumeric, dot, underscore, dash
+    if [[ ! "$name" =~ ^[A-Za-z0-9._-]+$ ]]; then
+        echo "Error: unsupported characters in filename: $name" >&2
+        exit 1
+    fi
+    printf '%s' "$name"
+}
+
 echo "Building all configs"
 echo
+
+# check before OpenSCAD loop - a bad preset name would waste a 6h run
+for model in "${presets[@]}"; do
+    safe_filename "${model} phone case hard.${filetype}" >/dev/null
+done
 
 #loop through all case configs and build models
 for model in "${presets[@]}"; do
@@ -58,7 +78,7 @@ for model in "${presets[@]}"; do
         for case_material in "${case_materials[@]}"; do
         if { [ "$build_soft" = true ] && [ "$case_material" = "soft" ]; } \
         || { [ "$build_hard" = true ] && [ "$case_material" = "hard" ]; }; then
-            filename="${model} ${case_type} ${case_material}.${filetype}"
+            filename="$(safe_filename "${model} ${case_type} ${case_material}.${filetype}")"
             case_thickness=${case_thicknesses[$case_material]}
             
             echo "Building ${filename}"
