@@ -12,30 +12,44 @@ Models are from the [latest release]({{ site.github.repository_url }}/releases/l
 
 {% for material in site.data.case_materials %} For {{ material.material }} cases, print with {{material.example}}. {% endfor %} Read the [3D printing guide](/guides/print-guide/) for more tips.
 
-<!-- loop through phone_case.json, copied over from build script -->
+<!-- loop through phone_case.json -->
 {% for model in site.data.phone_case.parameterSets %}
 {% if model[1].in_development != "true" %}
-<!-- hide models that don't have build output. Ensure this is updated when new case types are added -->
-{% if model[1].build_phone == "true" or model[1].build_joycon == "true" or model[1].build_joycon2 == "true" or model[1].build_junglecat == "true" %}
+<!-- hide models that don't have build output -->
+{% assign any_built = false %}
+{% for type in site.data.model_types %}
+{% if type.build_key %}
+{% assign build_flag = model[1][type.build_key] %}
+{% if build_flag == "true" %}{% assign any_built = true %}{% endif %}
+{% endif %}
+{% endfor %}
+{% if any_built %}
 ## {{ model[0] }}
 
-<!-- for each case type (phone, joycon, joycon2, junglecat) -->
+<table>
+<thead>
+<tr>
+<th>Type</th>
+{% for material in site.data.case_materials %}
+{% assign mat_built = false %}
+{% if material.material == "hard" and model[1].build_hard == "true" %}{% assign mat_built = true %}{% endif %}
+{% if material.material == "soft" and model[1].build_soft == "true" %}{% assign mat_built = true %}{% endif %}
+<!-- muted text if no build output-->
+<th{% unless mat_built %} style="opacity:0.45;font-weight:500"{% endunless %}>{{ material.material | capitalize }} ({{ material.example }})</th>
+{% endfor %}
+</tr>
+</thead>
+<tbody>
 {% for type in site.data.model_types %}
-
-<!-- this is dumb but I don't know better conditionals in Jekyll/Liquid -->
-<!-- https://shopify.github.io/liquid/basics/operators/ -->
-{% if type.model_type == "phone case" and model[1].build_phone == "true" %}
-{% include_relative premade-models-link.md %}
-{% elsif type.model_type == "joycon" and model[1].build_joycon == "true" %}
-{% include_relative premade-models-link.md %}
-{% elsif type.model_type == "joycon2" and model[1].build_joycon2 == "true" %}
-{% include_relative premade-models-link.md %}
-{% elsif type.model_type == "junglecat" and model[1].build_junglecat == "true" %}
+{% if type.build_key %}
+{% assign build_flag = model[1][type.build_key] %}
+{% if build_flag == "true" %}
 {% include_relative premade-models-link.md %}
 {% endif %}
-
+{% endif %}
 {% endfor %}
-
+</tbody>
+</table>
 {% endif %}
 {% endif %}
 {% endfor %}
