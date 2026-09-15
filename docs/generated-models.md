@@ -15,7 +15,9 @@ Models are from the [latest release]({{ site.github.repository_url }}/releases/l
 <!-- loop through phone_case.json, copied over from build script -->
 {% for model in site.data.phone_case.parameterSets %}
 {% if model[1].in_development != "true" %}
-## {{ model[0] }} 
+<!-- hide models that don't have build output. Ensure this is updated when new case types are added -->
+{% if model[1].build_phone == "true" or model[1].build_joycon == "true" or model[1].build_joycon2 == "true" or model[1].build_junglecat == "true" %}
+## {{ model[0] }}
 
 <!-- for each case type (phone, joycon, joycon2, junglecat) -->
 {% for type in site.data.model_types %}
@@ -34,5 +36,6 @@ Models are from the [latest release]({{ site.github.repository_url }}/releases/l
 
 {% endfor %}
 
+{% endif %}
 {% endif %}
 {% endfor %}
