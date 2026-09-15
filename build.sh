@@ -19,9 +19,9 @@ IFS=$'\n'
 presets=($presets_jq)
 unset IFS
 
-#TODO: pull these from the JSON 
+#TODO: pull these from the JSON
 #TODO: enable "gamepad" when it works
-declare -a case_types=( "phone case" "junglecat" "joycon" )
+declare -a case_types=( "phone case" "junglecat" "joycon" "joycon2" )
 declare -a case_materials=( "hard" "soft" )
 declare -A case_thicknesses
 #cases made with PLA+ need to be at least 2.0mm thick to resist cracking
@@ -59,6 +59,7 @@ for model in "${presets[@]}"; do
     build_phone=$(jq -r --arg model "$model" '.[] | select(type == "object")[$model].build_phone' phone_case.json)
     build_junglecat=$(jq -r --arg model "$model" '.[] | select(type == "object")[$model].build_junglecat' phone_case.json)
     build_joycon=$(jq -r --arg model "$model" '.[] | select(type == "object")[$model].build_joycon' phone_case.json)
+    build_joycon2=$(jq -r --arg model "$model" '.[] | select(type == "object")[$model].build_joycon2' phone_case.json)
     build_soft=$(jq -r --arg model "$model" '.[] | select(type == "object")[$model].build_soft' phone_case.json)
     build_hard=$(jq -r --arg model "$model" '.[] | select(type == "object")[$model].build_hard' phone_case.json)
     in_development=$(jq -r --arg model "$model" '.[] | select(type == "object")[$model].in_development' phone_case.json)
@@ -73,7 +74,8 @@ for model in "${presets[@]}"; do
     # choose which variants to build
     if { [ "$build_phone" = true ] && [ "$case_type" = "phone case" ]; } \
         || { [ "$build_junglecat" = true ] && [ "$case_type" = "junglecat" ]; } \
-        || { [ "$build_joycon" = true ] && [ "$case_type" = "joycon" ]; }; then
+        || { [ "$build_joycon" = true ] && [ "$case_type" = "joycon" ]; } \
+        || { [ "$build_joycon2" = true ] && [ "$case_type" = "joycon2" ]; }; then
         
         for case_material in "${case_materials[@]}"; do
         if { [ "$build_soft" = true ] && [ "$case_material" = "soft" ]; } \

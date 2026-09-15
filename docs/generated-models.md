@@ -17,7 +17,7 @@ Models are from the [latest release]({{ site.github.repository_url }}/releases/l
 {% if model[1].in_development != "true" %}
 ## {{ model[0] }} 
 
-<!-- for each case type (phone, joycon, junglecat) -->
+<!-- for each case type (phone, joycon, joycon2, junglecat) -->
 {% for type in site.data.model_types %}
 
 <!-- this is dumb but I don't know better conditionals in Jekyll/Liquid -->
@@ -25,6 +25,8 @@ Models are from the [latest release]({{ site.github.repository_url }}/releases/l
 {% if type.model_type == "phone case" and model[1].build_phone == "true" %}
 {% include_relative premade-models-link.md %}
 {% elsif type.model_type == "joycon" and model[1].build_joycon == "true" %}
+{% include_relative premade-models-link.md %}
+{% elsif type.model_type == "joycon2" and model[1].build_joycon2 == "true" %}
 {% include_relative premade-models-link.md %}
 {% elsif type.model_type == "junglecat" and model[1].build_junglecat == "true" %}
 {% include_relative premade-models-link.md %}

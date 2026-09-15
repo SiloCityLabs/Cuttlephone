@@ -1,6 +1,7 @@
 - model_type: phone case
-- model_type: junglecat 
+- model_type: junglecat
 - model_type: joycon
+- model_type: joycon2
 - model_type: gamepad
 
 
