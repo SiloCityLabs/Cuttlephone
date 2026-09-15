@@ -29,6 +29,29 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
+      # Model list must match the published 3mf files, whatever commit was released
+      - name: Phone case JSON from latest release tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+          else
+            TAG=$(curl -fsSL \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${{ github.repository }}/releases/latest" \
+              | jq -r '.tag_name')
+          fi
+          if [ -z "$TAG" ] || [ "$TAG" = "null" ]; then
+            echo "Error: could not resolve latest release tag" >&2
+            exit 1
+          fi
+          echo "Using phone_case.json from ${TAG}"
+          curl -fsSL -o docs/_data/phone_case.json \
+            "https://raw.githubusercontent.com/${{ github.repository }}/${TAG}/phone_case.json"
+
       - name: Install Ruby
         uses: ruby/setup-ruby@v1
         with:

@@ -7,6 +7,8 @@ guide_url: /guides/
 generator_guide_url: /generator-guide/
 github:
   repository_url: https://github.com/SiloCityLabs/Cuttlephone
+# generated-models links
+release_download_url: https://github.com/SiloCityLabs/Cuttlephone/releases/latest/download/
 shop_url: https://shop.silocitylabs.com/collections/3d-prints/cuttlephone
 
 # theme and theme configuration

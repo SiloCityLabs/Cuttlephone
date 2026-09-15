@@ -8,6 +8,8 @@ parent: 3D Models
 # Generated models
 Below you'll find models of every available phone case with every available variation. I generate a new batch with each significant revision of the program. 
 
+Models are from the [latest release]({{ site.github.repository_url }}/releases/latest).
+
 {% for material in site.data.case_materials %} For {{ material.material }} cases, print with {{material.example}}. {% endfor %} Read the [3D printing guide](/guides/print-guide/) for more tips.
 
 <!-- loop through phone_case.json, copied over from build script -->
