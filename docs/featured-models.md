@@ -13,48 +13,48 @@ The best 3D models, tested by users. These models have been printed and used dai
 
 ## Pixel 4a, with Junglecat rails
 
-Cuttlephone version: v0.4
+Cuttlephone version: v0.5
 
 My daily phone case with Junglecat rails and our first mascot. Print with TPU. Use the [rail cutting tool](#junglecat-rail-cutting-tool) below to remove the support material.
 
-[![Pixel 4a phone case with Junglecat rails](/images/best-models/pixel 4a junglecat logo.png)](/best-models/pixel 4a junglecat logo.stl)
+[![Pixel 4a phone case with Junglecat rails](/images/best-models/pixel 4a junglecat logo.png)](https://github.com/SiloCityLabs/Cuttlephone/releases/download/v0.5/Pixel_4a_junglecat_soft.3mf)
 
-[STL file](/best-models/pixel 4a junglecat logo.stl)
+[3MF file](https://github.com/SiloCityLabs/Cuttlephone/releases/download/v0.5/Pixel_4a_junglecat_soft.3mf)
 
 ## Nintendo Switch Joy-Con controller adapters
 
-Cuttlephone version: v0.4
+Cuttlephone version: v0.5
 
 Universal phone adapter with Joy-Con rails. Use a rubber band to clamp the two parts together. Comes in horizontal and vertical configurations. This model includes manual supports for the Joy-Con's rail locking notch, but you still need to support the other hanging parts. See the print guide.
 
-[Horizontal:](/best-models/joycon v0.4.stl)
+[Horizontal:](https://github.com/SiloCityLabs/Cuttlephone/releases/download/v0.5/Telescopic_Joycon_joycon_hard.3mf)
 
-[![Joy-Con horizontal phone adapter](/images/best-models/joycon horizontal.png)](/best-models/joycon v0.4.stl)
+[![Joy-Con horizontal phone adapter](/images/best-models/joycon horizontal.png)](https://github.com/SiloCityLabs/Cuttlephone/releases/download/v0.5/Telescopic_Joycon_joycon_hard.3mf)
 
 
-[Vertical:](/best-models/joycon vertical v0.4.stl)
+[Vertical:](https://github.com/SiloCityLabs/Cuttlephone/releases/download/v0.5/Telescopic_Joycon_Vertical_joycon_hard.3mf)
 
-[![Joy-Con vertical phone adapter](/images/best-models/joycon vertical.png)](/best-models/joycon vertical v0.4.stl)
+[![Joy-Con vertical phone adapter](/images/best-models/joycon vertical.png)](https://github.com/SiloCityLabs/Cuttlephone/releases/download/v0.5/Telescopic_Joycon_Vertical_joycon_hard.3mf)
 
 
 ## Razer Junglecat controller adapters
 
 Universal phone adapter with Junglecat rails. Use a rubber band to clamp the two parts together.
 
-[Horizontal:](/best-models/junglecat v0.4.stl)
+[Horizontal:](https://github.com/SiloCityLabs/Cuttlephone/releases/download/v0.5/Telescopic_Junglecat_junglecat_hard.3mf)
 
-[![Junglecat horizontal phone adapter](/images/best-models/junglecat horizontal.png)](/best-models/junglecat v0.4.stl)
+[![Junglecat horizontal phone adapter](/images/best-models/junglecat horizontal.png)](https://github.com/SiloCityLabs/Cuttlephone/releases/download/v0.5/Telescopic_Junglecat_junglecat_hard.3mf)
 
 
-[Vertical:](/best-models/junglecat vertical v0.4.stl)
+[Vertical:](https://github.com/SiloCityLabs/Cuttlephone/releases/download/v0.5/Telescopic_Junglecat_Vertical_junglecat_hard.3mf)
 
-[![Junglecat vertical phone adapter](/images/best-models/junglecat vertical.png)](/best-models/junglecat vertical v0.4.stl)
+[![Junglecat vertical phone adapter](/images/best-models/junglecat vertical.png)](https://github.com/SiloCityLabs/Cuttlephone/releases/download/v0.5/Telescopic_Junglecat_Vertical_junglecat_hard.3mf)
 
 
 ## Junglecat rail cutting tool
 
 A tool to help cut the support material from the Junglecat rails. For phone cases, printed flat, with the manual supports.
 
-[Rail cut tool:](/best-models/rail cut tool v0.4.stl)
+[Rail cut tool:](https://github.com/SiloCityLabs/Cuttlephone/releases/download/v0.5/Junglecat_rail_cut_tool.3mf)
 
-[![Rail cutting tool](/images/best-models/rail cut tool.png)](/best-models/rail cut tool v0.4.stl)
+[![Rail cutting tool](/images/best-models/rail cut tool.png)](https://github.com/SiloCityLabs/Cuttlephone/releases/download/v0.5/Junglecat_rail_cut_tool.3mf)
