@@ -54,5 +54,8 @@ docs/vendor
 # old release path. We use GitHub Releases now
 docs/premade-models/
 
+# 3MF assets are pulled from GitHub Release during pages deploy
+docs/assets/3mf/*.3mf
+
 # 3d model build dir
 build/

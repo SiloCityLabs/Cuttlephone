@@ -3,16 +3,17 @@
 {%- for material in site.data.case_materials -%}
 <td>
 <!-- loop through materials -->
-{%- assign can_build = false -%}
-{%- if material.material == "hard" and model[1].build_hard == "true" -%}{%- assign can_build = true -%}{%- endif -%}
-{%- if material.material == "soft" and model[1].build_soft == "true" -%}{%- assign can_build = true -%}{%- endif -%}
-{%- if can_build -%}
-{%- for filetypes in site.data.filetypes -%}
-{%- capture filename %}{{ model[0] }} {{ type.model_type }} {{ material.material }}.{{ filetypes.filetype }}{% endcapture -%}
+<!-- Liquid has no real booleans; assign false becomes the truthy string "false" -->
+{%- assign can_build = "" -%}
+{%- if material.material == "hard" and model[1].build_hard == "true" -%}{%- assign can_build = "yes" -%}{%- endif -%}
+{%- if material.material == "soft" and model[1].build_soft == "true" -%}{%- assign can_build = "yes" -%}{%- endif -%}
+{%- if can_build == "yes" -%}
+{%- capture filename %}{{ model[0] }} {{ type.model_type }} {{ material.material }}.3mf{% endcapture -%}
 <!-- github-safe file names -->
 {%- assign filename = filename | strip | replace: " ", "_" | replace: "+", "plus" -%}
-<a href="{{ site.release_download_url }}{{ filename }}">{{ filetypes.filetype }}</a>
-{%- endfor -%}
+<a href="{{ site.release_download_url }}{{ filename }}">Download 3MF</a>
+<br>
+<a href="{{ '/models/preview/' | relative_url }}?model={{ filename | url_encode }}">Preview</a>
 {%- endif -%}
 </td>
 {%- endfor -%}
