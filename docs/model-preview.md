@@ -8,7 +8,7 @@ nav_order: 3
 
 # 3D Preview
 
-Interactive preview of built 3D models. Open a model from [Generated models]({{ '/models/generated-models/' | relative_url }}).
+[**<--** Generated models]({{ '/models/generated-models/' | relative_url }})
 
 <style>
   #model-preview {
