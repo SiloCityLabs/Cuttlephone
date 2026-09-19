@@ -50,15 +50,18 @@ small_font_size = 6.1; // 0.1
 emboss_logo = "logos/dude.svg";
 logo_x = 0.0; // 0.1
 logo_y = 0.0; // 0.1
-
-// cut the emboss deeper
-deep_emboss = false; 
-// leave 2 layer of material
-deepest_emboss = 0.3;
+// Which face to cut for text/logo
+emboss_face = "inside"; // [inside:Inside (phone) face, outside:Outside face]
 
 // Magnetic Power Profile / MagSafe
 magsafe_ring = false;
-magsafe_ring_thickness = 0.75; // [0.30 : 0.05 : 1.60] 
+// Which face to cut for MagSafe ring recess
+magsafe_face = "inside"; // [inside:Inside (phone) face, outside:Outside face]
+// cut the magsafe emboss deeper
+deep_emboss = false;
+// leave 2 layer of material
+deepest_emboss = 0.3;
+magsafe_ring_thickness = 0.75; // [0.30 : 0.05 : 1.60]
 magsafe_ring_inner_diam = 45.4; // [42 : 0.1 : 47]
 magsafe_ring_outer_diam = 55.8; // [48 : 0.1 : 59]
 // Qi wireless charger location. If you don't have wireless charging then magsafe can go anywhere
@@ -423,6 +426,10 @@ joycon_body_min_thickness = joycon_inner_width;
 // thicken shell to meet min size
 joycon_back_bonus = (is_joycon && (body_thickness < joycon_body_min_thickness)) ? joycon_body_min_thickness-body_thickness : 0;
 
+// util
+smidge = 0.01; // avoid z-fighting
+wafer_thin = 0.01; // thin plane for minkowski sum
+
 // make the case thicker on screen face or back
 shell_z_thickness = case_thickness2 + screen_lip + back_thickness_bonus + joycon_back_bonus + joycon2_back_bonus;
 shell_z_translate = -case_thickness2/2+screen_lip/2-back_thickness_bonus/2 - joycon_back_bonus/2 - joycon2_back_bonus/2;
@@ -430,6 +437,15 @@ shell_z_translate = -case_thickness2/2+screen_lip/2-back_thickness_bonus/2 - joy
 shell_centerline_translate = -case_thickness2/2+screen_lip/2-back_thickness_bonus/2-joycon_back_bonus/2 - joycon2_back_bonus/2;
 // back face of the shell
 shell_bottom = -body_thickness/2-case_thickness2-back_thickness_bonus-joycon_back_bonus-joycon2_back_bonus;
+// phone-facing plane of the back wall
+shell_back_inner = -body_thickness/2;
+back_wall_thickness = case_thickness2 + back_thickness_bonus + joycon_back_bonus + joycon2_back_bonus;
+// text / logo cut depth
+emboss_text_cut_h = case_thickness2/2;
+// MagSafe pocket depth: shallow, or almost-through leaving deepest_emboss remaining
+magsafe_cut_h = deep_emboss
+    ? max(back_wall_thickness - deepest_emboss, smidge)
+    : magsafe_ring_thickness;
 
 //junglecat variables
 junglecat_rail_length = 61.0;
@@ -444,9 +460,6 @@ junglecat_wing_radius = 1.3;
 junglecat_stickout = 4.2;
 junglecat_wings = body_thickness+shell_z_thickness > junglecat_wing_thickness;
 
-// util
-smidge = 0.01; // avoid z-fighting
-wafer_thin = 0.01; // thin plane for minkowski sum
 
 //embossment text
 name = "Cuttlephone";
@@ -589,7 +602,6 @@ module shell_cuts(){
     lanyard_cut();
     universal_cuts();
     version_info_emboss();
-    //backface_emboss();
     magsafe_emboss();
 }
 
@@ -2253,6 +2265,20 @@ module headphone_cut(){
     }
 }
 
+// emboss cut helper
+// Extrude 2D children, into the back of case, either the outisde face or inside face
+module emboss_linear_extrude() {
+    if (emboss_face == "outside") {
+        translate([0, 0, shell_bottom - smidge])
+        linear_extrude(height = emboss_text_cut_h)
+        children();
+    } else {
+        translate([0, 0, shell_back_inner - emboss_text_cut_h])
+        linear_extrude(height = emboss_text_cut_h + smidge)
+        children();
+    }
+}
+
 *version_info_emboss();
 module version_info_emboss(){
     // unfortunately I can't easily check for collision in OpenSCAD. Geometry generation is separate from evaluation. Can't check if intersection() is blank or produces a result
@@ -2264,9 +2290,8 @@ module version_info_emboss(){
         
         //text
         color(negativeColor)
-        rotate([0,0,0])
-        translate([-30,-body_length/2+30,-body_thickness/2])
-        linear_extrude(height = case_thickness2/2, center = true) {
+        translate([-30,-body_length/2+30,0])
+        emboss_linear_extrude() {
             text(name, font=emboss_font, size=font_size, spacing=font_kerning);
             translate([0,-line_translate*2,0])
             text(phone_model, font=emboss_font, size=small_font_size, spacing=font_kerning);
@@ -2275,10 +2300,10 @@ module version_info_emboss(){
         }
         
         //logo
-        translate([0+logo_x,-body_length/2+70+logo_y,-body_thickness/2-case_thickness2/2])
         color(negativeColor)
-        resize([body_width*logo_size_ratio, 0, case_thickness2/2], auto=[false,true,false])
-        linear_extrude(height=case_thickness2/2)
+        translate([0+logo_x,-body_length/2+70+logo_y,0])
+        emboss_linear_extrude()
+        resize([body_width*logo_size_ratio, 0, 0], auto=[false,true,false])
         import(emboss_logo, center=true);
         //scale() might have better performance than resize(). But resize() takes absolute size. scale() takes a ratio so I'd need to know the input size.
     }
@@ -2286,14 +2311,13 @@ module version_info_emboss(){
         line_translate = 12;
         color(negativeColor)
         rotate([0,0,-90])
-        translate([-10,10,-body_thickness/2]) {
-            linear_extrude(height = case_thickness2/2, center = true) {
-                text(name, font=emboss_font, size=font_size, spacing=font_kerning);
-                translate([0,-line_translate,0])
-                text(version, font=emboss_font, size=small_font_size);
-                translate([0,-line_translate*2,0])
-                text(phone_model, font=emboss_font, size=small_font_size);
-            }
+        translate([-10,10,0])
+        emboss_linear_extrude() {
+            text(name, font=emboss_font, size=font_size, spacing=font_kerning);
+            translate([0,-line_translate,0])
+            text(version, font=emboss_font, size=small_font_size);
+            translate([0,-line_translate*2,0])
+            text(phone_model, font=emboss_font, size=small_font_size);
         }
     }
     if(emboss_size=="small" && draw_logo) {
@@ -2301,15 +2325,13 @@ module version_info_emboss(){
         small_font_size = 3;
         line_translate = font_size*2;
         color(negativeColor)
-        rotate([0,0,0])
-        translate([-20,-body_length/2+font_size*5.5,-body_thickness/2]) {
-            linear_extrude(height = case_thickness2/2, center = true) {
-                text(name, font=emboss_font, size=font_size, spacing=font_kerning);
-                translate([0,-line_translate,0])
-                text(version, font=emboss_font, size=small_font_size);
-                translate([0,-line_translate*2,0])
-                text(phone_model, font=emboss_font, size=small_font_size);
-            }
+        translate([-20,-body_length/2+font_size*5.5,0])
+        emboss_linear_extrude() {
+            text(name, font=emboss_font, size=font_size, spacing=font_kerning);
+            translate([0,-line_translate,0])
+            text(version, font=emboss_font, size=small_font_size);
+            translate([0,-line_translate*2,0])
+            text(phone_model, font=emboss_font, size=small_font_size);
         }
     }
     if(emboss_size=="very_small" && draw_logo) {
@@ -2318,16 +2340,15 @@ module version_info_emboss(){
         line_translate = font_size*2;
         color(negativeColor)
         rotate([0,0,-90])
-        translate([16,-body_width/2+font_size*5.5,-body_thickness/2]) {
-            linear_extrude(height = case_thickness2/2, center = true) {
-                text(name, font=emboss_font, size=font_size, spacing=font_kerning);
-                translate([0,-line_translate,0])
-                text(version, font=emboss_font, size=small_font_size);
-                translate([0,-line_translate*2,0])
-                text(phone_model, font=emboss_font, size=small_font_size);
-                //TODO: fix build script, change "phone_model" var to "display_name"
-                //TODO: show small display_name
-            }
+        translate([16,-body_width/2+font_size*5.5,0])
+        emboss_linear_extrude() {
+            text(name, font=emboss_font, size=font_size, spacing=font_kerning);
+            translate([0,-line_translate,0])
+            text(version, font=emboss_font, size=small_font_size);
+            translate([0,-line_translate*2,0])
+            text(phone_model, font=emboss_font, size=small_font_size);
+            //TODO: fix build script, change "phone_model" var to "display_name"
+            //TODO: show small display_name
         }
     }
     // TODO: separate size and rotation
@@ -2337,50 +2358,39 @@ module version_info_emboss(){
         line_translate = font_size*2;
         color(negativeColor)
         rotate([0,0,-90])
-        translate([16,-body_width/2+font_size*5.5,-body_thickness/2]) {
-            linear_extrude(height = case_thickness2/2, center = true) {
-                text(name, font=emboss_font, size=font_size, spacing=font_kerning);
-                translate([0,-line_translate,0])
-                text(version, font=emboss_font, size=small_font_size);
-                translate([0,-line_translate*2,0])
-                text(phone_model, font=emboss_font, size=small_font_size);
-            }
+        translate([16,-body_width/2+font_size*5.5,0])
+        emboss_linear_extrude() {
+            text(name, font=emboss_font, size=font_size, spacing=font_kerning);
+            translate([0,-line_translate,0])
+            text(version, font=emboss_font, size=small_font_size);
+            translate([0,-line_translate*2,0])
+            text(phone_model, font=emboss_font, size=small_font_size);
         }
     }
 }
 
-//backface_emboss();
-// backface emboss is cutouts on the first layer of the print
+// MagSafe / steel ring recess on the back wall
+// Outside face: cutouts on the first layer of the print
 // intended for magsafe rings (steel or magnetic)
-// Printing this without multi-material support is difficult. 
+// Printing this without multi-material support is difficult.
 // TPU supports stick super hard, not feasible.
 // The gaps will bridge - complex art or text is not recommended
 // Bridges don't automatically take the shortest path - https://github.com/OrcaSlicer/OrcaSlicer/issues/8276
-module backface_emboss(){
-    if(magsafe_ring) {
-        //magsafe ring recess
-        color(negativeColor)
-        translate([0,magsafe_offset_from_center,-body_thickness/2-case_thickness2-smidge])
-        tube(id=magsafe_ring_inner_diam, od=magsafe_ring_outer_diam, h=magsafe_ring_thickness, anchor=BOTTOM, $fn=highFn);
-        // full cut
-        //cyl(d=magsafe_ring_outer_diam, h=body_thickness*2, anchor=BOTTOM);
-    }
-}
-
-// top face emboss, like the version text
+// Inside face: recess from the phone side, like the version text
+// deep_emboss: cut through most of the case, leave deepest_emboss material remaining
 module magsafe_emboss(){
     if(magsafe_ring) {
-        if(deep_emboss) {
-            color(negativeColor)
-            // cut through most of the case, almost to the back face
-            translate([0,magsafe_offset_from_center,-body_thickness/2-case_thickness2+deepest_emboss+smidge])
-            tube(id=magsafe_ring_inner_diam, od=magsafe_ring_outer_diam, h=case_thickness2, anchor=BOTTOM, $fn=highFn*1.8);
+        color(negativeColor)
+        if (magsafe_face == "outside") {
+            translate([0, magsafe_offset_from_center, shell_bottom - smidge])
+            tube(id=magsafe_ring_inner_diam, od=magsafe_ring_outer_diam, h=magsafe_cut_h, anchor=BOTTOM, $fn=highFn*1.8);
         } else {
             //magsafe ring recess
-            color(negativeColor)
-            translate([0,magsafe_offset_from_center,-body_thickness/2+smidge])
-            tube(id=magsafe_ring_inner_diam, od=magsafe_ring_outer_diam, h=magsafe_ring_thickness, anchor=TOP, $fn=highFn*1.8);
+            translate([0, magsafe_offset_from_center, shell_back_inner + smidge])
+            tube(id=magsafe_ring_inner_diam, od=magsafe_ring_outer_diam, h=magsafe_cut_h, anchor=TOP, $fn=highFn*1.8);
         }
+        // full cut
+        //cyl(d=magsafe_ring_outer_diam, h=body_thickness*2, anchor=BOTTOM);
     }
 }
 
