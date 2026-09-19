@@ -451,7 +451,7 @@ wafer_thin = 0.01; // thin plane for minkowski sum
 //embossment text
 name = "Cuttlephone";
 author = "Maave";
-version = "v 0.5";
+version = "v0.5";
 
 //colors are only in OpenSCAD
 //use hex values or https://en.wikipedia.org/wiki/Web_colors#X11_color_names

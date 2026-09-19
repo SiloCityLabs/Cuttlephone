@@ -3,32 +3,61 @@ layout: default
 title: "Generated Models"
 permalink: /models/generated-models/
 parent: 3D Models
+nav_order: 2
 ---
 
 # Generated models
 Below you'll find models of every available phone case with every available variation. I generate a new batch with each significant revision of the program. 
 
+Models are from the [latest release]({{ site.github.repository_url }}/releases/latest).
+
 {% for material in site.data.case_materials %} For {{ material.material }} cases, print with {{material.example}}. {% endfor %} Read the [3D printing guide](/guides/print-guide/) for more tips.
 
-<!-- loop through phone_case.json, copied over from build script -->
+<style>
+  a.model-link {
+    display: inline-block;
+    margin: 0.2em 0.4em 0.2em 0;
+  }
+</style>
+
+<!-- loop through phone_case.json -->
 {% for model in site.data.phone_case.parameterSets %}
 {% if model[1].in_development != "true" %}
-## {{ model[0] }} 
-
-<!-- for each case type (phone, joycon, junglecat) -->
+<!-- hide models that don't have build output -->
+{% assign any_built = "" %}
 {% for type in site.data.model_types %}
+{% if type.build_key %}
+{% assign build_flag = model[1][type.build_key] %}
+{% if build_flag == "true" %}{% assign any_built = "yes" %}{% endif %}
+{% endif %}
+{% endfor %}
+{% if any_built == "yes" %}
+## {{ model[0] }}
 
-<!-- this is dumb but I don't know better conditionals in Jekyll/Liquid -->
-<!-- https://shopify.github.io/liquid/basics/operators/ -->
-{% if type.model_type == "phone case" and model[1].build_phone == "true" %}
-{% include_relative premade-models-link.md %}
-{% elsif type.model_type == "joycon" and model[1].build_joycon == "true" %}
-{% include_relative premade-models-link.md %}
-{% elsif type.model_type == "junglecat" and model[1].build_junglecat == "true" %}
+<table>
+<thead>
+<tr>
+<th>Type</th>
+{% for material in site.data.case_materials %}
+{% assign mat_built = "" %}
+{% if material.material == "hard" and model[1].build_hard == "true" %}{% assign mat_built = "yes" %}{% endif %}
+{% if material.material == "soft" and model[1].build_soft == "true" %}{% assign mat_built = "yes" %}{% endif %}
+<!-- muted text if no build output -->
+<th{% unless mat_built == "yes" %} style="opacity:0.45;font-weight:500"{% endunless %}>{{ material.material | capitalize }}</th>
+{% endfor %}
+</tr>
+</thead>
+<tbody>
+{% for type in site.data.model_types %}
+{% if type.build_key %}
+{% assign build_flag = model[1][type.build_key] %}
+{% if build_flag == "true" %}
 {% include_relative premade-models-link.md %}
 {% endif %}
-
+{% endif %}
 {% endfor %}
-
+</tbody>
+</table>
+{% endif %}
 {% endif %}
 {% endfor %}

@@ -20,19 +20,28 @@ Cuttlephone is phone case generator and gamepad system for 3D printing. This is 
  - Download the code and its dependencies using the git command line: `git clone https://github.com/SiloCityLabs/Cuttlephone.git --recurse-submodules`
  - open the file "phone_case.scad" to use the GUI
  
- # Build and publish scripts
+ # Build scripts
  - in bash run `sh build.sh` to create all variants for all phones
- - in bash run `sh publish.sh` to copy the 3D models and model info to the docs directory
+ - GitHub Actions uploads those files to a [GitHub Release](https://github.com/SiloCityLabs/Cuttlephone/releases)
 
 # How to run the docs blog locally
- - generate a token at https://github.com/settings/tokens/new
- - select the scope *public_repository*
- - copy the token, save it in a password manager
- - install Ruby, gem, and bundle (or figure out the [Docker image of Github Pages](https://github.com/Starefossen/docker-github-pages))
- - `bundle update`
- - `JEKYLL_GITHUB_TOKEN=tokenGoesHere123456789 bundle exec jekyll serve --incremental`
- - or set `JEKYLL_GITHUB_TOKEN` in the environment variables
+
+### With Docker:
+ - `cd docs`
+ - `docker compose up --build`
+ - open http://127.0.0.1:4000/
+
+### With Ruby on the host:
+ - install Ruby 3.3 or newer, gem, and bundle
+ - `cd docs`
+ - `bundle install`
+ - `sh run.sh`
  - watch the console for something like this: `Server address: http://127.0.0.1:4000/`
+
+A GitHub token is optional. `jekyll-remote-theme` downloads the theme through the GitHub API, which is rate limited to 60 requests an hour without one. If you hit that limit:
+- generate a token at https://github.com/settings/tokens/new with the scope *public_repo*
+- copy `docs/.env.example` to `docs/.env`
+- add token to `docs/.env`
 
 # Build logs 
 

@@ -1,0 +1,111 @@
+name: Build phone case models
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - build.sh
+      - test_build.sh
+      - phone_case.scad
+      - phone_case.json
+      - fonts/**
+      - libraries/**
+      - logos/**
+      - .github/workflows/build.yaml
+  pull_request:
+    paths:
+      - build.sh
+      - test_build.sh
+      - phone_case.scad
+      - phone_case.json
+      - fonts/**
+      - libraries/**
+      - logos/**
+      - .github/workflows/build.yaml
+  workflow_dispatch:
+    inputs:
+      single_build:
+        description: "Build one test model only via test_build.sh (faster CI check)"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ github.event_name == 'workflow_dispatch' && inputs.single_build && 60 || 360 }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            jq \
+            xvfb \
+            libegl1 \
+            libopengl0 \
+            libxkbcommon0 \
+            libglu1-mesa
+
+      - name: Install OpenSCAD
+        run: |
+          set -euo pipefail
+          APPIMAGE=$(curl -sL https://files.openscad.org/snapshots/ \
+            | grep -oE 'OpenSCAD-[0-9.]+-x86_64\.AppImage' \
+            | sort -u \
+            | tail -1)
+          if [ -z "$APPIMAGE" ]; then
+            echo "Error: could not find OpenSCAD AppImage on snapshots page" >&2
+            exit 1
+          fi
+          echo "Downloading $APPIMAGE"
+          curl -L "https://files.openscad.org/snapshots/${APPIMAGE}" -o /tmp/openscad.AppImage
+          chmod +x /tmp/openscad.AppImage
+          # Extract instead of FUSE mount; more reliable on GitHub runners
+          cd /tmp
+          ./openscad.AppImage --appimage-extract
+          sudo mv squashfs-root /opt/openscad
+          cat <<'EOF' | sudo tee /usr/local/bin/openscad >/dev/null
+          #!/usr/bin/env bash
+          set -euo pipefail
+          export APPDIR="/opt/openscad"
+          exec "$APPDIR/AppRun" "$@"
+          EOF
+          sudo chmod +x /usr/local/bin/openscad
+          openscad --version
+
+      - name: Build models
+        env:
+          SINGLE_BUILD: ${{ github.event_name == 'workflow_dispatch' && inputs.single_build }}
+        run: |
+          if [ "$SINGLE_BUILD" = "true" ]; then
+            chmod +x test_build.sh
+            xvfb-run --auto-servernum --server-args="-screen 0 1024x768x24" ./test_build.sh
+          else
+            chmod +x build.sh
+            xvfb-run --auto-servernum --server-args="-screen 0 1024x768x24" ./build.sh
+          fi
+
+      - name: Verify build outputs
+        run: |
+          ls -lh build/
+          count=$(find build -type f -name '*.3mf' | wc -l)
+          echo "Built ${count} models"
+          if [ "$count" -lt 1 ]; then
+            echo "Error: no .3mf files produced" >&2
+            exit 1
+          fi
+
+      - name: Upload model artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          # Separate name so single-build runs are not used by the release workflow
+          name: ${{ github.event_name == 'workflow_dispatch' && inputs.single_build && 'phone-case-models-test' || 'phone-case-models' }}
+          path: build/
+          retention-days: 7

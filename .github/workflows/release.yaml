@@ -1,0 +1,137 @@
+name: Release phone case models
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Optional build workflow run ID (leave blank for latest successful build)"
+        required: false
+        type: string
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Find latest successful build
+        if: ${{ github.event.inputs.run_id == '' }}
+        id: latest_run
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const runs = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: "build.yaml",
+              branch: "master",
+              status: "completed",
+              per_page: 20
+            });
+
+            // Prefer runs that uploaded the full phone-case-models artifact
+            // (skips single_build test runs which use phone-case-models-test)
+            let selected = null;
+            for (const candidate of runs.data.workflow_runs) {
+              if (candidate.conclusion !== "success") continue;
+              const arts = await github.rest.actions.listWorkflowRunArtifacts({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: candidate.id,
+                per_page: 20
+              });
+              const hasFull = arts.data.artifacts.some(
+                a => a.name === "phone-case-models" && !a.expired
+              );
+              if (hasFull) {
+                selected = candidate;
+                break;
+              }
+            }
+
+            if (!selected) {
+              core.setFailed("No successful full build workflow found.");
+              return;
+            }
+
+            core.info(`Using workflow run ${selected.id} @ ${selected.head_sha}`);
+            core.setOutput("run_id", String(selected.id));
+            core.setOutput("head_sha", selected.head_sha);
+
+      - name: Get commit head_sha from pipeline run_id
+        if: ${{ github.event.inputs.run_id != '' }}
+        id: input_run
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const run = await github.rest.actions.getWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: Number("${{ github.event.inputs.run_id }}")
+            });
+            core.info(`Using workflow run ${run.data.id} @ ${run.data.head_sha}`);
+            core.setOutput("run_id", String(run.data.id));
+            core.setOutput("head_sha", run.data.head_sha);
+
+      - name: Select run
+        id: run
+        run: |
+          if [ -n "${{ github.event.inputs.run_id }}" ]; then
+            echo "run_id=${{ steps.input_run.outputs.run_id }}" >> "$GITHUB_OUTPUT"
+            echo "head_sha=${{ steps.input_run.outputs.head_sha }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_id=${{ steps.latest_run.outputs.run_id }}" >> "$GITHUB_OUTPUT"
+            echo "head_sha=${{ steps.latest_run.outputs.head_sha }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Pin version to the commit that produced the artifacts
+      - name: Checkout build commit
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.run.outputs.head_sha }}
+
+      - name: Download model artifacts
+        uses: actions/download-artifact@v8
+        with:
+          run-id: ${{ steps.run.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          name: phone-case-models
+          path: build/
+
+      - name: Extract version from build.sh
+        id: get_version
+        run: |
+          VERSION=$(sed -n 's/^version="\(.*\)"/\1/p' build.sh | head -n1 | tr -d ' ')
+          if [ -z "$VERSION" ]; then
+            echo "Error: could not extract version from build.sh" >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Verify downloaded files
+        run: ls -lh build/
+
+      - name: Create GitHub Release
+        id: gh_release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: build/*.3mf
+          tag_name: ${{ steps.get_version.outputs.version }}
+          name: Cuttlephone ${{ steps.get_version.outputs.version }}
+          draft: true
+          generate_release_notes: true
+
+      - name: Summary
+        run: |
+          {
+            echo "## Draft release"
+            echo "**Version:** \`${{ steps.get_version.outputs.version }}\`"
+            echo "**Build SHA:** \`${{ steps.run.outputs.head_sha }}\`"
+            echo "**Open draft:** ${{ steps.gh_release.outputs.url }}"
+            echo ""
+            echo "Edit the description. Description is LLM generated."
+            echo "Publish it from the Releases page when ready."
+          } >> "$GITHUB_STEP_SUMMARY"
