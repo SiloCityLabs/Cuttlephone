@@ -54,5 +54,9 @@ docs/vendor
 # old release path. We use GitHub Releases now
 docs/premade-models/
 
+# 3MF assets are pulled from GitHub Release during pages deploy
+docs/assets/3mf/*.3mf
+# OpenSCAD presets. Should be copied by build/run script
+docs/_data/phone_case.json
 # 3d model build dir
 build/

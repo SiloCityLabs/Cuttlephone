@@ -3,6 +3,7 @@ layout: default
 title: "Generated Models"
 permalink: /models/generated-models/
 parent: 3D Models
+nav_order: 2
 ---
 
 # Generated models
@@ -12,18 +13,25 @@ Models are from the [latest release]({{ site.github.repository_url }}/releases/l
 
 {% for material in site.data.case_materials %} For {{ material.material }} cases, print with {{material.example}}. {% endfor %} Read the [3D printing guide](/guides/print-guide/) for more tips.
 
+<style>
+  a.model-link {
+    display: inline-block;
+    margin: 0.2em 0.4em 0.2em 0;
+  }
+</style>
+
 <!-- loop through phone_case.json -->
 {% for model in site.data.phone_case.parameterSets %}
 {% if model[1].in_development != "true" %}
 <!-- hide models that don't have build output -->
-{% assign any_built = false %}
+{% assign any_built = "" %}
 {% for type in site.data.model_types %}
 {% if type.build_key %}
 {% assign build_flag = model[1][type.build_key] %}
-{% if build_flag == "true" %}{% assign any_built = true %}{% endif %}
+{% if build_flag == "true" %}{% assign any_built = "yes" %}{% endif %}
 {% endif %}
 {% endfor %}
-{% if any_built %}
+{% if any_built == "yes" %}
 ## {{ model[0] }}
 
 <table>
@@ -31,11 +39,11 @@ Models are from the [latest release]({{ site.github.repository_url }}/releases/l
 <tr>
 <th>Type</th>
 {% for material in site.data.case_materials %}
-{% assign mat_built = false %}
-{% if material.material == "hard" and model[1].build_hard == "true" %}{% assign mat_built = true %}{% endif %}
-{% if material.material == "soft" and model[1].build_soft == "true" %}{% assign mat_built = true %}{% endif %}
-<!-- muted text if no build output-->
-<th{% unless mat_built %} style="opacity:0.45;font-weight:500"{% endunless %}>{{ material.material | capitalize }} ({{ material.example }})</th>
+{% assign mat_built = "" %}
+{% if material.material == "hard" and model[1].build_hard == "true" %}{% assign mat_built = "yes" %}{% endif %}
+{% if material.material == "soft" and model[1].build_soft == "true" %}{% assign mat_built = "yes" %}{% endif %}
+<!-- muted text if no build output -->
+<th{% unless mat_built == "yes" %} style="opacity:0.45;font-weight:500"{% endunless %}>{{ material.material | capitalize }}</th>
 {% endfor %}
 </tr>
 </thead>

@@ -8,4 +8,6 @@ services:
     volumes:
     #on Windows Docker, sharing volumes requires Hyper-V not WSL2
       - ./:/usr/src/app
+      # copy config for names and build flags
+      - ../phone_case.json:/usr/src/app/_data/phone_case.json:ro
     tty: true
