@@ -20,7 +20,9 @@ function setStatus(message) {
 function resolveModelFile() {
   const params = new URLSearchParams(window.location.search);
   const requested = params.get('model') || container.dataset.defaultModel || '';
+  // strip any path; only the filename is allowed
   const basename = requested.split(/[/\\]/).pop() || '';
+  // strict char limit that matches build name
   if (!/^[A-Za-z0-9._+-]+\.3mf$/i.test(basename)) {
     return null;
   }
@@ -34,6 +36,7 @@ if (!modelFile) {
   throw new Error('Invalid model query parameter');
 }
 
+// ensure assetsBase ends with trailing slash
 const MODEL_URL = assetsBase.replace(/\/?$/, '/') + modelFile;
 
 if (downloadEl) {

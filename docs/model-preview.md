@@ -8,7 +8,7 @@ nav_order: 3
 
 # 3D Preview
 
-Interactive preview of release builds. Open a model from [Generated models]({{ '/models/generated-models/' | relative_url }}).
+Interactive preview of built 3D models. Open a model from [Generated models]({{ '/models/generated-models/' | relative_url }}).
 
 <style>
   #model-preview {
@@ -34,7 +34,7 @@ Interactive preview of release builds. Open a model from [Generated models]({{ '
   data-assets-base="{{ '/assets/3mf/' | relative_url }}"
   data-default-model="Pixel_3_phone_case_hard.3mf"
 >
-  <p id="model-preview-status">Starting viewer...</p>
+  <p id="model-preview-status">Loading ...</p>
 </div>
 
 <p id="model-preview-download" hidden>
