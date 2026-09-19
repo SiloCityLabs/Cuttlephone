@@ -55,7 +55,7 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xf0f0f0);
 
 const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 2000);
-camera.position.set(80, 60, 120);
+camera.position.set(80, 60, 120); // doesn't matter, will be overwritten
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -63,7 +63,7 @@ container.insertBefore(renderer.domElement, statusEl);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
-controls.dampingFactor = 0.08;
+controls.dampingFactor = 0.18; // very light damping
 
 scene.add(new THREE.AmbientLight(0xffffff, 0.55));
 
@@ -72,12 +72,12 @@ keyLight.position.set(80, 120, 60);
 scene.add(keyLight);
 
 const fillLight = new THREE.DirectionalLight(0xffffff, 0.35);
-fillLight.position.set(-60, 40, -40);
+fillLight.position.set(150, 100, 100); // overhead
 scene.add(fillLight);
 
 function resize() {
   const width = container.clientWidth;
-  const height = Math.max(360, Math.round(width * 0.6));
+  const height = Math.max(360, Math.round(width * 0.9));
   camera.aspect = width / height;
   camera.updateProjectionMatrix();
   renderer.setSize(width, height);
@@ -95,8 +95,11 @@ function frameObject(object) {
   const center = box.getCenter(new THREE.Vector3());
   object.position.sub(center);
 
-  const maxDim = Math.max(size.x, size.y, size.z);
-  const fitDist = maxDim / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2));
+  const maxDimen = Math.max(size.x, size.y, size.z);
+  // distance where the largest side fills the vertical FOV:
+  // tan(fov/2) = (maxDimen/2) / fitDist 
+  // fitDist = maxDimen / (2 * tan(fov/2))
+  const fitDist = maxDimen / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2));
   camera.position.set(fitDist * 0.9, fitDist * 0.6, fitDist * 1.1);
   camera.near = Math.max(0.01, fitDist / 100);
   camera.far = fitDist * 20;
@@ -124,7 +127,7 @@ loader.load(
   (object) => {
     frameObject(object);
     scene.add(object);
-    setStatus(modelFile + ' - drag to orbit, scroll to zoom.');
+    setStatus('Drag to orbit, scroll to zoom.');
   },
   (event) => {
     if (!event.total) {
