@@ -1,7 +1,12 @@
 #!/bin/bash
 
+docs_dir="$(dirname "$0")"
+
+# copy config for names and build flags
+cp "$docs_dir/../phone_case.json" "$docs_dir/_data/phone_case.json"
+
 # load .env
-env_file="$(dirname "$0")/.env"
+env_file="$docs_dir/.env"
 if [ -f "$env_file" ]
 then
     # export every assignment in the file
