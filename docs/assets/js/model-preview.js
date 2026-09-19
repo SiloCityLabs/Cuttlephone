@@ -5,6 +5,9 @@ import { ThreeMFLoader } from 'three/addons/loaders/3MFLoader.js';
 const container = document.getElementById('model-preview');
 const statusEl = document.getElementById('model-preview-status');
 const downloadEl = document.getElementById('model-preview-download');
+// preview options
+const rotateUpright = new URLSearchParams(window.location.search).get('rotate_upright') === 'true';
+
 
 if (!container) {
   throw new Error('Missing #model-preview container');
@@ -81,8 +84,11 @@ function resize() {
 }
 
 function frameObject(object) {
-  // 3MF / CAD models are typically Z-up; three.js is Y-up
-  object.rotation.set(-Math.PI / 2, 0, 0);
+  object.rotation.set(
+    -Math.PI / 2, // three.js is Y-up, OpenSCAD is Z-up
+    0, 
+    rotateUpright ? Math.PI / 2 : 0 // rotatate to see front face
+  );
 
   const box = new THREE.Box3().setFromObject(object);
   const size = box.getSize(new THREE.Vector3());

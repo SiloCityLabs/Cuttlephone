@@ -13,7 +13,7 @@
 {%- assign filename = filename | strip | replace: " ", "_" | replace: "+", "plus" -%}
 <a href="{{ site.release_download_url }}{{ filename }}">Download 3MF</a>
 <br>
-<a href="{{ '/models/preview/' | relative_url }}?model={{ filename | url_encode }}">Preview</a>
+<a href="{{ '/models/preview/' | relative_url }}?model={{ filename | url_encode }}{% if model[1].rotate_upright == "true" %}&rotate_upright=true{% endif %}">Preview</a>
 {%- endif -%}
 </td>
 {%- endfor -%}
