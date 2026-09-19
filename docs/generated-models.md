@@ -13,6 +13,13 @@ Models are from the [latest release]({{ site.github.repository_url }}/releases/l
 
 {% for material in site.data.case_materials %} For {{ material.material }} cases, print with {{material.example}}. {% endfor %} Read the [3D printing guide](/guides/print-guide/) for more tips.
 
+<style>
+  a.model-link {
+    display: inline-block;
+    margin: 0.2em 0.4em 0.2em 0;
+  }
+</style>
+
 <!-- loop through phone_case.json -->
 {% for model in site.data.phone_case.parameterSets %}
 {% if model[1].in_development != "true" %}
@@ -36,7 +43,7 @@ Models are from the [latest release]({{ site.github.repository_url }}/releases/l
 {% if material.material == "hard" and model[1].build_hard == "true" %}{% assign mat_built = "yes" %}{% endif %}
 {% if material.material == "soft" and model[1].build_soft == "true" %}{% assign mat_built = "yes" %}{% endif %}
 <!-- muted text if no build output -->
-<th{% unless mat_built == "yes" %} style="opacity:0.45;font-weight:500"{% endunless %}>{{ material.material | capitalize }} ({{ material.example }})</th>
+<th{% unless mat_built == "yes" %} style="opacity:0.45;font-weight:500"{% endunless %}>{{ material.material | capitalize }}</th>
 {% endfor %}
 </tr>
 </thead>

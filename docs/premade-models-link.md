@@ -11,9 +11,9 @@
 {%- capture filename %}{{ model[0] }} {{ type.model_type }} {{ material.material }}.3mf{% endcapture -%}
 <!-- github-safe file names -->
 {%- assign filename = filename | strip | replace: " ", "_" | replace: "+", "plus" -%}
-<a href="{{ site.release_download_url }}{{ filename }}">Download 3MF</a>
+<a class="model-link" href="{{ site.release_download_url }}{{ filename }}">Download 3MF</a>
 <br>
-<a href="{{ '/models/preview/' | relative_url }}?model={{ filename | url_encode }}{% if model[1].rotate_upright == "true" %}&rotate_upright=true{% endif %}">Preview</a>
+<a class="model-link" href="{{ '/models/preview/' | relative_url }}?model={{ filename | url_encode }}{% if model[1].rotate_upright == "true" %}&rotate_upright=true{% endif %}">Preview</a>
 {%- endif -%}
 </td>
 {%- endfor -%}
