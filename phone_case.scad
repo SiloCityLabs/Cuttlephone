@@ -42,7 +42,9 @@ lanyard_reinforcement = false;
 
 /* [emboss] */
 phone_model = "Sample case";
-emboss_size = "large"; // [logo, large, small, very_small, medium_rotated, none]
+emboss_size = "large"; // [logo, large, medium, small, very_small, none]
+// Text rotation on the back wall. Use -90 for rotate_upright prints.
+emboss_rotate = 90; // [-90, 0, 90]
 //Check available fonts in the menu Help > Font List. Simple sans-serif fonts will print better.
 emboss_font = "Audiowide";
 font_size = 7.1; // 0.1
@@ -2307,64 +2309,39 @@ module version_info_emboss(){
         import(emboss_logo, center=true);
         //scale() might have better performance than resize(). But resize() takes absolute size. scale() takes a ratio so I'd need to know the input size.
     }
-    if(emboss_size=="large" && draw_logo) {
-        line_translate = 12;
+    if(emboss_size!="logo" && emboss_size!="none" && draw_logo) {
+        // size only controls font scale / line spacing
+        e_font_size =
+            emboss_size=="large" ? font_size :
+            emboss_size=="medium" ? 6 :
+            /* small, very_small */ 4;
+        e_small_font_size =
+            emboss_size=="large" ? small_font_size :
+            emboss_size=="medium" ? 6 :
+            /* small, very_small */ 3;
+        line_translate = emboss_size=="large" ? 12 : e_font_size*2;
+        // rotation-dependent placement on the back wall
+        emboss_side_buffer = body_radius + e_font_size*1.5;
+        emboss_bottom_buffer = body_radius + e_font_size;
+        top_chop_buffer = (open_top_backchop) ? body_width-open_top_chop_ratio*body_width : 0;
+        split_buffer = (split_in_half) ? body_seam_width/2 : 0;
+        text_pos =
+            emboss_rotate == -90 ? // text near body seam, for rotate_upright split cases
+                [body_width/2 - emboss_side_buffer - top_chop_buffer, -split_buffer-e_font_size, 0]
+            : emboss_rotate == 90 ? // align to bottom-left
+                [-body_width/2 + emboss_side_buffer, -body_length/2 + emboss_bottom_buffer, 0]
+            : // else: upright on the back face
+                [-20, -body_length/2 + e_font_size*5.5, 0];
+
         color(negativeColor)
-        rotate([0,0,-90])
-        translate([-10,10,0])
+        translate(text_pos)
+        rotate([0, 0, emboss_rotate])
         emboss_linear_extrude() {
-            text(name, font=emboss_font, size=font_size, spacing=font_kerning);
+            text(name, font=emboss_font, size=e_font_size, spacing=font_kerning);
             translate([0,-line_translate,0])
-            text(version, font=emboss_font, size=small_font_size);
+            text(version, font=emboss_font, size=e_small_font_size);
             translate([0,-line_translate*2,0])
-            text(phone_model, font=emboss_font, size=small_font_size);
-        }
-    }
-    if(emboss_size=="small" && draw_logo) {
-        font_size = 4;
-        small_font_size = 3;
-        line_translate = font_size*2;
-        color(negativeColor)
-        translate([-20,-body_length/2+font_size*5.5,0])
-        emboss_linear_extrude() {
-            text(name, font=emboss_font, size=font_size, spacing=font_kerning);
-            translate([0,-line_translate,0])
-            text(version, font=emboss_font, size=small_font_size);
-            translate([0,-line_translate*2,0])
-            text(phone_model, font=emboss_font, size=small_font_size);
-        }
-    }
-    if(emboss_size=="very_small" && draw_logo) {
-        font_size = 4;
-        small_font_size = 3;
-        line_translate = font_size*2;
-        color(negativeColor)
-        rotate([0,0,-90])
-        translate([16,-body_width/2+font_size*5.5,0])
-        emboss_linear_extrude() {
-            text(name, font=emboss_font, size=font_size, spacing=font_kerning);
-            translate([0,-line_translate,0])
-            text(version, font=emboss_font, size=small_font_size);
-            translate([0,-line_translate*2,0])
-            text(phone_model, font=emboss_font, size=small_font_size);
-            //TODO: fix build script, change "phone_model" var to "display_name"
-            //TODO: show small display_name
-        }
-    }
-    // TODO: separate size and rotation
-    if(emboss_size=="medium_rotated" && draw_logo) {
-        font_size = 6;
-        small_font_size = 6;
-        line_translate = font_size*2;
-        color(negativeColor)
-        rotate([0,0,-90])
-        translate([16,-body_width/2+font_size*5.5,0])
-        emboss_linear_extrude() {
-            text(name, font=emboss_font, size=font_size, spacing=font_kerning);
-            translate([0,-line_translate,0])
-            text(version, font=emboss_font, size=small_font_size);
-            translate([0,-line_translate*2,0])
-            text(phone_model, font=emboss_font, size=small_font_size);
+            text(phone_model, font=emboss_font, size=e_small_font_size);
         }
     }
 }
