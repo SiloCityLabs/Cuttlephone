@@ -72,9 +72,9 @@ magsafe_ring_inner_diam = 45.4; // [42 : 0.1 : 47]
 // spec: 54.10
 magsafe_ring_outer_diam = 55.8; // [48 : 0.1 : 59]
 // spec: 6.00
-magsafe_alignment_w = 6.05; // [ 5 : 0.01 : 8 ]
+magsafe_alignment_w = 6.10; // [ 5 : 0.01 : 8 ]
 // spec: 19.31
-magsafe_alignment_l = 19.35; // [ 19 : 0.01 : 21 ]
+magsafe_alignment_l = 19.31; // [ 19 : 0.01 : 21 ]
 /* [Hidden] */
 alignment_offset_center_to_center = -40.835; // no touch
 
@@ -2383,8 +2383,6 @@ module magsafe_emboss(){
             translate([0, align_y, shell_back_inner + smidge])
             cuboid([magsafe_alignment_w, magsafe_alignment_l, magsafe_cut_h], anchor=TOP);
         }
-        // full cut
-        //cyl(d=magsafe_ring_outer_diam, h=body_thickness*2, anchor=BOTTOM);
     }
 }
 
