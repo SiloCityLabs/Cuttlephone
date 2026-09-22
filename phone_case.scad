@@ -63,11 +63,21 @@ magsafe_face = "inside"; // [inside:Inside (phone) face, outside:Outside face]
 deep_emboss = false;
 // leave 2 layer of material
 deepest_emboss = 0.3;
-magsafe_ring_thickness = 0.75; // [0.30 : 0.05 : 1.60]
-magsafe_ring_inner_diam = 45.4; // [42 : 0.1 : 47]
-magsafe_ring_outer_diam = 55.8; // [48 : 0.1 : 59]
 // Qi wireless charger location. If you don't have wireless charging then magsafe can go anywhere
 magsafe_offset_from_center = -7.5; // [ -15 : 0.1 : 5 ]  // TODO: measuring "offset from center" sucks, find a hard reference point
+// metal thickness in Z direction
+magsafe_thickness = 0.75; // [0.30 : 0.05 : 1.60]
+// spec: 46.00
+magsafe_ring_inner_diam = 45.4; // [42 : 0.1 : 47]
+// spec: 54.10
+magsafe_ring_outer_diam = 55.8; // [48 : 0.1 : 59]
+// spec: 6.00
+magsafe_alignment_w = 6.05; // [ 5 : 0.01 : 8 ]
+// spec: 19.31
+magsafe_alignment_l = 19.35; // [ 19 : 0.01 : 21 ]
+/* [Hidden] */
+alignment_offset_center_to_center = -40.835; // no touch
+
 
 
 /* [3D print] */
@@ -447,7 +457,7 @@ emboss_text_cut_h = case_thickness2/2;
 // MagSafe pocket depth: shallow, or almost-through leaving deepest_emboss remaining
 magsafe_cut_h = deep_emboss
     ? max(back_wall_thickness - deepest_emboss, smidge)
-    : magsafe_ring_thickness;
+    : magsafe_thickness;
 
 //junglecat variables
 junglecat_rail_length = 61.0;
@@ -2357,14 +2367,21 @@ module version_info_emboss(){
 // deep_emboss: cut through most of the case, leave deepest_emboss material remaining
 module magsafe_emboss(){
     if(magsafe_ring) {
+        // orientation magnet, offset from ring center along phone length
+        align_y = magsafe_offset_from_center + alignment_offset_center_to_center;
         color(negativeColor)
         if (magsafe_face == "outside") {
             translate([0, magsafe_offset_from_center, shell_bottom - smidge])
             tube(id=magsafe_ring_inner_diam, od=magsafe_ring_outer_diam, h=magsafe_cut_h, anchor=BOTTOM, $fn=highFn*1.8);
+            translate([0, align_y, shell_bottom - smidge])
+            cuboid([magsafe_alignment_w, magsafe_alignment_l, magsafe_cut_h], anchor=BOTTOM);
         } else {
             //magsafe ring recess
             translate([0, magsafe_offset_from_center, shell_back_inner + smidge])
             tube(id=magsafe_ring_inner_diam, od=magsafe_ring_outer_diam, h=magsafe_cut_h, anchor=TOP, $fn=highFn*1.8);
+            //magsafe orientation magnet recess
+            translate([0, align_y, shell_back_inner + smidge])
+            cuboid([magsafe_alignment_w, magsafe_alignment_l, magsafe_cut_h], anchor=TOP);
         }
         // full cut
         //cyl(d=magsafe_ring_outer_diam, h=body_thickness*2, anchor=BOTTOM);
