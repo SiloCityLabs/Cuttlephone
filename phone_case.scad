@@ -306,6 +306,8 @@ charge_cutout_bevel_angle_y = 10;
 charge_cutout_bevel_angle_z = 10;
 charge_z_offset = 0; // [-5 : 0.1 : 5]
 charge_x_offset = 0; // [-40 : 0.1 : 40]
+// hard cases only: one wide opening instead of separate USB and speaker holes
+combine_usb_and_speakers = true;
 
 bottom_speakers_right = false;
 bottom_speakers_left = false;
@@ -1814,45 +1816,68 @@ usb_cut_rounding = 1.0;
 
 speaker_cut_width = body_width*0.2;
 speaker_hard_cut_width = body_width*0.65;
-charge_port_width = (bottom_speakers_left || bottom_speakers_right || case_type2=="gamepad") ? speaker_hard_cut_width : usb_cut_width;
+speakers_enabled = bottom_speakers_left || bottom_speakers_right;
+combine_hard_usb_speakers = combine_usb_and_speakers && charge_on_bottom && (speakers_enabled || case_type2=="gamepad");
 
 *usb_cut();
 module usb_cut(){
-    if(charge_on_bottom)
     color(negativeColor, 0.2)
-    translate( [charge_x_offset, -body_length/2, charge_z_offset] )
     if(case_material2=="hard"){
-        hard_cut(charge_port_width);
+        if(combine_hard_usb_speakers){ // big combo cut for USB + speakers
+            translate( [charge_x_offset, -body_length/2, charge_z_offset] )
+            hard_cut(speaker_hard_cut_width);
+        } else {
+            if(charge_on_bottom){ // usb
+                translate( [charge_x_offset, -body_length/2, charge_z_offset] )
+                hard_cut(usb_cut_width);
+            }
+            bottom_speaker_hard_cuts();
+        }
+    } else { // soft
+        if(charge_on_bottom){ // usb
+            translate( [charge_x_offset, -body_length/2, charge_z_offset] )
+            rotate([90,0,0])
+            soft_cut(
+                width=usb_cut_width,
+                height=usb_cut_height,
+                horizontal_clearance=0,
+                disable_bevel=( case_type2=="joycon" || case_type2=="gamepad"),
+                bevel_angle_y = charge_cutout_bevel_angle_y,
+                bevel_angle_z = charge_cutout_bevel_angle_z,
+                junglecat_support=(case_type2=="junglecat")
+            );
+        }
+        bottom_speaker_soft_cuts();
     }
-    else { //soft cut
-        //usb
+}
+
+module bottom_speaker_hard_cuts(){
+    if(bottom_speakers_right){
+        translate([bottom_speaker_inner_edge_from_center+bottom_speaker_width/2, -body_length/2, bottom_speaker_vertical_offset_from_center])
+        hard_cut(bottom_speaker_width);
+    }
+    if(bottom_speakers_left){
+        translate([-(bottom_speaker_inner_edge_from_center+bottom_speaker_width/2), -body_length/2, bottom_speaker_vertical_offset_from_center])
+        hard_cut(bottom_speaker_width);
+    }
+}
+
+module bottom_speaker_soft_cuts(){
+    if(bottom_speakers_right){
+        translate([bottom_speaker_inner_edge_from_center+bottom_speaker_width/2, -body_length/2, bottom_speaker_vertical_offset_from_center])
         rotate([90,0,0])
         soft_cut(
-            width=usb_cut_width,
-            height=usb_cut_height,
-            horizontal_clearance=0,
-            disable_bevel=( case_type2=="joycon" || case_type2=="gamepad"),
-            bevel_angle_y = charge_cutout_bevel_angle_y,
-            bevel_angle_z = charge_cutout_bevel_angle_z,
-            junglecat_support=(case_type2=="junglecat")
+            width=bottom_speaker_width, height=bottom_speaker_height, disable_bevel=true, horizontal_clearance=1, vertical_clearance=1,
+            shallow_cut=(case_type2=="junglecat" || case_type2=="joycon" || case_type2=="gamepad")
         );
-        
-        //speakers
-        if(bottom_speakers_right){
-            translate([bottom_speaker_inner_edge_from_center+bottom_speaker_width/2,0,bottom_speaker_vertical_offset_from_center])
-            rotate([90,0,0])
-            soft_cut(
-                width=bottom_speaker_width, height=bottom_speaker_height, disable_bevel=true, horizontal_clearance=1, vertical_clearance=1,
-                shallow_cut=(case_type2=="junglecat" || case_type2=="joycon" || case_type2=="gamepad")
-            );
-        }
-        if(bottom_speakers_left){ 
-            translate([-(bottom_speaker_inner_edge_from_center+bottom_speaker_width/2),0,bottom_speaker_vertical_offset_from_center])
-            rotate([90,0,0])
-            soft_cut(
-                width=bottom_speaker_width, height=bottom_speaker_height, disable_bevel=true, horizontal_clearance=1, vertical_clearance=1, shallow_cut=(case_type2=="junglecat" || case_type2=="joycon" || case_type2=="gamepad")
-            );
-        }
+    }
+    if(bottom_speakers_left){
+        translate([-(bottom_speaker_inner_edge_from_center+bottom_speaker_width/2), -body_length/2, bottom_speaker_vertical_offset_from_center])
+        rotate([90,0,0])
+        soft_cut(
+            width=bottom_speaker_width, height=bottom_speaker_height, disable_bevel=true, horizontal_clearance=1, vertical_clearance=1,
+            shallow_cut=(case_type2=="junglecat" || case_type2=="joycon" || case_type2=="gamepad")
+        );
     }
 }
 
