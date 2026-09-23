@@ -460,8 +460,8 @@ shell_bottom = -body_thickness/2-case_thickness2-back_thickness_bonus-joycon_bac
 // phone-facing plane of the back wall
 shell_back_inner = -body_thickness/2;
 back_wall_thickness = case_thickness2 + back_thickness_bonus + joycon_back_bonus + joycon2_back_bonus;
-// text / logo cut depth
-emboss_text_cut_h = case_thickness2/2;
+// text / logo cut depth: half of case_thickness, but never thinner than deepest_emboss remaining\
+emboss_text_cut_h = min(case_thickness2/2, max(back_wall_thickness - deepest_emboss, smidge));
 // MagSafe pocket depth: shallow, or almost-through leaving deepest_emboss remaining
 magsafe_cut_h = deep_emboss
     ? max(back_wall_thickness - deepest_emboss, smidge)
