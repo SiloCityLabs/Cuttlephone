@@ -484,7 +484,7 @@ junglecat_wings = body_thickness+shell_z_thickness > junglecat_wing_thickness;
 //embossment text
 name = "Cuttlephone";
 author = "Maave";
-version = "v0.5";
+version = "v0.6";
 
 //colors are only in OpenSCAD
 //use hex values or https://en.wikipedia.org/wiki/Web_colors#X11_color_names
