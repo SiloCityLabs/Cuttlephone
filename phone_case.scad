@@ -71,6 +71,8 @@ magsafe_thickness = 0.75; // [0.30 : 0.05 : 1.60]
 magsafe_ring_inner_diam = 45.4; // [42 : 0.1 : 47]
 // spec: 54.10
 magsafe_ring_outer_diam = 55.8; // [48 : 0.1 : 59]
+// alignment magnet for MagSafe. Not needed for steel ring
+magsafe_alignment_magnet = true;
 // spec: 6.00
 magsafe_alignment_w = 6.10; // [ 5 : 0.01 : 8 ]
 // spec: 19.31
@@ -2373,15 +2375,19 @@ module magsafe_emboss(){
         if (magsafe_face == "outside") {
             translate([0, magsafe_offset_from_center, shell_bottom - smidge])
             tube(id=magsafe_ring_inner_diam, od=magsafe_ring_outer_diam, h=magsafe_cut_h, anchor=BOTTOM, $fn=highFn*1.8);
-            translate([0, align_y, shell_bottom - smidge])
-            cuboid([magsafe_alignment_w, magsafe_alignment_l, magsafe_cut_h], anchor=BOTTOM);
+            if(magsafe_alignment_magnet){
+                translate([0, align_y, shell_bottom - smidge])
+                cuboid([magsafe_alignment_w, magsafe_alignment_l, magsafe_cut_h], anchor=BOTTOM);
+            }
         } else {
             //magsafe ring recess
             translate([0, magsafe_offset_from_center, shell_back_inner + smidge])
             tube(id=magsafe_ring_inner_diam, od=magsafe_ring_outer_diam, h=magsafe_cut_h, anchor=TOP, $fn=highFn*1.8);
-            //magsafe orientation magnet recess
-            translate([0, align_y, shell_back_inner + smidge])
-            cuboid([magsafe_alignment_w, magsafe_alignment_l, magsafe_cut_h], anchor=TOP);
+            if(magsafe_alignment_magnet){
+                //magsafe orientation magnet recess
+                translate([0, align_y, shell_back_inner + smidge])
+                cuboid([magsafe_alignment_w, magsafe_alignment_l, magsafe_cut_h], anchor=TOP);
+            }
         }
     }
 }
