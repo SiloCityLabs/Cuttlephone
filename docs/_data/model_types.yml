@@ -1,9 +1,10 @@
 - model_type: phone case
-- model_type: junglecat 
+  build_key: build_phone
+- model_type: junglecat
+  build_key: build_junglecat
 - model_type: joycon
-- model_type: gamepad
-
-
-
-
-
+  build_key: build_joycon
+- model_type: joycon2
+  build_key: build_joycon2
+#- model_type: gamepad
+#  build_key: build_gamepad

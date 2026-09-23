@@ -14,3 +14,7 @@ The best phone cases and controller adapters, as tested by users.
 # [Generated models](/models/generated-models/)
 
 All 3D models - all phone models with each variation of material and controller
+
+# [3D Preview](/models/preview/)
+
+Rotate and zoom a release model in the browser
