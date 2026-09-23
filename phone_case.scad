@@ -53,12 +53,13 @@ emboss_logo = "logos/dude.svg";
 logo_x = 0.0; // 0.1
 logo_y = 0.0; // 0.1
 // Which face to cut for text/logo
-emboss_face = "inside"; // [inside:Inside (phone) face, outside:Outside face]
+emboss_face = "inside"; // [inside:inside (phone) face, outside:outside face]
 
+/* [magsafe] */
 // Magnetic Power Profile / MagSafe
 magsafe_ring = false;
 // Which face to cut for MagSafe ring recess
-magsafe_face = "inside"; // [inside:Inside (phone) face, outside:Outside face]
+magsafe_face = "inside"; // [inside:inside (phone) face, outside:outside face]
 // cut the magsafe emboss deeper
 deep_emboss = false;
 // leave 2 layer of material
