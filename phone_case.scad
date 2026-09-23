@@ -42,7 +42,9 @@ lanyard_reinforcement = false;
 
 /* [emboss] */
 phone_model = "Sample case";
-emboss_size = "large"; // [logo, large, small, very_small, medium_rotated, none]
+emboss_size = "large"; // [logo, large, medium, small, very_small, none]
+// Text rotation on the back wall. Use -90 for rotate_upright prints.
+emboss_rotate = 90; // [-90, 0, 90]
 //Check available fonts in the menu Help > Font List. Simple sans-serif fonts will print better.
 emboss_font = "Audiowide";
 font_size = 7.1; // 0.1
@@ -50,6 +52,35 @@ small_font_size = 6.1; // 0.1
 emboss_logo = "logos/dude.svg";
 logo_x = 0.0; // 0.1
 logo_y = 0.0; // 0.1
+// Which face to cut for text/logo
+emboss_face = "inside"; // [inside:Inside (phone) face, outside:Outside face]
+
+// Magnetic Power Profile / MagSafe
+magsafe_ring = false;
+// Which face to cut for MagSafe ring recess
+magsafe_face = "inside"; // [inside:Inside (phone) face, outside:Outside face]
+// cut the magsafe emboss deeper
+deep_emboss = false;
+// leave 2 layer of material
+deepest_emboss = 0.3;
+// Qi wireless charger location. If you don't have wireless charging then magsafe can go anywhere
+magsafe_offset_from_center = -7.5; // [ -15 : 0.1 : 5 ]  // TODO: measuring "offset from center" sucks, find a hard reference point
+// metal thickness in Z direction
+magsafe_thickness = 0.75; // [0.30 : 0.05 : 1.60]
+// spec: 46.00
+magsafe_ring_inner_diam = 45.4; // [42 : 0.1 : 47]
+// spec: 54.10
+magsafe_ring_outer_diam = 55.8; // [48 : 0.1 : 59]
+// alignment magnet for MagSafe. Not needed for steel ring
+magsafe_alignment_magnet = true;
+// spec: 6.00
+magsafe_alignment_w = 6.10; // [ 5 : 0.01 : 8 ]
+// spec: 19.31
+magsafe_alignment_l = 19.31; // [ 19 : 0.01 : 21 ]
+/* [Hidden] */
+alignment_offset_center_to_center = -40.835; // no touch
+
+
 
 /* [3D print] */
 
@@ -409,6 +440,10 @@ joycon_body_min_thickness = joycon_inner_width;
 // thicken shell to meet min size
 joycon_back_bonus = (is_joycon && (body_thickness < joycon_body_min_thickness)) ? joycon_body_min_thickness-body_thickness : 0;
 
+// util
+smidge = 0.01; // avoid z-fighting
+wafer_thin = 0.01; // thin plane for minkowski sum
+
 // make the case thicker on screen face or back
 shell_z_thickness = case_thickness2 + screen_lip + back_thickness_bonus + joycon_back_bonus + joycon2_back_bonus;
 shell_z_translate = -case_thickness2/2+screen_lip/2-back_thickness_bonus/2 - joycon_back_bonus/2 - joycon2_back_bonus/2;
@@ -416,6 +451,15 @@ shell_z_translate = -case_thickness2/2+screen_lip/2-back_thickness_bonus/2 - joy
 shell_centerline_translate = -case_thickness2/2+screen_lip/2-back_thickness_bonus/2-joycon_back_bonus/2 - joycon2_back_bonus/2;
 // back face of the shell
 shell_bottom = -body_thickness/2-case_thickness2-back_thickness_bonus-joycon_back_bonus-joycon2_back_bonus;
+// phone-facing plane of the back wall
+shell_back_inner = -body_thickness/2;
+back_wall_thickness = case_thickness2 + back_thickness_bonus + joycon_back_bonus + joycon2_back_bonus;
+// text / logo cut depth
+emboss_text_cut_h = case_thickness2/2;
+// MagSafe pocket depth: shallow, or almost-through leaving deepest_emboss remaining
+magsafe_cut_h = deep_emboss
+    ? max(back_wall_thickness - deepest_emboss, smidge)
+    : magsafe_thickness;
 
 //junglecat variables
 junglecat_rail_length = 61.0;
@@ -430,9 +474,6 @@ junglecat_wing_radius = 1.3;
 junglecat_stickout = 4.2;
 junglecat_wings = body_thickness+shell_z_thickness > junglecat_wing_thickness;
 
-// util
-smidge = 0.01; // avoid z-fighting
-wafer_thin = 0.01; // thin plane for minkowski sum
 
 //embossment text
 name = "Cuttlephone";
@@ -575,6 +616,7 @@ module shell_cuts(){
     lanyard_cut();
     universal_cuts();
     version_info_emboss();
+    magsafe_emboss();
 }
 
 
@@ -2237,8 +2279,23 @@ module headphone_cut(){
     }
 }
 
+// emboss cut helper
+// Extrude 2D children, into the back of case, either the outisde face or inside face
+module emboss_linear_extrude() {
+    if (emboss_face == "outside") {
+        translate([0, 0, shell_bottom - smidge])
+        linear_extrude(height = emboss_text_cut_h)
+        children();
+    } else {
+        translate([0, 0, shell_back_inner - emboss_text_cut_h])
+        linear_extrude(height = emboss_text_cut_h + smidge)
+        children();
+    }
+}
+
 *version_info_emboss();
 module version_info_emboss(){
+    // unfortunately I can't easily check for collision in OpenSCAD. Geometry generation is separate from evaluation. Can't check if intersection() is blank or produces a result
     draw_logo = !(speaker_grill); // if cuts interrupt the back plane, don't draw text/logo
     font_kerning = 1.08;
     if(emboss_size=="logo" && draw_logo) {
@@ -2247,9 +2304,8 @@ module version_info_emboss(){
         
         //text
         color(negativeColor)
-        rotate([0,0,0])
-        translate([-30,-body_length/2+30,-body_thickness/2])
-        linear_extrude(height = case_thickness2/2, center = true) {
+        translate([-30,-body_length/2+30,0])
+        emboss_linear_extrude() {
             text(name, font=emboss_font, size=font_size, spacing=font_kerning);
             translate([0,-line_translate*2,0])
             text(phone_model, font=emboss_font, size=small_font_size, spacing=font_kerning);
@@ -2258,76 +2314,79 @@ module version_info_emboss(){
         }
         
         //logo
-        translate([0+logo_x,-body_length/2+70+logo_y,-body_thickness/2-case_thickness2/2])
         color(negativeColor)
-        resize([body_width*logo_size_ratio, 0, case_thickness2/2], auto=[false,true,false])
-        linear_extrude(height=case_thickness2/2)
+        translate([0+logo_x,-body_length/2+70+logo_y,0])
+        emboss_linear_extrude()
+        resize([body_width*logo_size_ratio, 0, 0], auto=[false,true,false])
         import(emboss_logo, center=true);
         //scale() might have better performance than resize(). But resize() takes absolute size. scale() takes a ratio so I'd need to know the input size.
     }
-    if(emboss_size=="large" && draw_logo) {
-        line_translate = 12;
+    if(emboss_size!="logo" && emboss_size!="none" && draw_logo) {
+        // size only controls font scale / line spacing
+        e_font_size =
+            emboss_size=="large" ? font_size :
+            emboss_size=="medium" ? 6 :
+            /* small, very_small */ 4;
+        e_small_font_size =
+            emboss_size=="large" ? small_font_size :
+            emboss_size=="medium" ? 6 :
+            /* small, very_small */ 3;
+        line_translate = emboss_size=="large" ? 12 : e_font_size*2;
+        // rotation-dependent placement on the back wall
+        emboss_side_buffer = body_radius + e_font_size*1.5;
+        emboss_bottom_buffer = body_radius + e_font_size;
+        top_chop_buffer = (open_top_backchop) ? body_width-open_top_chop_ratio*body_width : 0;
+        split_buffer = (split_in_half) ? body_seam_width/2 : 0;
+        text_pos =
+            emboss_rotate == -90 ? // text near body seam, for rotate_upright split cases
+                [body_width/2 - emboss_side_buffer - top_chop_buffer, -split_buffer-e_font_size, 0]
+            : emboss_rotate == 90 ? // align to bottom-left
+                [-body_width/2 + emboss_side_buffer, -body_length/2 + emboss_bottom_buffer, 0]
+            : // else: upright on the back face
+                [-20, -body_length/2 + e_font_size*5.5, 0];
+
         color(negativeColor)
-        rotate([0,0,-90])
-        translate([-10,10,-body_thickness/2]) {
-            linear_extrude(height = case_thickness2/2, center = true) {
-                text(name, font=emboss_font, size=font_size, spacing=font_kerning);
-                translate([0,-line_translate,0])
-                text(version, font=emboss_font, size=small_font_size);
-                translate([0,-line_translate*2,0])
-                text(phone_model, font=emboss_font, size=small_font_size);
-            }
+        translate(text_pos)
+        rotate([0, 0, emboss_rotate])
+        emboss_linear_extrude() {
+            text(name, font=emboss_font, size=e_font_size, spacing=font_kerning);
+            translate([0,-line_translate,0])
+            text(version, font=emboss_font, size=e_small_font_size);
+            translate([0,-line_translate*2,0])
+            text(phone_model, font=emboss_font, size=e_small_font_size);
         }
     }
-    if(emboss_size=="small" && draw_logo) {
-        font_size = 4;
-        small_font_size = 3;
-        line_translate = font_size*2;
+}
+
+// MagSafe / steel ring recess on the back wall
+// Outside face: cutouts on the first layer of the print
+// intended for magsafe rings (steel or magnetic)
+// Printing this without multi-material support is difficult.
+// TPU supports stick super hard, not feasible.
+// The gaps will bridge - complex art or text is not recommended
+// Bridges don't automatically take the shortest path - https://github.com/OrcaSlicer/OrcaSlicer/issues/8276
+// Inside face: recess from the phone side, like the version text
+// deep_emboss: cut through most of the case, leave deepest_emboss material remaining
+module magsafe_emboss(){
+    if(magsafe_ring) {
+        // orientation magnet, offset from ring center along phone length
+        align_y = magsafe_offset_from_center + alignment_offset_center_to_center;
         color(negativeColor)
-        rotate([0,0,0])
-        translate([-20,-body_length/2+font_size*5.5,-body_thickness/2]) {
-            linear_extrude(height = case_thickness2/2, center = true) {
-                text(name, font=emboss_font, size=font_size, spacing=font_kerning);
-                translate([0,-line_translate,0])
-                text(version, font=emboss_font, size=small_font_size);
-                translate([0,-line_translate*2,0])
-                text(phone_model, font=emboss_font, size=small_font_size);
+        if (magsafe_face == "outside") {
+            translate([0, magsafe_offset_from_center, shell_bottom - smidge])
+            tube(id=magsafe_ring_inner_diam, od=magsafe_ring_outer_diam, h=magsafe_cut_h, anchor=BOTTOM, $fn=highFn*1.8);
+            if(magsafe_alignment_magnet){
+                translate([0, align_y, shell_bottom - smidge])
+                cuboid([magsafe_alignment_w, magsafe_alignment_l, magsafe_cut_h], anchor=BOTTOM);
             }
-        }
-    }
-    if(emboss_size=="very_small" && draw_logo) {
-        font_size = 4;
-        small_font_size = 3;
-        line_translate = font_size*2;
-        color(negativeColor)
-        rotate([0,0,-90])
-        translate([16,-body_width/2+font_size*5.5,-body_thickness/2]) {
-            linear_extrude(height = case_thickness2/2, center = true) {
-                text(name, font=emboss_font, size=font_size, spacing=font_kerning);
-                translate([0,-line_translate,0])
-                text(version, font=emboss_font, size=small_font_size);
-                translate([0,-line_translate*2,0])
-                text(phone_model, font=emboss_font, size=small_font_size);
-                //TODO: fix build script, change "phone_model" var to "display_name"
-                //TODO: show small display_name
-            }
-        }
-    }
-    if(emboss_size=="medium_rotated" && draw_logo) {
-        font_size = 6;
-        small_font_size = 6;
-        line_translate = font_size*2;
-        color(negativeColor)
-        rotate([0,0,-90])
-        translate([16,-body_width/2+font_size*5.5,-body_thickness/2]) {
-            linear_extrude(height = case_thickness2/2, center = true) {
-                text(name, font=emboss_font, size=font_size, spacing=font_kerning);
-                translate([0,-line_translate,0])
-                text(version, font=emboss_font, size=small_font_size);
-                translate([0,-line_translate*2,0])
-                text(phone_model, font=emboss_font, size=small_font_size);
-                //TODO: fix build script, change "phone_model" var to "display_name"
-                //TODO: show small display_name
+        } else {
+            //magsafe ring recess
+            translate([0, magsafe_offset_from_center, shell_back_inner + smidge])
+            tube(id=magsafe_ring_inner_diam, od=magsafe_ring_outer_diam, h=magsafe_cut_h, anchor=TOP, $fn=highFn*1.8);
+            if(magsafe_alignment_magnet){
+                //magsafe orientation magnet recess
+                translate([0, align_y, shell_back_inner + smidge])
+                cuboid([magsafe_alignment_w, magsafe_alignment_l, magsafe_cut_h], anchor=TOP);
             }
         }
     }
