@@ -38,6 +38,7 @@ pcb/intermediates/
 # IDE files
 .idea/
 .cursor/
+.tmp/
 
 # local secrets, see docs/.env.example
 .env

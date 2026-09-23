@@ -306,12 +306,14 @@ charge_cutout_bevel_angle_y = 10;
 charge_cutout_bevel_angle_z = 10;
 charge_z_offset = 0; // [-5 : 0.1 : 5]
 charge_x_offset = 0; // [-40 : 0.1 : 40]
-// hard cases only: one wide opening instead of separate USB and speaker holes
+// one wide opening instead of separate USB and speaker holes. Hard cases only.
 combine_usb_and_speakers = true;
 
 bottom_speakers_right = false;
 bottom_speakers_left = false;
-bottom_speaker_inner_edge_from_center = 11.6; // 0.1
+// distance from edge of phone to speaker cutout
+speaker_left_from_edge = 12.9; // 0.1
+speaker_right_from_edge = 12.9; // 0.1
 bottom_speaker_vertical_offset_from_center = 0.0; // 0.1
 bottom_speaker_width = 10.5; // 0.1
 bottom_speaker_height = 1.2; // 0.1
@@ -1851,20 +1853,24 @@ module usb_cut(){
     }
 }
 
+// speaker cutout offset from center
+speaker_left_x_offset = -body_width/2 + speaker_left_from_edge + bottom_speaker_width/2;
+speaker_right_x_offset = body_width/2 - speaker_right_from_edge - bottom_speaker_width/2;
+
 module bottom_speaker_hard_cuts(){
     if(bottom_speakers_right){
-        translate([bottom_speaker_inner_edge_from_center+bottom_speaker_width/2, -body_length/2, bottom_speaker_vertical_offset_from_center])
+        translate([speaker_right_x_offset, -body_length/2, bottom_speaker_vertical_offset_from_center])
         hard_cut(bottom_speaker_width);
     }
     if(bottom_speakers_left){
-        translate([-(bottom_speaker_inner_edge_from_center+bottom_speaker_width/2), -body_length/2, bottom_speaker_vertical_offset_from_center])
+        translate([speaker_left_x_offset, -body_length/2, bottom_speaker_vertical_offset_from_center])
         hard_cut(bottom_speaker_width);
     }
 }
 
 module bottom_speaker_soft_cuts(){
     if(bottom_speakers_right){
-        translate([bottom_speaker_inner_edge_from_center+bottom_speaker_width/2, -body_length/2, bottom_speaker_vertical_offset_from_center])
+        translate([speaker_right_x_offset, -body_length/2, bottom_speaker_vertical_offset_from_center])
         rotate([90,0,0])
         soft_cut(
             width=bottom_speaker_width, height=bottom_speaker_height, disable_bevel=true, horizontal_clearance=1, vertical_clearance=1,
@@ -1872,7 +1878,7 @@ module bottom_speaker_soft_cuts(){
         );
     }
     if(bottom_speakers_left){
-        translate([-(bottom_speaker_inner_edge_from_center+bottom_speaker_width/2), -body_length/2, bottom_speaker_vertical_offset_from_center])
+        translate([speaker_left_x_offset, -body_length/2, bottom_speaker_vertical_offset_from_center])
         rotate([90,0,0])
         soft_cut(
             width=bottom_speaker_width, height=bottom_speaker_height, disable_bevel=true, horizontal_clearance=1, vertical_clearance=1,
