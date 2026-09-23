@@ -2372,7 +2372,7 @@ module version_info_emboss(){
         split_buffer = (split_in_half) ? body_seam_width/2 : 0;
         text_pos =
             emboss_rotate == -90 ? // text near body seam, for rotate_upright split cases
-                [body_width/2 - emboss_side_buffer - top_chop_buffer, -split_buffer-e_font_size, 0]
+                [body_width/2 - emboss_side_buffer - top_chop_buffer, -split_buffer-e_font_size/3, 0]
             : emboss_rotate == 90 ? // align to bottom-left
                 [-body_width/2 + emboss_side_buffer, -body_length/2 + emboss_bottom_buffer, 0]
             : // else: upright on the back face
