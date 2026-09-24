@@ -1828,11 +1828,11 @@ module usb_cut(){
     if(case_material2=="hard"){
         if(combine_hard_usb_speakers){ // big combo cut for USB + speakers
             translate( [charge_x_offset, -body_length/2, charge_z_offset] )
-            hard_cut(speaker_hard_cut_width);
+            hard_cut(speaker_hard_cut_width, additional_z=-charge_z_offset);
         } else {
             if(charge_on_bottom){ // usb
                 translate( [charge_x_offset, -body_length/2, charge_z_offset] )
-                hard_cut(usb_cut_width);
+                hard_cut(usb_cut_width, additional_z=-charge_z_offset);
             }
             bottom_speaker_hard_cuts();
         }
@@ -2306,7 +2306,7 @@ module headphone_cut(){
         if(case_material2=="hard"){
             //we measure from edge of phone to edge of the 3.5mm jack. +1.7 to center it
             translate(trans)
-            hard_cut(headphone_radius_hard*2, outward_dir=top_or_bottom);
+            hard_cut(headphone_radius_hard*2, outward_dir=top_or_bottom, additional_z=-headphone_z_offset);
         } else {
             // slightly beveled hole
             headphone_cut_depth = 15;
@@ -2749,18 +2749,18 @@ module test_cuts(){
 
 /* support functions */
 
-/* Long end-face cutouts for hard plastic (USB, speakers, headphone).
- * Depth clears Joycon/Junglecat rails. Only overlaps the phone body by
- * body_radius; the rest extends outward. Rounded edges avoid pocket snags.
+/* cutouts (USB, speakers, headphone) for use with hard plastic. 
+ * The edges are rounded so they don't snag on pockets 
  * outward_dir: -1 bottom edge (default), +1 top edge
+ * additional_z: if USB port is z-offset down, add extra height
 */
 //hard_cut(8);
-module hard_cut(width=8, top_radius=4, bottom_radius=3.9, outward_dir=-1){
-    hard_cut_height = body_thickness + case_thickness2 + screen_lip;
+module hard_cut(width=8, top_radius=3.0, bottom_radius=3.9, outward_dir=-1, additional_z=0){
+    hard_cut_height = body_thickness  + screen_lip + smidge + additional_z;
     smaller_width = (width>hard_cut_height)? hard_cut_height : width;
     hard_cut_depth = 25;
     // shift so inward edge is body_radius past the body edge, rest goes outward
-    y_shift = outward_dir * (hard_cut_depth/2 - body_radius);
+    y_shift = outward_dir * (hard_cut_depth/2 - max(body_radius, body_radius_bottom));
     
     if(bottom_radius >= width/2 || bottom_radius >=hard_cut_height/2){
         echo(width=width, top_radius=top_radius, bottom_radius=bottom_radius, hard_cut_height=hard_cut_height);
@@ -2778,8 +2778,9 @@ module hard_cut(width=8, top_radius=4, bottom_radius=3.9, outward_dir=-1){
     }
     
     rectangle = square([width, hard_cut_depth],center=true);
-    round_rectangle = round_corners(rectangle, radius=bottom_radius,$fn=lowFn);
-    //round_rectangle = round_corners(rectangle, radius=bottom_radius,$fn=15);
+    // minimal rounding when looking down upon XY plane
+    // TODO: separate top rounding from bottom rounding. Top rounding needs to extend further into the case to cut the screen lip. Bottom rounding should be aethetically round.
+    round_rectangle = round_corners(rectangle, radius=bottom_radius/8,$fn=lowFn);
     color(negativeColor, 0.2)
     translate( [0, y_shift, -body_thickness/2 + smidge] )
     offset_sweep(round_rectangle, height=hard_cut_height,top=os_circle(r=-top_radius),bottom=os_circle(r=bottom_radius));
