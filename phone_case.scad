@@ -1980,11 +1980,14 @@ module hard_button_cut(right,  power_button, power_from_top, power_length, volum
 }
 
 //simple cutout for mute switches
-module soft_cut( width, height, disable_support=false, disable_bevel=false, bevel_angle_y = 30, bevel_angle_z = 22.5, horizontal_clearance = 0, vertical_clearance = 0, shallow_cut=false, junglecat_support=false, joycon_support=false){
+module soft_cut( width, height, disable_support=false, disable_bevel=false, bevel_angle_y = 30, bevel_angle_z = 22.5, horizontal_clearance = 0, vertical_clearance = 0, shallow_cut=false, junglecat_support=false, joycon_support=false, inward_overlap=body_radius){
     cut_height = height;
     cut_depth = shallow_cut ? 0 : 15;
     cut_rounding = (button_cut_rounding>width)? width/2 : button_cut_rounding; //breaks at high body_width values
     cut_width = cut_rounding * manual_support_retract;
+    cut_through_h = case_thickness2*3+cut_depth; // long enough to cut thru Junglecat / Joycon rails
+    // after rotate, -Z is into the body for USB/speaker.
+    // anchor BOTTOM so the cut only reaches inward_overlap into the body
     
     difference() {
         //cutout
@@ -2023,12 +2026,13 @@ module soft_cut( width, height, disable_support=false, disable_bevel=false, beve
     
     module soft_cut_submodule(){
         //straight-thru cut
+        translate([0,0,-inward_overlap])
         prismoid( 
             size1=[ width+horizontal_clearance*2, cut_height+vertical_clearance*2 ], 
             size2=[ width+horizontal_clearance*2, cut_height+vertical_clearance*2 ], 
             rounding=cut_rounding, 
-            h=case_thickness2*3+cut_depth, 
-            anchor=CENTER, 
+            h=cut_through_h, 
+            anchor=BOTTOM, 
             $fn=lowFn
         );
         //bevel
@@ -2302,12 +2306,16 @@ module headphone_cut(){
         if(case_material2=="hard"){
             //we measure from edge of phone to edge of the 3.5mm jack. +1.7 to center it
             translate(trans)
-            hard_cut(headphone_radius_hard*2);
+            hard_cut(headphone_radius_hard*2, outward_dir=top_or_bottom);
         } else {
-            // a slightly beveled hole
+            // slightly beveled hole
+            headphone_cut_depth = 15;
             translate(trans)
             rotate([90*top_or_bottom,0,0])
-            cylinder(15, headphone_radius_soft*1.4, headphone_radius_soft*0.9, center=true);
+            // align to edge of body
+            // after rotate, +Z is into the body for both top and bottom
+            translate([0, 0, body_radius - headphone_cut_depth/2])
+            cylinder(headphone_cut_depth, headphone_radius_soft*1.4, headphone_radius_soft*0.95, center=true);
         }
     }
 }
@@ -2741,14 +2749,18 @@ module test_cuts(){
 
 /* support functions */
 
-/* cutouts for use with hard plastic. 
- * The edges are rounded so they don't snag on pockets 
+/* Long end-face cutouts for hard plastic (USB, speakers, headphone).
+ * Depth clears Joycon/Junglecat rails. Only overlaps the phone body by
+ * body_radius; the rest extends outward. Rounded edges avoid pocket snags.
+ * outward_dir: -1 bottom edge (default), +1 top edge
 */
 //hard_cut(8);
-module hard_cut(width=8, top_radius=4, bottom_radius=3.9){
+module hard_cut(width=8, top_radius=4, bottom_radius=3.9, outward_dir=-1){
     hard_cut_height = body_thickness + case_thickness2 + screen_lip;
     smaller_width = (width>hard_cut_height)? hard_cut_height : width;
     hard_cut_depth = 25;
+    // shift so inward edge is body_radius past the body edge, rest goes outward
+    y_shift = outward_dir * (hard_cut_depth/2 - body_radius);
     
     if(bottom_radius >= width/2 || bottom_radius >=hard_cut_height/2){
         echo(width=width, top_radius=top_radius, bottom_radius=bottom_radius, hard_cut_height=hard_cut_height);
@@ -2769,7 +2781,7 @@ module hard_cut(width=8, top_radius=4, bottom_radius=3.9){
     round_rectangle = round_corners(rectangle, radius=bottom_radius,$fn=lowFn);
     //round_rectangle = round_corners(rectangle, radius=bottom_radius,$fn=15);
     color(negativeColor, 0.2)
-    translate( [0, 0, -body_thickness/2 + smidge] )
+    translate( [0, y_shift, -body_thickness/2 + smidge] )
     offset_sweep(round_rectangle, height=hard_cut_height,top=os_circle(r=-top_radius),bottom=os_circle(r=bottom_radius));
 }
 
