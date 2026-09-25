@@ -1,5 +1,7 @@
 title: Cuttlephone
-description: 3D printable phone cases
+tagline: 3D printable phone cases
+description: "3D printable phone cases with Joy-Con and Razer Junglecat rails. Download free 3D models or build your own with OpenSCAD generator"
+url: https://cuttlephone.com
 logo: /images/website-logo.png
 baseurl: 
 repository: SiloCityLabs/Cuttlephone
