@@ -166,6 +166,46 @@ screen_extra_top_right = 0; // 0.1
 screen_extra_bottom_left = 0; // 0.1
 screen_extra_bottom_right = 0; // 0.1
 
+/* [charge, bottom speakers] */
+charge_on_bottom = true;
+// up / down
+charge_z_offset = 0; // [-5 : 0.1 : 5]
+// left / right
+charge_x_offset = 0; // [-40 : 0.1 : 40]
+charge_cutout_bevel_angle_y = 10;
+charge_cutout_bevel_angle_z = 10;
+
+// USB Type C spec: 12.35 x 6.5 for the overmold portion of a plug
+usb_cut_width = 13.0;
+// height for soft cases only
+usb_cut_height = 7.0;
+//usb_cut_rounding = 1.0;
+
+// one wide opening instead of separate USB and speaker holes. Hard cases only.
+combine_usb_and_speakers = true;
+
+bottom_speakers_right = false;
+bottom_speakers_left = false;
+// distance from edge of phone to speaker cutout
+speaker_left_from_edge = 12.9; // 0.1
+speaker_right_from_edge = 12.9; // 0.1
+bottom_speaker_vertical_offset_from_center = 0.0; // 0.1
+bottom_speaker_width = 10.5; // 0.1
+bottom_speaker_height = 1.2; // 0.1
+
+/* [headphone, mic] */
+mic_on_top = false;
+mic_on_bottom = false;
+top_mic_from_right_edge = 14.1; // 0.1
+bottom_mic_from_right_edge = 14.1; // 0.1
+top_mic_offset_up = 0.1; // 0.1
+bottom_mic_offset_up = 0.1; // 0.1
+headphone_from_left_edge = 14.1; // 0.1
+headphone_on_top = false;
+headphone_on_bottom = false;
+// vertical offset
+headphone_z_offset = 0; // [-3 : 0.1 : 3]
+
 /* [buttons - on the phone's body] */
 right_power_button = false;
 right_power_from_top = 31.1; // 0.1
@@ -288,44 +328,6 @@ fingerprint_cutout_chamfer_angle = 45.0; // [0.0:0.1:89.9]
 
 // Combines the fingerprint sensor and camera opening into a single larger one. One example where this works well is a thicker soft case on the Pixel 5. (Using OpenSCAD hull() to be specific.)
 fingerprint_combine_with_camera = false;
-
-/* [charge, bottom speakers] */
-// USB Type C spec: 12.35 x 6.5 for the overmold portion of a plug
-usb_cut_width = 13.0;
-// height for soft cases only
-usb_cut_height = 7.0;
-//usb_cut_rounding = 1.0;
-
-// one wide opening instead of separate USB and speaker holes. Hard cases only.
-combine_usb_and_speakers = true;
-
-bottom_speakers_right = false;
-bottom_speakers_left = false;
-// distance from edge of phone to speaker cutout
-speaker_left_from_edge = 12.9; // 0.1
-speaker_right_from_edge = 12.9; // 0.1
-bottom_speaker_vertical_offset_from_center = 0.0; // 0.1
-bottom_speaker_width = 10.5; // 0.1
-bottom_speaker_height = 1.2; // 0.1
-
-/* [headphone, mic] */
-mic_on_top = false;
-mic_on_bottom = false;
-top_mic_from_right_edge = 14.1; // 0.1
-bottom_mic_from_right_edge = 14.1; // 0.1
-top_mic_offset_up = 0.1; // 0.1
-bottom_mic_offset_up = 0.1; // 0.1
-headphone_from_left_edge = 14.1; // 0.1
-headphone_on_top = false;
-headphone_on_bottom = false;
-// vertical offset
-headphone_z_offset = 0; // [-3 : 0.1 : 3]
-
-charge_on_bottom = true;
-charge_cutout_bevel_angle_y = 10;
-charge_cutout_bevel_angle_z = 10;
-charge_z_offset = 0; // [-5 : 0.1 : 5]
-charge_x_offset = 0; // [-40 : 0.1 : 40]
 
 
 
@@ -1826,7 +1828,7 @@ speaker_hard_cut_width = body_width*0.65;
 speakers_enabled = bottom_speakers_left || bottom_speakers_right;
 combine_hard_usb_speakers = combine_usb_and_speakers && charge_on_bottom && (speakers_enabled || case_type2=="gamepad");
 
-*usb_cut();
+usb_cut();
 module usb_cut(){
     color(negativeColor, 0.2)
     if(case_material2=="hard"){
@@ -2034,6 +2036,7 @@ module soft_cut( width, height, disable_support=false, disable_bevel=false, beve
         prismoid( 
             size1=[ width+horizontal_clearance*2, cut_height+vertical_clearance*2 ], 
             size2=[ width+horizontal_clearance*2, cut_height+vertical_clearance*2 ], 
+            // TODO: round all sides
             rounding=cut_rounding, 
             h=cut_through_h, 
             anchor=BOTTOM, 
