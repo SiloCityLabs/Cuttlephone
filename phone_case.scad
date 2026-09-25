@@ -1828,7 +1828,7 @@ speaker_hard_cut_width = body_width*0.65;
 speakers_enabled = bottom_speakers_left || bottom_speakers_right;
 combine_hard_usb_speakers = combine_usb_and_speakers && charge_on_bottom && (speakers_enabled || case_type2=="gamepad");
 
-usb_cut();
+*usb_cut();
 module usb_cut(){
     color(negativeColor, 0.2)
     if(case_material2=="hard"){
