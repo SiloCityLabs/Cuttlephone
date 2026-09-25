@@ -2755,7 +2755,7 @@ module test_cuts(){
  * additional_z: if USB port is z-offset down, add extra height
 */
 //hard_cut(8);
-module hard_cut(width=8, top_radius=3.0, bottom_radius=3.9, outward_dir=-1, additional_z=0){
+module hard_cut(width=8, top_radius=3.0, bottom_radius=3.4, outward_dir=-1, additional_z=0){
     hard_cut_height = body_thickness  + screen_lip + smidge + additional_z;
     smaller_width = (width>hard_cut_height)? hard_cut_height : width;
     hard_cut_depth = 25;
@@ -2778,12 +2778,39 @@ module hard_cut(width=8, top_radius=3.0, bottom_radius=3.9, outward_dir=-1, addi
     }
     
     rectangle = square([width, hard_cut_depth],center=true);
-    // minimal rounding when looking down upon XY plane
-    // TODO: separate top rounding from bottom rounding. Top rounding needs to extend further into the case to cut the screen lip. Bottom rounding should be aethetically round.
-    round_rectangle = round_corners(rectangle, radius=bottom_radius/8,$fn=lowFn);
+    // this rounding improves the cut's aethetics on the face of the phone case (where text is)
+    round_rectangle = round_corners(rectangle, radius=max(body_radius_bottom, bottom_radius*0.5),$fn=lowFn);
     color(negativeColor, 0.2)
     translate( [0, y_shift, -body_thickness/2 + smidge] )
-    offset_sweep(round_rectangle, height=hard_cut_height,top=os_circle(r=-top_radius),bottom=os_circle(r=bottom_radius));
+    // this rounding is for the plug. Use a small rounding so it doesn't block the rubber around the USB connector. Don't go to zero, sharp corner will weaken print.
+    offset_sweep(
+        round_rectangle, 
+        height=hard_cut_height,
+        //bottom=os_smooth(cut=0.7, k=0.5)
+        bottom=os_circle(r=bottom_radius)
+    );
+    // offset sweep draws upward (+Z)
+
+    // anti-snag radius on top
+    other_round_rectangle = round_corners(
+        rectangle, 
+        //radius=bottom_radius/8,
+        // this might intersect with the side screen lip, when placed close to a wall
+        // Taper off gradiaully with continuous curvature
+        cut=1, 
+        k=0.7,
+        method="smooth",
+        $fn=lowFn
+    );
+    color(negativeColor, 0.2)
+    translate( [0, y_shift+screen_lip_length, -body_thickness/2+bottom_radius + smidge] )
+    offset_sweep(
+        other_round_rectangle, 
+        height=hard_cut_height-bottom_radius, 
+        // negative radius
+        //top=os_circle(r=-top_radius)
+        top=os_smooth(cut=-1, k=1)
+    );
 }
 
 //for curved screens
