@@ -1,6 +1,7 @@
 ---
 layout: default
 title: "3D Preview"
+description: "Preview the premade 3D models. Rotate and zoom any pre-built Cuttlephone models in the browser before you download and 3D print."
 permalink: /models/preview/
 parent: 3D Models
 nav_order: 3

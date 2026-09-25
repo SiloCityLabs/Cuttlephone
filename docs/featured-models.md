@@ -1,6 +1,7 @@
 ---
 layout: default
 title: "Featured Models"
+description: "User-tested Cuttlephone downloads: Pixel 4a Junglecat case, Joy-Con and Junglecat adapters, and Junglecat rail cutting tool."
 permalink: /models/featured-models/
 parent: 3D Models
 nav_order: 1

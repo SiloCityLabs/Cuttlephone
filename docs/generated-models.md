@@ -1,6 +1,7 @@
 ---
 layout: default
 title: "Generated Models"
+description: "Download every Cuttlephone phone case variant in hard or soft materials, with optional Joy-Con or Junglecat rails."
 permalink: /models/generated-models/
 parent: 3D Models
 nav_order: 2

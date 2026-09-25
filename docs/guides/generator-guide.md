@@ -1,6 +1,7 @@
 ---
 layout: default
 title: "Phone Case Customizer"
+description: "Generate custom 3D printable phone cases with OpenSCAD. Install Cuttlephone, set phone dimensions, cut out holes, and add features like gamepad rails."
 permalink: /guides/generator-guide/
 parent: Guides
 ---
