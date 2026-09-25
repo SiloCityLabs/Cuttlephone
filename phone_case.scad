@@ -469,6 +469,8 @@ shell_z_translate = -case_thickness2/2+screen_lip/2-back_thickness_bonus/2 - joy
 shell_centerline_translate = -case_thickness2/2+screen_lip/2-back_thickness_bonus/2-joycon_back_bonus/2 - joycon2_back_bonus/2;
 // back face of the shell
 shell_bottom = -body_thickness/2-case_thickness2-back_thickness_bonus-joycon_back_bonus-joycon2_back_bonus;
+// top face of the shell above the screen
+shell_top = body_thickness/2 + screen_lip;
 // phone-facing plane of the back wall
 shell_back_inner = -body_thickness/2;
 back_wall_thickness = case_thickness2 + back_thickness_bonus + joycon_back_bonus + joycon2_back_bonus;
@@ -1966,21 +1968,26 @@ module hard_button_cut(right,  power_button, power_from_top, power_length, volum
     button_offset = has_space ? min(power_from_top*has_power_button, volume_from_top*has_volume_buttons) : power_from_top*has_power_button + volume_from_top*has_volume_buttons;
 
     button_cut_thickness = 6;
-    hard_cut_height = body_thickness;
+    // sweep starts at bottom. Align anti-snag top with shell_top
+    hard_cut_height = shell_top - (-body_thickness/2) + smidge;
     
     color(negativeColor, 0.2)
     translate( [ right_or_left*(body_width/2),
         body_length/2 - button_offset - button_length/2, 
-        -body_thickness/2+case_thickness2+screen_lip+0.05
+        -body_thickness/2 + smidge
     ] )
-    translate([0,0,0])
     rotate([0,0,90]) {
         //button cut
         cuboid([button_length+buttons_clearance_hard_case*2, button_cut_thickness, 50], rounding=button_cut_rounding, $fn=lowFn);
 
         //anti snag rounding
         rectangle = square([button_length+buttons_clearance_hard_case*2, case_thickness2*4+0.1],center=true);
-        offset_sweep(rectangle, height=hard_cut_height,top=os_circle(r=-anti_snag_radius));
+        offset_sweep(
+            rectangle, 
+            height=hard_cut_height,
+            //top=os_circle(r=-anti_snag_radius)
+            top=os_smooth(cut=-1.4, k=0.5)
+        );
     }
     
 }
