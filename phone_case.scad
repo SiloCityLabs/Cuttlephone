@@ -289,7 +289,26 @@ fingerprint_cutout_chamfer_angle = 45.0; // [0.0:0.1:89.9]
 // Combines the fingerprint sensor and camera opening into a single larger one. One example where this works well is a thicker soft case on the Pixel 5. (Using OpenSCAD hull() to be specific.)
 fingerprint_combine_with_camera = false;
 
-/* [charge, headphone, and mic] */
+/* [charge, bottom speakers] */
+// USB Type C spec: 12.35 x 6.5 for the overmold portion of a plug
+usb_cut_width = 13.0;
+// height for soft cases only
+usb_cut_height = 7.0;
+//usb_cut_rounding = 1.0;
+
+// one wide opening instead of separate USB and speaker holes. Hard cases only.
+combine_usb_and_speakers = true;
+
+bottom_speakers_right = false;
+bottom_speakers_left = false;
+// distance from edge of phone to speaker cutout
+speaker_left_from_edge = 12.9; // 0.1
+speaker_right_from_edge = 12.9; // 0.1
+bottom_speaker_vertical_offset_from_center = 0.0; // 0.1
+bottom_speaker_width = 10.5; // 0.1
+bottom_speaker_height = 1.2; // 0.1
+
+/* [headphone, mic] */
 mic_on_top = false;
 mic_on_bottom = false;
 top_mic_from_right_edge = 14.1; // 0.1
@@ -308,22 +327,7 @@ charge_cutout_bevel_angle_z = 10;
 charge_z_offset = 0; // [-5 : 0.1 : 5]
 charge_x_offset = 0; // [-40 : 0.1 : 40]
 
-// USB Type C spec: 12.35 x 6.5 for the overmold portion of a plug
-usb_cut_width = 13.0;
-usb_cut_height = 7.0;
-//usb_cut_rounding = 1.0;
 
-// one wide opening instead of separate USB and speaker holes. Hard cases only.
-combine_usb_and_speakers = true;
-
-bottom_speakers_right = false;
-bottom_speakers_left = false;
-// distance from edge of phone to speaker cutout
-speaker_left_from_edge = 12.9; // 0.1
-speaker_right_from_edge = 12.9; // 0.1
-bottom_speaker_vertical_offset_from_center = 0.0; // 0.1
-bottom_speaker_width = 10.5; // 0.1
-bottom_speaker_height = 1.2; // 0.1
 
 /* [universal phone adapters] */
 split_in_half = false;
