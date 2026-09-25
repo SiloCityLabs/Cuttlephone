@@ -307,6 +307,12 @@ charge_cutout_bevel_angle_y = 10;
 charge_cutout_bevel_angle_z = 10;
 charge_z_offset = 0; // [-5 : 0.1 : 5]
 charge_x_offset = 0; // [-40 : 0.1 : 40]
+
+// USB Type C spec: 12.35 x 6.5 for the overmold portion of a plug
+usb_cut_width = 13.0;
+usb_cut_height = 7.0;
+//usb_cut_rounding = 1.0;
+
 // one wide opening instead of separate USB and speaker holes. Hard cases only.
 combine_usb_and_speakers = true;
 
@@ -1810,12 +1816,6 @@ module lanyard_cut(){
         //thicken the case around the lanyard holes
     }
 }
-
-// The USB Type C spec prescribes 12.35 x 6.5 for the overmold portion of a plug, but practice shows this is often taken as a suggestion by cable manufacturers.
-// Throw in manufacturing and printing tolerances in the mix and it is wiser to leave some room for error.
-usb_cut_width = 13.0;
-usb_cut_height = 7.0;
-usb_cut_rounding = 1.0;
 
 speaker_cut_width = body_width*0.2;
 speaker_hard_cut_width = body_width*0.65;
