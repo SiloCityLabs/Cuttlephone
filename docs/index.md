@@ -3,15 +3,9 @@ title: Cuttlephone
 nav_order: 1
 ---
 
-# Cuttlephone 3D printable phone cases
+# Cuttlephone: 3D printable phone cases 
 
-Cuttlephone is a 3D printed phone case and gamepad system. Download pre-made models or create your own with the OpenSCAD customizer.
-
-Ready to print? Browse [featured and generated models](/models/) for downloadable 3MF files,
-then follow the [3D printing guide](/guides/print-guide/) for filament tips and slicer settings.
-Want a case for a phone that is not listed yet? Use the [phone case customizer](/guides/generator-guide/)
-with OpenSCAD to set dimensions, shell thickness, and controller rails yourself.
-Source code lives on [GitHub](https://github.com/SiloCityLabs/Cuttlephone).
+Cuttlephone is the shape-shifting phone case. Download pre-made models or create your own with the OpenSCAD customizer.
 
 ## Features
 
