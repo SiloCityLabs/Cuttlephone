@@ -11,14 +11,13 @@ Cuttlephone is the shape-shifting phone case. Download pre-made models or create
 
 ### Hard plastic (PLA+, ABS) or flexibles (TPU)
 
-Print rigid shells from common filament or print flexible shells for performance, grip, and feel.
+Print rigid shells from common filament like PLA+ and PETG. Print flexible shells with integrated buttons using TPU.
 
 ![Hard case with cut-out button holes](/images/hard_buttons.png)  |  ![Soft TPU phone case showing flexible push-through side buttons](/images/soft_buttons.png)
 
 ### Phone case
 
-Protective 3D printable phone cases sized for specific devices,
-with cutouts for camera, buttons, and ports, all tuned in the generator.
+Protective 3D printable phone cases sized for specific devices, with cutouts for camera, buttons, and ports, all tuned in the generator.
 
 ![3D render of a Cuttlephone protective phone case shell](/images/phone_case.png)
 
