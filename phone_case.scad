@@ -2309,7 +2309,7 @@ module mic_cut(top_or_bottom, mic_from_right_edge, mic_offset_up){
     }   
 }
 
-*headphone_cut();
+headphone_cut();
 module headphone_cut(){
     top_or_bottom = headphone_on_top? 1:-1;
     headphone_radius_hard = 5;
@@ -2326,10 +2326,15 @@ module headphone_cut(){
             headphone_cut_depth = 15;
             translate(trans)
             rotate([90*top_or_bottom,0,0])
-            // align to edge of body
+            // align to edge of body - body_radius
             // after rotate, +Z is into the body for both top and bottom
-            translate([0, 0, body_radius - headphone_cut_depth/2])
-            cylinder(headphone_cut_depth, headphone_radius_soft*1.4, headphone_radius_soft*0.95, center=true);
+            translate([0, 0, body_radius_bottom])
+            cyl(
+                h=headphone_cut_depth,
+                r1=headphone_radius_soft*1.4,
+                r2=headphone_radius_soft*0.95,
+                anchor=TOP
+            );
         }
     }
 }
