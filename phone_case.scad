@@ -2309,7 +2309,7 @@ module mic_cut(top_or_bottom, mic_from_right_edge, mic_offset_up){
     }   
 }
 
-headphone_cut();
+*headphone_cut();
 module headphone_cut(){
     top_or_bottom = headphone_on_top? 1:-1;
     headphone_radius_hard = 5;
