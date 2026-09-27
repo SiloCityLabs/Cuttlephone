@@ -489,7 +489,7 @@ junglecat_lip_width = 2.0;
 junglecat_lip_thickness = 0.4;
 junglecat_depth = 3.3;
 //max joycon thickness. If the entire case is thicker than this, we must make stick-out junglecat rails
-junglecat_wing_thickness = 11.5;
+junglecat_wing_thickness = 11.3; // spec: 11.10
 junglecat_wing_radius = 1.3;
 junglecat_stickout = 4.2;
 junglecat_wings = body_thickness+shell_z_thickness > junglecat_wing_thickness;
@@ -1039,7 +1039,7 @@ module junglecat_cut_guide(){
     finger_tab_l = 40;
     finger_tab_h = 40;
     copy_mirror() {
-    translate([0,-body_length*0.6,0]) {
+    translate([body_width/2,-body_length*0.6,0]) {
         difference() {
             union(){
                 //tube to stick down the rail
@@ -1055,16 +1055,17 @@ module junglecat_cut_guide(){
                 );
                 //something to hold onto so you don't cut yourself
                 rotate([0,0,0])
-                translate([junglecat_rail_length/2,0.4,-6])
-                cuboid( [ finger_tab_l, junglecat_inner_width, finger_tab_h], 
+                translate([junglecat_rail_length/2+case_thickness2,0-junglecat_depth/2,shell_bottom])
+                cuboid( [ finger_tab_l, finger_tab_h, finger_tab_h], 
                     rounding=1, 
                     edges=[RIGHT,TOP,BOTTOM],
-                    anchor=LEFT+CENTER
+                    anchor=LEFT+BOTTOM+FRONT
                 );
             }
             
             finger_r = 15;
             //finger hole
+            *
             translate([junglecat_rail_length/2+finger_tab_l-finger_r/2,0,-finger_tab_h/2])
             rotate([90,0,0])
             cyl(h=10, r=finger_r);
