@@ -489,11 +489,12 @@ junglecat_lip_width = 2.0;
 junglecat_lip_thickness = 0.4;
 junglecat_depth = 3.3;
 //max joycon thickness. If the entire case is thicker than this, we must make stick-out junglecat rails
-junglecat_wing_thickness = 11.3; // spec: 11.10
+junglecat_wing_thickness = 10.5; // measured: 11.10
 junglecat_wing_radius = 1.3;
-junglecat_stickout = 4.2;
+junglecat_stickout = 4.41; // measured: 4.24-4.34
 junglecat_wings = body_thickness+shell_z_thickness > junglecat_wing_thickness;
-
+// cutout isn't perfectly center
+junglecat_cut_z_shift = 0.1;
 
 //embossment text
 name = "Cuttlephone";
@@ -1103,7 +1104,7 @@ module junglecat_cuts(){
         color(negativeColor, 0.4)
         translate([0, 
                 -body_length/2-case_thickness2-junglecat_depth/2 - junglecat_stickout_adjust,
-                shell_centerline_translate
+                shell_centerline_translate + junglecat_cut_z_shift
             ]) {
                 
             //dimple
@@ -1111,7 +1112,7 @@ module junglecat_cuts(){
                     -case_thickness2-junglecat_lip_thickness,
                     0])
             sphere( d=2.0, $fn=lowFn );
-            //echo(render_quality);
+
             //inside channels
             translate([ (body_width-junglecat_rail_length)/2+case_thickness2, 0, 0 ])
             rotate([0,90,0])
@@ -1120,6 +1121,7 @@ module junglecat_cuts(){
                 size2=[junglecat_inner_width, junglecat_depth], 
                 h=junglecat_rail_length*1.05,
                 chamfer=[0,0,0,0],
+                // flat bottom, round top
                 rounding=[0,junglecat_depth/2,junglecat_depth/2,0],
                 anchor=CENTER
             );
@@ -1141,6 +1143,10 @@ module junglecat_cuts(){
                 else {
                     //cut out the rail slot. Bring your own support
                     cube([junglecat_rail_length + 0.5, junglecat_depth, junglecat_lip_width ], center=true);
+                    // ramp for ball detent
+                    translate([ -(junglecat_rail_length + 0.5)/2, -junglecat_depth/6, 0])
+                    rotate([0,0,40])
+                    cube([junglecat_depth, junglecat_depth, junglecat_lip_width ], center=true);
                 }
             }
         }
