@@ -485,7 +485,7 @@ magsafe_cut_h = deep_emboss
 junglecat_rail_length = 61.0;
 junglecat_dimple_from_top = 63.5;
 junglecat_inner_width = 3.5;
-junglecat_lip_width = 2.0;
+junglecat_lip_width = 2.2;
 junglecat_lip_thickness = 0.4;
 junglecat_depth = 3.3;
 //max joycon thickness. If the entire case is thicker than this, we must make stick-out junglecat rails
