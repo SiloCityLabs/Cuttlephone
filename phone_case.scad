@@ -483,15 +483,17 @@ magsafe_cut_h = deep_emboss
 
 //junglecat variables
 junglecat_rail_length = 61.0;
-junglecat_dimple_from_top = 63.5;
-junglecat_inner_width = 3.5;
-junglecat_lip_width = 2.2;
-junglecat_lip_thickness = 0.4;
-junglecat_depth = 3.3;
+junglecat_dimple_from_top = 64.7;
+junglecat_dimple_r = 2.1;
+junglecat_inner_width = 3.2;
+junglecat_lip_width = 2.1;
+junglecat_lip_thickness = 0.45;
+junglecat_depth = 2.90;
 //max joycon thickness. If the entire case is thicker than this, we must make stick-out junglecat rails
-junglecat_wing_thickness = 10.5; // measured: 11.10
-junglecat_wing_radius = 1.3;
 junglecat_stickout = 4.41; // measured: 4.24-4.34
+junglecat_wing_thickness = 10.85; // measured: 11.10
+junglecat_wing_radius = 1.0;
+junglecat_wing_top_radius = junglecat_stickout;
 junglecat_wings = body_thickness+shell_z_thickness > junglecat_wing_thickness;
 // cutout isn't perfectly center
 junglecat_cut_z_shift = 0.1;
@@ -1006,14 +1008,23 @@ module junglecat_shell(){
         translate([0,0,shell_centerline_translate]) {
             wing_length_margin = 8;
             translate([body_width/2-junglecat_dimple_from_top/2-wing_length_margin/2, 0, 0])
-            cuboid(
-                [ junglecat_dimple_from_top+wing_length_margin,
-                body_length + 2*junglecat_depth + 2*junglecat_lip_thickness+ junglecat_stickout*2+case_thickness2*2,
-                junglecat_wing_thickness ],
-                rounding=junglecat_wing_radius,
-                anchor=CENTER
-                //,$fn=lowFn
-            );
+            minkowski() {
+                cuboid(
+                    [ junglecat_dimple_from_top+wing_length_margin -junglecat_wing_radius*2,
+                    body_length + 2*junglecat_depth + 2*junglecat_lip_thickness+ junglecat_stickout*2+case_thickness2*2 -junglecat_wing_radius*2,
+                    junglecat_wing_thickness -junglecat_wing_radius*2 ],
+                    rounding=junglecat_wing_top_radius-junglecat_wing_radius,
+                    // extra rounding on top
+                    // necessary for proper seating, controller has matching radius on the inside
+                    edges=["Z"], 
+                    except=[LEFT],
+                    anchor=CENTER
+                    //,$fn=lowFn
+                );
+
+                // small rounding on most edges
+                sphere(r=junglecat_wing_radius);
+            }
         }
     }
     //TODO: if case is too thin, make wings
@@ -1093,7 +1104,6 @@ module junglecat_cut_guide(){
 *junglecat_cuts();
 module junglecat_cuts(){
     junglecat_stickout_adjust = junglecat_wings ? junglecat_stickout : 0;
-    universal_inside_length = junglecat_rail_length * 1.2;
 
     //centerline debug
     if(show_shell_centerline)
@@ -1111,7 +1121,7 @@ module junglecat_cuts(){
             translate([body_width/2-junglecat_dimple_from_top,
                     -case_thickness2-junglecat_lip_thickness,
                     0])
-            sphere( d=2.0, $fn=lowFn );
+            sphere( d=junglecat_dimple_r );
 
             //inside channels
             translate([ (body_width-junglecat_rail_length)/2+case_thickness2, 0, 0 ])
@@ -1119,7 +1129,7 @@ module junglecat_cuts(){
             prismoid(
                 size1=[junglecat_inner_width, junglecat_depth], 
                 size2=[junglecat_inner_width, junglecat_depth], 
-                h=junglecat_rail_length*1.05,
+                h=junglecat_rail_length,
                 chamfer=[0,0,0,0],
                 // flat bottom, round top
                 rounding=[0,junglecat_depth/2,junglecat_depth/2,0],
@@ -1143,10 +1153,12 @@ module junglecat_cuts(){
                 else {
                     //cut out the rail slot. Bring your own support
                     cube([junglecat_rail_length + 0.5, junglecat_depth, junglecat_lip_width ], center=true);
+                    
                     // ramp for ball detent
-                    translate([ -(junglecat_rail_length + 0.5)/2, -junglecat_depth/6, 0])
-                    rotate([0,0,40])
-                    cube([junglecat_depth, junglecat_depth, junglecat_lip_width ], center=true);
+                    // lazy alignment, not calculated
+                    translate([ -(junglecat_rail_length)/2 + 0.9, -junglecat_depth/8, 0])
+                    rotate([0,0,60])
+                    cube([junglecat_depth*1.5, junglecat_depth*1.5, junglecat_lip_width ], center=true);
                 }
             }
         }
