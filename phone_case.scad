@@ -402,20 +402,21 @@ gamepad_peg_y_distance = 14;
 
 // joycon and junglecat shared variables
 max_rail_shell_radius = 2.0; //if too high it'll intersect with the rail
+// TODO: reduce to 0.7 or less for joycon, don't use for junglecat
 max_rail_body_radius = 2.0; //if too high it'll intersect with the stop notch
 rail_shell_radius_top = (body_radius_top<max_rail_shell_radius) ? body_radius_top : max_rail_shell_radius; //TODO: tweak this, make is softer to hold, ensure it doesn't conflict with body
 rail_shell_radius_bottom = (body_radius_bottom<max_rail_shell_radius) ? body_radius_bottom : max_rail_shell_radius; //TODO: tweak this, make is softer to hold, ensure it doesn't conflict with body
 rail_body_radius = (body_radius<max_rail_body_radius) ? body_radius : max_rail_body_radius;
 
 // joycon variables
-joycon_lip_width = 7.1; //how far apart the thin rail/lip is
+joycon_lip_width = 7.0; //how far apart the thin rail/lip is
 joycon_lip_thickness = 0.7; //how thick the lip is
 joycon_inner_width = 10.1;
 joycon_depth = 2.4; // tightness of joycon. I've set this as low as 2.3
 //this will bottom-out the rail if the body is wide enough
-joycon_length = 91.5;
-lock_notch_width = 3.8;
-lock_notch_offset = 9.4; //how far from the top
+joycon_length = 91.1;
+lock_notch_width = 3.05; // measured: 2.3
+lock_notch_offset = 9.0; //how far from the top
 lock_notch_depth = (joycon_inner_width-joycon_lip_width)/2;
 
 //switch 2 / joycon 2 variables
@@ -489,7 +490,7 @@ junglecat_inner_width = 3.2;
 junglecat_lip_width = 2.1;
 junglecat_lip_thickness = 0.45;
 junglecat_depth = 2.90;
-//max joycon thickness. If the entire case is thicker than this, we must make stick-out junglecat rails
+//max junglecat thickness. If the entire case is thicker than this, we must make stick-out junglecat rails
 junglecat_stickout = 4.41; // measured: 4.24-4.34
 junglecat_wing_thickness = 10.85; // measured: 11.10
 junglecat_wing_radius = 1.0;
@@ -1193,7 +1194,7 @@ module joycon_cuts(){
         color(negativeColor, 0.2)
         translate([0, -body_length/2-case_thickness2-joycon_depth/2, shell_centerline_translate]) {
             //inner cutout
-            translate([body_width/2+case_thickness2,0,0])
+            translate([body_width/2+case_thickness2+smidge,0,0])
             cuboid([joycon_length,joycon_depth,joycon_inner_width], anchor=RIGHT);
             //lip cutout
             translate([body_width/2+case_thickness2,-joycon_depth/2-joycon_lip_thickness/2,0]) {
@@ -1220,6 +1221,7 @@ module joycon_cuts(){
                 lock_notch_width, 
                 joycon_lip_thickness+0.5, 
                 lock_notch_depth], 
+                // TODO: anchor this to the top (opening of rail), it's not caulcating lock_notch_offset properly
                 center=true
             );
         }
