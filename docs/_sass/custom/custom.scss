@@ -12,3 +12,8 @@
   }
 }
 
+.site-title {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  margin-right: 40px; // avoid clicking title logo when pressing nav hamburger menu
+}
