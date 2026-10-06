@@ -1,0 +1,14 @@
+// Custom overrides for just-the-docs defaults.
+// Loaded after theme styles via the remote theme include chain.
+
+.site-header {
+  // taller header
+  min-height: 5rem;
+
+  // header hamburger menu
+  .icon {
+    width: 3rem;
+    height: 3rem;
+  }
+}
+
