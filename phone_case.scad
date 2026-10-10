@@ -409,14 +409,14 @@ rail_shell_radius_bottom = (body_radius_bottom<max_rail_shell_radius) ? body_rad
 rail_body_radius = (body_radius<max_rail_body_radius) ? body_radius : max_rail_body_radius;
 
 // joycon variables
-joycon_lip_width = 7.0; //how far apart the thin rail/lip is
+joycon_lip_width = 7.20; //how far apart the thin rail/lip is
 joycon_lip_thickness = 0.7; //how thick the lip is
-joycon_inner_width = 10.1;
-joycon_depth = 2.4; // tightness of joycon. I've set this as low as 2.3
+joycon_inner_width = 9.7;
+joycon_depth = 2.45; // tightness of joycon. I've set this as low as 2.3
 //this will bottom-out the rail if the body is wide enough
 joycon_length = 91.1;
 lock_notch_width = 3.05; // measured: 2.3
-lock_notch_offset = 9.0; //how far from the top
+lock_notch_offset = 9.15; //how far from the top
 lock_notch_depth = (joycon_inner_width-joycon_lip_width)/2;
 
 //switch 2 / joycon 2 variables
