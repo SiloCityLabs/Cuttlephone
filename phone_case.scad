@@ -1010,6 +1010,7 @@ module junglecat_shell(){
             wing_length_margin = 8;
             translate([body_width/2-junglecat_dimple_from_top/2-wing_length_margin/2, 0, 0])
             minkowski() {
+                // big cuboid crosses the entire phone case, must be cut with body
                 cuboid(
                     [ junglecat_dimple_from_top+wing_length_margin -junglecat_wing_radius*2,
                     body_length + 2*junglecat_depth + 2*junglecat_lip_thickness+ junglecat_stickout*2+case_thickness2*2 -junglecat_wing_radius*2,
@@ -1030,6 +1031,52 @@ module junglecat_shell(){
     }
     //TODO: if case is too thin, make wings
     //find a range of acceptable thicknesses
+
+    // initial grips copied from Switch
+    junglecat_controller_stickout = 37; // how wide the controllers are (not the wings)
+    grip_diam=33;
+    grip_length=91;
+    // 0 = cyl, 1 = ellipse
+    grip_rounding_ratio = 0.65; // [ 0.01 : 0.01 : 0.99 ]
+    grip_angle_out = 12;
+    grip_angle_back = 7;
+    grip_connector_thickness = 4;
+    grips=true;
+    grip_y_offset = junglecat_wings ? junglecat_stickout+junglecat_controller_stickout : junglecat_controller_stickout;
+    if(grips) {
+        copy_mirror() {
+            translate([body_width/2+case_thickness2, -body_length/2-case_thickness2-grip_y_offset, shell_centerline_translate])
+            rotate([0,-grip_angle_back,grip_angle_out])
+            // torpedo shape. Cylinder with ellipse-like rounding at the ends
+            // max size determined by grip_diam and grip_length. Size is distributed via grip_rounding_ratio
+            minkowski() {
+                // ellipse for end-cap rounding
+                spheroid(
+                    d=[grip_length*grip_rounding_ratio, 
+                    grip_diam*grip_rounding_ratio, 
+                    grip_diam*grip_rounding_ratio],
+                    anchor=RIGHT
+                    //anchor=TOP
+                );
+                // long grip shape
+                rotate([0,90,0])
+                cyl(
+                    d=grip_diam*(1-grip_rounding_ratio),
+                    l=grip_length*(1-grip_rounding_ratio),
+                    anchor=TOP
+                );
+            }
+            // anchored at the top of the case ... until I figure out what to do with telescoping slider
+            translate([0,-body_length/2-case_thickness2-grip_y_offset,shell_bottom])
+            cuboid(
+                [body_width/2, grip_y_offset, grip_connector_thickness],
+                //rounding=grip_connector_thickness/4,
+                anchor=TOP+LEFT+FRONT
+            );
+        }
+        // TODO: cut slot for junglecat
+        // TODO: if telescoping, combine grip backplate with telescope halves
+    }
     
     
     telescopic_clamp();
