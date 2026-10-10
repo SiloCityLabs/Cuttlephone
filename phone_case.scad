@@ -1032,47 +1032,69 @@ module junglecat_shell(){
     //TODO: if case is too thin, make wings
     //find a range of acceptable thicknesses
 
+    // controller shape to cut out
+    junglecat_controller_y = 37.0; // how wide the controller is (sticking out from phone)
+    junglecat_controller_z = 21.0; // how thick the controller is
+
     // initial grips copied from Switch
-    junglecat_controller_stickout = 37; // how wide the controllers are (not the wings)
     grip_diam=33;
     grip_length=91;
     // 0 = cyl, 1 = ellipse
-    grip_rounding_ratio = 0.65; // [ 0.01 : 0.01 : 0.99 ]
+    grip_rounding_ratio = 0.75; // [ 0.01 : 0.01 : 0.99 ]
     grip_angle_out = 12;
     grip_angle_back = 7;
     grip_connector_thickness = 4;
     grips=true;
-    grip_y_offset = junglecat_wings ? junglecat_stickout+junglecat_controller_stickout : junglecat_controller_stickout;
+    grip_y_offset = junglecat_wings ? junglecat_stickout+junglecat_controller_y/2 : junglecat_controller_y;
+    grip_z_offset = grip_diam/2-(body_thickness+case_thickness2)/2;
+    // controller edge of the device, whether it has wings or not
+    controller_y_offset = junglecat_wings ? junglecat_stickout : 0;
     if(grips) {
         copy_mirror() {
-            translate([body_width/2+case_thickness2, -body_length/2-case_thickness2-grip_y_offset, shell_centerline_translate])
-            rotate([0,-grip_angle_back,grip_angle_out])
-            // torpedo shape. Cylinder with ellipse-like rounding at the ends
-            // max size determined by grip_diam and grip_length. Size is distributed via grip_rounding_ratio
-            minkowski() {
-                // ellipse for end-cap rounding
-                spheroid(
-                    d=[grip_length*grip_rounding_ratio, 
-                    grip_diam*grip_rounding_ratio, 
-                    grip_diam*grip_rounding_ratio],
-                    anchor=RIGHT
-                    //anchor=TOP
-                );
-                // long grip shape
-                rotate([0,90,0])
-                cyl(
-                    d=grip_diam*(1-grip_rounding_ratio),
-                    l=grip_length*(1-grip_rounding_ratio),
-                    anchor=TOP
+        difference() {
+            union() {
+                translate([body_width/2+case_thickness2, -body_length/2-case_thickness2-grip_y_offset, shell_centerline_translate-grip_z_offset])
+                rotate([0,-grip_angle_back,grip_angle_out])
+                // torpedo shape. Cylinder with ellipse-like rounding at the ends
+                // max size determined by grip_diam and grip_length. Size is distributed via grip_rounding_ratio
+                minkowski() {
+                    // ellipse for end-cap rounding
+                    spheroid(
+                        d=[grip_length*grip_rounding_ratio, 
+                        grip_diam*grip_rounding_ratio, 
+                        grip_diam*grip_rounding_ratio],
+                        anchor=RIGHT
+                        //anchor=TOP
+                    );
+                    // long grip shape
+                    rotate([0,90,0])
+                    cyl(
+                        d=grip_diam*(1-grip_rounding_ratio),
+                        l=grip_length*(1-grip_rounding_ratio),
+                        anchor=TOP
+                    );
+                }
+                // anchored at the top of the case ... until I figure out what to do with telescoping slider
+                translate([0,-body_length/2-case_thickness2-grip_y_offset,shell_bottom])
+                cuboid(
+                    [body_width/2, grip_y_offset, grip_connector_thickness],
+                    //rounding=grip_connector_thickness/4,
+                    anchor=TOP+LEFT+FRONT
                 );
             }
-            // anchored at the top of the case ... until I figure out what to do with telescoping slider
-            translate([0,-body_length/2-case_thickness2-grip_y_offset,shell_bottom])
+
+            // cutout for controller
+            translate([0, -body_length/2-case_thickness2-controller_y_offset, 0])
             cuboid(
-                [body_width/2, grip_y_offset, grip_connector_thickness],
-                //rounding=grip_connector_thickness/4,
-                anchor=TOP+LEFT+FRONT
+                [   body_width*1.5, // cut slot all the way through
+                    junglecat_controller_y, 
+                    junglecat_controller_z
+                ],
+                rounding = junglecat_controller_z/16, // BS rounding
+                edges = ["X"],
+                anchor=BACK
             );
+        }
         }
         // TODO: cut slot for junglecat
         // TODO: if telescoping, combine grip backplate with telescope halves
