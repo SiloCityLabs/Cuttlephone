@@ -1050,20 +1050,22 @@ module junglecat_shell(){
 
 // controller shape to cut out
 junglecat_controller_y = 37.9; // how wide the controller is (sticking out from phone)
-junglecat_controller_z = 20.2; // how thick the controller is
+junglecat_controller_z = 24.5; // how thick the controller is
+// 2*( 5+4.2+2.8/2 ) + clearance = 21.2 + clearance = 22.5
 junglecat_controller_trigger = 19.5; // trigger sticks into grip area
 
 // initial grips copied from Switch
 grip_diam=33;
-grip_length=91;
+grip_diam_z=38; // make this larger for finger grip
+grip_length=100;
 // 0 = cyl, 1 = ellipse
-grip_rounding_ratio = 0.75; // [ 0.01 : 0.01 : 0.99 ]
+grip_rounding_ratio = 0.65; // [ 0.01 : 0.01 : 0.99 ]
 grip_angle_out = 12;
 grip_angle_back = 7;
 grip_connector_thickness = 4;
 grips=true;
 grip_y_offset = junglecat_wings ? junglecat_stickout+junglecat_controller_y/2 : junglecat_controller_y;
-grip_z_offset = grip_diam/2-(body_thickness+case_thickness2)/2;
+grip_z_offset = grip_diam_z/2-(body_thickness+case_thickness2)/2;
 // controller edge of the device, whether it has wings or not
 controller_y_offset = junglecat_wings ? junglecat_stickout : 0;
 module junglecat_grip(){
@@ -1080,7 +1082,7 @@ module junglecat_grip(){
                     spheroid(
                         d=[grip_length*grip_rounding_ratio, 
                         grip_diam*grip_rounding_ratio, 
-                        grip_diam*grip_rounding_ratio],
+                        grip_diam_z*grip_rounding_ratio],
                         anchor=RIGHT,
                         style="icosa", // polygon generation at low $fn
                         circum=true,
@@ -1091,7 +1093,8 @@ module junglecat_grip(){
                     cyl(
                         d=grip_diam*(1-grip_rounding_ratio),
                         l=grip_length*(1-grip_rounding_ratio),
-                        anchor=TOP
+                        anchor=TOP,
+                        rounding=grip_diam*(1-grip_rounding_ratio)/2.1
                         // ,$fn=highFn*2 // has little impact
                     );
                 }
