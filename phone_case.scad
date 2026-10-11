@@ -1052,7 +1052,8 @@ module junglecat_shell(){
 junglecat_controller_y = 37.9; // how wide the controller is (sticking out from phone)
 junglecat_controller_z = 24.5; // how thick the controller is
 // 2*( 5+4.2+2.8/2 ) + clearance = 21.2 + clearance = 22.5
-junglecat_controller_trigger = 19.5; // trigger sticks into grip area
+junglecat_controller_trigger_radius = 14.5; // trigger sticks into grip area
+junglecat_controller_trigger_x = 7.8; // from top of controller to trigger guard swoop
 
 // initial grips copied from Switch
 grip_diam=33;
@@ -1112,7 +1113,7 @@ module junglecat_grip(){
 
                 // TODO: shell_bottom doesn't align perfectly with bottom
                 
-                translate([body_width/2-junglecat_controller_trigger,-body_length/2,shell_bottom-grip_connector_thickness+smidge])
+                translate([body_width/2-junglecat_controller_trigger_x,-body_length/2,shell_bottom-grip_connector_thickness+smidge])
                 rotate([90,-90,0])
                 linear_extrude(height=grip_y_offset) {
                     trapezoid(
@@ -1159,20 +1160,21 @@ module junglecat_grip_cut(){
     );
 
     // trigger cutout
-    translate([body_width/2+case_thickness2, -body_length/2-case_thickness2-controller_y_offset, 0])
+    translate([body_width/2+case_thickness2-junglecat_controller_trigger_x, -body_length/2-case_thickness2-controller_y_offset, 0])
     rotate([0,90,0])
     cuboid(
         [   junglecat_controller_z,
             junglecat_controller_y, 
             junglecat_controller_z
         ],
-        rounding = -junglecat_controller_z, // BS rounding
+        rounding = -junglecat_controller_trigger_radius,
+        
         edges=[TOP+RIGHT],
         anchor=BACK+TOP
     );
     
     // the grip pokes up a little bit (because it's rotated) so cut off any stragglers after trigger cut
-    translate([body_width/2+case_thickness2-smidge, -body_length/2-case_thickness2-controller_y_offset, 0])
+    translate([body_width/2+case_thickness2-junglecat_controller_trigger_x-smidge, -body_length/2-case_thickness2-controller_y_offset, 0])
     cuboid(
         [   grip_diam*3,
             grip_diam*3, 
