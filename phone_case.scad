@@ -1031,24 +1031,42 @@ module junglecat_shell(){
     }
     //TODO: if case is too thin, make wings
     //find a range of acceptable thicknesses
+    
+    junglecat_grip();
+    
+    telescopic_clamp();
+    
+    module junglecat_edge_shape(){
+        //edge shape and thickness
+        translate([0,0,0])
+        cyl( 
+            l=body_thickness + shell_z_thickness, 
+            r=rail_body_radius+case_thickness2,
+            rounding1=rail_shell_radius_bottom, 
+            rounding2=rail_shell_radius_top
+        );
+    }
+}
 
-    // controller shape to cut out
-    junglecat_controller_y = 37.0; // how wide the controller is (sticking out from phone)
-    junglecat_controller_z = 21.0; // how thick the controller is
+// controller shape to cut out
+junglecat_controller_y = 37.9; // how wide the controller is (sticking out from phone)
+junglecat_controller_z = 20.2; // how thick the controller is
+junglecat_controller_trigger = 19.5; // trigger sticks into grip area
 
-    // initial grips copied from Switch
-    grip_diam=33;
-    grip_length=91;
-    // 0 = cyl, 1 = ellipse
-    grip_rounding_ratio = 0.75; // [ 0.01 : 0.01 : 0.99 ]
-    grip_angle_out = 12;
-    grip_angle_back = 7;
-    grip_connector_thickness = 4;
-    grips=true;
-    grip_y_offset = junglecat_wings ? junglecat_stickout+junglecat_controller_y/2 : junglecat_controller_y;
-    grip_z_offset = grip_diam/2-(body_thickness+case_thickness2)/2;
-    // controller edge of the device, whether it has wings or not
-    controller_y_offset = junglecat_wings ? junglecat_stickout : 0;
+// initial grips copied from Switch
+grip_diam=33;
+grip_length=91;
+// 0 = cyl, 1 = ellipse
+grip_rounding_ratio = 0.75; // [ 0.01 : 0.01 : 0.99 ]
+grip_angle_out = 12;
+grip_angle_back = 7;
+grip_connector_thickness = 4;
+grips=true;
+grip_y_offset = junglecat_wings ? junglecat_stickout+junglecat_controller_y/2 : junglecat_controller_y;
+grip_z_offset = grip_diam/2-(body_thickness+case_thickness2)/2;
+// controller edge of the device, whether it has wings or not
+controller_y_offset = junglecat_wings ? junglecat_stickout : 0;
+module junglecat_grip(){
     if(grips) {
         copy_mirror() {
         difference() {
@@ -1063,8 +1081,10 @@ module junglecat_shell(){
                         d=[grip_length*grip_rounding_ratio, 
                         grip_diam*grip_rounding_ratio, 
                         grip_diam*grip_rounding_ratio],
-                        anchor=RIGHT
-                        //anchor=TOP
+                        anchor=RIGHT,
+                        style="icosa", // polygon generation at low $fn
+                        circum=true,
+                        $fn=highFn*1.8
                     );
                     // long grip shape
                     rotate([0,90,0])
@@ -1072,47 +1092,91 @@ module junglecat_shell(){
                         d=grip_diam*(1-grip_rounding_ratio),
                         l=grip_length*(1-grip_rounding_ratio),
                         anchor=TOP
+                        // ,$fn=highFn*2 // has little impact
                     );
                 }
-                // anchored at the top of the case ... until I figure out what to do with telescoping slider
+
+                // anchor at the top of the case / top of controller rail 
+                // TODO: combine with telescoping slider
+                *
                 translate([0,-body_length/2-case_thickness2-grip_y_offset,shell_bottom])
                 cuboid(
                     [body_width/2, grip_y_offset, grip_connector_thickness],
-                    //rounding=grip_connector_thickness/4,
+                    rounding=grip_connector_thickness/4,
+                    edges=["Y"],
                     anchor=TOP+LEFT+FRONT
                 );
+
+                // TODO: shell_bottom doesn't align perfectly with bottom
+                
+                translate([body_width/2-junglecat_controller_trigger,-body_length/2,shell_bottom-grip_connector_thickness+smidge])
+                rotate([90,-90,0])
+                linear_extrude(height=grip_y_offset) {
+                    trapezoid(
+                        h=body_width*0.33,
+                        w1=grip_connector_thickness,
+                        w2=grip_connector_thickness/4,
+                        shift=grip_connector_thickness/2,
+                        anchor=[-1,-1],
+                        rounding=[
+                            0,
+                            grip_connector_thickness/4,
+                            // should just be grip_connector_thickness, but union() chokes on assertion error
+                            grip_connector_thickness/1.2,
+                            0
+                        ]
+                    );
+                }
+                //prismoid(size1=[10,40], size2=[40,10], h=40);
             }
 
-            // cutout for controller
-            translate([0, -body_length/2-case_thickness2-controller_y_offset, 0])
-            cuboid(
-                [   body_width*1.5, // cut slot all the way through
-                    junglecat_controller_y, 
-                    junglecat_controller_z
-                ],
-                rounding = junglecat_controller_z/16, // BS rounding
-                edges = ["X"],
-                anchor=BACK
-            );
+            // controller slot
+            color(negativeColor, 0.4)
+            junglecat_grip_cut();
         }
         }
         // TODO: cut slot for junglecat
         // TODO: if telescoping, combine grip backplate with telescope halves
     }
+}
+
+// shape of controller, cut out of grip
+//junglecat_grip_cut();
+module junglecat_grip_cut(){
+    // cutout for controller
+    translate([0, -body_length/2-case_thickness2-controller_y_offset, 0])
+    cuboid(
+        [   body_width*1.5, // cut slot all the way through
+            junglecat_controller_y, 
+            junglecat_controller_z
+        ],
+        rounding = junglecat_controller_z/16, // BS rounding
+        edges = ["X"],
+        anchor=BACK
+    );
+
+    // trigger cutout
+    translate([body_width/2+case_thickness2, -body_length/2-case_thickness2-controller_y_offset, 0])
+    rotate([0,90,0])
+    cuboid(
+        [   junglecat_controller_z,
+            junglecat_controller_y, 
+            junglecat_controller_z
+        ],
+        rounding = -junglecat_controller_z, // BS rounding
+        edges=[TOP+RIGHT],
+        anchor=BACK+TOP
+    );
     
-    
-    telescopic_clamp();
-    
-    module junglecat_edge_shape(){
-        //edge shape and thickness
-        translate([0,0,0])
-        cyl( 
-            l=body_thickness + shell_z_thickness, 
-            r=rail_body_radius+case_thickness2,
-            rounding1=rail_shell_radius_bottom, 
-            rounding2=rail_shell_radius_top
-        );
-    }
+    // the grip pokes up a little bit (because it's rotated) so cut off any stragglers after trigger cut
+    translate([body_width/2+case_thickness2-smidge, -body_length/2-case_thickness2-controller_y_offset, 0])
+    cuboid(
+        [   grip_diam*3,
+            grip_diam*3, 
+            grip_diam*3
+        ],
+        anchor=BACK+LEFT
+    );
 }
 
 
