@@ -15,12 +15,12 @@ Cuttlephone is phone case generator and gamepad system for 3D printing. This is 
  - Switch Joy-Con rails
  - Razer Junglecat rails
  
- # How to use phone case generator
+# How to use phone case generator
  - install [OpenSCAD](https://openscad.org/downloads.html) version 2021.01 or greater
  - Download the code and its dependencies using the git command line: `git clone https://github.com/SiloCityLabs/Cuttlephone.git --recurse-submodules`
  - open the file "phone_case.scad" to use the GUI
- 
- # Build scripts
+
+# Build scripts
  - in bash run `sh build.sh` to create all variants for all phones
  - GitHub Actions uploads those files to a [GitHub Release](https://github.com/SiloCityLabs/Cuttlephone/releases)
 
