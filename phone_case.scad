@@ -498,6 +498,7 @@ junglecat_wing_top_radius = junglecat_stickout;
 junglecat_wings = body_thickness+shell_z_thickness > junglecat_wing_thickness;
 // cutout isn't perfectly center
 junglecat_cut_z_shift = 0.1;
+junglecat_lip_z_shift = -0.1;
 
 //embossment text
 name = "Cuttlephone";
@@ -1051,10 +1052,12 @@ module junglecat_shell(){
 // controller shape to cut out
 junglecat_controller_y = 37.9; // how wide the controller is (sticking out from phone)
 junglecat_controller_z = 24.5; // how thick the controller is
-junglecat_controller_x = 83.0; // how tall
+junglecat_controller_x = 80.0; // how tall
 // 2*( 5+4.2+2.8/2 ) + clearance = 21.2 + clearance = 22.5
 junglecat_controller_trigger_radius = 14.5; // trigger sticks into grip area
 junglecat_controller_trigger_x = 7.8; // from top of controller to trigger guard swoop
+junglecat_rounding_xy = 3.0; // xy plane (edge of controller)
+junglecat_rounding_z = 7; // z dir (top-down)
 
 // initial grips copied from Switch
 grip_diam=33;
@@ -1063,11 +1066,11 @@ grip_length=100;
 // 0 = cyl, 1 = ellipse
 grip_rounding_ratio = 0.65; // [ 0.01 : 0.01 : 0.99 ]
 grip_angle_out = 12;
-grip_angle_back = 7;
-grip_connector_thickness = 4;
+grip_angle_back = 9;
+grip_connector_thickness = 9;
 grips=true;
 grip_y_offset = junglecat_wings ? junglecat_stickout+junglecat_controller_y/2 : junglecat_controller_y;
-grip_z_offset = grip_diam_z/2-(body_thickness+case_thickness2)/2;
+grip_z_offset = -grip_diam_z*0.5+(body_thickness+case_thickness2)*0.75;
 // controller edge of the device, whether it has wings or not
 controller_y_offset = junglecat_wings ? junglecat_stickout : 0;
 module junglecat_grip(){
@@ -1075,7 +1078,7 @@ module junglecat_grip(){
         copy_mirror() {
         difference() {
             union() {
-                translate([body_width/2+case_thickness2, -body_length/2-case_thickness2-grip_y_offset, shell_centerline_translate-grip_z_offset])
+                translate([body_width/2+case_thickness2, -body_length/2-case_thickness2-grip_y_offset, shell_centerline_translate+grip_z_offset])
                 rotate([0,-grip_angle_back,grip_angle_out])
                 // torpedo shape. Cylinder with ellipse-like rounding at the ends
                 // max size determined by grip_diam and grip_length. Size is distributed via grip_rounding_ratio
@@ -1103,7 +1106,8 @@ module junglecat_grip(){
 
                 // anchor at the top of the case / top of controller rail 
                 // TODO: combine with telescoping slider
-                *
+                
+                * // old version, not angled, but doesn't crash CGAL
                 translate([0,-body_length/2-case_thickness2-grip_y_offset,shell_bottom])
                 cuboid(
                     [body_width/2, grip_y_offset, grip_connector_thickness],
@@ -1113,12 +1117,12 @@ module junglecat_grip(){
                 );
 
                 // TODO: shell_bottom doesn't align perfectly with bottom
-                
-                translate([body_width/2-junglecat_controller_trigger_x,-body_length/2,shell_bottom-grip_connector_thickness+smidge])
+                // attach grip to case
+                translate([body_width/2-junglecat_controller_trigger_x-junglecat_controller_trigger_radius,-body_length/2-case_thickness2/2,shell_bottom-grip_connector_thickness+smidge*2])
                 rotate([90,-90,0])
                 linear_extrude(height=grip_y_offset) {
                     trapezoid(
-                        h=body_width*0.33,
+                        h=body_width*0.35,
                         w1=grip_connector_thickness,
                         w2=grip_connector_thickness/4,
                         shift=grip_connector_thickness/2,
@@ -1126,8 +1130,8 @@ module junglecat_grip(){
                         rounding=[
                             0,
                             grip_connector_thickness/4,
-                            // should just be grip_connector_thickness, but union() chokes on assertion error
-                            grip_connector_thickness/1.2,
+                            // should just be grip_connector_thickness, but union() / CGAL chokes on assertion error
+                            grip_connector_thickness/2,
                             0
                         ]
                     );
@@ -1148,23 +1152,20 @@ module junglecat_grip(){
 // shape of controller, cut out of grip
 //junglecat_grip_cut();
 module junglecat_grip_cut(){
-    // cutout for controller
-    rounding_xy = 2.4; // xy plane
-    rounding_z = 6; // z dir
     // TODO: why is this -case_thickness2/2 ... junglecat shell thickness is off
-    translate([body_width/2 -junglecat_controller_x/2, -body_length/2-case_thickness2/2-controller_y_offset-junglecat_controller_y/2, 0])
+    translate([body_width/2 -junglecat_controller_x/2, -body_length/2-case_thickness2/2-controller_y_offset-junglecat_controller_y/2+0.25, 0])
     minkowski() {
         cuboid(
-            [   junglecat_controller_x -rounding_z*2,
-                junglecat_controller_y -rounding_z*2, 
+            [   junglecat_controller_x -junglecat_rounding_z*2,
+                junglecat_controller_y -junglecat_rounding_z*2, 
                 0.01
             ],
         );
 
         cyl(
             h=junglecat_controller_z,
-            r=rounding_z, // bottom right corner (when viewing screen)
-            //rounding=rounding_xy, // doesn't blend with trigger cut, I don't feel like minkowski aligning
+            r=junglecat_rounding_z, // bottom right corner (when viewing screen)
+            rounding=junglecat_rounding_xy, // doesn't blend with trigger cut
         );
     }
 
@@ -1291,6 +1292,7 @@ module junglecat_cuts(){
                 if(manual_supports==true && rotate_upright==false){
                     //this adds a gap to aide removal. It'll probably still require a razor blade
                     removal_aid = 4;
+                    translate([0,0,junglecat_lip_z_shift])
                     rotate([90,0,0])
                     rect_tube(
                         size=[ junglecat_rail_length + 0.5, junglecat_lip_width ],
@@ -1300,6 +1302,7 @@ module junglecat_cuts(){
                 }
                 else {
                     //cut out the rail slot. Bring your own support
+                    translate([0,0,junglecat_lip_z_shift])
                     cube([junglecat_rail_length + 0.5, junglecat_depth, junglecat_lip_width ], center=true);
                     
                     // ramp for ball detent
