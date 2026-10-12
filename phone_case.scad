@@ -1051,6 +1051,7 @@ module junglecat_shell(){
 // controller shape to cut out
 junglecat_controller_y = 37.9; // how wide the controller is (sticking out from phone)
 junglecat_controller_z = 24.5; // how thick the controller is
+junglecat_controller_x = 83.0; // how tall
 // 2*( 5+4.2+2.8/2 ) + clearance = 21.2 + clearance = 22.5
 junglecat_controller_trigger_radius = 14.5; // trigger sticks into grip area
 junglecat_controller_trigger_x = 7.8; // from top of controller to trigger guard swoop
@@ -1148,19 +1149,27 @@ module junglecat_grip(){
 //junglecat_grip_cut();
 module junglecat_grip_cut(){
     // cutout for controller
-    translate([0, -body_length/2-case_thickness2-controller_y_offset, 0])
-    cuboid(
-        [   body_width*1.5, // cut slot all the way through
-            junglecat_controller_y, 
-            junglecat_controller_z
-        ],
-        rounding = junglecat_controller_z/16, // BS rounding
-        edges = ["X"],
-        anchor=BACK
-    );
+    rounding_xy = 2.4; // xy plane
+    rounding_z = 6; // z dir
+    // TODO: why is this -case_thickness2/2 ... junglecat shell thickness is off
+    translate([body_width/2 -junglecat_controller_x/2, -body_length/2-case_thickness2/2-controller_y_offset-junglecat_controller_y/2, 0])
+    minkowski() {
+        cuboid(
+            [   junglecat_controller_x -rounding_z*2,
+                junglecat_controller_y -rounding_z*2, 
+                0.01
+            ],
+        );
+
+        cyl(
+            h=junglecat_controller_z,
+            r=rounding_z, // bottom right corner (when viewing screen)
+            //rounding=rounding_xy, // doesn't blend with trigger cut, I don't feel like minkowski aligning
+        );
+    }
 
     // trigger cutout
-    translate([body_width/2+case_thickness2-junglecat_controller_trigger_x, -body_length/2-case_thickness2-controller_y_offset, 0])
+    translate([body_width/2+case_thickness2-junglecat_controller_trigger_x, -body_length/2-case_thickness2/2-controller_y_offset, 0])
     rotate([0,90,0])
     cuboid(
         [   junglecat_controller_z,
