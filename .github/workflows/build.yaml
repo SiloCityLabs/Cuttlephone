@@ -25,16 +25,29 @@ on:
       - .github/workflows/build.yaml
   workflow_dispatch:
     inputs:
-      single_build:
-        description: "Build one test model only via test_build.sh (faster CI check)"
+      full_build:
+        description: "Run full build.sh (needed for releases). Untick for lightweight test_build.sh only."
         required: false
         type: boolean
-        default: false
+        default: true
+
+# Cancel superseded CI runs on the same PR/branch.
+# Manual full builds get a unique group so they are never cancelled.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'workflow_dispatch' && format('manual-{0}', github.run_id) || format('ci-{0}', github.event.pull_request.number || github.ref) }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+
+env:
+  # Pin snapshot so CI is reproducible; bump deliberately when upgrading.
+  OPENSCAD_VERSION: "2026.10.18"
+  OPENSCAD_APPIMAGE: "OpenSCAD-2026.10.18-x86_64.AppImage"
+  OPENSCAD_DIR: ${{ github.workspace }}/.openscad
 
 jobs:
   build:
     runs-on: ubuntu-26.04
-    timeout-minutes: ${{ github.event_name == 'workflow_dispatch' && inputs.single_build && 60 || 360 }}
+    # Full builds can take several minutes; test builds should finish in seconds.
+    timeout-minutes: ${{ github.event_name == 'workflow_dispatch' && inputs.full_build && 360 || 60 }}
 
     steps:
       - name: Checkout code
@@ -53,43 +66,50 @@ jobs:
             libxkbcommon0 \
             libglu1-mesa
 
+      - name: Cache OpenSCAD
+        id: openscad-cache
+        uses: actions/cache@v6
+        with:
+          path: ${{ env.OPENSCAD_DIR }}
+          key: openscad-${{ env.OPENSCAD_VERSION }}-${{ runner.os }}-${{ runner.arch }}
+
       - name: Install OpenSCAD
+        if: steps.openscad-cache.outputs.cache-hit != 'true'
         run: |
           set -euo pipefail
-          APPIMAGE=$(curl -sL https://files.openscad.org/snapshots/ \
-            | grep -oE 'OpenSCAD-[0-9.]+-x86_64\.AppImage' \
-            | sort -u \
-            | tail -1)
-          if [ -z "$APPIMAGE" ]; then
-            echo "Error: could not find OpenSCAD AppImage on snapshots page" >&2
-            exit 1
-          fi
-          echo "Downloading $APPIMAGE"
-          curl -L "https://files.openscad.org/snapshots/${APPIMAGE}" -o /tmp/openscad.AppImage
+          mkdir -p "$OPENSCAD_DIR"
+          curl -L "https://files.openscad.org/snapshots/${OPENSCAD_APPIMAGE}" \
+            -o /tmp/openscad.AppImage
           chmod +x /tmp/openscad.AppImage
           # Extract instead of FUSE mount; more reliable on GitHub runners
           cd /tmp
           ./openscad.AppImage --appimage-extract
-          sudo mv squashfs-root /opt/openscad
-          cat <<'EOF' | sudo tee /usr/local/bin/openscad >/dev/null
+          mv squashfs-root "$OPENSCAD_DIR/squashfs-root"
+
+      - name: Link OpenSCAD
+        run: |
+          set -euo pipefail
+          cat <<EOF | sudo tee /usr/local/bin/openscad >/dev/null
           #!/usr/bin/env bash
           set -euo pipefail
-          export APPDIR="/opt/openscad"
-          exec "$APPDIR/AppRun" "$@"
+          export APPDIR="${OPENSCAD_DIR}/squashfs-root"
+          exec "\$APPDIR/AppRun" "\$@"
           EOF
           sudo chmod +x /usr/local/bin/openscad
           openscad --version
 
       - name: Build models
         env:
-          SINGLE_BUILD: ${{ github.event_name == 'workflow_dispatch' && inputs.single_build }}
+          # PRs and pushes always use the lightweight test build.
+          # Manual runs default to full build for release artifacts.
+          FULL_BUILD: ${{ github.event_name == 'workflow_dispatch' && inputs.full_build }}
         run: |
-          if [ "$SINGLE_BUILD" = "true" ]; then
-            chmod +x test_build.sh
-            xvfb-run --auto-servernum --server-args="-screen 0 1024x768x24" ./test_build.sh
-          else
+          if [ "$FULL_BUILD" = "true" ]; then
             chmod +x build.sh
             xvfb-run --auto-servernum --server-args="-screen 0 1024x768x24" ./build.sh
+          else
+            chmod +x test_build.sh
+            xvfb-run --auto-servernum --server-args="-screen 0 1024x768x24" ./test_build.sh
           fi
 
       - name: Verify build outputs
@@ -105,7 +125,7 @@ jobs:
       - name: Upload model artifacts
         uses: actions/upload-artifact@v7
         with:
-          # Separate name so single-build runs are not used by the release workflow
-          name: ${{ github.event_name == 'workflow_dispatch' && inputs.single_build && 'phone-case-models-test' || 'phone-case-models' }}
+          # Release workflow consumes phone-case-models only (full builds).
+          name: ${{ github.event_name == 'workflow_dispatch' && inputs.full_build && 'phone-case-models' || 'phone-case-models-test' }}
           path: build/
           retention-days: 7

@@ -83,7 +83,7 @@ for model in "${presets[@]}"; do
             case_thickness=${case_thicknesses[$case_material]}
             
             echo "Building ${filename}"
-            openscad -o build/"${filename}" -D "case_type_override=\"$case_type\"; case_material_override=\"$case_material\"; case_thickness_override=\"$case_thickness\"; version=\"$version-$git_commit\";" -p phone_case.json -P "${model}" phone_case.scad
+            openscad -o build/"${filename}" -D "render_quality=\"nice\"; case_type_override=\"$case_type\"; case_material_override=\"$case_material\"; case_thickness_override=\"$case_thickness\"; version=\"$version-$git_commit\";" -p phone_case.json -P "${model}" phone_case.scad
             echo
         fi
         done

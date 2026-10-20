@@ -33,7 +33,7 @@ jobs:
             });
 
             // Prefer runs that uploaded the full phone-case-models artifact
-            // (skips single_build test runs which use phone-case-models-test)
+            // (skips CI test builds which use phone-case-models-test)
             let selected = null;
             for (const candidate of runs.data.workflow_runs) {
               if (candidate.conclusion !== "success") continue;

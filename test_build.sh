@@ -44,7 +44,7 @@ for case_type in "${case_types[@]}"; do
         echo "Building ${filename}"
         openscad -o build/"${filename}" \
             -p phone_case.json -P "${model}" phone_case.scad \
-            -D "render_quality=\"nice\"; case_type_override=\"$case_type\"; case_material_override=\"$case_material\"; case_thickness_override=\"$case_thickness\"; version=\"$version-$git_commit\";" \
+            -D "case_type_override=\"$case_type\"; case_material_override=\"$case_material\"; case_thickness_override=\"$case_thickness\"; version=\"$version-$git_commit\";" \
             ;
         echo
     done

@@ -42,6 +42,7 @@ pcb/intermediates/
 
 # local secrets, see docs/.env.example
 .env
+docs/.env
 
 # local file server for Jekyll pages
 #Gemfile
