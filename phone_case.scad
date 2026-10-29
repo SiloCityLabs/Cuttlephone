@@ -40,8 +40,6 @@ shell_screen_min_lip_inner = 1; // 0.1
 // holes for a lanyard, placed in one of the corners
 lanyard_loop = false;
 lanyard_reinforcement = true;
-// requires side alignment
-//lanyard_face = "bottom"; // [bottom, top, left, right]
 // top/bottom or left/right
 lanyard_on_side = false;
 lanyard_mirror_x = false;
