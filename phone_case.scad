@@ -2916,14 +2916,6 @@ module shallow_fillet(l=1.0, r, ang=90) {
     //todo: smooth the transition from this cut to the body radius
 }
 
-module ring(h=8, od = body_thickness+case_thickness2*2, id = 7, de = 0.1 ) {
-    difference() {
-        cylinder(h=h, r=od/2);
-        translate([0, 0, -de])
-            cylinder(h=h+2*de, r=id/2);
-    }
-}
-
 //copy and mirror an object
 module copy_mirror(vec=[0,1,0]){
     children();
