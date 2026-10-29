@@ -42,10 +42,10 @@ lanyard_loop = false;
 lanyard_reinforcement = true;
 // requires side alignment
 //lanyard_face = "bottom"; // [bottom, top, left, right]
-// move lanyard to the other side of the same face
-lanyard_mirror = false;
-// move lanyard to opposite face
-lanyard_mirror_face = false;
+// top/bottom or left/right
+lanyard_on_side = false;
+lanyard_mirror_x = false;
+lanyard_mirror_y = false;
 // sharper angles
 lanyard_chamfer = false;
 
@@ -1854,8 +1854,11 @@ module screen_angled_bezels(){
     }
 }
 
-lanyard_sign_x = lanyard_mirror ? 1 : 0;
-lanyard_sign_y = lanyard_mirror_face ? 1 : 0;
+lanyard_sign_side = lanyard_on_side ? 1 : 0;
+lanyard_sign_x = lanyard_mirror_x ? 1 : 0;
+lanyard_sign_y = lanyard_mirror_y ? 1 : 0;
+lanyard_bottom_move = [body_width/3.2,-body_length/2-case_thickness2,-case_thickness2/3];
+lanyard_right_move = [body_width/2+case_thickness2,-body_length/2+body_radius*2,-case_thickness2/3];
 *color(negativeColor, 0.4) lanyard_cut();
 module lanyard_cut(){
     //ring cutout makes 2 slots for thin string lanyards
@@ -1863,10 +1866,11 @@ module lanyard_cut(){
     color(negativeColor, 0.4) 
     mirror([0,lanyard_sign_y,0])
     mirror([lanyard_sign_x,0,0])
-    translate([body_width/3.2,-body_length/2,-case_thickness2/3])
+    translate( lanyard_on_side ? lanyard_right_move : lanyard_bottom_move )
+    rotate([0,0, lanyard_on_side ? 90 : 0 ])
     move_copies([[1.3, 0, 0], [-1.3, 0, 0]])
     cuboid(
-        [1.6, body_length, 2.1],
+        [1.6, case_thickness2*4, 2.1],
         rounding=0.7,
         $fn=lowFn
     );
@@ -1879,7 +1883,8 @@ module lanyard_reinforce() {
         color("royalblue")
         mirror([0,lanyard_sign_y,0])
         mirror([lanyard_sign_x,0,0])
-        translate([body_width/3.2,-body_length/2-case_thickness+smidge,-case_thickness2/3])
+        translate( lanyard_on_side ? lanyard_right_move : lanyard_bottom_move )
+        rotate([0,0, lanyard_on_side ? 90 : 0 ])
         cuboid(
             [7.5, case_thickness2*1.5, 3.5],
             rounding=1,
