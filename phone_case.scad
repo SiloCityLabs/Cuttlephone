@@ -37,8 +37,17 @@ shell_screen_max_lip_outer = 2; // 0.1
 // Thinnest the lip should be on the inner edges
 shell_screen_min_lip_inner = 1; // 0.1
 
+// holes for a lanyard, placed in one of the corners
 lanyard_loop = false;
-lanyard_reinforcement = false;
+lanyard_reinforcement = true;
+// requires side alignment
+//lanyard_face = "bottom"; // [bottom, top, left, right]
+// top/bottom or left/right
+lanyard_on_side = false;
+lanyard_mirror_x = false;
+lanyard_mirror_y = false;
+// sharper angles
+lanyard_chamfer = false;
 
 /* [emboss] */
 phone_model = "Sample case";
@@ -373,7 +382,7 @@ module end_customizer_variables(){}
 //alternate Fn values to speed up OpenSCAD. Turn this up during build
 lowFn = render_quality == "nice" ? 25 : ( render_quality == "export" ? 100 : 10 );
 highFn = render_quality == "nice" ? 50 : ( render_quality == "export" ? 150 : 25 );
-$fn=highFn;
+$fn = $preview ? lowFn : highFn;
 //echo(render_quality);
 
  /* if a variable is defined in JSON, I can't override it by command line */
@@ -591,7 +600,10 @@ module main() {
 module phone_case(){
     difference(){
         color(shellColor, shellOpacity)
-        phone_shell();
+        union() {
+            phone_shell();
+            lanyard_reinforce();
+        }
         body();
         shell_cuts();
     }
@@ -607,7 +619,10 @@ module phone_case(){
 module gamepad(){
     difference(){
         color(shellColor, shellOpacity)
-        gamepad_shell();
+        union() {
+            gamepad_shell();
+            lanyard_reinforce();
+        }
         body();
         cuts();
     }
@@ -647,7 +662,10 @@ module shell_cuts(){
 module joycon_rails(){
     difference(){
         color(shellColor, shellOpacity)
-        joycon_shell();
+        union(){
+            joycon_shell();
+            lanyard_reinforce();
+        }
         body();
         cuts();
     }
@@ -663,7 +681,10 @@ module joycon_rails(){
 module joycon2_rails(){
     difference(){
         color(shellColor, shellOpacity)
-        joycon2_shell();
+        union(){
+            joycon2_shell();
+            lanyard_reinforce();
+        }
         body();
         cuts();
     }
@@ -679,7 +700,10 @@ module joycon2_rails(){
 module junglecat_rails(){
     difference(){
         color(shellColor, shellOpacity)
-        junglecat_shell();
+        union(){
+            junglecat_shell();
+            lanyard_reinforce();
+        }
         body();
         cuts();
     }
@@ -1830,19 +1854,42 @@ module screen_angled_bezels(){
     }
 }
 
-
-*color(negativeColor, 0.2) lanyard_cut();
+lanyard_sign_side = lanyard_on_side ? 1 : 0;
+lanyard_sign_x = lanyard_mirror_x ? 1 : 0;
+lanyard_sign_y = lanyard_mirror_y ? 1 : 0;
+lanyard_bottom_move = [body_width/3.2,-body_length/2-case_thickness2,-case_thickness2/3];
+lanyard_right_move = [body_width/2+case_thickness2,-body_length/2+body_radius*2,-case_thickness2/3];
+*color(negativeColor, 0.4) lanyard_cut();
 module lanyard_cut(){
-    
-    //unsupported
     //ring cutout makes 2 slots for thin string lanyards
     if(lanyard_loop)
-    color(negativeColor, 0.2) 
-    translate([body_width/3.5,-body_length/2,-body_thickness/3])
-    ring(body_thickness/2, 9, 6, 0.1 );
+    color(negativeColor, 0.4) 
+    mirror([0,lanyard_sign_y,0])
+    mirror([lanyard_sign_x,0,0])
+    translate( lanyard_on_side ? lanyard_right_move : lanyard_bottom_move )
+    rotate([0,0, lanyard_on_side ? 90 : 0 ])
+    move_copies([[1.3, 0, 0], [-1.3, 0, 0]])
+    cuboid(
+        [1.6, case_thickness2*4, 2.1],
+        rounding=0.7,
+        $fn=lowFn
+    );
+}
 
-    if(lanyard_reinforcement) {
+*color("blue") lanyard_reinforce();
+module lanyard_reinforce() {
+    if(lanyard_loop && lanyard_reinforcement) {
         //thicken the case around the lanyard holes
+        color("royalblue")
+        mirror([0,lanyard_sign_y,0])
+        mirror([lanyard_sign_x,0,0])
+        translate( lanyard_on_side ? lanyard_right_move : lanyard_bottom_move )
+        rotate([0,0, lanyard_on_side ? 90 : 0 ])
+        cuboid(
+            [7.5, case_thickness2*1.5, 3.5],
+            rounding=1,
+            $fn=lanyard_chamfer ? 2 : $fn // lol chamfer
+        );
     }
 }
 
