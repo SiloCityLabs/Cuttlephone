@@ -1,12 +1,15 @@
 ---
 layout: default
 title: "3D Printing"
+description: "Print Cuttlephone phone cases in PLA+, PETG, ABS, or TPU. Slicer settings, supports, and tips for Joy-Con and Junglecat rails."
 permalink: /guides/print-guide/
 parent: Guides
 
 ---
 
-# Materials
+# 3D printing guide
+
+## Materials
 
 The hard cases can be made using ductile materials like:
  - PLA+
@@ -20,7 +23,7 @@ The soft cases can be made from TPU with a hardness of 90A or more. Overture Hig
 
 Dehydrating filament improves print quality for all types of filament.
 
-# Slicer settings and tuning
+## Slicer settings and tuning
 
 Print quality is essential for Joy-Con and Junglecat rails. Tune the **linear advance setting** to prevent blobbing on the thin edge of the rails. Tune the overhangs to prevent sagging inside the rails.
 
@@ -42,7 +45,7 @@ If you can print a pretty Benchy then you can print this phone case. This exampl
 
 ![a crispy benchy](/images/print-guide/benchy.jpg)
 
-# Separate clamps before printing - Junglecat
+## Separate clamps before printing - Junglecat
 
 The clamps are made of two parts. They must be separated before printing.
 
@@ -52,13 +55,13 @@ Import the model into your slicer. Split the model and then move one of them. Th
 ![separating the left half and right half in PrusaSlicer 2](/images/print-guide/split2.png)
 ![separating the left half and right half in PrusaSlicer 3](/images/print-guide/split3.png)
 
-# Separate clamps before printing - Joycon
+## Separate clamps before printing - Joycon
 
 The Joy-Con rails have manual supports for the locking notch. In your slicer there should be 4 objects. Multi-select (Ctrl+Click) and move the supports in unison with the clamp. Then enable supports on the build plate only - don't fill the telescoping slot.
 
 ![separating the left half and right half, including manual supports on joycon rail](/images/print-guide/split4.png)
 
-# Manual horizontal supports 
+## Manual horizontal supports 
 
 Manual supports are used for some overhangs to prevent sagging. Cut away with a craft knife or sharp box cutter. Theses are shown as thin translucent walls in OpenSCAD:
 

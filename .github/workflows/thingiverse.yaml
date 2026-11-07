@@ -1,0 +1,123 @@
+name: Sync Thingiverse
+
+# Published GitHub Releases replace the 3mf files on thing 4809828:
+#   https://www.thingiverse.com/thing:4809828
+# Drafts do not trigger this job.
+#
+# One-time GitHub setup:
+# 1. Settings > Environments > New environment: thingiverse
+# 2. Environment secret THINGIVERSE_TOKEN (Thingiverse OAuth access token)
+#    Create an app at https://www.thingiverse.com/apps
+#    Authorize:
+#      https://www.thingiverse.com/login/oauth/authorize?client_id=CLIENT_ID&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code
+#    Exchange the code:
+#      curl -X POST -d "client_id=...&client_secret=...&code=...&grant_type=authorization_code" \
+#        https://www.thingiverse.com/login/oauth/access_token
+# 3. First run: Actions > Sync Thingiverse > Run workflow, tag v0.5
+#
+# Local smoke test (dry-run):
+#   to .env add THINGIVERSE_TOKEN
+#   ./scripts/upload_thingiverse.sh --dry-run /path/to/3mfs notes.md
+#   or .tmp/test_thingiverse.sh /path/to/3mfs notes.md
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (leave blank for latest)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  THING_ID: "4809828"
+
+concurrency:
+  group: thingiverse
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    environment: thingiverse
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Resolve release tag
+        id: release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+          elif [ -n "${{ github.event.inputs.tag }}" ]; then
+            TAG="${{ github.event.inputs.tag }}"
+          else
+            TAG=$(gh api "repos/${{ github.repository }}/releases/latest" --jq .tag_name)
+          fi
+          if [ -z "$TAG" ] || [ "$TAG" = "null" ]; then
+            echo "Error: could not resolve release tag" >&2
+            exit 1
+          fi
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "Using release ${TAG}"
+
+      - name: Download 3MF assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.release.outputs.tag }}"
+          mkdir -p tv-upload
+          gh release download "${TAG}" \
+            --repo "${{ github.repository }}" \
+            --dir tv-upload \
+            --pattern '*.3mf'
+          count=$(find tv-upload -type f -name '*.3mf' | wc -l)
+          echo "Downloaded ${count} 3mf files from ${TAG}"
+          ls -lh tv-upload | head -n 30
+          if [ "${count}" -lt 1 ]; then
+            echo "Error: no .3mf assets downloaded from release ${TAG}" >&2
+            exit 1
+          fi
+
+      - name: Write release notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.release.outputs.tag }}"
+          gh release view "${TAG}" --repo "${{ github.repository }}" --json body --jq '.body // ""' > /tmp/tv-notes.md
+          wc -c /tmp/tv-notes.md
+
+      - name: Sync files to Thingiverse
+        env:
+          THINGIVERSE_TOKEN: ${{ secrets.THINGIVERSE_TOKEN }}
+          THING_ID: ${{ env.THING_ID }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          if [ -z "${THINGIVERSE_TOKEN:-}" ]; then
+            echo "Error: THINGIVERSE_TOKEN is not set on Environment thingiverse" >&2
+            exit 1
+          fi
+          chmod +x scripts/upload_thingiverse.sh
+          ./scripts/upload_thingiverse.sh tv-upload /tmp/tv-notes.md
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Thingiverse sync"
+            echo "**Release:** \`${{ steps.release.outputs.tag }}\`"
+            echo "**Thing:** https://www.thingiverse.com/thing:${{ env.THING_ID }}"
+            echo "**Files:** https://www.thingiverse.com/thing:${{ env.THING_ID }}/files"
+          } >> "$GITHUB_STEP_SUMMARY"

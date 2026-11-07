@@ -1,19 +1,31 @@
 title: Cuttlephone
-description: 3D printable phone cases
-logo: /images/website-logo.png
+tagline: 3D printable phone cases
+description: "3D printable phone cases with Joy-Con and Razer Junglecat rails. Download free 3D models or build your own with OpenSCAD generator"
+url: https://cuttlephone.com
+logo: /assets/images/sia-head-512.png
+# Default Open Graph / Twitter preview image for all pages
+defaults:
+  - scope:
+      path: ""
+    values:
+      image:
+        path: /assets/images/og-image.png
+        width: 1220
+        height: 811
+        alt: Cuttlephone 3D printable phone case with controller rails
 baseurl: 
 repository: SiloCityLabs/Cuttlephone
-models_url: /premade-models/
 guide_url: /guides/
 generator_guide_url: /generator-guide/
-github: [metadata]
 github:
   repository_url: https://github.com/SiloCityLabs/Cuttlephone
+# generated-models links
+release_download_url: https://github.com/SiloCityLabs/Cuttlephone/releases/latest/download/
 shop_url: https://shop.silocitylabs.com/collections/3d-prints/cuttlephone
 
 # theme and theme configuration
 # https://github.com/just-the-docs/just-the-docs
-remote_theme: just-the-docs/just-the-docs
+remote_theme: just-the-docs/just-the-docs@v0.12.0
 #theme: just-the-docs
 #color_scheme: "dark"
 search_enabled: true
@@ -28,6 +40,11 @@ callouts:
     title: Warning
     color: red
 
+sass:
+  quiet_deps: true # hide SASS deprecation warnings from the remote theme
+  sourcemap: never # only output the built CSS
+  # style: compressed # breaks docs/assets/css/just-the-docs-head-nav.css
+
 # need for block attributes: https://kramdown.gettalong.org/quickref.html#block-attributes
 markdown: kramdown
 kramdown:
@@ -37,7 +54,6 @@ kramdown:
 
 plugins:
 - jekyll-default-layout
-- jekyll-github-metadata
 - jekyll-mentions
 - jekyll-redirect-from
 - jekyll-sitemap

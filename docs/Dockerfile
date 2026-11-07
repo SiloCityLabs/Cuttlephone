@@ -1,21 +1,23 @@
-FROM starefossen/ruby-node:2-6-alpine
+FROM ruby:3.3-slim
 
-ENV GITHUB_GEM_VERSION 222
-ENV JSON_GEM_VERSION 2.5.1
-
-RUN apk --update add --virtual build_deps \
-    build-base ruby-dev libc-dev linux-headers \
-  && gem install --verbose --no-document \
-    json:${JSON_GEM_VERSION} \
-    github-pages:${GITHUB_GEM_VERSION} \
-    jekyll-github-metadata \
-    minitest \
-  && apk del build_deps \
-  && apk add git \
-  && mkdir -p /usr/src/app \
-  && rm -rf /usr/lib/ruby/gems/*/cache/*.gem
+# native gems need a compiler and headers
+# git is for jekyll-remote-theme
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    build-essential \
+    git \
+    libssl-dev \
+    pkg-config \
+    zlib1g-dev \
+  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/app
 
-EXPOSE 4000 80
-CMD jekyll serve -d /_site --watch --force_polling -H 0.0.0.0 -P 4000
+# Gemfile.lock is gitignored, so the image resolves its own
+COPY Gemfile ./
+RUN bundle install
+
+EXPOSE 4000
+
+# force_polling for file change events
+CMD ["bundle", "exec", "jekyll", "serve", "--host", "0.0.0.0", "--port", "4000", "--force_polling"]
