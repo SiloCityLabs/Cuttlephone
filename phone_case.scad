@@ -70,7 +70,7 @@ magsafe_face = "inside"; // [inside:inside (phone) face, outside:outside face]
 // cut the magsafe emboss deeper
 deep_emboss = false;
 // leave 2 layer of material
-deepest_emboss = 0.3;
+deepest_emboss = 0.30; // [ 0.05 : 0.01 : 0.4 ]
 // Qi wireless charger location. If you don't have wireless charging then magsafe can go anywhere
 magsafe_offset_from_center = -7.5; // [ -15 : 0.1 : 5 ]  // TODO: measuring "offset from center" sucks, find a hard reference point
 // metal thickness in Z direction
