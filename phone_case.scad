@@ -49,16 +49,18 @@ lanyard_chamfer = false;
 
 /* [emboss] */
 phone_model = "Sample case";
-emboss_size = "large"; // [logo, large, medium, small, very_small, none]
+emboss_size = "large"; // [large, medium, small, very_small, none]
 // Text rotation on the back wall. Use -90 for rotate_upright prints.
 emboss_rotate = 90; // [-90, 0, 90]
 //Check available fonts in the menu Help > Font List. Simple sans-serif fonts will print better.
 emboss_font = "Audiowide";
 font_size = 7.1; // 0.1
 small_font_size = 6.1; // 0.1
-emboss_logo = "logos/dude.svg";
+emboss_logo = false;
+emboss_logo_file = "logos/dude.svg";
 logo_x = 0.0; // 0.1
 logo_y = 0.0; // 0.1
+logo_scale = 1.00; // [ 0.05 : 0.01 : 1.50 ]
 // Which face to cut for text/logo
 emboss_face = "inside"; // [inside:inside (phone) face, outside:outside face]
 
@@ -68,7 +70,7 @@ magsafe_ring = false;
 // Which face to cut for MagSafe ring recess
 magsafe_face = "inside"; // [inside:inside (phone) face, outside:outside face]
 // cut the magsafe emboss deeper
-deep_emboss = false;
+deep_emboss = true;
 // leave 2 layer of material
 deepest_emboss = 0.30; // [ 0.05 : 0.01 : 0.4 ]
 // Qi wireless charger location. If you don't have wireless charging then magsafe can go anywhere
@@ -2423,66 +2425,59 @@ module emboss_linear_extrude() {
 *version_info_emboss();
 module version_info_emboss(){
     // unfortunately I can't easily check for collision in OpenSCAD. Geometry generation is separate from evaluation. Can't check if intersection() is blank or produces a result
-    draw_logo = !(speaker_grill); // if cuts interrupt the back plane, don't draw text/logo
-    font_kerning = 1.08;
-    if(emboss_size=="logo" && draw_logo) {
-        line_translate = 10.8;
-        logo_size_ratio = 0.85; //logo-to-body_width ratio
-        
-        //text
-        color(negativeColor)
-        translate([-30,-body_length/2+30,0])
-        emboss_linear_extrude() {
-            text(name, font=emboss_font, size=font_size, spacing=font_kerning);
-            translate([0,-line_translate*2,0])
-            text(phone_model, font=emboss_font, size=small_font_size, spacing=font_kerning);
-            translate([0,-line_translate,0])
-            text(version, font=emboss_font, size=small_font_size, spacing=font_kerning);
-        }
-        
-        //logo
-        color(negativeColor)
-        translate([0+logo_x,-body_length/2+70+logo_y,0])
-        emboss_linear_extrude()
-        resize([body_width*logo_size_ratio, 0, 0], auto=[false,true,false])
-        import(emboss_logo, center=true);
-        //scale() might have better performance than resize(). But resize() takes absolute size. scale() takes a ratio so I'd need to know the input size.
+    draw_emboss = !(speaker_grill); // if cuts interrupt the back plane, don't draw text/logo
+    if(emboss_size!="none" && draw_emboss) {
+        version_text_emboss();
     }
-    if(emboss_size!="logo" && emboss_size!="none" && draw_logo) {
-        // size only controls font scale / line spacing
-        e_font_size =
-            emboss_size=="large" ? font_size :
-            emboss_size=="medium" ? 6 :
-            /* small, very_small */ 4;
-        e_small_font_size =
-            emboss_size=="large" ? small_font_size :
-            emboss_size=="medium" ? 6 :
-            /* small, very_small */ 3;
-        line_translate = emboss_size=="large" ? 12 : e_font_size*2;
-        // rotation-dependent placement on the back wall
-        emboss_side_buffer = body_radius + e_font_size*1.5;
-        emboss_bottom_buffer = body_radius + e_font_size;
-        top_chop_buffer = (open_top_backchop) ? body_width-open_top_chop_ratio*body_width : 0;
-        split_buffer = (split_in_half) ? body_seam_width/2 : 0;
-        text_pos =
-            emboss_rotate == -90 ? // text near body seam, for rotate_upright split cases
-                [body_width/2 - emboss_side_buffer - top_chop_buffer, -split_buffer-e_font_size/3, 0]
-            : emboss_rotate == 90 ? // align to bottom-left
-                [-body_width/2 + emboss_side_buffer, -body_length/2 + emboss_bottom_buffer, 0]
-            : // else: upright on the back face
-                [-20, -body_length/2 + e_font_size*5.5, 0];
+    if(emboss_logo && draw_emboss) {
+        logo_emboss();
+    }
+}
 
-        color(negativeColor)
-        translate(text_pos)
-        rotate([0, 0, emboss_rotate])
-        emboss_linear_extrude() {
-            text(name, font=emboss_font, size=e_font_size, spacing=font_kerning);
-            translate([0,-line_translate,0])
-            text(version, font=emboss_font, size=e_small_font_size);
-            translate([0,-line_translate*2,0])
-            text(phone_model, font=emboss_font, size=e_small_font_size);
-        }
+module version_text_emboss(){
+    font_kerning = 1.08;
+    // size only controls font scale / line spacing
+    e_font_size =
+        emboss_size=="large" ? font_size :
+        emboss_size=="medium" ? 6 :
+        /* small, very_small */ 4;
+    e_small_font_size =
+        emboss_size=="large" ? small_font_size :
+        emboss_size=="medium" ? 6 :
+        /* small, very_small */ 3;
+    line_translate = emboss_size=="large" ? 12 : e_font_size*2;
+    // rotation-dependent placement on the back wall
+    emboss_side_buffer = body_radius + e_font_size*1.5;
+    emboss_bottom_buffer = body_radius + e_font_size;
+    top_chop_buffer = (open_top_backchop) ? body_width-open_top_chop_ratio*body_width : 0;
+    split_buffer = (split_in_half) ? body_seam_width/2 : 0;
+    text_pos =
+        emboss_rotate == -90 ? // text near body seam, for rotate_upright split cases
+            [body_width/2 - emboss_side_buffer - top_chop_buffer, -split_buffer-e_font_size/3, 0]
+        : emboss_rotate == 90 ? // align to bottom-left
+            [-body_width/2 + emboss_side_buffer, -body_length/2 + emboss_bottom_buffer, 0]
+        : // else: upright on the back face
+            [-20, -body_length/2 + e_font_size*5.5, 0];
+
+    color(negativeColor)
+    translate(text_pos)
+    rotate([0, 0, emboss_rotate])
+    emboss_linear_extrude() {
+        text(name, font=emboss_font, size=e_font_size, spacing=font_kerning);
+        translate([0,-line_translate,0])
+        text(version, font=emboss_font, size=e_small_font_size);
+        translate([0,-line_translate*2,0])
+        text(phone_model, font=emboss_font, size=e_small_font_size);
     }
+}
+
+module logo_emboss(){
+    logo_size_ratio = 0.85; // logo-to-body_width ratio
+    color(negativeColor)
+    translate([logo_x,-body_length/2+70+logo_y,0])
+    emboss_linear_extrude()
+    resize([body_width*logo_size_ratio*logo_scale, 0, 0], auto=[false,true,false])
+    import(emboss_logo_file, center=true);
 }
 
 // MagSafe / steel ring recess on the back wall
