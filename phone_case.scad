@@ -212,6 +212,10 @@ bottom_mic_offset_up = 0.1; // 0.1
 headphone_from_left_edge = 14.1; // 0.1
 headphone_on_top = false;
 headphone_on_bottom = false;
+// a ring around the headphone jack
+reinforce_headphone = false;
+reinforce_headphone_chamfer = false;
+reinforce_headphone_wide = false;
 // vertical offset
 headphone_z_offset = 0; // [-3 : 0.1 : 3]
 
@@ -604,6 +608,7 @@ module phone_case(){
         union() {
             phone_shell();
             lanyard_reinforce();
+            headphone_reinforce();
         }
         body();
         shell_cuts();
@@ -623,6 +628,7 @@ module gamepad(){
         union() {
             gamepad_shell();
             lanyard_reinforce();
+            headphone_reinforce();
         }
         body();
         cuts();
@@ -666,6 +672,7 @@ module joycon_rails(){
         union(){
             joycon_shell();
             lanyard_reinforce();
+            headphone_reinforce();
         }
         body();
         cuts();
@@ -685,6 +692,7 @@ module joycon2_rails(){
         union(){
             joycon2_shell();
             lanyard_reinforce();
+            headphone_reinforce();
         }
         body();
         cuts();
@@ -704,6 +712,7 @@ module junglecat_rails(){
         union(){
             junglecat_shell();
             lanyard_reinforce();
+            headphone_reinforce();
         }
         body();
         cuts();
@@ -1640,6 +1649,10 @@ module gamepad_faceplates(){
     }
 }
 
+//TODO: auto adjust smooth_edge_radius
+smooth_edge_buffer = 0.05;
+smooth_edge_radius = 0.5;
+smooth_edge_height = 0.1 + screen_lip;
 
 //translate([0,0,7]) screen_cut();
 module screen_cut(){
@@ -1658,18 +1671,16 @@ module screen_cut(){
     *translate([0,0,body_thickness/2])
     cuboid([body_width*1.2, body_length*1.2, 0.1], anchor=CENTER);
     
-    //TODO: auto adjust smooth_edge_radius
-    buffer = 0.05;
-    smooth_edge_radius = 0.5;
-    smooth_edge_height = 0.1 + screen_lip;
     // minimum size so function doesn't break, we could also simply disable
-    smooth_edge_height2 = (smooth_edge_height>smooth_edge_radius)?smooth_edge_height:smooth_edge_radius+buffer;
+    smooth_edge_height2 = (smooth_edge_height>smooth_edge_radius)?smooth_edge_height:smooth_edge_radius+smooth_edge_buffer;
     //smooths the edge
     color(negativeColor, 0.5)
-    translate([0, 0, body_thickness/2 - smooth_edge_height2 + screen_lip + buffer])
+    translate([0, 0, body_thickness/2 - smooth_edge_height2 + screen_lip + smooth_edge_buffer])
     offset_sweep( 
         round_rectangle, 
         height=smooth_edge_height2,
+        // TODO: try diff patterns
+        // https://github.com/BelfrySCAD/BOSL2/wiki/rounding.scad#functionmodule-offset_stroke
         top=os_circle(r=-smooth_edge_radius) //negative radius
      );
     
@@ -2403,6 +2414,57 @@ module headphone_cut(){
                 r1=headphone_radius_soft*1.4,
                 r2=headphone_radius_soft*0.95,
                 anchor=TOP
+                //,$fn=highFn // looks chunky in preview but OK in render
+            );
+        }
+    }
+}
+
+//headphone_reinforce();
+module headphone_reinforce(){
+    top_or_bottom = headphone_on_top? 1:-1;
+    reinf_r=5.6;
+    headphone_reinf_h = body_radius_top;
+    //headphone_reinf_h = body_length/2+case_thickness2-screen_length/2-smooth_edge_radius;
+    rounding = (headphone_reinf_h > reinf_r) ? headphone_reinf_h/2 :  1.0;
+    // align to edge of body
+    trans = [ -body_width/2+headphone_from_left_edge+1.7, top_or_bottom*body_length/2+case_thickness2, headphone_z_offset ];
+    color(additionColor, 0.4)
+    // soft case only
+    if ( reinforce_headphone && case_material2=="soft" && (headphone_on_top || headphone_on_bottom)) {
+        translate(trans)
+        // after rotate, +Z is into the body for both top and bottom
+        rotate([90*top_or_bottom,0,0])
+        scale([ 1 + ( reinforce_headphone_wide ? 0.2 : 0 ) ,1,1 ])
+        difference() {
+            // ring around the headphone jack
+            if(reinforce_headphone_chamfer) {
+                cyl(
+                    h=headphone_reinf_h,
+                    r1=reinf_r,
+                    r2=reinf_r,//*0.90,
+                    chamfer1=rounding*0.95,
+                    chamfer2=rounding*0.80,
+                    //chamfang=55,
+                    anchor=BOTTOM,
+                    $fn = 10
+                );
+            } else {
+                cyl(
+                    h=headphone_reinf_h,
+                    r1=reinf_r,
+                    r2=reinf_r,//*0.90,
+                    rounding1=rounding,
+                    rounding2=rounding ,
+                    anchor=BOTTOM
+                    ,$fn=highFn // looks chunky in preview but OK in render
+                );
+            }
+
+            // not on the bottom
+            cuboid(
+                [50,50,50],
+                anchor=BACK
             );
         }
     }
