@@ -4864,6 +4864,8 @@
       "phone_model": "Xperia 1 V",
       "rail_cut_tools": "false",
       "reinforce_headphone": "true",
+      "reinforce_headphone_chamfer": "true",
+      "reinforce_headphone_wide": "true",
       "render_quality": "quick",
       "right_button_1": "false",
       "right_button_1_from_top": "134.2",
