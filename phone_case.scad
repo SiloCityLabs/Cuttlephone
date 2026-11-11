@@ -212,6 +212,8 @@ bottom_mic_offset_up = 0.1; // 0.1
 headphone_from_left_edge = 14.1; // 0.1
 headphone_on_top = false;
 headphone_on_bottom = false;
+// a ring around the headphone jack
+reinforce_headphone = false;
 // vertical offset
 headphone_z_offset = 0; // [-3 : 0.1 : 3]
 
@@ -604,6 +606,7 @@ module phone_case(){
         union() {
             phone_shell();
             lanyard_reinforce();
+            headphone_reinforce();
         }
         body();
         shell_cuts();
@@ -623,6 +626,7 @@ module gamepad(){
         union() {
             gamepad_shell();
             lanyard_reinforce();
+            headphone_reinforce();
         }
         body();
         cuts();
@@ -666,6 +670,7 @@ module joycon_rails(){
         union(){
             joycon_shell();
             lanyard_reinforce();
+            headphone_reinforce();
         }
         body();
         cuts();
@@ -685,6 +690,7 @@ module joycon2_rails(){
         union(){
             joycon2_shell();
             lanyard_reinforce();
+            headphone_reinforce();
         }
         body();
         cuts();
@@ -704,6 +710,7 @@ module junglecat_rails(){
         union(){
             junglecat_shell();
             lanyard_reinforce();
+            headphone_reinforce();
         }
         body();
         cuts();
@@ -2403,6 +2410,42 @@ module headphone_cut(){
                 r1=headphone_radius_soft*1.4,
                 r2=headphone_radius_soft*0.95,
                 anchor=TOP
+                //,$fn=highFn // looks chunky in preview but OK in render
+            );
+        }
+    }
+}
+
+headphone_reinforce();
+module headphone_reinforce(){
+    top_or_bottom = headphone_on_top? 1:-1;
+    or=5.6;
+    ir=3.8;
+    headphone_reinf_h = body_radius_top;
+    rounding = (headphone_reinf_h>ir) ? headphone_reinf_h/2 :  0.8;
+    // align to edge of body - body_radius
+    trans = [ -body_width/2+headphone_from_left_edge+1.7, top_or_bottom*body_length/2+case_thickness2, headphone_z_offset ];
+    color(additionColor, 0.4)
+    // soft case only
+    if ( reinforce_headphone && case_material2=="soft" && (headphone_on_top || headphone_on_bottom)) {
+        translate(trans)
+        // after rotate, +Z is into the body for both top and bottom
+        rotate([90*top_or_bottom,0,0])
+        difference() {
+            // ring around the headphone jack
+            tube(
+                h=headphone_reinf_h,
+                or=or,
+                ir=ir,
+                rounding=rounding,
+                anchor=BOTTOM
+                //,$fn=highFn // looks chunky in preview but OK in render
+            );
+
+            // not on the bottom
+            cuboid(
+                [50,50,50],
+                anchor=BACK
             );
         }
     }
